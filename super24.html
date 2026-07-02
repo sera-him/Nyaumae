@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>超级24点游戏 | Super 24 Point</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans SC', 'Segoe UI', system-ui, sans-serif; background: hsl(270, 50%, 3%); min-height: 100vh; color: #e0e0e0; padding: 0; }
+
+.container { max-width: 900px; margin: 0 auto; }
+h1 { text-align: center; font-size: 2.5em; margin-bottom: 10px; background: linear-gradient(90deg, #00d4ff, #7b2cbf); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { text-align: center; color: #8892b0; margin-bottom: 30px; font-size: 1.1em; }
+.panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+.panel-title { font-size: 1.3em; margin-bottom: 16px; color: #00d4ff; display: flex; align-items: center; gap: 8px; }
+.target-display { text-align: center; font-size: 2.2em; font-weight: bold; color: #ffcc00; margin: 15px 0; padding: 15px; background: rgba(255,204,0,0.1); border-radius: 12px; border: 1px solid rgba(255,204,0,0.3); word-break: break-all; }
+.numbers-display { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+.number-card { width: 65px; height: 65px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.6em; font-weight: bold; box-shadow: 0 8px 32px rgba(102,126,234,0.3); transition: transform 0.3s, box-shadow 0.3s; cursor: default; }
+.number-card:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 12px 40px rgba(102,126,234,0.5); }
+.input-group { display: flex; gap: 10px; margin: 20px 0; }
+#exprInput { flex: 1; padding: 14px 20px; font-size: 1.2em; border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; background: rgba(0,0,0,0.2); color: #fff; outline: none; transition: border-color 0.3s; }
+#exprInput:focus { border-color: #00d4ff; }
+#exprInput::placeholder { color: #555; }
+.btn { padding: 14px 28px; font-size: 1.1em; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-weight: bold; }
+.btn-primary { background: linear-gradient(135deg, #00d4ff, #7b2cbf); color: white; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,212,255,0.4); }
+.btn-secondary { background: rgba(255,255,255,0.1); color: #ccc; }
+.btn-secondary:hover { background: rgba(255,255,255,0.2); }
+.btn-symbol { padding: 10px 18px; font-size: 1.2em; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: #00d4ff; border-radius: 10px; cursor: pointer; transition: all 0.2s; font-weight: bold; }
+.btn-symbol:hover { background: rgba(0,212,255,0.25); transform: translateY(-2px); }
+.result-box { padding: 16px; border-radius: 12px; margin-top: 16px; font-size: 1.1em; line-height: 1.6; display: none; }
+.result-success { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); color: #00ff88; }
+.result-error { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); color: #ff4444; }
+.result-info { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: #00d4ff; }
+.score-display { font-size: 3em; font-weight: bold; text-align: center; margin: 10px 0; }
+.history-list { max-height: 300px; overflow-y: auto; }
+.history-item { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+.history-item:last-child { border-bottom: none; }
+.history-expr { font-family: "Courier New", monospace; color: #ccd6f6; }
+.history-score { font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 0.9em; }
+.score-high { background: rgba(0,255,136,0.2); color: #00ff88; }
+.score-mid { background: rgba(255,204,0,0.2); color: #ffcc00; }
+.score-low { background: rgba(255,68,68,0.2); color: #ff4444; }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+.symbol-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+.difficulty-selector { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+.diff-btn { padding: 8px 16px; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; background: rgba(0,0,0,0.2); color: #aaa; cursor: pointer; transition: all 0.3s; font-size: 0.95em; }
+.diff-btn.active { border-color: #00d4ff; color: #00d4ff; background: rgba(0,212,255,0.1); }
+.diff-btn:hover { border-color: #667eea; color: #fff; }
+.rules { font-size: 0.95em; line-height: 1.8; color: #8892b0; }
+.rules code { background: rgba(0,212,255,0.1); padding: 2px 8px; border-radius: 4px; color: #00d4ff; font-family: "Courier New", monospace; }
+.progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin: 10px 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #00d4ff, #00ff88); border-radius: 4px; transition: width 0.5s ease; }
+.hidden-answer { display: none; background: rgba(123,44,191,0.2); border: 1px solid #7b2cbf; padding: 12px; border-radius: 8px; margin-top: 10px; font-family: monospace; word-break: break-all; }
+@media (max-width: 600px) { h1 { font-size: 1.8em; } .number-card { width: 50px; height: 50px; font-size: 1.3em; } .input-group { flex-direction: column; } .btn { width: 100%; } .target-display { font-size: 1.5em; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>超级24点游戏</h1>
+<p class="subtitle">Super 24 Point — 超越极限的数学挑战</p>
+<div class="panel">
+<div class="panel-title">🎮 难度选择</div>
+<div class="difficulty-selector" id="diffSelector"></div>
+</div>
+<div class="panel">
+<div class="panel-title">🎯 当前挑战</div>
+<div class="target-display" id="targetDisplay">目标值: --</div>
+<div class="numbers-display" id="numbersDisplay"></div>
+<div class="symbol-bar">
+<button class="btn-symbol" onclick="insertSymbol('√')" title="插入根号">√</button>
+<button class="btn-symbol" onclick="insertSymbol('^')" title="插入幂次">^</button>
+<button class="btn-symbol" onclick="insertSymbol('!')" title="插入阶乘">!</button>
+<button class="btn-symbol" onclick="insertSymbol('(')" title="插入左括号">(</button>
+<button class="btn-symbol" onclick="insertSymbol(')')" title="插入右括号">)</button>
+<button class="btn-symbol" onclick="insertSymbol('sqrt(')" title="插入sqrt函数">sqrt</button>
+</div>
+<div class="input-group">
+<input type="text" id="exprInput" placeholder="输入表达式，如: 3^3+√(4!)">
+<button class="btn btn-primary" onclick="submitExpr()">提交</button>
+</div>
+<div class="controls">
+<button class="btn btn-secondary" onclick="showAnswer()">👁️ 查看答案</button>
+<button class="btn btn-secondary" onclick="newGame()">🔄 新游戏</button>
+</div>
+<div class="result-box" id="resultBox"></div>
+<div class="hidden-answer" id="hiddenAnswer"></div>
+</div>
+<div class="panel">
+<div class="panel-title">📊 得分</div>
+<div class="score-display" id="scoreDisplay">--</div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+</div>
+<div class="panel">
+<div class="panel-title">📜 历史记录</div>
+<div class="history-list" id="historyList"></div>
+</div>
+<div class="panel">
+<div class="panel-title">📖 游戏规则</div>
+<div class="rules">
+<p>1. 系统给出 <strong>N 个数字</strong>（N 由难度决定：3~42）</p>
+<p>2. <strong>目标值已显示</strong>，你需要用这 N 个数字构造表达式使结果接近目标</p>
+<p>3. 可用运算符：<code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>( )</code> <code>√</code> <code>sqrt(x)</code> <code>!</code> <code>^</code></p>
+<p>4. 点击上方蓝色按钮可快速插入符号（支持复制粘贴）</p>
+<p>5. 必须<strong>恰好使用</strong>给定的 N 个数字各一次</p>
+<p>6. 阶乘仅对<strong>非负整数</strong>有效</p>
+<p>7. 根号内不能为负数，可用 <code>√x</code> 或 <code>sqrt(x)</code></p>
+<p>8. 支持<strong>无理数</strong>答案（如 √2、√3+1 等），按浮点精度评分</p>
+<p>9. 数值范围：指数位最大支持 10^10000</p>
+</div>
+</div>
+</div>
+
+<script>
+const MAX_EXP = 10n ** 10000n;
+
+function pow10(superNum) {
+  if (superNum.type === 'ZERO') return new SuperNumber('NORMAL', 1, 1, 0n);
+  if (superNum.type === 'INF') return new SuperNumber('INF', superNum.sign > 0 ? 1 : -1);
+  if (superNum.type === 'INVALID') return superNum;
+  
+  // FIX: 支持负指数  10^(-x) = 1 / 10^x
+  if (superNum.sign < 0) {
+    const positive = superNum.neg();
+    const result = pow10(positive);
+    if (result.type === 'INVALID' || result.type === 'ZERO') return SuperNumber.invalid('10的负数次幂导致除以零');
+    return (new SuperNumber('NORMAL', 1, 1, 0n)).div(result);
+  }
+  
+  if (superNum.exponent <= 0n) {
+    const val = superNum.toNumber();
+    if (!isFinite(val)) return SuperNumber.invalid('非法指数');
+    return SuperNumber.fromNumber(10 ** val);
+  }
+  
+  if (superNum.exponent >= 15n) {
+    const mantissaStr = superNum.mantissa.toPrecision(15).replace('.', '');
+    const leadingDigits = BigInt(mantissaStr);
+    const expAdj = BigInt(mantissaStr.length - 1);
+    const intPart = leadingDigits * (10n ** (superNum.exponent - expAdj));
+    if (intPart > MAX_EXP) return new SuperNumber('INF', 1);
+    return new SuperNumber('NORMAL', 1, 1, intPart);
+  }
+  
+  const val = superNum.toNumber();
+  const intPart = BigInt(Math.floor(val));
+  const frac = val - Number(intPart);
+  const mant = 10 ** frac;
+  return new SuperNumber('NORMAL', 1, mant, intPart);
+}
+
+class SuperNumber {
+  constructor(type, sign = 1, mantissa = 1, exponent = 0n, invalidReason = "") {
+    this.type = type;
+    this.sign = sign;
+    this.mantissa = mantissa;
+    this.exponent = exponent;
+    this.invalidReason = invalidReason;
+    if (type === 'NORMAL') this.normalize();
+  }
+  
+  static fromNumber(n) {
+    if (!isFinite(n)) {
+      if (n === Infinity) return new SuperNumber('INF', 1);
+      if (n === -Infinity) return new SuperNumber('INF', -1);
+      return SuperNumber.invalid('NaN');
+    }
+    if (n === 0) return new SuperNumber('ZERO');
+    const sign = n < 0 ? -1 : 1;
+    const absN = Math.abs(n);
+    const log10 = Math.log10(absN);
+    const exp = BigInt(Math.floor(log10));
+    const mant = absN / (10 ** Number(exp));
+    return new SuperNumber('NORMAL', sign, mant, exp);
+  }
+  
+  static fromBigInt(n) {
+    if (n === 0n) return new SuperNumber('ZERO');
+    const sign = n < 0n ? -1 : 1;
+    const absN = n < 0n ? -n : n;
+    const str = absN.toString();
+    const len = str.length;
+    const digits = str.slice(0, 15);
+    const mant = parseFloat(digits) / (10 ** (digits.length - 1));
+    const exp = BigInt(len - 1);
+    return new SuperNumber('NORMAL', sign, mant, exp);
+  }
+  
+  // FIX Bug 1 & 3: normalize 原地修改 this，正确处理 Infinity/NaN/Zero
+  normalize() {
+    if (this.type !== 'NORMAL') return this;
+    
+    if (!isFinite(this.mantissa)) {
+      if (this.mantissa === Infinity || this.mantissa === -Infinity) {
+        this.type = 'INF';
+        this.sign = this.mantissa > 0 ? 1 : -1;
+        this.mantissa = 1;
+        this.exponent = 0n;
+      } else {
+        this.type = 'INVALID';
+        this.invalidReason = '非法数值 (NaN)';
+      }
+      return this;
+    }
+    
+    if (this.mantissa === 0) {
+      this.type = 'ZERO';
+      this.sign = 1;
+      this.mantissa = 1;
+      this.exponent = 0n;
+      return this;
+    }
+    
+    if (this.mantissa < 0) {
+      this.sign = -this.sign;
+      this.mantissa = -this.mantissa;
+    }
+    const log10 = Math.log10(this.mantissa);
+    if (!isFinite(log10)) {
+      this.type = 'INVALID';
+      this.invalidReason = '非法数值';
+      return this;
+    }
+    const adj = Math.floor(log10);
+    if (adj !== 0) {
+      this.mantissa /= 10 ** adj;
+      this.exponent += BigInt(adj);
+    }
+    if (this.exponent > MAX_EXP) {
+      this.type = 'INF';
+      this.sign = this.sign > 0 ? 1 : -1;
+      this.mantissa = 1;
+      this.exponent = 0n;
+      return this;
+    }
+    if (this.exponent < -MAX_EXP) {
+      this.type = 'ZERO';
+      this.sign = 1;
+      this.mantissa = 1;
+      this.exponent = 0n;
+      return this;
+    }
+    // FIX: 循环确保 mantissa 严格落在 [1, 10)
+    while (this.mantissa >= 10) {
+      this.mantissa /= 10;
+      this.exponent += 1n;
+    }
+    while (this.mantissa < 1 && this.mantissa > 0) {
+      this.mantissa *= 10;
+      this.exponent -= 1n;
+    }
+    return this;
+  }
+  
+  toNumber() {
+    if (this.type === 'ZERO') return 0;
+    if (this.type === 'INF') return this.sign > 0 ? Infinity : -Infinity;
+    if (this.type === 'INVALID') return NaN;
+    const expNum = Number(this.exponent);
+    if (!isFinite(expNum) || expNum > 300 || expNum < -300) return this.sign > 0 ? Infinity : -Infinity;
+    return this.sign * this.mantissa * (10 ** expNum);
+  }
+  
+  display() {
+    if (this.type === 'ZERO') return '0';
+    if (this.type === 'INF') return this.sign > 0 ? '∞' : '-∞';
+    if (this.type === 'INVALID') return `错误: ${this.invalidReason}`;
+    
+    const expNum = Number(this.exponent);
+    if (this.exponent >= -6n && this.exponent <= 15n && isFinite(expNum)) {
+      const val = this.toNumber();
+      if (isFinite(val)) {
+        let str = Math.abs(val).toPrecision(12);
+        str = str.replace(/\.?0+(?=$|e)/, '');
+        str = str.replace(/(?<=\.\d+)0+(?=$|e)/, '');
+        if (!str.includes('e')) return (this.sign < 0 ? '-' : '') + str;
+      }
+    }
+    return `${this.sign < 0 ? '-' : ''}${this.mantissa.toPrecision(6)}×10^${this.exponent.toString()}`;
+  }
+  
+  static invalid(reason) {
+    return new SuperNumber('INVALID', 1, 0, 0n, reason);
+  }
+  
+  isInteger() {
+    if (this.type === 'ZERO') return true;
+    if (this.type !== 'NORMAL') return false;
+    if (this.exponent < 0n) return false;
+    if (this.exponent === 0n) return Math.abs(this.mantissa - Math.round(this.mantissa)) < 1e-10;
+    const expNum = Number(this.exponent);
+    if (!isFinite(expNum)) return true;
+    if (expNum > 300) return true;
+    const val = this.mantissa * (10 ** expNum);
+    if (!isFinite(val)) return true;
+    return Math.abs(val - Math.round(val)) < 1e-10;
+  }
+  
+  toBigInt() {
+    if (this.type === 'ZERO') return 0n;
+    if (this.exponent < 0n) return 0n;
+    if (this.exponent === 0n) return BigInt(Math.round(this.mantissa));
+    const expNum = Number(this.exponent);
+    if (isFinite(expNum) && expNum < 20) {
+      const num = this.toNumber();
+      if (isFinite(num)) return BigInt(Math.round(num));
+    }
+    return 10n ** this.exponent;
+  }
+  
+  neg() {
+    if (this.type === 'ZERO') return this;
+    if (this.type === 'INF') return new SuperNumber('INF', -this.sign);
+    return new SuperNumber('NORMAL', -this.sign, this.mantissa, this.exponent);
+  }
+  
+  add(other) {
+    if (this.type === 'INVALID' || other.type === 'INVALID') return SuperNumber.invalid('运算中有非法值');
+    if (this.type === 'ZERO') return other;
+    if (other.type === 'ZERO') return this;
+    if (this.type === 'INF' || other.type === 'INF') {
+      if (this.type === 'INF' && other.type === 'INF' && this.sign !== other.sign)
+        return SuperNumber.invalid('正负无穷相加不确定');
+      return this.type === 'INF' ? this : other;
+    }
+    
+    const diff = this.exponent - other.exponent;
+    if (diff > 20n) return new SuperNumber('NORMAL', this.sign, this.mantissa, this.exponent);
+    if (diff < -20n) return new SuperNumber('NORMAL', other.sign, other.mantissa, other.exponent);
+    
+    const diffNum = Number(diff);
+    let a = this.sign * this.mantissa;
+    let b = other.sign * other.mantissa;
+    
+    if (diff > 0n) b *= 10 ** (-diffNum);
+    else if (diff < 0n) a *= 10 ** diffNum;
+    
+    const sum = a + b;
+    if (sum === 0) return new SuperNumber('ZERO');
+    return new SuperNumber('NORMAL', Math.sign(sum), Math.abs(sum), diff > 0n ? this.exponent : other.exponent);
+  }
+  
+  sub(other) { return this.add(other.neg()); }
+  
+  mul(other) {
+    if (this.type === 'INVALID' || other.type === 'INVALID') return SuperNumber.invalid('运算中有非法值');
+    if (this.type === 'ZERO' || other.type === 'ZERO') return new SuperNumber('ZERO');
+    if (this.type === 'INF' || other.type === 'INF') return new SuperNumber('INF', this.sign * other.sign);
+    return new SuperNumber('NORMAL', this.sign * other.sign, this.mantissa * other.mantissa, this.exponent + other.exponent);
+  }
+  
+  div(other) {
+    if (this.type === 'INVALID' || other.type === 'INVALID') return SuperNumber.invalid('运算中有非法值');
+    if (other.type === 'ZERO') return SuperNumber.invalid('除以零');
+    if (this.type === 'ZERO') return new SuperNumber('ZERO');
+    if (this.type === 'INF' && other.type === 'INF') return SuperNumber.invalid('无穷除以无穷不确定');
+    if (this.type === 'INF') return this;
+    if (other.type === 'INF') return new SuperNumber('ZERO');
+    return new SuperNumber('NORMAL', this.sign * other.sign, this.mantissa / other.mantissa, this.exponent - other.exponent);
+  }
+  
+  pow(other) {
+    if (this.type === 'INVALID' || other.type === 'INVALID') return SuperNumber.invalid('运算中有非法值');
+    if (other.type === 'ZERO') return new SuperNumber('NORMAL', 1, 1, 0n);
+    if (this.type === 'ZERO') {
+      if (other.sign < 0) return SuperNumber.invalid('0的负数次幂');
+      return new SuperNumber('ZERO');
+    }
+    if (this.type === 'INF') {
+      if (other.sign < 0) return new SuperNumber('ZERO');
+      return new SuperNumber('INF', this.sign > 0 ? 1 : -1);
+    }
+    if (this.sign < 0 && !other.isInteger()) return SuperNumber.invalid('负数的非整数次幂');
+    
+    if (other.isInteger()) {
+      // FIX Bug 4: 防止超大整数指数溢出为 Infinity
+      const bigN = other.toBigInt();
+      if (bigN > 9007199254740991n || bigN < -9007199254740991n) {
+        let log10a;
+        const expNum = Number(this.exponent);
+        if (isFinite(expNum) && Math.abs(expNum) < 1000) {
+          log10a = SuperNumber.fromNumber(Math.log10(this.mantissa) + expNum);
+        } else {
+          log10a = new SuperNumber('NORMAL', 1, 1, this.exponent);
+        }
+        const resultLog10 = log10a.mul(other);
+        return pow10(resultLog10);
+      }
+      const n = Number(bigN);
+      const sign = (n % 2 === 0) ? 1 : this.sign;
+      const mant = this.mantissa ** n;
+      const exp = this.exponent * BigInt(n);
+      return new SuperNumber('NORMAL', sign, mant, exp);
+    }
+    
+    let log10a;
+    const expNum = Number(this.exponent);
+    if (isFinite(expNum) && Math.abs(expNum) < 1000) {
+      log10a = SuperNumber.fromNumber(Math.log10(this.mantissa) + expNum);
+    } else {
+      log10a = new SuperNumber('NORMAL', 1, 1, this.exponent);
+    }
+    
+    const resultLog10 = log10a.mul(other);
+    return pow10(resultLog10);
+  }
+  
+  factorial() {
+    if (this.type === 'INVALID') return this;
+    if (this.type === 'INF') return new SuperNumber('INF', 1);
+    if (this.type === 'ZERO') return new SuperNumber('NORMAL', 1, 1, 0n);
+    if (this.sign < 0) return SuperNumber.invalid('负数阶乘');
+    if (!this.isInteger()) return SuperNumber.invalid('阶乘仅对非负整数有效');
+    
+    if (this.exponent === 0n) {
+      const n = Math.round(this.mantissa);
+      if (n <= 10000) {
+        let result = 1n;
+        for (let i = 2n; i <= BigInt(n); i++) result *= i;
+        return SuperNumber.fromBigInt(result);
+      }
+      const log10N = Math.log10(n);
+      const mainTerm = n * (log10N - Math.LOG10E);
+      const corrTerm = 0.5 * Math.log10(2 * Math.PI * n);
+      return pow10(SuperNumber.fromNumber(mainTerm + corrTerm));
+    }
+    
+    const expNum = Number(this.exponent);
+    if (!isFinite(expNum)) return new SuperNumber('INF', 1);
+    
+    const log10N = Math.log10(this.mantissa) + expNum;
+    const factor = log10N - Math.LOG10E;
+    const mainMant = this.mantissa * factor;
+    const mainTerm = new SuperNumber('NORMAL', mainMant < 0 ? -1 : 1, Math.abs(mainMant), this.exponent);
+    const corr = 0.5 * (Math.log10(2 * Math.PI * this.mantissa) + expNum);
+    const log10Fact = mainTerm.add(SuperNumber.fromNumber(corr));
+    return pow10(log10Fact);
+  }
+  
+  sqrt() {
+    if (this.type === 'INVALID') return this;
+    if (this.type === 'ZERO') return new SuperNumber('ZERO');
+    if (this.sign < 0) return SuperNumber.invalid('负数的平方根');
+    if (this.type === 'INF') return new SuperNumber('INF', 1);
+    
+    let mant = Math.sqrt(this.mantissa);
+    let exp = this.exponent;
+    if (exp % 2n !== 0n) {
+      mant *= Math.sqrt(10);
+      exp -= 1n;
+    }
+    exp /= 2n;
+    return new SuperNumber('NORMAL', 1, mant, exp);
+  }
+}
+
+class ExpressionParser {
+  constructor(text) {
+    this.text = text.replace(/\s/g, '');
+    this.pos = 0;
+  }
+  
+  parse() {
+    const result = this.expr();
+    if (this.pos < this.text.length) throw new Error(`解析错误：位置 ${this.pos} 处有多余字符"${this.text.slice(this.pos)}"`);
+    return result;
+  }
+  
+  peek() { return this.pos < this.text.length ? this.text[this.pos] : '\0'; }
+  consume() { return this.text[this.pos++]; }
+  match(ch) { if (this.peek() === ch) { this.pos++; return true; } return false; }
+  matchString(str) {
+    if (this.text.slice(this.pos, this.pos + str.length) === str) {
+      this.pos += str.length;
+      return true;
+    }
+    return false;
+  }
+  
+  expr() { return this.addSub(); }
+  
+  addSub() {
+    let left = this.mulDiv();
+    while (true) {
+      if (this.match('+')) left = left.add(this.mulDiv());
+      else if (this.match('-')) left = left.sub(this.mulDiv());
+      else break;
+    }
+    return left;
+  }
+  
+  mulDiv() {
+    let left = this.power();
+    while (true) {
+      if (this.match('*') || this.match('×')) left = left.mul(this.power());
+      else if (this.match('/') || this.match('÷')) left = left.div(this.power());
+      else break;
+    }
+    return left;
+  }
+  
+  power() {
+    let left = this.unary();
+    if (this.match('^')) {
+      const right = this.power();
+      left = left.pow(right);
+    }
+    return left;
+  }
+  
+  unary() {
+    if (this.match('√')) return this.unary().sqrt();
+    if (this.matchString('sqrt(')) {
+      const val = this.expr();
+      if (!this.match(')')) throw new Error(`位置 ${this.pos}: sqrt 缺少右括号`);
+      return val.sqrt();
+    }
+    if (this.match('-')) return this.unary().neg();
+    return this.postfix();
+  }
+  
+  postfix() {
+    let val = this.primary();
+    while (this.match('!')) val = val.factorial();
+    return val;
+  }
+  
+  primary() {
+    const ch = this.peek();
+    if (ch === '(') {
+      this.consume();
+      const val = this.expr();
+      if (!this.match(')')) throw new Error(`位置 ${this.pos}: 缺少右括号`);
+      return val;
+    }
+    if (ch >= '0' && ch <= '9') return this.number();
+    throw new Error(`位置 ${this.pos}: 意外的字符"${ch}"`);
+  }
+  
+  number() {
+    const start = this.pos;
+    while (this.peek() >= '0' && this.peek() <= '9') this.consume();
+    if (this.match('.')) {
+      while (this.peek() >= '0' && this.peek() <= '9') this.consume();
+    }
+    const numStr = this.text.slice(start, this.pos);
+    const num = parseFloat(numStr);
+    if (!isFinite(num)) throw new Error(`位置 ${start}: 数字过大`);
+    return SuperNumber.fromNumber(num);
+  }
+}
+
+class TargetGenerator {
+  constructor(minNum = 1, maxNum = 20) {
+    this.minNum = minNum;
+    this.maxNum = maxNum;
+  }
+  
+  generateNumbers(count) {
+    return Array.from({length: count}, () => 
+      Math.floor(Math.random() * (this.maxNum - this.minNum + 1)) + this.minNum
+    );
+  }
+  
+  generateExpression(numbers) {
+    const nums = [...numbers];
+    for (let i = nums.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+    return this.buildExpr(nums);
+  }
+  
+  buildExpr(nums) {
+    if (nums.length === 1) {
+      let expr = nums[0].toString();
+      const r = Math.random();
+      if (r < 0.15 && nums[0] >= 0) {
+        expr = `√(${expr})`;
+      } else if (r < 0.25 && nums[0] >= 0 && nums[0] <= 6) {
+        expr += `!`;
+      }
+      return expr;
+    }
+    
+    const split = Math.floor(Math.random() * (nums.length - 1)) + 1;
+    const left = this.buildExpr(nums.slice(0, split));
+    const right = this.buildExpr(nums.slice(split));
+    
+    const ops = ['+', '-', '*', '/', '^'];
+    const weights = [25, 25, 20, 15, 15];
+    let total = weights.reduce((a, b) => a + b, 0);
+    let rnd = Math.random() * total;
+    let op = ops[0];
+    for (let i = 0; i < ops.length; i++) {
+      rnd -= weights[i];
+      if (rnd <= 0) { op = ops[i]; break; }
+    }
+    
+    // FIX Bug 5: 更鲁棒的除零保护
+    if (op === '/' && this.isZeroExpr(right)) op = '+';
+    
+    const parenProb = 0.3;
+    const needsParen = (str) => !/^\d+!?$/.test(str) && !/^√\(.+\)$/.test(str);
+    const l = Math.random() < parenProb && needsParen(left) ? `(${left})` : left;
+    const r = Math.random() < parenProb && needsParen(right) ? `(${right})` : right;
+    
+    return `${l}${op}${r}`;
+  }
+  
+  // 辅助方法：判断表达式是否恒为零
+  isZeroExpr(expr) {
+    if (expr === '0' || expr === '0!' || expr === '(0)' || expr === '√(0)' || expr === 'sqrt(0)') return true;
+    try {
+      const parser = new ExpressionParser(expr);
+      const result = parser.parse();
+      return result.type === 'ZERO';
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  generateTarget(numCount, maxAttempts = 1000) {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const numbers = this.generateNumbers(numCount);
+      const expr = this.generateExpression(numbers);
+      try {
+        const parser = new ExpressionParser(expr);
+        const result = parser.parse();
+        if (result.type !== 'INVALID' && result.type !== 'INF') {
+          const expNum = Number(result.exponent);
+          if (result.type === 'ZERO' || (isFinite(expNum) && Math.abs(expNum) < 100)) {
+            return { numbers, expr, target: result };
+          }
+        }
+      } catch (e) {}
+    }
+    const numbers = this.generateNumbers(numCount);
+    const expr = numbers.join('+');
+    const parser = new ExpressionParser(expr);
+    const target = parser.parse();
+    return { numbers, expr, target };
+  }
+}
+
+class Super24Game {
+  constructor() {
+    this.generator = new TargetGenerator();
+    this.numbers = [];
+    this.hiddenExpr = "";
+    this.target = null;
+    this.history = [];
+    this.difficulty = 8;
+  }
+  
+  newGame(numCount) {
+    this.difficulty = numCount || this.difficulty;
+    const result = this.generator.generateTarget(this.difficulty);
+    this.numbers = result.numbers;
+    this.hiddenExpr = result.expr;
+    this.target = result.target;
+    this.history = [];
+  }
+  
+  validateNumbers(playerExpr) {
+    const foundNumbers = [];
+    const expr = playerExpr.replace(/\s/g, '');
+    let i = 0;
+    while (i < expr.length) {
+      if (expr[i] >= '0' && expr[i] <= '9') {
+        let j = i;
+        while (j < expr.length && expr[j] >= '0' && expr[j] <= '9') j++;
+        const num = parseInt(expr.slice(i, j));
+        
+        // FIX Bug 2: 防止小数拼接作弊
+        const prev = i > 0 ? expr[i - 1] : '';
+        const next = j < expr.length ? expr[j] : '';
+        if (prev === '.' || next === '.') {
+          return { valid: false, msg: `不能使用小数点拼接数字（发现 ${num} 与小数点相邻）` };
+        }
+        
+        foundNumbers.push(num);
+        i = j;
+      } else {
+        i++;
+      }
+    }
+    
+    const expected = [...this.numbers].sort((a, b) => a - b);
+    const found = [...foundNumbers].sort((a, b) => a - b);
+    
+    if (expected.length !== found.length) {
+      return { valid: false, msg: `必须使用数字 [${this.numbers.join(', ')}] 各恰好一次，你使用了 [${foundNumbers.join(', ')}]（共 ${foundNumbers.length} 个，需 ${expected.length} 个）` };
+    }
+    
+    for (let k = 0; k < expected.length; k++) {
+      if (expected[k] !== found[k]) {
+        return { valid: false, msg: `必须使用数字 [${this.numbers.join(', ')}] 各恰好一次，你使用了 [${foundNumbers.join(', ')}]` };
+      }
+    }
+    return { valid: true };
+  }
+  
+  evaluate(playerExpr) {
+    const validation = this.validateNumbers(playerExpr);
+    if (!validation.valid) return { result: SuperNumber.invalid(validation.msg), error: validation.msg };
+    try {
+      const parser = new ExpressionParser(playerExpr);
+      const result = parser.parse();
+      return { result, error: "" };
+    } catch (e) {
+      return { result: SuperNumber.invalid(e.message), error: e.message };
+    }
+  }
+  
+  compare(player, target) {
+    if (target.type === 'ZERO') {
+      if (player.type === 'ZERO') return { score: 100, info: "🎉 完美！结果等于 0！100分！", perfect: true };
+      const pNum = player.toNumber();
+      if (!isFinite(pNum)) return { score: 0, info: "❌ 结果无效" };
+      const absDiff = Math.abs(pNum);
+      const score = Math.min(100, 100 * Math.exp(-5 * absDiff));
+      const rounded = Math.round(score * 1000) / 1000;
+      return { score: rounded, info: `目标: 0 | 你的结果: ${player.display()} | 绝对差值: ${absDiff.toPrecision(4)} | 得分: ${rounded.toFixed(3)}` };
+    }
+    
+    if (player.type === 'ZERO') {
+      const tNum = target.toNumber();
+      if (!isFinite(tNum) || tNum === 0) return { score: 0, info: "❌ 无法比较" };
+      const score = 100 * Math.exp(-5);
+      return { score: Math.round(score * 1000) / 1000, info: `💔 差太远了 | 目标: ${target.display()} | 你的结果: 0 | 得分: ${(100 * Math.exp(-5)).toFixed(3)}` };
+    }
+    
+    const tNum = target.toNumber();
+    const pNum = player.toNumber();
+    
+    if (isFinite(tNum) && isFinite(pNum) && Math.abs(tNum) > 1e-300) {
+      const relErr = Math.abs((pNum - tNum) / tNum);
+      const score = Math.min(100, 100 * Math.exp(-5 * relErr));
+      const rounded = Math.round(score * 1000) / 1000;
+      
+      if (rounded >= 100) return { score: 100, info: "🎉 完美！极其接近目标！100分！", perfect: true };
+      
+      let grade;
+      if (score >= 90) grade = "🌟 极接近！";
+      else if (score >= 70) grade = "✨ 很接近！";
+      else if (score >= 50) grade = "👍 还不错";
+      else if (score >= 20) grade = "😐 有点远";
+      else grade = "💔 差太远了";
+      
+      return { score: rounded, info: `${grade} | 目标: ${target.display()} | 你的结果: ${player.display()} | 相对误差: ${(relErr * 100).toPrecision(3)}% | 得分: ${rounded.toFixed(3)}` };
+    }
+    
+    const log10T = Math.log10(target.mantissa) + Number(target.exponent);
+    const log10P = Math.log10(player.mantissa) + Number(player.exponent);
+    
+    if (!isFinite(log10T) || !isFinite(log10P)) {
+      return { score: 0, info: "❌ 数值过大，无法比较" };
+    }
+    
+    const logDiff = Math.abs(log10T - log10P);
+    const score = Math.min(100, 100 * Math.exp(-0.5 * logDiff));
+    const rounded = Math.round(score * 1000) / 1000;
+    
+    let grade;
+    if (score >= 90) grade = "🌟 极接近（对数尺度）！";
+    else if (score >= 70) grade = "✨ 很接近（对数尺度）！";
+    else if (score >= 50) grade = "👍 还不错";
+    else if (score >= 20) grade = "😐 有点远";
+    else grade = "💔 差太远了";
+    
+    return { score: rounded, info: `${grade} | 目标: ${target.display()} | 你的结果: ${player.display()} | log10差值: ${logDiff.toPrecision(4)} | 得分: ${rounded.toFixed(3)}` };
+  }
+  
+  score(playerExpr) {
+    const { result, error } = this.evaluate(playerExpr);
+    if (error) return { score: 0, info: `❌ 表达式错误: ${error}`, result };
+    if (result.type === 'INVALID') return { score: 0, info: `❌ 非法结果: ${result.invalidReason}`, result };
+    if (result.type === 'INF') return { score: 0, info: "❌ 结果溢出（∞），得0分", result };
+    
+    const comparison = this.compare(result, this.target);
+    const { score, info, perfect } = comparison;
+    
+    this.history.push({ expr: playerExpr, score, result: result.display(), target: this.target.display() });
+    return { score, info, result, perfect };
+  }
+  
+  getHint() { return `目标值约为 ${this.target.display()}`; }
+}
+
+let game = new Super24Game();
+let showAnswerFlag = false;
+
+function setDifficulty(count) {
+  document.querySelectorAll(".diff-btn").forEach(btn => {
+    btn.classList.toggle("active", parseInt(btn.dataset.count) === count);
+  });
+  game.difficulty = count;
+  newGame();
+}
+
+function newGame() {
+  game.newGame();
+  showAnswerFlag = false;
+  const diffSelector = document.getElementById("diffSelector");
+  if (!diffSelector.innerHTML) {
+    for (let i = 3; i <= 42; i++) {
+      const btn = document.createElement("button");
+      btn.className = "diff-btn" + (i === game.difficulty ? " active" : "");
+      btn.dataset.count = i;
+      btn.textContent = `${i}个数字`;
+      btn.onclick = () => setDifficulty(i);
+      diffSelector.appendChild(btn);
+    }
+  } else {
+    document.querySelectorAll(".diff-btn").forEach(btn => {
+      btn.classList.toggle("active", parseInt(btn.dataset.count) === game.difficulty);
+    });
+  }
+  document.getElementById("numbersDisplay").innerHTML = game.numbers.map(n => 
+    `<div class="number-card">${n}</div>`).join("");
+  document.getElementById("targetDisplay").textContent = `目标值: ${game.target.display()}`;
+  document.getElementById("resultBox").style.display = "none";
+  document.getElementById("hiddenAnswer").style.display = "none";
+  document.getElementById("scoreDisplay").textContent = "--";
+  document.getElementById("progressFill").style.width = "0%";
+  document.getElementById("historyList").innerHTML = "";
+  document.getElementById("exprInput").value = "";
+  document.getElementById("exprInput").focus();
+}
+
+function insertSymbol(sym) {
+  const input = document.getElementById('exprInput');
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  const value = input.value;
+  input.value = value.slice(0, start) + sym + value.slice(end);
+  input.focus();
+  input.setSelectionRange(start + sym.length, start + sym.length);
+}
+
+function submitExpr() {
+  const expr = document.getElementById("exprInput").value.trim();
+  if (!expr) return;
+  const { score, info, result, perfect } = game.score(expr);
+  const resultBox = document.getElementById("resultBox");
+  resultBox.style.display = "block";
+  resultBox.className = "result-box " + (score >= 90 ? "result-success" : score > 0 ? "result-info" : "result-error");
+  resultBox.textContent = info;
+  document.getElementById("scoreDisplay").textContent = score.toFixed(3);
+  document.getElementById("progressFill").style.width = Math.min(score, 100) + "%";
+  updateHistory();
+  document.getElementById("exprInput").value = "";
+  document.getElementById("exprInput").focus();
+  if (perfect || score >= 100) {
+    setTimeout(() => { if (confirm("🎉 恭喜通关！再来一局？")) newGame(); }, 500);
+  }
+}
+
+function updateHistory() {
+  const historyList = document.getElementById("historyList");
+  historyList.innerHTML = game.history.map((h, i) => {
+    const scoreClass = h.score >= 70 ? "score-high" : h.score >= 30 ? "score-mid" : "score-low";
+    return `<div class="history-item"><span class="history-expr">${h.expr}</span><span class="history-score ${scoreClass}">${h.score.toFixed(3)}分</span></div>`;
+  }).reverse().join("");
+}
+
+function showAnswer() {
+  showAnswerFlag = !showAnswerFlag;
+  const answerDiv = document.getElementById("hiddenAnswer");
+  if (showAnswerFlag) {
+    answerDiv.style.display = "block";
+    answerDiv.innerHTML = `🔍 精确答案: ${game.hiddenExpr}<br>≈ ${game.target.display()}`;
+  } else {
+    answerDiv.style.display = "none";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => { newGame(); });
+document.getElementById("exprInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") submitExpr();
+});
+</script>
+</body>
+</html>
