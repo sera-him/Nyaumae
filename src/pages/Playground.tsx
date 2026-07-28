@@ -78,8 +78,8 @@ const games: GameEntry[] = [
     component: ThreeHoles,
   },
   {
-    id: 'fractal-echo', name: '分形回响',
-    desc: '32轮活体分形对决。三叉生长、碰撞剪枝与克隆回声，在二进制潮汐中争夺空间。',
+    id: 'fractal-echo', name: '递归回响',
+    desc: '用32次操作编写、攻击和重构无限递归程序。规则继承、祖先改写、克隆回声与尺度剪断。',
     category: 'games', icon: '❋', color: '#10b981',
     component: FractalEcho,
   },

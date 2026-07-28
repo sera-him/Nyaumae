@@ -55,7 +55,7 @@ const aliasMap: Record<string, string> = {
   '/playground/hell-maze': '/playground/games/hell-maze-vi',
   '/playground/three-holes': '/playground/games/cunning-rabbit',
   '/playground/cat-mouse-mystery': '/playground/rules/cat-mouse',
-  '/playground/fractal-war': '/playground/rules/fractal-echo',
+  '/playground/fractal-war': '/playground/games/fractal-echo',
   '/playground/neural': '/playground/rules/neural-clash',
   '/playground/quiz': '/playground/games/quiz',
   '/playground/problems': '/playground/games/quiz',

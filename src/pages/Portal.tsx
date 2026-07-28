@@ -27,7 +27,7 @@ const entries = [
   { id: 'stories', label: '叙事', en: 'Narratives', meta: '4 个长篇 · 24+ 碎片', icon: BookOpen, href: '/stories', desc: "《大人国的小女孩》、M/I/A's World、狐狸与企鹅、AGI 应许之地——四个长篇叙事宇宙，以及 24+ 诗歌碎片。从星界馆的午后到大人国的三十天，故事在时间流速错叠的角落里展开。" },
   { id: 'miia', label: '咪呀 mī yā', en: 'Inner Space', meta: 'FSIII 226 · 2017', icon: Heart, href: '/miia', desc: '内心独白、数学笔记与诗歌碎片。二年级生的集合论遐想、对存在的温柔质问、以及「只想被你看见然后被爱」的朴素愿望。FSIII 226，2017 年生，被定格在十四岁的投影与真实成长之间的涟漪。' },
   { id: 'fsiii', label: 'FSIII', en: 'Cognition Index', meta: '29 个意识体', icon: Cpu, href: '/math/fsiii', desc: '理性骨架——公式与数据的语言。29 个意识体的 FSIII 排名与评分，从 Damocles 的 1314 到林浅的 90，构成一套贯穿世界观的量化认知体系。各省均值、区域分布、层级划分尽在其中。' },
-  { id: 'playground', label: '游戏', en: 'Playground', meta: '规则 · 概率 · 谜题', icon: Gamepad2, href: '/playground', desc: '复合象棋——棋子、规则与毒化机制；技能井字棋——三连棋变体与技能对战；题目——谜题、QR 码与考核。在规则与概率的交界处，用游戏理解这个世界的底层逻辑。' },
+  { id: 'playground', label: '游戏', en: 'Playground', meta: '递归 · 规则 · 策略', icon: Gamepad2, href: '/playground', desc: '《递归回响》——用有限操作重构两株无限分形；复合象棋、技能井字棋与更多规则实验也汇聚于此。在规则、几何与概率的交界处，用游戏理解世界的底层逻辑。' },
 ];
 
 type Particle = { x: number; y: number; vx: number; vy: number; r: number; a: number; c: number[] };
@@ -156,7 +156,7 @@ export default function Portal() {
             <p className="portal-lead">一个由意识编织的<br />数字宇宙</p>
             <div className="portal-actions">
               <Link className="portal-primary" to="/characters">探索角色 <span>↗</span></Link>
-              <Link to="/stories">阅读故事 →</Link><Link to="/playground">进入游戏 →</Link>
+              <Link to="/stories">阅读故事 →</Link><Link to="/playground/games/fractal-echo">进入《递归回响》 →</Link>
             </div>
           </div>
           <aside className="portal-miia">
