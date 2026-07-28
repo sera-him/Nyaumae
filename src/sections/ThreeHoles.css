@@ -1,0 +1,450 @@
+.rabbit-game {
+  min-height: 70vh;
+  padding: clamp(1rem, 3vw, 2rem);
+  color: var(--nc-text, #eef4ff);
+  background:
+    radial-gradient(circle at 16% 8%, rgba(52, 211, 153, 0.08), transparent 34rem),
+    linear-gradient(145deg, rgba(6, 18, 27, 0.98), rgba(11, 22, 38, 0.98));
+}
+
+.rabbit-game--welcome {
+  display: grid;
+  place-items: center;
+}
+
+.rabbit-welcome {
+  width: min(100%, 34rem);
+  display: grid;
+  justify-items: center;
+  gap: 1.1rem;
+  text-align: center;
+}
+
+.rabbit-welcome h1,
+.rabbit-header h1 {
+  margin: 0;
+  font-weight: 760;
+  letter-spacing: -0.025em;
+}
+
+.rabbit-welcome h1 {
+  font-size: clamp(2rem, 7vw, 3.4rem);
+}
+
+.rabbit-welcome > p:not(.rabbit-kicker, .rabbit-error) {
+  margin: 0;
+  max-width: 31rem;
+  color: rgba(226, 232, 240, 0.72);
+  line-height: 1.75;
+}
+
+.rabbit-kicker {
+  margin: 0;
+  color: #6ee7b7;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.rabbit-field {
+  width: min(100%, 22rem);
+  display: grid;
+  gap: 0.45rem;
+  text-align: left;
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.78rem;
+}
+
+.rabbit-field select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
+  color: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.7rem;
+  background: #122231;
+}
+
+.rabbit-empty {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  color: rgba(226, 232, 240, 0.65);
+}
+
+.rabbit-empty strong {
+  color: #f8fafc;
+  font-size: 1.65rem;
+}
+
+.rabbit-primary-button,
+.rabbit-secondary-button,
+.rabbit-danger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.65rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.7rem;
+  font-weight: 700;
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.rabbit-primary-button {
+  color: #06251a;
+  background: #6ee7b7;
+}
+
+.rabbit-primary-button:hover {
+  background: #a7f3d0;
+}
+
+.rabbit-secondary-button {
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.58);
+}
+
+.rabbit-secondary-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.rabbit-secondary-button:hover {
+  border-color: rgba(167, 243, 208, 0.55);
+  background: rgba(30, 41, 59, 0.88);
+}
+
+.rabbit-danger-button {
+  width: 100%;
+  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.34);
+  background: rgba(127, 29, 29, 0.14);
+}
+
+.rabbit-danger-button:hover {
+  background: rgba(127, 29, 29, 0.28);
+}
+
+.rabbit-primary-button:active,
+.rabbit-secondary-button:active,
+.rabbit-danger-button:active {
+  transform: translateY(1px);
+}
+
+.rabbit-error {
+  margin: 0;
+  color: #fca5a5;
+}
+
+.rabbit-header {
+  max-width: 70rem;
+  margin: 0 auto 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.rabbit-header h1 {
+  margin-top: 0.2rem;
+  font-size: clamp(1.65rem, 4vw, 2.35rem);
+}
+
+.rabbit-header div > p:last-child {
+  margin: 0.25rem 0 0;
+  color: rgba(226, 232, 240, 0.64);
+  font-size: 0.82rem;
+}
+
+.rabbit-layout {
+  width: 100%;
+  max-width: 70rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 17.5rem;
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
+}
+
+.rabbit-board-panel {
+  min-width: 0;
+}
+
+.rabbit-board-scroll {
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0.4rem;
+  border-radius: 0.9rem;
+  background: rgba(2, 8, 15, 0.62);
+  scrollbar-color: rgba(110, 231, 183, 0.35) transparent;
+}
+
+.rabbit-board {
+  width: max-content;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(var(--rabbit-grid-size), var(--rabbit-cell-size));
+  touch-action: none;
+  user-select: none;
+}
+
+.rabbit-cell {
+  width: var(--rabbit-cell-size);
+  height: var(--rabbit-cell-size);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: rgba(248, 250, 252, 0.9);
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.045);
+  font-size: clamp(0.68rem, calc(var(--rabbit-cell-size) * 0.48), 1.15rem);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rabbit-cell:hover {
+  filter: brightness(1.26);
+  z-index: 1;
+}
+
+.rabbit-cell:disabled {
+  cursor: default;
+}
+
+.rabbit-cell:disabled:hover {
+  filter: none;
+}
+
+.rabbit-cell:focus-visible {
+  position: relative;
+  z-index: 2;
+  outline: 3px solid #fbbf24;
+  outline-offset: -3px;
+}
+
+.rabbit-cell--0 {
+  opacity: 0.72;
+}
+
+.rabbit-cell--1 {
+  opacity: 0.84;
+}
+
+.rabbit-cell--1 span {
+  opacity: 0.78;
+}
+
+.rabbit-cell--2 span {
+  width: 58%;
+  height: 58%;
+  display: grid;
+  place-items: center;
+  color: #fdf4dc;
+  border: 2px solid rgba(255, 255, 255, 0.88);
+  border-radius: 50%;
+  background: #7c2d12;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.42);
+  font-size: 0.48em;
+}
+
+.rabbit-cell--conflict span {
+  border-color: #fca5a5;
+  background: #991b1b;
+}
+
+.rabbit-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem 1.2rem;
+  margin-top: 0.9rem;
+  color: rgba(226, 232, 240, 0.66);
+  font-size: 0.75rem;
+}
+
+.rabbit-legend span {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.rabbit-legend i {
+  width: 1rem;
+  height: 1rem;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+}
+
+.rabbit-legend-empty {
+  border: 1px solid rgba(226, 232, 240, 0.35);
+  background: rgba(51, 65, 85, 0.72);
+}
+
+.rabbit-legend-hole {
+  color: #fde68a;
+  border-radius: 50%;
+  background: #7c2d12;
+  font-size: 0.52rem;
+}
+
+.rabbit-sidebar {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.rabbit-status {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+}
+
+.rabbit-status > div {
+  min-width: 0;
+  padding: 0.75rem 0.65rem;
+  border-bottom: 2px solid rgba(110, 231, 183, 0.38);
+  background: rgba(15, 30, 43, 0.7);
+}
+
+.rabbit-status span,
+.rabbit-status strong {
+  display: block;
+}
+
+.rabbit-status span {
+  color: rgba(226, 232, 240, 0.58);
+  font-size: 0.68rem;
+}
+
+.rabbit-status strong {
+  margin-top: 0.25rem;
+  color: #f8fafc;
+  font-size: 1.08rem;
+  white-space: nowrap;
+}
+
+.rabbit-status small {
+  color: rgba(226, 232, 240, 0.48);
+  font-size: 0.7rem;
+}
+
+.rabbit-notice,
+.rabbit-warning {
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border-left: 3px solid #6ee7b7;
+  color: rgba(226, 232, 240, 0.75);
+  background: rgba(6, 78, 59, 0.16);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.rabbit-warning {
+  border-left-color: #fca5a5;
+  background: rgba(127, 29, 29, 0.16);
+}
+
+.rabbit-progress,
+.rabbit-help {
+  padding: 0.9rem;
+  background: rgba(15, 30, 43, 0.58);
+}
+
+.rabbit-progress h2,
+.rabbit-help h2 {
+  margin: 0 0 0.65rem;
+  color: rgba(226, 232, 240, 0.65);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.rabbit-progress div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  color: rgba(226, 232, 240, 0.76);
+  border-top: 1px solid rgba(148, 163, 184, 0.11);
+  font-size: 0.8rem;
+}
+
+.rabbit-progress strong {
+  color: #a7f3d0;
+}
+
+.rabbit-help p {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.66);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.rabbit-result {
+  max-width: 70rem;
+  margin: 0 auto 1rem;
+  padding: 1rem 1.1rem;
+  border-left: 4px solid #fca5a5;
+  background: rgba(127, 29, 29, 0.14);
+}
+
+.rabbit-result--won {
+  border-left-color: #6ee7b7;
+  background: rgba(6, 78, 59, 0.18);
+}
+
+.rabbit-result h2 {
+  margin: 0.2rem 0;
+  font-size: 1.2rem;
+}
+
+.rabbit-result > p:last-child {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.68);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 850px) {
+  .rabbit-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rabbit-sidebar {
+    width: min(100%, 38rem);
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .rabbit-game {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .rabbit-header {
+    align-items: flex-start;
+  }
+
+  .rabbit-secondary-button {
+    padding-inline: 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .rabbit-board-scroll {
+    margin-inline: -0.25rem;
+  }
+
+  .rabbit-status > div {
+    padding-inline: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rabbit-primary-button,
+  .rabbit-secondary-button,
+  .rabbit-danger-button {
+    transition: none;
+  }
+}

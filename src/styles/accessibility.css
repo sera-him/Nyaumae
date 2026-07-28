@@ -1,0 +1,556 @@
+/* ==========================================================================
+   Accessibility — focus, motion, contrast, screen-reader, touch, scaling
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. FOCUS INDICATORS — visible on every interactive element
+   -------------------------------------------------------------------------- */
+
+/* Ensure absolutely everything interactive gets a visible focus ring */
+.aurora-ui :where(a, button, input, select, textarea, [tabindex]:not([tabindex='-1']),
+  [role='button'], [role='tab'], [role='link'], [role='menuitem'],
+  [role='radio'], [role='checkbox'], [role='switch'], [role='option'],
+  [role='listbox'] *:not([aria-hidden='true'])):focus-visible,
+.site-theme-shell :where(a, button, input, select, textarea, [tabindex]:not([tabindex='-1']),
+  [role='button'], [role='tab'], [role='link'], [role='menuitem'],
+  [role='radio'], [role='checkbox'], [role='switch'], [role='option'],
+  [role='listbox'] *:not([aria-hidden='true'])):focus-visible {
+  outline: 2px solid var(--aurora-accent, #a685ff);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(var(--aurora-accent-rgb, 166, 133, 255), 0.13);
+}
+
+/* Restore default focus for mouse users when :focus-visible is supported */
+.aurora-ui :where(a, button, input, select, textarea):focus:not(:focus-visible),
+.site-theme-shell :where(a, button, input, select, textarea):focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Links in running text — underline on focus for extra clarity */
+.aurora-ui a:focus-visible,
+.site-theme-shell a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   2. REDUCED MOTION — respects prefers-reduced-motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+  /* Kill all CSS animations, transitions, and scroll-behavior */
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* HTML root */
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* ---- Framer-motion / inline transitions ---- */
+  [style*='transition'] {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  [style*='animation'] {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+  }
+
+  /* ---- Canvas particle systems ---- */
+  .portal-particles,
+  .characters-star-field canvas,
+  canvas[class*='particle'],
+  canvas[class*='neural'] {
+    display: none !important;
+  }
+
+  /* ---- Hover lift effects (translateY) ---- */
+  .aurora-panel-interactive:hover,
+  .character-aurora-card:hover,
+  .story-aurora-card:hover,
+  .aurora-menu-links a:hover,
+  .aurora-button:hover,
+  .portal-entry:hover,
+  .playground-aurora-card:hover,
+  .api-aurora-card:hover,
+  .aurora-nav-search:hover,
+  .aurora-icon-button:hover,
+  .aurora-menu-button:hover {
+    transform: none !important;
+  }
+
+  /* ---- Background parallax (aurora-app-atmosphere) ---- */
+  .aurora-app-atmosphere {
+    opacity: 0.45;
+    transition: none !important;
+  }
+
+  /* ---- Carousel ---- */
+  .portal-carousel-shell[data-paused='false'] .portal-carousel > img {
+    animation: none;
+  }
+
+  .portal-carousel-shell .portal-count::after {
+    content: 'AUTO-PAUSED';
+    display: block;
+    margin-top: 5px;
+    color: var(--aurora-text-muted, #9589a3);
+    font-size: 7px;
+    letter-spacing: 0.13em;
+    text-align: right;
+  }
+
+  /* ---- Page transition / reveal animations ---- */
+  .portal-carousel > img,
+  [class*='portal-archive-reveal'],
+  [class*='fade-in'],
+  [class*='slide-up'] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* ---- Liquid / aurora decorative animations ---- */
+  .aurora-nav-inner::before,
+  .aurora-nav-inner::after,
+  .aurora-menu-shell::before,
+  .aurora-menu-shell::after,
+  .portal-hero-refraction::before,
+  .portal-hero-refraction::after {
+    animation: none !important;
+  }
+
+  /* ---- Footer particles ---- */
+  .aurora-footer-particles {
+    display: none;
+  }
+
+  /* ---- Hero atmosphere sweep ---- */
+  .portal-hero-refraction {
+    opacity: 0.25;
+  }
+
+  /* ---- Smooth scroll via JS (scrollIntoView) ---- */
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. HIGH CONTRAST MODE — WCAG AAA-friendly overrides
+   -------------------------------------------------------------------------- */
+
+@media (prefers-contrast: more) {
+
+  /* Increase border contrast */
+  .aurora-glass,
+  .aurora-panel,
+  .aurora-nav-inner,
+  .aurora-menu-shell,
+  .aurora-menu-group,
+  .portal-overview,
+  .portal-entry,
+  .character-aurora-card,
+  .story-aurora-card,
+  .playground-aurora-card,
+  .api-aurora-card,
+  .aurora-table-wrap,
+  .aurora-content-tabs {
+    border-color: rgba(255, 255, 255, 0.35) !important;
+  }
+
+  /* Ensure text meets WCAG AA (4.5:1 ratio) */
+  .aurora-text-muted,
+  .aurora-text-secondary,
+  .portal-carousel-status,
+  .portal-particle-hint,
+  .portal-kicker,
+  [class*='text-muted'],
+  [class*='text-secondary'] {
+    color: rgba(255, 255, 255, 0.78) !important;
+  }
+
+  /* Remove low-opacity text that's too light */
+  .aurora-menu-heading p,
+  .aurora-menu-index,
+  .aurora-menu-group small,
+  .aurora-hero-signal,
+  .portal-overview-index,
+  .portal-archive-divider {
+    color: rgba(255, 255, 255, 0.72) !important;
+  }
+
+  /* Keep gradient text readable by adding a solid fallback */
+  .aurora-title,
+  .portal-hero h1 span {
+    background: none !important;
+    -webkit-text-fill-color: var(--aurora-text, #f8f4ff) !important;
+    color: var(--aurora-text, #f8f4ff) !important;
+  }
+
+  /* Restore gradient tint back for low-vision users via forced border */
+  .portal-kicker {
+    color: var(--aurora-text, #f8f4ff) !important;
+    border-left: 3px solid var(--aurora-accent, #a685ff);
+    padding-left: 0.5rem;
+  }
+
+  /* Ensure links are underlined */
+  a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .aurora-primary-links a.is-active::after {
+    height: 3px;
+    background: var(--aurora-accent, #a685ff);
+  }
+
+  /* Increase contrast on glass surfaces */
+  .aurora-glass,
+  .aurora-reader-paper {
+    background: rgba(10, 8, 17, 0.95);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Make tab active state more visible */
+  .aurora-tab[aria-selected='true'],
+  .aurora-tab-active {
+    border: 2px solid var(--aurora-accent, #a685ff) !important;
+    box-shadow: none !important;
+  }
+
+  /* Increase contrast on fields */
+  .aurora-field {
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. SCREEN-READER UTILITIES
+   -------------------------------------------------------------------------- */
+
+/* Visually hidden but accessible to screen-readers */
+.sr-only,
+.visually-hidden,
+.screen-reader-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Show sr-only on focus (for skip links, etc.) */
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-visible {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+  border: inherit !important;
+}
+
+/* Ensure elements with aria-hidden="true" are not focusable */
+[aria-hidden='true'] {
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* Prevent focus on aria-hidden interactive children */
+[aria-hidden='true'] :where(a, button, input, select, textarea, [tabindex]) {
+  visibility: hidden !important;
+}
+
+/* Reduce motion icon for OS-level accessibility settings */
+@media (prefers-reduced-motion: reduce) {
+  .motion-icon {
+    display: none;
+  }
+  .reduced-motion-icon {
+    display: inline;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. TOUCH TARGETS — minimum 44x44px on touch devices
+   -------------------------------------------------------------------------- */
+
+@media (hover: none) and (pointer: coarse) {
+
+  /* Chapter buttons in StoryReader */
+  .story-reader-aurora button[role='tab'],
+  .story-chapter-bubble,
+  .story-chapter-process,
+  .story-chapter-index,
+  .story-chapter-terminal {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Tab buttons (generic) */
+  .aurora-tab,
+  [role='tab'] {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Search result items */
+  [role='option'],
+  [role='listbox'] a,
+  [role='listbox'] button {
+    min-height: 44px;
+    padding-block: 0.5rem;
+  }
+
+  /* Navigation links */
+  .aurora-primary-links a,
+  .aurora-menu-links a,
+  .aurora-brand {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Portal entry cards */
+  .portal-entry {
+    min-height: 44px;
+  }
+
+  /* Character card links */
+  .character-aurora-card {
+    min-height: 44px;
+  }
+
+  /* Story cards */
+  .story-aurora-card {
+    min-height: 44px;
+  }
+
+  /* Carousel thumb buttons */
+  .portal-thumbs button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Arrow buttons in carousel */
+  .portal-arrow {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Nav action buttons (search, music, menu) */
+  .aurora-nav-search,
+  .aurora-icon-button,
+  .aurora-menu-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Buttons in general */
+  .aurora-button,
+  button {
+    min-height: 44px;
+  }
+
+  /* Desktop-hover-only styles should not apply on touch */
+  .aurora-panel-interactive:hover {
+    transform: none;
+  }
+
+  .character-aurora-card:hover {
+    transform: none;
+  }
+
+  .story-aurora-card:hover {
+    transform: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. COLOR CONTRAST — non-color state indicators & text-over-image
+   -------------------------------------------------------------------------- */
+
+/* Ensure accent color is NEVER the ONLY indicator of state.
+   Active tabs get an underline + border indicator in addition to color. */
+.aurora-tab[aria-selected='true'],
+.aurora-tab-active,
+[role='tab'][aria-selected='true'] {
+  box-shadow: inset 0 -2px 0 var(--aurora-accent, #a685ff) !important;
+  font-weight: 600;
+}
+
+/* Active nav link underline (non-color) */
+.aurora-primary-links a.is-active {
+  font-weight: 600;
+}
+
+/* Active menu link — left border as additional indicator */
+.aurora-menu-links a.is-active {
+  border-left: 2px solid var(--aurora-accent, #a685ff);
+  padding-left: calc(0.65rem - 2px);
+}
+
+/* Focus ring already provides non-color indicator — see section 1 */
+
+/* Text over images — sufficient shadow/background for readability */
+figcaption,
+.portal-overview figcaption p,
+.portal-overview figcaption h3,
+.portal-overview figcaption > span,
+.story-cover-content h1,
+.story-cover-content p,
+.story-cover-content span {
+  text-shadow:
+    0 1px 6px rgba(0, 0, 0, 0.6),
+    0 2px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Carousel caption */
+.portal-caption h3,
+.portal-caption p,
+.portal-slide-meta span {
+  text-shadow:
+    0 1px 6px rgba(0, 0, 0, 0.6),
+    0 2px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Image overlay on story covers */
+.story-cover-overlay {
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}
+
+/* --------------------------------------------------------------------------
+   7. FONT SIZE SCALING — 200% zoom without layout breakage
+   -------------------------------------------------------------------------- */
+
+/* Prevent text from overflowing containers when scaled */
+* {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Ensure containers don't clip text at 200% zoom */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Minimum widths for flex children that might collapse */
+.aurora-hero-grid,
+.portal-hero-grid,
+.aurora-content-hero,
+.portal-entry-grid {
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+/* Prevent absolutely-sized text blocks from horizontal overflow */
+pre,
+code,
+kbd,
+samp {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Ensure buttons expand to fit text */
+button,
+.aurora-button,
+.aurora-tab,
+[role='tab'] {
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* Responsive containers should not hard-limit overflow */
+.aurora-container,
+.portal-hero-grid,
+.aurora-reading-width {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Grid children should not shrink below text width */
+.aurora-grid > *,
+.portal-entry-grid > *,
+.characters-aurora-grid > *,
+.aurora-menu-grid > *,
+.portal-hero-grid > * {
+  min-width: 0;
+}
+
+/* Tables should scroll instead of overflow */
+.aurora-table-wrap {
+  overflow-x: auto;
+}
+
+/* Prevent hero headings from breaking at 200% zoom */
+.portal-hero h1,
+.aurora-title {
+  word-break: break-word;
+}
+
+/* Ensure nav links don't overflow */
+.aurora-primary-links a {
+  white-space: normal;
+  text-align: center;
+}
+
+/* Carousel thumbs should wrap if needed */
+.portal-thumbs {
+  flex-wrap: wrap;
+}
+
+/* Story reader headings */
+.story-cover-title,
+.aurora-reader-heading h1 {
+  word-break: break-word;
+}
+
+/* Ensure images don't cause horizontal overflow */
+img,
+canvas,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 480px) {
+  .aurora-primary-links,
+  .aurora-nav-actions {
+    flex-wrap: wrap;
+  }
+}

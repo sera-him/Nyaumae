@@ -1,0 +1,634 @@
+/* =============================================
+   Story-specific visual themes
+   Per-story cover, chapter tabs, paper, nav, etc.
+   ============================================= */
+
+/* ── Story Cover ────────────────────────────── */
+.story-cover {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  overflow: hidden;
+  border-radius: var(--aurora-radius-lg);
+  margin-bottom: 2rem;
+  isolation: isolate;
+}
+
+.story-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.story-cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.4) 40%,
+    rgba(0, 0, 0, 0.1) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.story-cover-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem;
+  z-index: 1;
+}
+
+.story-cover-title {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.story-cover-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+.story-cover-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 0.6rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Bubble Chapter Tabs (ocean) ───────────── */
+.story-chapter-bubble {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(86, 232, 220, 0.2);
+  background: rgba(86, 232, 220, 0.06);
+  color: var(--site-theme-text-secondary, #c2e3e5);
+}
+
+.story-chapter-bubble[aria-selected='true'] {
+  border-color: rgba(86, 232, 220, 0.5);
+  background: rgba(86, 232, 220, 0.15);
+  color: var(--site-theme-text, #efffff);
+  box-shadow: 0 0 18px rgba(86, 232, 220, 0.15);
+}
+
+.story-chapter-bubble:hover {
+  border-color: rgba(86, 232, 220, 0.35);
+  background: rgba(86, 232, 220, 0.1);
+}
+
+.story-chapter-bubble:focus-visible {
+  outline: 2px solid rgba(86, 232, 220, 0.5);
+  outline-offset: 3px;
+}
+
+/* ── Process Chapter Tabs (zhenhai) ────────── */
+.story-process-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0.65rem;
+  border: 1px solid rgba(213, 154, 85, 0.12);
+  border-radius: var(--aurora-radius-md);
+  background: rgba(0, 0, 0, 0.18);
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+}
+
+.story-process-tabs::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.story-chapter-process {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--site-theme-text-muted, #988b79);
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.story-chapter-process::before {
+  content: attr(data-number);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 3px;
+  margin-right: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border: 1px solid rgba(213, 154, 85, 0.25);
+  background: rgba(213, 154, 85, 0.06);
+  color: rgba(213, 154, 85, 0.55);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.story-chapter-process[aria-selected='true']::before {
+  border-color: rgba(213, 154, 85, 0.55);
+  background: rgba(213, 154, 85, 0.16);
+  color: #d59a55;
+  box-shadow: 0 0 10px rgba(213, 154, 85, 0.1);
+}
+
+.story-chapter-process[aria-selected='true'] {
+  color: var(--site-theme-text, #f2e7d3);
+}
+
+.story-chapter-process:hover::before {
+  border-color: rgba(213, 154, 85, 0.38);
+  background: rgba(213, 154, 85, 0.1);
+}
+
+.story-chapter-process:hover {
+  color: var(--site-theme-text-secondary, #cdbfa8);
+}
+
+.story-chapter-process:focus-visible {
+  outline: 2px solid rgba(213, 154, 85, 0.4);
+  outline-offset: 2px;
+}
+
+/* ── Index Chapter Tabs (mia-world) ────────── */
+.story-index-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  border: 1px solid rgba(185, 160, 255, 0.08);
+  border-radius: var(--aurora-radius-md);
+  background: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.story-chapter-index {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-bottom: 1px solid rgba(185, 160, 255, 0.06);
+  background: transparent;
+  color: var(--site-theme-text-muted, #9d91b5);
+  font-size: 0.8rem;
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.story-chapter-index:last-child {
+  border-bottom: none;
+}
+
+.story-chapter-index::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(185, 160, 255, 0.2);
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.story-chapter-index[aria-selected='true'] {
+  color: var(--site-theme-text, #fbf8ff);
+  background: rgba(185, 160, 255, 0.08);
+}
+
+.story-chapter-index[aria-selected='true']::before {
+  background: rgba(185, 160, 255, 0.6);
+}
+
+.story-chapter-index:hover {
+  color: var(--site-theme-text-secondary, #d2c8e3);
+  background: rgba(185, 160, 255, 0.04);
+}
+
+.story-chapter-index:focus-visible {
+  outline: 2px solid rgba(185, 160, 255, 0.4);
+  outline-offset: -2px;
+}
+
+/* ── Terminal Chapter Tabs (AGI) ───────────── */
+.story-chapter-terminal {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgba(233, 191, 114, 0.1);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--site-theme-text-muted, #9f987f);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.story-chapter-terminal::before {
+  content: '$ ';
+  color: rgba(233, 191, 114, 0.35);
+}
+
+.story-chapter-terminal[aria-selected='true'] {
+  border-color: rgba(233, 191, 114, 0.3);
+  background: rgba(233, 191, 114, 0.06);
+  color: #e9bf72;
+  box-shadow: 0 0 8px rgba(233, 191, 114, 0.05);
+}
+
+.story-chapter-terminal:hover {
+  border-color: rgba(233, 191, 114, 0.2);
+  background: rgba(233, 191, 114, 0.03);
+}
+
+.story-chapter-terminal:focus-visible {
+  outline: 2px solid rgba(233, 191, 114, 0.35);
+  outline-offset: 2px;
+}
+
+/* ── Themed Reader Paper ───────────────────── */
+.story-paper-ocean {
+  background: linear-gradient(165deg, rgba(6, 50, 70, 0.6), rgba(4, 28, 42, 0.92)) !important;
+  border-color: rgba(86, 232, 220, 0.08) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(86, 232, 220, 0.04) !important;
+}
+
+.story-paper-zhenhai {
+  background: linear-gradient(165deg, rgba(30, 28, 22, 0.7), rgba(16, 21, 22, 0.94)) !important;
+  border-color: rgba(213, 154, 85, 0.08) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(213, 154, 85, 0.04) !important;
+}
+
+.story-paper-mia {
+  background: linear-gradient(165deg, rgba(30, 26, 48, 0.65), rgba(13, 10, 28, 0.94)) !important;
+  border-color: rgba(185, 160, 255, 0.06) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(185, 160, 255, 0.04) !important;
+}
+
+.story-paper-agi {
+  background: linear-gradient(165deg, rgba(16, 22, 14, 0.7), rgba(9, 13, 9, 0.96)) !important;
+  border-color: rgba(233, 191, 114, 0.06) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(233, 191, 114, 0.03) !important;
+}
+
+.story-paper-giant {
+  background: linear-gradient(165deg, rgba(30, 46, 62, 0.6), rgba(14, 27, 41, 0.92)) !important;
+  border-color: rgba(147, 201, 255, 0.06) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(147, 201, 255, 0.04) !important;
+}
+
+/* ── Themed Navigation Buttons ──────────────── */
+.story-nav-ocean {
+  border-color: rgba(86, 232, 220, 0.18) !important;
+  background: rgba(86, 232, 220, 0.04) !important;
+}
+
+.story-nav-ocean:hover {
+  border-color: rgba(86, 232, 220, 0.35) !important;
+  background: rgba(86, 232, 220, 0.1) !important;
+  color: var(--site-theme-text, #efffff) !important;
+}
+
+.story-nav-zhenhai {
+  border-color: rgba(213, 154, 85, 0.15) !important;
+  background: rgba(213, 154, 85, 0.04) !important;
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+}
+
+.story-nav-zhenhai:hover {
+  border-color: rgba(213, 154, 85, 0.3) !important;
+  background: rgba(213, 154, 85, 0.1) !important;
+  color: var(--site-theme-text, #f2e7d3) !important;
+}
+
+.story-nav-mia {
+  border-color: rgba(185, 160, 255, 0.12) !important;
+  background: rgba(185, 160, 255, 0.03) !important;
+}
+
+.story-nav-mia:hover {
+  border-color: rgba(185, 160, 255, 0.28) !important;
+  background: rgba(185, 160, 255, 0.08) !important;
+  color: var(--site-theme-text, #fbf8ff) !important;
+}
+
+.story-nav-agi {
+  border-color: rgba(233, 191, 114, 0.12) !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+}
+
+.story-nav-agi:hover {
+  border-color: rgba(233, 191, 114, 0.28) !important;
+  background: rgba(233, 191, 114, 0.06) !important;
+  color: #e9bf72 !important;
+}
+
+.story-nav-giant {
+  border-color: rgba(147, 201, 255, 0.12) !important;
+  background: rgba(147, 201, 255, 0.03) !important;
+}
+
+.story-nav-giant:hover {
+  border-color: rgba(147, 201, 255, 0.28) !important;
+  background: rgba(147, 201, 255, 0.08) !important;
+  color: var(--site-theme-text, #f8f5e9) !important;
+}
+
+/* ── Background Effects ─────────────────────── */
+.ocean-bg-bubbles {
+  position: relative;
+}
+
+.ocean-bg-bubbles::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(86, 232, 220, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 75% 35%, rgba(255, 158, 174, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 45% 70%, rgba(86, 232, 220, 0.03) 0%, transparent 45%),
+    radial-gradient(circle at 90% 80%, rgba(255, 158, 174, 0.02) 0%, transparent 35%);
+}
+
+.ocean-water-light {
+  background: linear-gradient(
+    180deg,
+    rgba(86, 232, 220, 0.03) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(86, 232, 220, 0.02) 100%
+  );
+}
+
+/* ── Zhenhai Decorations ────────────────────── */
+.zhenhai-coast-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(213, 154, 85, 0.3) 20%,
+    rgba(213, 154, 85, 0.5) 50%,
+    rgba(213, 154, 85, 0.3) 80%,
+    transparent
+  );
+  margin: 2rem 0;
+  position: relative;
+}
+
+.zhenhai-coast-divider::before {
+  content: '⛰';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.6rem;
+  opacity: 0.3;
+  background: var(--site-theme-bg, #101516);
+  padding: 0 0.5rem;
+}
+
+.zhenhai-stamp-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 2px solid rgba(213, 154, 85, 0.3);
+  border-radius: 3px;
+  color: rgba(213, 154, 85, 0.65);
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  transform: rotate(-2deg);
+  flex-shrink: 0;
+}
+
+.zhenhai-process-pipe {
+  display: inline-flex;
+  align-items: center;
+  width: 1.2rem;
+  height: 2px;
+  background: rgba(213, 154, 85, 0.1);
+  position: relative;
+  flex-shrink: 0;
+  margin: 0 0.15rem;
+}
+
+.zhenhai-process-pipe::before,
+.zhenhai-process-pipe::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(213, 154, 85, 0.06);
+  transform: translateY(-50%);
+}
+
+.zhenhai-process-pipe::before { left: -1px; }
+.zhenhai-process-pipe::after { right: -1px; }
+
+/* ── Mia Star Background ────────────────────── */
+.mia-star-bg {
+  position: relative;
+}
+
+.mia-star-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(185, 160, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 25% 45%, rgba(185, 160, 255, 0.2), transparent),
+    radial-gradient(1.5px 1.5px at 40% 10%, rgba(185, 160, 255, 0.25), transparent),
+    radial-gradient(1px 1px at 55% 35%, rgba(185, 160, 255, 0.15), transparent),
+    radial-gradient(1px 1px at 70% 55%, rgba(185, 160, 255, 0.2), transparent),
+    radial-gradient(1.5px 1.5px at 85% 20%, rgba(185, 160, 255, 0.25), transparent),
+    radial-gradient(1px 1px at 15% 70%, rgba(185, 160, 255, 0.15), transparent),
+    radial-gradient(1px 1px at 45% 80%, rgba(185, 160, 255, 0.2), transparent),
+    radial-gradient(1.5px 1.5px at 65% 90%, rgba(185, 160, 255, 0.18), transparent),
+    radial-gradient(1px 1px at 90% 65%, rgba(185, 160, 255, 0.12), transparent),
+    radial-gradient(1px 1px at 30% 50%, rgba(185, 160, 255, 0.1), transparent),
+    radial-gradient(1px 1px at 50% 60%, rgba(103, 203, 233, 0.08), transparent);
+}
+
+/* ── AGI Ring Background ────────────────────── */
+.agi-ring-bg {
+  position: relative;
+}
+
+.agi-ring-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 30% 30%, transparent 40%, rgba(98, 230, 208, 0.015) 43%, transparent 46%),
+    radial-gradient(circle at 70% 60%, transparent 30%, rgba(233, 191, 114, 0.012) 33%, transparent 36%),
+    radial-gradient(circle at 50% 20%, transparent 25%, rgba(178, 146, 255, 0.01) 27%, transparent 29%),
+    radial-gradient(circle at 20% 70%, transparent 20%, rgba(98, 230, 208, 0.008) 22%, transparent 24%),
+    radial-gradient(circle at 80% 25%, transparent 15%, rgba(233, 191, 114, 0.006) 17%, transparent 19%);
+}
+
+/* ── Giant Decorations ──────────────────────── */
+.giant-ruler {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.15rem;
+  height: 3rem;
+  padding: 0 0.5rem;
+}
+
+.giant-ruler-mark {
+  width: 1px;
+  background: rgba(147, 201, 255, 0.15);
+  flex: 1;
+}
+
+.giant-ruler-mark:nth-child(5n) {
+  width: 2px;
+  background: rgba(147, 201, 255, 0.3);
+}
+
+.giant-photo-border {
+  border: 4px solid rgba(147, 201, 255, 0.12);
+  border-radius: 2px;
+  padding: 8px 8px 28px;
+  background: rgba(147, 201, 255, 0.02);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 0 0 1px rgba(147, 201, 255, 0.04);
+}
+
+/* ── Mobile Responsiveness ──────────────────── */
+@media (max-width: 720px) {
+  .story-cover {
+    height: 260px;
+    border-radius: var(--aurora-radius-md);
+  }
+
+  .story-cover-content {
+    padding: 1.2rem;
+  }
+
+  .story-cover-badge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.55rem;
+  }
+
+  .story-chapter-bubble {
+    width: 2.6rem;
+    height: 2.6rem;
+    font-size: 0.65rem;
+  }
+
+  .story-chapter-process {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.7rem;
+  }
+
+  .story-chapter-process::before {
+    width: 1.3rem;
+    height: 1.3rem;
+    font-size: 0.58rem;
+  }
+
+  .story-chapter-terminal {
+    font-size: 0.65rem;
+    padding: 0.35rem 0.55rem;
+  }
+
+  .story-chapter-index {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.75rem;
+  }
+
+  .story-process-tabs {
+    padding: 0.45rem;
+  }
+
+  .zhenhai-process-pipe {
+    width: 0.8rem;
+  }
+
+  .ocean-bg-bubbles::before {
+    opacity: 0.45;
+  }
+
+  .mia-star-bg::before {
+    opacity: 0.55;
+  }
+
+  .agi-ring-bg::before {
+    opacity: 0.45;
+  }
+}
+
+/* ── Reduced Motion ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .story-cover-content {
+    animation: none;
+  }
+
+  .story-chapter-bubble,
+  .story-chapter-process,
+  .story-chapter-index,
+  .story-chapter-terminal {
+    transition: none;
+  }
+
+  .ocean-bg-bubbles::before,
+  .mia-star-bg::before,
+  .agi-ring-bg::before {
+    animation: none;
+  }
+}

@@ -1,0 +1,323 @@
+/* ============================================================
+   characters-textures.css
+   Additional CSS background textures for the Characters page.
+   Complements the existing Aurora design system and site-theme
+   variables. No modifications to CharactersPage.tsx required.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   1. Frequency-line – neural wave effect positioned behind
+      the character grid. Add to the grid container or a
+      wrapper within `.characters-aurora-main`.
+   ---------------------------------------------------------- */
+.characters-frequency-line {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.characters-frequency-line::before {
+  content: '';
+  position: absolute;
+  left: -15%;
+  right: -15%;
+  top: 10%;
+  bottom: 10%;
+  background:
+    repeating-linear-gradient(
+      88deg,
+      transparent 0,
+      transparent 38px,
+      rgba(var(--site-theme-accent-rgb), 0.04) 38px,
+      rgba(var(--site-theme-accent-rgb), 0.04) 40px,
+      transparent 40px,
+      transparent 70px,
+      rgba(var(--site-theme-accent-rgb), 0.025) 70px,
+      rgba(var(--site-theme-accent-rgb), 0.025) 71px,
+      transparent 71px,
+      transparent 110px
+    ),
+    repeating-linear-gradient(
+      94deg,
+      transparent 0,
+      transparent 60px,
+      rgba(var(--site-theme-accent-rgb), 0.025) 60px,
+      rgba(var(--site-theme-accent-rgb), 0.025) 62px,
+      transparent 62px,
+      transparent 95px,
+      rgba(var(--site-theme-accent-rgb), 0.015) 95px,
+      rgba(var(--site-theme-accent-rgb), 0.015) 96px,
+      transparent 96px,
+      transparent 140px
+    ),
+    radial-gradient(ellipse 70% 40% at 25% 45%, rgba(var(--site-theme-accent-rgb), 0.06), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 70% 55%, rgba(var(--site-theme-accent-rgb), 0.04), transparent 50%);
+  animation: char-freq-sweep 7s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+@keyframes char-freq-sweep {
+  0%   { transform: translateX(-3%) scaleY(0.97); opacity: 0.06; }
+  50%  { transform: translateX(1%)  scaleY(1.03); opacity: 0.14; }
+  100% { transform: translateX(4%)  scaleY(0.99); opacity: 0.09; }
+}
+
+/* ----------------------------------------------------------
+   2. Per-group card textures
+      Apply as a second class on .character-aurora-card, e.g.:
+      <div class="character-aurora-card char-card-mia">…</div>
+      Uses ::before so it does not conflict with the existing
+      ::after inset-shadow on the card. Negative z-index keeps
+      the texture behind the card content.
+   ---------------------------------------------------------- */
+
+.char-card-mia::before,
+.char-card-zhihua::before,
+.char-card-impact::before,
+.char-card-delan::before,
+.char-card-giant::before,
+.char-card-other::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ----- M/I/A – Dreamy nebula texture ----- */
+.char-card-mia::before {
+  background:
+    radial-gradient(ellipse 80% 55% at 20% 25%, rgba(200, 130, 255, 0.045), transparent 55%),
+    radial-gradient(ellipse 65% 50% at 70% 40%, rgba(255, 150, 210, 0.035), transparent 50%),
+    radial-gradient(ellipse 50% 45% at 40% 75%, rgba(130, 200, 255, 0.025), transparent 50%),
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg, transparent 10deg,
+      rgba(255, 255, 255, 0.01) 10deg, rgba(255, 255, 255, 0.01) 11deg,
+      transparent 11deg, transparent 30deg
+    );
+  background-size: auto, auto, auto, 120px 120px;
+}
+
+/* ----- 哲华系 – Geometric academy grid ----- */
+.char-card-zhihua::before {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent, transparent 26px,
+      rgba(139, 120, 255, 0.04) 26px, rgba(139, 120, 255, 0.04) 27px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent, transparent 26px,
+      rgba(139, 120, 255, 0.04) 26px, rgba(139, 120, 255, 0.04) 27px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      transparent, transparent 52px,
+      rgba(139, 120, 255, 0.025) 52px, rgba(139, 120, 255, 0.025) 53px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent, transparent 52px,
+      rgba(139, 120, 255, 0.025) 52px, rgba(139, 120, 255, 0.025) 53px
+    );
+}
+
+/* ----- 因派系 – Neural node pattern ----- */
+.char-card-impact::before {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent, transparent 49px,
+      rgba(20, 200, 220, 0.025) 49px, rgba(20, 200, 220, 0.025) 50px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent, transparent 49px,
+      rgba(20, 200, 220, 0.025) 49px, rgba(20, 200, 220, 0.025) 50px
+    ),
+    repeating-linear-gradient(
+      35deg,
+      transparent, transparent 70px,
+      rgba(20, 200, 220, 0.015) 70px, rgba(20, 200, 220, 0.015) 71px
+    ),
+    repeating-linear-gradient(
+      -35deg,
+      transparent, transparent 70px,
+      rgba(20, 200, 220, 0.015) 70px, rgba(20, 200, 220, 0.015) 71px
+    ),
+    radial-gradient(circle at 25% 20%, rgba(20, 200, 220, 0.06) 0.7px, transparent 0.7px),
+    radial-gradient(circle at 50% 14%, rgba(20, 200, 220, 0.04) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 75% 30%, rgba(20, 200, 220, 0.05) 0.5px, transparent 0.5px),
+    radial-gradient(circle at 15% 48%, rgba(20, 200, 220, 0.04) 0.3px, transparent 0.3px),
+    radial-gradient(circle at 40% 45%, rgba(20, 200, 220, 0.05) 0.6px, transparent 0.6px),
+    radial-gradient(circle at 65% 55%, rgba(20, 200, 220, 0.03) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 85% 52%, rgba(20, 200, 220, 0.04) 0.5px, transparent 0.5px),
+    radial-gradient(circle at 30% 72%, rgba(20, 200, 220, 0.05) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 60% 80%, rgba(20, 200, 220, 0.03) 0.3px, transparent 0.3px),
+    radial-gradient(circle at 80% 75%, rgba(20, 200, 220, 0.04) 0.5px, transparent 0.5px),
+    radial-gradient(circle at 45% 92%, rgba(20, 200, 220, 0.03) 0.4px, transparent 0.4px);
+}
+
+/* ----- 德澜思拓 – Terminal/data stream pattern ----- */
+.char-card-delan::before {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent, transparent 14px,
+      rgba(240, 90, 140, 0.035) 14px, rgba(240, 90, 140, 0.035) 15px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent, transparent 44px,
+      rgba(240, 90, 140, 0.025) 44px, rgba(240, 90, 140, 0.025) 46px
+    ),
+    radial-gradient(circle at 30% 25%, rgba(240, 90, 140, 0.045), transparent 40%),
+    radial-gradient(circle at 70% 65%, rgba(240, 90, 140, 0.035), transparent 35%);
+}
+
+/* ----- 大人国篇 – Diary/paper texture ----- */
+.char-card-giant::before {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent, transparent 20px,
+      rgba(130, 195, 245, 0.03) 20px, rgba(130, 195, 245, 0.03) 21px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent, transparent 60%,
+      rgba(130, 195, 245, 0.025) 60%, rgba(130, 195, 245, 0.025) calc(60% + 1px),
+      transparent calc(60% + 1px)
+    ),
+    radial-gradient(ellipse 100% 70% at 50% 50%, transparent 50%, rgba(130, 195, 245, 0.02) 100%);
+}
+
+/* ----- 其他 – Neutral ambient ----- */
+.char-card-other::before {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(240, 180, 70, 0.035), transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(240, 200, 100, 0.025), transparent 45%),
+    repeating-linear-gradient(
+      45deg,
+      transparent, transparent 30px,
+      rgba(240, 180, 70, 0.015) 30px, rgba(240, 180, 70, 0.015) 31px
+    );
+}
+
+/* ----------------------------------------------------------
+   3. Constellation pattern
+      Pure-CSS constellation: box-shadow dots for stars,
+      diagonal linear gradients for connecting lines.
+      Place inside any relatively-positioned wrapper.
+   ---------------------------------------------------------- */
+.char-constellation {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.char-constellation::before {
+  content: '';
+  position: absolute;
+  inset: -10%;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent, transparent 49%,
+      rgba(var(--site-theme-accent-rgb), 0.02) 49%,
+      rgba(var(--site-theme-accent-rgb), 0.02) 51%,
+      transparent 51%
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent, transparent 49%,
+      rgba(var(--site-theme-accent-rgb), 0.015) 49%,
+      rgba(var(--site-theme-accent-rgb), 0.015) 51%,
+      transparent 51%
+    );
+  background-size: 70px 70px, 55px 55px;
+  animation: char-constellation-rotate 30s linear infinite;
+}
+
+.char-constellation::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(var(--site-theme-accent-rgb), 0.12);
+  box-shadow:
+    15px 28px 0 0 rgba(var(--site-theme-accent-rgb), 0.1),
+    45px 12px 0 0 rgba(var(--site-theme-accent-rgb), 0.08),
+    85px 38px 0 0 rgba(var(--site-theme-accent-rgb), 0.12),
+    120px 15px 0 0 rgba(var(--site-theme-accent-rgb), 0.06),
+    160px 42px 0 0 rgba(var(--site-theme-accent-rgb), 0.09),
+    195px 8px 0 0 rgba(var(--site-theme-accent-rgb), 0.07),
+    230px 35px 0 0 rgba(var(--site-theme-accent-rgb), 0.11),
+    270px 20px 0 0 rgba(var(--site-theme-accent-rgb), 0.08),
+    310px 50px 0 0 rgba(var(--site-theme-accent-rgb), 0.06),
+    350px 18px 0 0 rgba(var(--site-theme-accent-rgb), 0.1),
+    30px 70px 0 0 rgba(var(--site-theme-accent-rgb), 0.07),
+    75px 90px 0 0 rgba(var(--site-theme-accent-rgb), 0.09),
+    110px 65px 0 0 rgba(var(--site-theme-accent-rgb), 0.06),
+    150px 85px 0 0 rgba(var(--site-theme-accent-rgb), 0.08),
+    190px 60px 0 0 rgba(var(--site-theme-accent-rgb), 0.05),
+    225px 95px 0 0 rgba(var(--site-theme-accent-rgb), 0.1),
+    265px 75px 0 0 rgba(var(--site-theme-accent-rgb), 0.07),
+    300px 88px 0 0 rgba(var(--site-theme-accent-rgb), 0.09),
+    340px 62px 0 0 rgba(var(--site-theme-accent-rgb), 0.06),
+    20px 130px 0 0 rgba(var(--site-theme-accent-rgb), 0.08),
+    55px 145px 0 0 rgba(var(--site-theme-accent-rgb), 0.05),
+    95px 115px 0 0 rgba(var(--site-theme-accent-rgb), 0.09),
+    135px 150px 0 0 rgba(var(--site-theme-accent-rgb), 0.07),
+    170px 125px 0 0 rgba(var(--site-theme-accent-rgb), 0.06),
+    210px 140px 0 0 rgba(var(--site-theme-accent-rgb), 0.08),
+    250px 110px 0 0 rgba(var(--site-theme-accent-rgb), 0.05),
+    290px 135px 0 0 rgba(var(--site-theme-accent-rgb), 0.09),
+    330px 120px 0 0 rgba(var(--site-theme-accent-rgb), 0.07),
+    40px 200px 0 0 rgba(var(--site-theme-accent-rgb), 0.06),
+    100px 190px 0 0 rgba(var(--site-theme-accent-rgb), 0.08),
+    160px 210px 0 0 rgba(var(--site-theme-accent-rgb), 0.05),
+    220px 180px 0 0 rgba(var(--site-theme-accent-rgb), 0.09),
+    280px 205px 0 0 rgba(var(--site-theme-accent-rgb), 0.07),
+    340px 195px 0 0 rgba(var(--site-theme-accent-rgb), 0.06),
+    65px 270px 0 0 rgba(var(--site-theme-accent-rgb), 0.08),
+    145px 285px 0 0 rgba(var(--site-theme-accent-rgb), 0.05),
+    200px 260px 0 0 rgba(var(--site-theme-accent-rgb), 0.07),
+    260px 290px 0 0 rgba(var(--site-theme-accent-rgb), 0.06),
+    315px 275px 0 0 rgba(var(--site-theme-accent-rgb), 0.09),
+    50px 350px 0 0 rgba(var(--site-theme-accent-rgb), 0.05),
+    130px 340px 0 0 rgba(var(--site-theme-accent-rgb), 0.08),
+    210px 360px 0 0 rgba(var(--site-theme-accent-rgb), 0.06),
+    290px 345px 0 0 rgba(var(--site-theme-accent-rgb), 0.07);
+  animation: char-constellation-twinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes char-constellation-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes char-constellation-twinkle {
+  0%   { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* ----------------------------------------------------------
+   Reduced motion – safe defaults
+   ---------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .characters-frequency-line::before,
+  .char-constellation::before,
+  .char-constellation::after {
+    animation: none !important;
+  }
+}

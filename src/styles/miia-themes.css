@@ -1,0 +1,177 @@
+/* Miia Space — floating manuscript island theme */
+
+@keyframes miia-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes miia-ripple {
+  0% { transform: scale(1); opacity: 0.15; }
+  50% { transform: scale(1.02); opacity: 0.06; }
+  100% { transform: scale(1); opacity: 0.15; }
+}
+
+.miia-floating-island {
+  position: relative;
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(ellipse at 20% 15%, rgba(245, 230, 245, 0.6), transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(240, 225, 250, 0.5), transparent 45%),
+    radial-gradient(ellipse at 50% 85%, rgba(255, 240, 235, 0.5), transparent 50%),
+    linear-gradient(155deg, #fdf6f0, #f7eef5 30%, #f5ecf8 60%, #faf3f0);
+  box-shadow:
+    0 12px 48px rgba(160, 120, 180, 0.12),
+    0 4px 16px rgba(160, 120, 180, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  color: #3d2d4d;
+  animation: miia-float 7s ease-in-out infinite;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.miia-floating-island:hover {
+  box-shadow:
+    0 16px 56px rgba(160, 120, 180, 0.15),
+    0 6px 20px rgba(160, 120, 180, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.miia-diary-card {
+  position: relative;
+  border: 1px solid rgba(190, 160, 200, 0.2);
+  border-radius: 0.85rem;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 252, 248, 0.92),
+    rgba(248, 242, 250, 0.88) 50%,
+    rgba(252, 245, 240, 0.85)
+  );
+  box-shadow:
+    0 2px 10px rgba(160, 130, 180, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.miia-diary-card::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px dashed rgba(190, 160, 200, 0.12);
+  border-radius: 0.6rem;
+  pointer-events: none;
+}
+
+.miia-sticker {
+  position: absolute;
+  z-index: 10;
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transform: rotate(5deg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+}
+
+.miia-tape {
+  position: absolute;
+  z-index: 5;
+  width: 32px;
+  height: 10px;
+  background: rgba(215, 195, 170, 0.25);
+  border: 1px solid rgba(195, 175, 150, 0.15);
+  border-radius: 1px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.miia-tape::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 3px,
+    rgba(195, 175, 150, 0.08) 3px,
+    rgba(195, 175, 150, 0.08) 4px
+  );
+  border-radius: inherit;
+}
+
+.miia-handwriting {
+  font-family: 'Ma Shan Zheng', 'ZCOOL KuaiLe', 'KaiTi', 'STKaiti', cursive;
+  letter-spacing: 0.04em;
+  color: #4a3a5a;
+  font-weight: 400;
+}
+
+.miia-grid-paper {
+  background-image:
+    linear-gradient(90deg, rgba(180, 155, 200, 0.06) 1px, transparent 1px),
+    linear-gradient(rgba(180, 155, 200, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.miia-label-prove,
+.miia-label-conjecture,
+.miia-label-conclusion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1px 8px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.03em;
+}
+
+.miia-label-prove {
+  background: rgba(80, 170, 120, 0.1);
+  color: #2a7a50;
+  border: 1px solid rgba(80, 170, 120, 0.18);
+}
+
+.miia-label-conjecture {
+  background: rgba(200, 130, 80, 0.1);
+  color: #8a6020;
+  border: 1px solid rgba(200, 130, 80, 0.18);
+}
+
+.miia-label-conclusion {
+  background: rgba(130, 90, 200, 0.1);
+  color: #5a2a90;
+  border: 1px solid rgba(130, 90, 200, 0.18);
+}
+
+.miia-poem-spacing {
+  line-height: 2.6;
+  letter-spacing: 0.06em;
+}
+
+.miia-moonlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 30% at 75% 8%, rgba(210, 190, 240, 0.08), transparent 70%),
+    radial-gradient(ellipse 40% 25% at 30% 5%, rgba(200, 180, 240, 0.05), transparent 60%);
+  z-index: 1;
+}
+
+.miia-water-ripple {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  animation: miia-ripple 8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miia-floating-island,
+  .miia-water-ripple {
+    animation: none;
+  }
+}

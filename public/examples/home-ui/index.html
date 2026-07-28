@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Neural Connection 主页 UI 隔离原型总览">
+  <link rel="stylesheet" href="./gallery.css">
+  <title>Neural Connection · 主页 UI 原型总览</title>
+</head>
+<body>
+  <main class="gallery-shell">
+    <header>
+      <div><p class="eyebrow">NEURAL CONNECTION / HOMEPAGE STUDY</p><h1>主页视觉提案</h1></div>
+      <p>三个彼此独立、内容等量的 UI 方向。选择任一方案进入完整长页面；真实主页、路由与业务组件均未改动。</p>
+    </header>
+    <div class="gallery-note"><i></i><span>隔离范围：仅位于 public/examples/home-ui/。原型按钮不会跳转到真实页面，所有 6 张图片与 6 个入口信息完整保留。</span></div>
+    <section class="gallery" aria-label="主页视觉方案">
+      <a class="concept aurora" href="./aurora.html">
+        <div class="preview"><img src="../../hero-bg.jpg" alt=""><span class="mock-title">NEURAL<br>CONNECTION</span></div>
+        <div class="concept-copy"><span class="concept-number">01 / AURORA ATLAS</span><h2>沉浸星图</h2><p>大画幅、玻璃信息层与柔和宇宙光。强调第一印象和世界观的神秘感。</p><span class="open">打开完整原型 <b>↗</b></span></div>
+      </a>
+      <a class="concept console" href="./console.html">
+        <div class="preview"><img src="../../3-generated.png" alt=""><span class="mock-title">NEURAL<br>CONSOLE</span></div>
+        <div class="concept-copy"><span class="concept-number">02 / NEURAL CONSOLE</span><h2>神经仪表盘</h2><p>高密度网格、模块化数据和清晰状态感。适合强化科幻系统与可探索性。</p><span class="open">打开完整原型 <b>↗</b></span></div>
+      </a>
+      <a class="concept archive" href="./archive.html">
+        <div class="preview"><img src="../../2-time-nodes.png" alt=""><span class="mock-title">DREAM<br>ARCHIVE</span></div>
+        <div class="concept-copy"><span class="concept-number">03 / DREAM ARCHIVE</span><h2>叙事档案馆</h2><p>明亮纸张感、编辑式排版和留白。更亲近人物、文字与柔软的叙事内核。</p><span class="open">打开完整原型 <b>↗</b></span></div>
+      </a>
+    </section>
+    <section class="checklist" aria-label="原型共同特征">
+      <div class="check"><b>✓ 信息无删减</b>英雄区、统计、图集、入口和页脚全部保留。</div>
+      <div class="check"><b>✓ 完全隔离</b>未注册新路由，未修改 src 下任何真实站点文件。</div>
+      <div class="check"><b>✓ 响应式</b>桌面、平板、手机三档布局均有独立适配。</div>
+      <div class="check"><b>✓ 可交互</b>轮播、键盘切换、移动菜单与演示状态提示可用。</div>
+    </section>
+  </main>
+</body>
+</html>

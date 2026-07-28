@@ -1,0 +1,80 @@
+/*
+ * World-page map textures — topographic contour lines and lat/long grid overlay.
+ * Positioned behind content (.aurora-app-atmosphere lives at z-index: 0 in
+ * the app shell; these sit at z-index: 0 inside the page but above the shell
+ * atmosphere because they are scoped to .world-aurora-page).
+ */
+
+.world-map-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  /*
+   * Topographic contour effect: wavy repeating bands at 3 % opacity.
+   * Uses the route-theme accent so it adapts to the current climate.
+   */
+  background-image:
+    /* Outward-radiating circular contours (map feel) */
+    radial-gradient(
+      circle at 50% 40%,
+      transparent 0%,
+      rgba(var(--aurora-accent-rgb), 0.04) 8%,
+      transparent 12%,
+      rgba(var(--aurora-accent-rgb), 0.03) 20%,
+      transparent 24%,
+      rgba(var(--aurora-accent-rgb), 0.025) 32%,
+      transparent 38%,
+      rgba(var(--aurora-accent-rgb), 0.02) 48%,
+      transparent 54%,
+      rgba(var(--aurora-accent-rgb), 0.015) 64%,
+      transparent 72%
+    ),
+    /* Angled contour lines (topographic feel) */
+    repeating-linear-gradient(
+      56deg,
+      transparent,
+      transparent 28px,
+      rgba(var(--aurora-accent-rgb), 0.035) 28px,
+      rgba(var(--aurora-accent-rgb), 0.035) 29px,
+      transparent 29px,
+      transparent 50px
+    ),
+    repeating-linear-gradient(
+      124deg,
+      transparent,
+      transparent 42px,
+      rgba(var(--aurora-accent-rgb), 0.025) 42px,
+      rgba(var(--aurora-accent-rgb), 0.025) 43px,
+      transparent 43px,
+      transparent 72px
+    );
+}
+
+.world-grid-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  /*
+   * Latitude / longitude grid: very subtle horizontal and vertical lines
+   * at 2.5 % opacity.
+   */
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      transparent,
+      transparent 63px,
+      rgba(var(--aurora-accent-rgb), 0.025) 63px,
+      rgba(var(--aurora-accent-rgb), 0.025) 64px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 63px,
+      rgba(var(--aurora-accent-rgb), 0.025) 63px,
+      rgba(var(--aurora-accent-rgb), 0.025) 64px
+    );
+}

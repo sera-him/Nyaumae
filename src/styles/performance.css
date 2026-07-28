@@ -1,0 +1,58 @@
+@media (prefers-reduced-motion: reduce) {
+  .portal-hero-refraction::before,
+  .portal-hero-refraction::after,
+  .portal-particles,
+  .portal-carousel > img {
+    animation: none !important;
+  }
+}
+
+.portal-section,
+.portal-closing,
+.aurora-content-hero,
+.aurora-legacy-content,
+.characters-aurora-grid,
+.characters-extra-section,
+.characters-network-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 500px;
+}
+
+.aurora-nav,
+.aurora-site-footer {
+  contain: paint;
+}
+.aurora-panel,
+.aurora-glass,
+.story-aurora-card,
+.character-aurora-card,
+.playground-aurora-card,
+.portal-entry {
+  contain: content;
+}
+
+.story-cover {
+  aspect-ratio: 16/9;
+}
+.portal-carousel > img {
+  aspect-ratio: 16/9;
+}
+.portal-overview {
+  aspect-ratio: 16/8.75;
+}
+.character-aurora-card .aspect-square {
+  aspect-ratio: 1/1;
+}
+
+.portal-hero-refraction,
+.aurora-nav-inner,
+.aurora-nav-inner::before,
+.aurora-nav-inner::after {
+  will-change: transform;
+}
+
+@media (max-width: 640px) {
+  .portal-hero-refraction { opacity: 0.2; }
+  .aurora-nav-inner::before,
+  .aurora-nav-inner::after { animation: none; }
+}

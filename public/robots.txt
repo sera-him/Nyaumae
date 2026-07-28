@@ -1,0 +1,7 @@
+# Crawlers: nothing to see here
+User-agent: *
+Disallow: /api/
+Disallow: /api/*
+Disallow: /api/*/
+Disallow: /_api/
+Disallow: /docs/api

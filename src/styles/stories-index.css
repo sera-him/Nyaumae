@@ -1,0 +1,25 @@
+/* Theme color dots for story cards */
+.story-theme-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+/* Card left border per theme */
+.story-card-mia { border-left: 3px solid #b9a0ff; }
+.story-card-mia:hover { border-color: #b9a0ff; box-shadow: 0 0 30px rgba(185,160,255,0.08); }
+
+.story-card-ocean { border-left: 3px solid #56e8dc; }
+.story-card-ocean:hover { border-color: #56e8dc; box-shadow: 0 0 30px rgba(86,232,220,0.08); }
+
+.story-card-zhenhai { border-left: 3px solid #d59a55; }
+.story-card-zhenhai:hover { border-color: #d59a55; box-shadow: 0 0 30px rgba(213,154,85,0.08); }
+
+.story-card-agi { border-left: 3px solid #e9bf72; }
+.story-card-agi:hover { border-color: #e9bf72; box-shadow: 0 0 30px rgba(233,191,114,0.08); }
+
+.story-card-giant { border-left: 3px solid #93c9ff; }
+.story-card-giant:hover { border-color: #93c9ff; box-shadow: 0 0 30px rgba(147,201,255,0.08); }

@@ -1,0 +1,284 @@
+/* =============================================
+   responsive-fixes.css
+   Targeted overrides for edge-case viewports.
+   Loaded after all theme layers.
+   ============================================= */
+
+/* ── 12. Prevent horizontal overflow on all pages ── */
+html {
+  overflow-x: hidden;
+}
+.aurora-ui,
+.aurora-generic-page,
+.aurora-content-page,
+.portal-aurora,
+.site-theme-shell,
+.aurora-app-shell {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+img,
+svg,
+video,
+canvas,
+iframe,
+pre,
+code {
+  max-width: 100%;
+}
+pre,
+code {
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+code {
+  word-break: break-all;
+}
+
+/* ── 11. Safe-area padding for notched phones ── */
+@supports (padding: env(safe-area-inset-top)) {
+  .aurora-nav {
+    padding-top: calc(.8rem + env(safe-area-inset-top));
+  }
+  .aurora-nav-scrolled {
+    padding-top: calc(.48rem + env(safe-area-inset-top));
+  }
+  .aurora-site-footer {
+    padding-left: calc(1rem + env(safe-area-inset-left));
+    padding-right: calc(1rem + env(safe-area-inset-right));
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  }
+  .aurora-content-tabs {
+    top: calc(5.1rem + env(safe-area-inset-top));
+  }
+  .aurora-menu-overlay {
+    padding-left: calc(1rem + env(safe-area-inset-left));
+    padding-right: calc(1rem + env(safe-area-inset-right));
+  }
+}
+
+/* ── 4. Tab text never wraps unnecessarily ── */
+.aurora-tab {
+  white-space: nowrap;
+}
+
+/* ── 4. Chapter tabs: iOS smooth horizontal scroll ── */
+.story-process-tabs,
+.story-index-tabs {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── 8. MathModels chart scrolling (iOS smooth) ── */
+.math-aurora-page .overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Breakpoint: 1440px ── */
+@media (max-width: 1440px) {
+  .aurora-nav-inner {
+    max-width: calc(100vw - 2rem);
+  }
+}
+
+/* ── Breakpoint: 1024px ── */
+@media (max-width: 1024px) {
+  /* 10. World page tabs: hide icons */
+  .world-aurora-page .aurora-content-tabs .aurora-tab svg {
+    display: none;
+  }
+  /* 9. Playground grid: 2 cols at tablet */
+  .playground-aurora-page [class*="grid-cols-1"]:where([class*="sm:grid-cols-2"]):where([class*="lg:grid-cols-3"]) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Breakpoint: 768px ── */
+@media (max-width: 768px) {
+  /* 10. World page tabs: horizontal scroll */
+  .world-aurora-page .aurora-content-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .world-aurora-page .aurora-content-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .world-aurora-page .aurora-tab {
+    font-size: .74rem;
+    padding-inline: .65rem;
+  }
+  /* 9. Playground grid: 1 col at narrow tablet / large phone */
+  .playground-aurora-page [class*="grid-cols-1"]:where([class*="sm:grid-cols-2"]):where([class*="lg:grid-cols-3"]) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Breakpoint: 430px (large phones e.g. iPhone 14/15 Pro Max) ── */
+@media (max-width: 430px) {
+  /* 1. Navigation - brand text overflow */
+  .aurora-brand-copy strong {
+    max-width: 8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: .62rem;
+  }
+
+  /* 2. Portal hero - heading should not overflow */
+  .portal-hero h1 {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* 2. Portal miia card - not overflow horizontally */
+  .portal-miia {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .portal-miia blockquote {
+    overflow-wrap: anywhere;
+    font-size: 15px;
+  }
+
+  /* 2. Portal particle hint - smaller */
+  .portal-particle-hint {
+    max-width: 170px;
+    font-size: 6px;
+    line-height: 1.5;
+    text-align: right;
+  }
+
+  /* 3. Story cover - text should not overflow */
+  .story-cover-title {
+    font-size: 1.2rem;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+  .story-cover-subtitle {
+    font-size: .78rem;
+  }
+
+  /* 4. Chapter tabs - tighter at narrow */
+  .story-chapter-terminal {
+    font-size: .62rem;
+    padding: .3rem .5rem;
+  }
+
+  /* 7. Footer - brand text, stats wrap, quote size */
+  .aurora-footer-brand span {
+    font-size: 1.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90vw;
+  }
+  .aurora-footer-stats {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    gap: .5rem;
+  }
+  .aurora-footer-stats p {
+    font-size: .82rem;
+  }
+  .aurora-footer-quote {
+    font-size: .85rem;
+  }
+}
+
+/* ── Breakpoint: 390px (iPhone 14/15 Pro) ── */
+@media (max-width: 390px) {
+  .aurora-brand-copy strong {
+    max-width: 7rem;
+  }
+  .portal-miia {
+    padding: 14px;
+  }
+  .portal-particle-hint {
+    max-width: 150px;
+  }
+  .story-cover-title {
+    font-size: 1.1rem;
+  }
+  .story-cover-content {
+    padding: 1rem;
+  }
+  .aurora-footer-brand span {
+    font-size: 1.3rem;
+  }
+  .aurora-footer-quote {
+    font-size: .8rem;
+  }
+}
+
+/* ── Breakpoint: 360px (small Android phones) ── */
+@media (max-width: 360px) {
+  /* 5. Character grid: 1 col at extreme narrow */
+  .characters-aurora-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-hero h1 {
+    font-size: clamp(34px, 12vw, 44px);
+    word-break: break-word;
+  }
+  .portal-miia {
+    padding: 10px;
+  }
+  .portal-miia blockquote {
+    font-size: 13px;
+  }
+  .aurora-brand-copy strong {
+    max-width: 6rem;
+    font-size: .55rem;
+  }
+  .aurora-footer-brand span {
+    font-size: 1.1rem;
+  }
+  .aurora-footer-quote {
+    font-size: .72rem;
+  }
+  .story-cover-title {
+    font-size: 1rem;
+  }
+}
+
+/* ── Breakpoint: 320px (very small screens) ── */
+@media (max-width: 320px) {
+  .aurora-brand-copy strong {
+    max-width: 5rem;
+    font-size: .5rem;
+  }
+  .aurora-brand-copy small {
+    font-size: .42rem;
+  }
+  .portal-hero h1 {
+    font-size: clamp(28px, 11vw, 36px);
+  }
+  .portal-particle-hint {
+    max-width: 120px;
+    font-size: 5px;
+  }
+  .portal-miia blockquote {
+    font-size: 11px;
+  }
+  .story-cover-title {
+    font-size: .85rem;
+  }
+  .story-cover-content {
+    padding: .65rem;
+  }
+  .aurora-footer-brand span {
+    font-size: .85rem;
+  }
+  .aurora-footer-stats p {
+    font-size: .65rem;
+  }
+  .aurora-footer-quote {
+    font-size: .58rem;
+  }
+  .aurora-tab {
+    font-size: .65rem;
+    padding-inline: .5rem;
+  }
+}
