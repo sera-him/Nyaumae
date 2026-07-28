@@ -48,6 +48,36 @@
 .original-chat-notice button { margin-left: auto; border: 0; background: transparent; cursor: pointer; }
 .original-chat-editing { margin: 0 8px 6px; color: #807b9d; font-size: 9px; }
 .original-chat-editing button { margin-left: 6px; border: 0; background: transparent; color: #cc759e; cursor: pointer; }
+.original-chat-rich-message { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
+.ocean-message-user .original-chat-rich-message, .sweet-message-user .original-chat-rich-message { align-items: flex-end; }
+.original-chat-sticker-message {
+  display: block; width: clamp(126px, 20vw, 190px); height: auto; border-radius: 18px;
+  object-fit: contain; filter: drop-shadow(0 8px 12px rgba(102, 88, 135, .12));
+}
+.original-chat-sticker-anchor { position: relative; }
+.original-chat-sticker-panel {
+  position: absolute; z-index: 20; left: 0; bottom: 10px; width: min(390px, calc(100vw - 28px));
+  padding: 12px; border: 1px solid rgba(255,255,255,.95); border-radius: 22px;
+  background: rgba(255,255,255,.94); box-shadow: 0 20px 60px rgba(82,92,145,.2);
+  backdrop-filter: blur(24px) saturate(150%); transform-origin: left bottom; animation: originalStickerPop .2s ease-out;
+}
+.original-chat-sticker-panel header { display: flex; align-items: center; justify-content: space-between; padding: 1px 3px 10px; }
+.original-chat-sticker-panel header div { display: flex; flex-direction: column; }
+.original-chat-sticker-panel header strong { color: #665f82; font-size: 13px; }
+.original-chat-sticker-panel header span { color: #aaa2bd; font-size: 9px; }
+.original-chat-sticker-panel header button { border: 0; background: transparent; color: #988eaa; font-size: 20px; cursor: pointer; }
+.original-chat-sticker-grid {
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-height: 310px;
+  padding: 2px; overflow-y: auto; overscroll-behavior: contain;
+}
+.original-chat-sticker-grid button {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; padding: 5px 3px;
+  border: 0; border-radius: 13px; background: transparent; color: #827991; font-size: 8px; cursor: pointer;
+}
+.original-chat-sticker-grid button:hover, .original-chat-sticker-grid button:focus-visible { background: rgba(233,225,250,.7); outline: none; transform: translateY(-1px); }
+.original-chat-sticker-grid img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+.original-chat-sticker-grid span { width: 100%; overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+@keyframes originalStickerPop { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
 .ocean-mobile-nav a, .sweet-mobile-nav a {
   display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 64px;
   color: inherit; font-size: inherit; text-decoration: none;
@@ -68,4 +98,10 @@
   .original-chat-context { grid-template-columns: 1fr; }
   .original-chat-context header { grid-column: 1; }
   .original-chat-notice { bottom: 175px; }
+  .original-chat-sticker-panel { position: fixed; left: 14px; bottom: 138px; width: calc(100vw - 28px); }
+  .original-chat-sticker-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); max-height: min(42vh, 330px); }
+}
+@media (max-width: 520px) {
+  .original-chat-sticker-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .original-chat-sticker-message { width: clamp(120px, 45vw, 172px); }
 }

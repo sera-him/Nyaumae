@@ -14,8 +14,9 @@
   overflow: hidden;
   color: var(--ink);
   background:
-    radial-gradient(circle at 74% 12%, rgba(255,255,255,.95) 0 4%, transparent 18%),
-    linear-gradient(155deg, #fff4fb 0%, #eefaff 38%, #e8f6ff 64%, #f8f1ff 100%);
+    radial-gradient(circle at 76% 10%, rgba(255,255,255,.98) 0 3%, rgba(255,231,248,.5) 8%, transparent 20%),
+    radial-gradient(circle at 46% 18%, rgba(201,177,255,.22), transparent 28%),
+    linear-gradient(155deg, #fff1f8 0%, #f2f3ff 30%, #e9faff 60%, #f8efff 100%);
   font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
@@ -29,7 +30,7 @@
   left: 29%; right: -4%; bottom: -12%;
   height: 44%;
   border-radius: 50% 50% 0 0;
-  background: linear-gradient(180deg, rgba(128,225,240,.18), rgba(117,181,250,.28));
+  background: linear-gradient(180deg, rgba(255,190,222,.12), rgba(128,225,240,.2) 36%, rgba(151,156,250,.25));
   box-shadow: inset 0 24px 50px rgba(255,255,255,.7);
   clip-path: polygon(0 34%, 9% 24%, 18% 38%, 28% 26%, 38% 40%, 50% 24%, 62% 36%, 73% 22%, 86% 38%, 100% 24%, 100% 100%, 0 100%);
 }
@@ -74,6 +75,13 @@
 .ocean-sidebar-brand > button:hover { background: #fff; }
 .ocean-sidebar-brand svg { width: 16px; }
 .ocean-brand-orbit { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 14px; color: white; background: linear-gradient(145deg, #7fdfe9, #a58ef4 70%, #ff9ac5); box-shadow: 0 8px 18px rgba(152,133,235,.25); }
+.ocean-sidebar-brand strong {
+  font-family: "ZCOOL KuaiLe", "PingFang SC", sans-serif;
+  background: linear-gradient(135deg, #6fcddf, #9b84e8 52%, #ff8fbd);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 .ocean-brand-orbit svg { width: 21px; }
 .ocean-new-chat {
   display: flex; align-items: center; gap: 9px; border: 1px solid rgba(255,255,255,.8); border-radius: 15px;

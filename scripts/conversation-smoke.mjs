@@ -10,6 +10,7 @@ import { exportSafeAiConfig, maskSecret, safeErrorMessage, sanitizeImportedConfi
 import { ContextBuilder } from '../src/conversation/contextBuilder.ts';
 import { KnowledgeRetriever } from '../src/conversation/knowledgeRetriever.ts';
 import { CanonGuard } from '../src/conversation/canonGuard.ts';
+import { LOCAL_MODEL_TIERS } from '../src/conversation/localModelCatalog.ts';
 
 test('memory conflicts create versions and retrieval prefers the latest valid record', () => {
   const repository = new ConversationRepository();
@@ -115,6 +116,34 @@ test('AI config export and masking never include the secret value', () => {
   assert.equal(exported.includes(config.apiKey), false);
   assert.equal(maskSecret(config.apiKey).includes(config.apiKey), false);
   assert.equal(sanitizeImportedConfig({ ...JSON.parse(exported), apiKey: 'should-not-import' }, config).apiKey, config.apiKey);
+});
+
+test('local model catalog covers 1M through 2.8T and browser mode imports safely', () => {
+  assert.equal(LOCAL_MODEL_TIERS[0]?.parameters, 1_000_000);
+  assert.equal(LOCAL_MODEL_TIERS.at(-1)?.parameters, 2_800_000_000_000);
+  assert.ok(LOCAL_MODEL_TIERS.some((tier) => Boolean(tier.browserModel)));
+  const current = {
+    enabled: false,
+    provider: 'openai-compatible',
+    providerLabel: 'Test',
+    baseUrl: 'https://example.test/v1',
+    model: 'test-model',
+    temperature: 0.5,
+    maxTokens: 100,
+    contextWindow: 1000,
+    stream: true,
+    timeoutMs: 1000,
+    retry: 0,
+    headers: {},
+    updatedAt: new Date().toISOString(),
+  };
+  const browserConfig = sanitizeImportedConfig({
+    provider: 'browser',
+    providerLabel: 'Browser WebGPU',
+    baseUrl: 'browser://webgpu',
+    model: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC',
+  }, current);
+  assert.equal(browserConfig.provider, 'browser');
 });
 
 test('website knowledge citations navigate to verified routes and character search stays isolated', () => {

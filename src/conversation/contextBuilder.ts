@@ -5,6 +5,7 @@ import { PromptRegistry, promptRegistry } from './promptRegistry.ts';
 import { estimateTokens, truncateText } from './utils.ts';
 import { characters } from '../data/characters.ts';
 import { characterStateManager } from './characterState.ts';
+import { STICKER_SYSTEM_PROMPT } from './stickers.ts';
 
 export const DEFAULT_CONTEXT_BUDGET: ContextBudget = {
   maxTokens: 12_000,
@@ -95,6 +96,7 @@ export class ContextBuilder {
     };
 
     addBlock('core-system', 'core-system', promptText(this.prompts, 'core-system', {}, promptOptions), budget.system);
+    addBlock('sticker-pack', 'sticker-pack', STICKER_SYSTEM_PROMPT, 260);
     addBlock('safety-privacy', 'safety-privacy', promptText(this.prompts, 'safety-privacy', {}, promptOptions), budget.safety);
 
     const modePromptType = input.conversation.mode === 'character'

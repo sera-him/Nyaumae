@@ -183,6 +183,78 @@ function solutionIsValid(
   return regionCounts.every((count) => count === k);
 }
 
+function hasNeighboringHole(solution: boolean[][], row: number, col: number): boolean {
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      if (solution[row + dr]?.[col + dc]) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Break up the solver's visually repetitive diagonal lattices with legal
+ * 2×2 trades. Each accepted trade preserves every row and column count; the
+ * region delta and king-neighbor checks preserve the remaining game rules.
+ */
+function randomizeSolutionLayout(
+  solution: boolean[][],
+  regions: number[][],
+  attempts: number,
+): boolean[][] {
+  const n = solution.length;
+  const mixed = solution.map((row) => [...row]);
+
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    let top = Math.floor(Math.random() * n);
+    let bottom = Math.floor(Math.random() * (n - 1));
+    if (bottom >= top) bottom++;
+    if (top > bottom) [top, bottom] = [bottom, top];
+
+    let left = Math.floor(Math.random() * n);
+    let right = Math.floor(Math.random() * (n - 1));
+    if (right >= left) right++;
+    if (left > right) [left, right] = [right, left];
+
+    const diagonal = mixed[top][left] && mixed[bottom][right]
+      && !mixed[top][right] && !mixed[bottom][left];
+    const antiDiagonal = mixed[top][right] && mixed[bottom][left]
+      && !mixed[top][left] && !mixed[bottom][right];
+    if (!diagonal && !antiDiagonal) continue;
+
+    const removed = diagonal
+      ? [[top, left], [bottom, right]] as const
+      : [[top, right], [bottom, left]] as const;
+    const added = diagonal
+      ? [[top, right], [bottom, left]] as const
+      : [[top, left], [bottom, right]] as const;
+
+    const regionDelta = new Map<number, number>();
+    for (const [row, col] of removed) {
+      const region = regions[row][col];
+      regionDelta.set(region, (regionDelta.get(region) ?? 0) - 1);
+      mixed[row][col] = false;
+    }
+    for (const [row, col] of added) {
+      const region = regions[row][col];
+      regionDelta.set(region, (regionDelta.get(region) ?? 0) + 1);
+      mixed[row][col] = true;
+    }
+
+    const regionsPreserved = [...regionDelta.values()].every((delta) => delta === 0);
+    const adjacencyPreserved = added.every(
+      ([row, col]) => !hasNeighboringHole(mixed, row, col),
+    );
+    if (regionsPreserved && adjacencyPreserved) continue;
+
+    for (const [row, col] of added) mixed[row][col] = false;
+    for (const [row, col] of removed) mixed[row][col] = true;
+  }
+
+  return mixed;
+}
+
 function loadPuzzle(difficulty: Difficulty): PuzzleState {
   const encoded = puzzlesByDifficulty.get(difficulty.id);
   if (!encoded || encoded.n !== difficulty.n || encoded.k !== difficulty.k) {
@@ -206,7 +278,12 @@ function loadPuzzle(difficulty: Difficulty): PuzzleState {
   const regions = transformGrid(rawRegions, symmetry).map(
     (row) => row.map((region) => relabel[region]),
   );
-  const solution = transformGrid(rawSolution, symmetry);
+  const transformedSolution = transformGrid(rawSolution, symmetry);
+  const solution = randomizeSolutionLayout(
+    transformedSolution,
+    regions,
+    Math.max(800, n * n * 12),
+  );
 
   if (!regionsAreConnected(regions) || !solutionIsValid(n, difficulty.k, regions, solution)) {
     throw new Error(`${difficulty.name} 的题目在加载时校验失败`);

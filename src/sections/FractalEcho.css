@@ -1,0 +1,102 @@
+.fractal-game {
+  --ink: #e9fff8;
+  position: relative;
+  isolation: isolate;
+  min-height: 760px;
+  overflow: hidden;
+  padding: clamp(18px, 3vw, 34px);
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, rgba(7, 22, 24, .96), rgba(4, 12, 17, .98)),
+    radial-gradient(circle at 50% 0%, rgba(45, 212, 191, .09), transparent 48%);
+}
+
+.fractal-orb { position: absolute; z-index: -1; width: 320px; height: 320px; border-radius: 50%; filter: blur(90px); opacity: .11; pointer-events: none; }
+.fractal-orb-a { left: -140px; top: 120px; background: #2dd4bf; }
+.fractal-orb-b { right: -140px; bottom: 80px; background: #e879f9; }
+.fractal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+.fractal-kicker { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; color: rgba(94, 234, 212, .72); font: 600 10px/1.2 'JetBrains Mono', monospace; letter-spacing: .18em; }
+.fractal-header h2 { margin: 0; font-size: clamp(25px, 4vw, 39px); font-weight: 800; letter-spacing: -.04em; }
+.fractal-header h2 span { color: rgba(233, 255, 248, .26); font-weight: 400; }
+.fractal-header p { margin: 7px 0 0; color: rgba(233, 255, 248, .44); font-size: 12px; }
+.fractal-header-actions { display: flex; gap: 8px; }
+.fractal-icon-button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; color: rgba(255,255,255,.56); background: rgba(255,255,255,.035); transition: .2s ease; }
+.fractal-icon-button:hover { color: white; border-color: rgba(94,234,212,.28); background: rgba(94,234,212,.06); }
+
+.fractal-scoreboard { display: grid; grid-template-columns: 1fr minmax(130px, .6fr) 1fr; gap: 10px; margin-bottom: 12px; }
+.fractal-player-card, .fractal-round-card { min-width: 0; padding: 13px 15px; border: 1px solid rgba(255,255,255,.07); border-radius: 15px; background: rgba(255,255,255,.025); transition: .2s ease; }
+.fractal-player-card.is-active { transform: translateY(-2px); }
+.fractal-player-card.player-a.is-active { border-color: rgba(94,234,212,.35); box-shadow: 0 8px 28px rgba(45,212,191,.08); }
+.fractal-player-card.player-b { text-align: right; }
+.fractal-player-card.player-b.is-active { border-color: rgba(240,171,252,.35); box-shadow: 0 8px 28px rgba(232,121,249,.08); }
+.fractal-player-label { display: flex; align-items: center; gap: 7px; color: rgba(255,255,255,.52); font-size: 11px; }
+.player-b .fractal-player-label { justify-content: flex-end; }
+.fractal-player-label span { width: 7px; height: 7px; border-radius: 50%; background: #5eead4; box-shadow: 0 0 10px #5eead4; }
+.player-b .fractal-player-label span { background: #f0abfc; box-shadow: 0 0 10px #f0abfc; }
+.fractal-player-card strong { display: block; margin: 4px 0 1px; font: 700 21px/1.2 'JetBrains Mono', monospace; }
+.fractal-player-card small { color: rgba(255,255,255,.3); font-size: 9px; }
+.fractal-round-card { display: grid; place-items: center; text-align: center; }
+.fractal-round-card > div { display: flex; align-items: baseline; gap: 5px; font-family: 'JetBrains Mono', monospace; }
+.fractal-round-card span { color: rgba(255,255,255,.25); font-size: 8px; }
+.fractal-round-card strong { font-size: 24px; }
+.fractal-round-card p { margin: 2px 0 0; color: rgba(255,255,255,.55); font-size: 10px; }
+
+.fractal-phase-track { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; }
+.fractal-phase-track div { display: flex; justify-content: space-between; gap: 5px; padding: 7px 10px; border-radius: 9px; color: rgba(255,255,255,.23); background: rgba(255,255,255,.018); font-size: 9px; }
+.fractal-phase-track div.is-current { color: #99f6e4; background: rgba(45,212,191,.09); box-shadow: inset 0 0 0 1px rgba(94,234,212,.13); }
+.fractal-phase-track small { font-family: 'JetBrains Mono', monospace; opacity: .55; }
+.fractal-rules { margin: 0 0 10px; padding: 12px 15px; border: 1px solid rgba(94,234,212,.1); border-radius: 12px; color: rgba(255,255,255,.48); background: rgba(20,184,166,.04); font-size: 10px; line-height: 1.7; }
+.fractal-rules p { margin: 0; }
+.fractal-rules b { color: #99f6e4; }
+
+.fractal-board-shell { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.075); border-radius: 18px; background: rgba(0,0,0,.22); box-shadow: inset 0 0 80px rgba(0,0,0,.38), 0 22px 60px rgba(0,0,0,.15); }
+.fractal-board { display: block; width: 100%; min-height: 340px; max-height: 560px; touch-action: manipulation; }
+.fractal-midline { stroke: rgba(255,255,255,.055); stroke-width: 1; stroke-dasharray: 4 9; }
+.fractal-tip { opacity: .78; }
+.active-tip { cursor: pointer; filter: url(#branch-glow); animation: fractal-tip-pulse 1.8s ease-in-out infinite; }
+.fractal-preview { cursor: pointer; filter: url(#branch-glow); }
+.fractal-preview line { opacity: .8; }
+@keyframes fractal-tip-pulse { 50% { opacity: .45; r: 11px; } }
+.fractal-result { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; background: rgba(2,10,12,.75); backdrop-filter: blur(10px); }
+.fractal-result > svg { color: #5eead4; }
+.fractal-result span { margin-top: 10px; color: rgba(255,255,255,.4); font-size: 10px; letter-spacing: .18em; }
+.fractal-result h3 { margin: 6px 0 0; font-size: 28px; }
+.fractal-result p { margin: 4px 0 16px; color: rgba(255,255,255,.45); font: 11px 'JetBrains Mono', monospace; }
+.fractal-result button { display: flex; align-items: center; gap: 7px; padding: 10px 16px; border-radius: 999px; color: #05201c; background: #5eead4; font-size: 11px; font-weight: 700; }
+
+.fractal-controls { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 12px; }
+.fractal-notice { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,.4); font-size: 10px; }
+.fractal-notice span { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+.fractal-buttons { display: flex; gap: 8px; }
+.fractal-buttons button { display: flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 14px; border-radius: 11px; font-size: 10px; font-weight: 700; transition: .2s ease; }
+.fractal-buttons button:disabled { cursor: not-allowed; opacity: .28; }
+.fractal-echo-button { color: rgba(255,255,255,.56); border: 1px solid rgba(255,255,255,.09); background: rgba(255,255,255,.035); }
+.fractal-echo-button.is-on { color: #f5d0fe; border-color: rgba(240,171,252,.3); background: rgba(232,121,249,.1); }
+.fractal-echo-button b { display: grid; place-items: center; width: 17px; height: 17px; border-radius: 6px; color: #f5d0fe; background: rgba(232,121,249,.14); font: 9px 'JetBrains Mono', monospace; }
+.fractal-confirm-button { color: #05201c; border: 1px solid #5eead4; background: #5eead4; box-shadow: 0 8px 24px rgba(45,212,191,.12); }
+.fractal-confirm-button:not(:disabled):hover { transform: translateY(-1px); background: #99f6e4; }
+.fractal-sequence { display: flex; align-items: center; gap: 3px; margin-top: 15px; overflow: hidden; }
+.fractal-sequence > span { flex: 0 0 auto; margin-right: 5px; color: rgba(255,255,255,.22); font-size: 8px; letter-spacing: .1em; }
+.fractal-sequence i { display: grid; place-items: center; min-width: 15px; height: 15px; border-radius: 4px; color: rgba(255,255,255,.26); background: rgba(255,255,255,.025); font: normal 7px 'JetBrains Mono', monospace; }
+.fractal-sequence i.a { color: rgba(94,234,212,.46); }
+.fractal-sequence i.b { color: rgba(240,171,252,.46); }
+.fractal-sequence i.now { outline: 1px solid rgba(255,255,255,.55); color: white; transform: scale(1.12); }
+
+@media (max-width: 640px) {
+  .fractal-game { padding: 16px 12px 20px; min-height: 650px; }
+  .fractal-header h2 span { display: none; }
+  .fractal-header p { max-width: 270px; line-height: 1.6; }
+  .fractal-scoreboard { grid-template-columns: 1fr 1fr; }
+  .fractal-round-card { grid-column: 1 / -1; grid-row: 1; padding: 8px; }
+  .fractal-player-card { padding: 10px; }
+  .fractal-board { min-height: 390px; }
+  .fractal-controls { align-items: stretch; flex-direction: column; }
+  .fractal-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+  .fractal-buttons button { justify-content: center; }
+  .fractal-sequence { display: grid; grid-template-columns: auto repeat(16, 1fr); row-gap: 3px; }
+  .fractal-sequence > span { grid-row: span 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .active-tip { animation: none; }
+}

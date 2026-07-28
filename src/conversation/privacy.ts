@@ -33,7 +33,7 @@ export function sanitizeImportedConfig(value: unknown, current: AiConfig): AiCon
   return {
     ...current,
     enabled: typeof candidate.enabled === 'boolean' ? candidate.enabled : current.enabled,
-    provider: candidate.provider === 'local' ? 'local' : 'openai-compatible',
+    provider: candidate.provider === 'local' || candidate.provider === 'browser' ? candidate.provider : 'openai-compatible',
     providerLabel: typeof candidate.providerLabel === 'string' ? candidate.providerLabel : current.providerLabel,
     baseUrl: typeof candidate.baseUrl === 'string' ? candidate.baseUrl : current.baseUrl,
     model: typeof candidate.model === 'string' ? candidate.model : current.model,
@@ -70,12 +70,15 @@ export function validateAiConfig(config: AiConfig): string[] {
   const errors: string[] = [];
   if (!config.enabled) return errors;
   if (!config.model.trim()) errors.push('请填写模型名称。');
-  if (!config.baseUrl.trim()) errors.push('请填写 API 地址。');
+  if (config.provider !== 'browser' && !config.baseUrl.trim()) errors.push('请填写 API 地址。');
   if (config.provider === 'openai-compatible' && !config.apiKey?.trim()) {
     errors.push('请填写 API Key；密钥只会保存在当前浏览器。');
   }
   if (config.provider === 'local' && !/^https?:\/\//i.test(config.baseUrl)) {
     errors.push('本地服务地址需要以 http:// 或 https:// 开头。');
+  }
+  if (config.provider === 'browser' && !config.model.trim()) {
+    errors.push('请选择要下载到浏览器的模型。');
   }
   return errors;
 }

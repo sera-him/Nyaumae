@@ -10,6 +10,7 @@ import Super24 from '@/sections/Super24';
 import HellMaze from '@/sections/HellMaze';
 import ThreeHoles from '@/sections/ThreeHoles';
 import SpaceGame from '@/sections/SpaceGame';
+import FractalEcho from '@/sections/FractalEcho';
 
 /* ─── Types ─── */
 
@@ -76,24 +77,15 @@ const games: GameEntry[] = [
     category: 'games', icon: '🐰', color: '#ec4899',
     component: ThreeHoles,
   },
+  {
+    id: 'fractal-echo', name: '分形回响',
+    desc: '32轮活体分形对决。三叉生长、碰撞剪枝与克隆回声，在二进制潮汐中争夺空间。',
+    category: 'games', icon: '❋', color: '#10b981',
+    component: FractalEcho,
+  },
 
   /* ─── Rule-based ─── */
 
-  {
-    id: 'fractal-echo', name: '分形回响',
-    desc: '边下边长出来的活体分形——三叉分支、碰撞剪枝、克隆回声。递归结构里的策略博弈。',
-    category: 'rules', icon: '❋', color: '#10b981',
-    rules: [
-      '棋盘是一片空白连续平面，起点是一根朝上的种子枝干（长50px，中立）',
-      '每人回合：点击己方一个末端枝梢，从该处长出3根子枝干——长度 ×0.6，转角分别为 −40°/0°/+40°',
-      '前4轮为强制生长期：每人必须从所有可生长的末端同时生长（保证3-4层分形）',
-      '剪枝机制：新枝干的端点若与对方枝干的间距 <8px，则切断对方枝干并移除其所有后代',
-      '剪枝者下一回合跳过（攻击代价）',
-      '克隆回声（每人3次）：复制对方使用过的某个（角度+长度）组合，应用到己方一个枝梢上',
-      '18轮后计分：每根己方枝干得分 = 深度（层数）× 长度，总分高者胜',
-      '平衡：先手第一手后，后手可选择交换身份（hex swap）',
-    ],
-  },
   {
     id: 'neural-clash', name: '神经交锋',
     desc: '100节点·666突触的大图博弈。神经核控场、强化突触主攻、脉冲自动结算。',
@@ -147,7 +139,7 @@ const NAV_ALIAS: Record<string, { category: GameEntry['category']; id: string }>
   'hell-maze': { category: 'games', id: 'hell-maze-vi' },
   'three-holes': { category: 'games', id: 'cunning-rabbit' },
   'cat-mouse-mystery': { category: 'rules', id: 'cat-mouse' },
-  'fractal-war': { category: 'rules', id: 'fractal-echo' },
+  'fractal-war': { category: 'games', id: 'fractal-echo' },
   'neural': { category: 'rules', id: 'neural-clash' },
   'quiz': { category: 'games', id: 'quiz' },
   'problems': { category: 'games', id: 'quiz' },

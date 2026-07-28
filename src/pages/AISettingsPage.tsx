@@ -4,17 +4,27 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  CircleAlert,
   Clipboard,
+  Cloud,
+  Copy,
+  Cpu,
+  Download,
   ExternalLink,
+  Globe2,
+  HardDrive,
   KeyRound,
   Laptop,
   LoaderCircle,
+  MemoryStick,
+  Monitor,
   RotateCcw,
   Save,
   Server,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
+  Terminal,
   Trash2,
   Zap,
 } from 'lucide-react';
@@ -22,110 +32,60 @@ import { Link } from 'react-router';
 import { conversationRepository } from '@/conversation/storage';
 import type { AiConfig } from '@/conversation/types';
 import { exportSafeAiConfig, maskSecret, sanitizeImportedConfig, validateAiConfig } from '@/conversation/privacy';
-import { testModelConnection } from '@/conversation/modelAdapters';
+import { browserSupportsLocalAI, prepareBrowserModel, testModelConnection } from '@/conversation/modelAdapters';
+import {
+  findModelTier,
+  LOCAL_MODEL_TIERS,
+  recommendedTier,
+  type LocalModelTier,
+} from '@/conversation/localModelCatalog';
 import './AISettingsPage.css';
 
 type Notice = { kind: 'success' | 'error' | 'info'; text: string } | null;
-type PresetId = 'openai' | 'deepseek' | 'kimi' | 'siliconflow' | 'ollama' | 'custom';
+type SetupMode = 'cloud' | 'device' | 'browser';
+type CloudPresetId = 'openai' | 'deepseek' | 'kimi' | 'siliconflow' | 'custom';
+type LocalRuntime = 'ollama' | 'lmstudio' | 'custom';
 type ToneId = 'precise' | 'balanced' | 'creative';
 
-type ProviderPreset = {
-  id: PresetId;
+type CloudPreset = {
+  id: CloudPresetId;
   name: string;
   description: string;
-  provider: AiConfig['provider'];
   providerLabel: string;
   baseUrl: string;
   model: string;
   models: string[];
-  needsKey: boolean;
   icon: typeof Bot;
 };
 
-const PROVIDERS: ProviderPreset[] = [
-  {
-    id: 'openai',
-    name: 'OpenAI',
-    description: '使用 OpenAI API',
-    provider: 'openai-compatible',
-    providerLabel: 'OpenAI',
-    baseUrl: 'https://api.openai.com/v1',
-    model: 'gpt-4o-mini',
-    models: ['gpt-4o-mini', 'gpt-4o'],
-    needsKey: true,
-    icon: Sparkles,
-  },
-  {
-    id: 'deepseek',
-    name: 'DeepSeek',
-    description: '国内访问更方便',
-    provider: 'openai-compatible',
-    providerLabel: 'DeepSeek',
-    baseUrl: 'https://api.deepseek.com/v1',
-    model: 'deepseek-chat',
-    models: ['deepseek-chat', 'deepseek-reasoner'],
-    needsKey: true,
-    icon: Zap,
-  },
-  {
-    id: 'kimi',
-    name: 'Kimi',
-    description: 'Moonshot API',
-    provider: 'openai-compatible',
-    providerLabel: 'Kimi',
-    baseUrl: 'https://api.moonshot.cn/v1',
-    model: 'moonshot-v1-8k',
-    models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'],
-    needsKey: true,
-    icon: Bot,
-  },
-  {
-    id: 'siliconflow',
-    name: '硅基流动',
-    description: '多种开源模型',
-    provider: 'openai-compatible',
-    providerLabel: 'SiliconFlow',
-    baseUrl: 'https://api.siliconflow.cn/v1',
-    model: 'deepseek-ai/DeepSeek-V3',
-    models: ['deepseek-ai/DeepSeek-V3', 'Qwen/Qwen2.5-72B-Instruct'],
-    needsKey: true,
-    icon: Server,
-  },
-  {
-    id: 'ollama',
-    name: '本机 Ollama',
-    description: '免费且数据不离开电脑',
-    provider: 'local',
-    providerLabel: 'Ollama',
-    baseUrl: 'http://localhost:11434/v1',
-    model: 'qwen2.5:7b',
-    models: ['qwen2.5:7b', 'llama3.2', 'deepseek-r1:7b'],
-    needsKey: false,
-    icon: Laptop,
-  },
-  {
-    id: 'custom',
-    name: '其他服务',
-    description: '任何 OpenAI 兼容接口',
-    provider: 'openai-compatible',
-    providerLabel: 'OpenAI-compatible',
-    baseUrl: '',
-    model: '',
-    models: [],
-    needsKey: true,
-    icon: SlidersHorizontal,
-  },
+const CLOUD_PROVIDERS: CloudPreset[] = [
+  { id: 'openai', name: 'OpenAI', description: 'OpenAI API', providerLabel: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini', models: ['gpt-4o-mini', 'gpt-4o'], icon: Sparkles },
+  { id: 'deepseek', name: 'DeepSeek', description: '国内访问方便', providerLabel: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat', models: ['deepseek-chat', 'deepseek-reasoner'], icon: Zap },
+  { id: 'kimi', name: 'Kimi', description: 'Moonshot API', providerLabel: 'Kimi', baseUrl: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k', models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'], icon: Bot },
+  { id: 'siliconflow', name: '硅基流动', description: '多种开源模型', providerLabel: 'SiliconFlow', baseUrl: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3', models: ['deepseek-ai/DeepSeek-V3', 'Qwen/Qwen2.5-72B-Instruct'], icon: Server },
+  { id: 'custom', name: '其他服务', description: 'OpenAI 兼容接口', providerLabel: 'OpenAI-compatible', baseUrl: '', model: '', models: [], icon: SlidersHorizontal },
 ];
 
 const TONES: Array<{ id: ToneId; name: string; description: string; temperature: number }> = [
-  { id: 'precise', name: '严谨', description: '回答更稳定、直接', temperature: 0.25 },
-  { id: 'balanced', name: '平衡', description: '适合大多数对话', temperature: 0.7 },
+  { id: 'precise', name: '严谨', description: '回答稳定直接', temperature: 0.25 },
+  { id: 'balanced', name: '平衡', description: '适合多数对话', temperature: 0.7 },
   { id: 'creative', name: '创意', description: '表达更多样', temperature: 1.15 },
 ];
 
-function findPreset(config: AiConfig): ProviderPreset {
-  return PROVIDERS.find((item) => item.baseUrl && config.baseUrl.replace(/\/+$/, '') === item.baseUrl.replace(/\/+$/, ''))
-    ?? (config.provider === 'local' ? PROVIDERS[4] : PROVIDERS[5]);
+function initialMode(config: AiConfig): SetupMode {
+  if (config.provider === 'browser') return 'browser';
+  if (config.provider === 'local') return 'device';
+  return 'cloud';
+}
+
+function findCloudPreset(config: AiConfig): CloudPreset {
+  return CLOUD_PROVIDERS.find((item) => item.baseUrl && config.baseUrl.replace(/\/+$/, '') === item.baseUrl.replace(/\/+$/, ''))
+    ?? CLOUD_PROVIDERS[4];
+}
+
+function deviceMemory(): number | undefined {
+  if (typeof navigator === 'undefined') return undefined;
+  return (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
 }
 
 function findTone(temperature: number): ToneId {
@@ -139,47 +99,126 @@ function numberValue(value: string, fallback: number): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function runtimeFromConfig(config: AiConfig): LocalRuntime {
+  if (config.baseUrl.includes('1234')) return 'lmstudio';
+  if (config.baseUrl.includes('11434')) return 'ollama';
+  return 'custom';
+}
+
 export default function AISettingsPage() {
-  const [config, setConfig] = useState<AiConfig>(() => conversationRepository.getAiConfig());
-  const [selectedPreset, setSelectedPreset] = useState<PresetId>(() => findPreset(conversationRepository.getAiConfig()).id);
+  const initialConfig = useMemo(() => conversationRepository.getAiConfig(), []);
+  const memoryGb = useMemo(() => deviceMemory(), []);
+  const [config, setConfig] = useState<AiConfig>(initialConfig);
+  const [mode, setMode] = useState<SetupMode>(() => initialMode(initialConfig));
+  const [cloudPresetId, setCloudPresetId] = useState<CloudPresetId>(() => findCloudPreset(initialConfig).id);
+  const [runtime, setRuntime] = useState<LocalRuntime>(() => runtimeFromConfig(initialConfig));
+  const [selectedTierId, setSelectedTierId] = useState(() => (
+    findModelTier(initialConfig.model)?.id ?? recommendedTier(memoryGb, initialMode(initialConfig) === 'browser' ? 'browser' : 'device').id
+  ));
   const [apiKeyDraft, setApiKeyDraft] = useState('');
   const [notice, setNotice] = useState<Notice>(null);
   const [testing, setTesting] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+  const [downloadText, setDownloadText] = useState('');
   const [importText, setImportText] = useState('');
   const [showTransfer, setShowTransfer] = useState(false);
 
-  const preset = useMemo(
-    () => PROVIDERS.find((item) => item.id === selectedPreset) ?? PROVIDERS[5],
-    [selectedPreset],
-  );
-  const hasUsableKey = !preset.needsKey || Boolean(apiKeyDraft.trim() || config.apiKey);
+  const cloudPreset = CLOUD_PROVIDERS.find((item) => item.id === cloudPresetId) ?? CLOUD_PROVIDERS[4];
+  const selectedTier = LOCAL_MODEL_TIERS.find((tier) => tier.id === selectedTierId) ?? LOCAL_MODEL_TIERS[5];
+  const recommended = recommendedTier(memoryGb, mode === 'browser' ? 'browser' : 'device');
+  const webGpuReady = useMemo(() => browserSupportsLocalAI(), []);
+  const hasUsableKey = mode !== 'cloud' || Boolean(apiKeyDraft.trim() || config.apiKey);
 
   const update = <K extends keyof AiConfig>(key: K, value: AiConfig[K]) => {
     setConfig((current) => ({ ...current, [key]: value }));
     setNotice(null);
   };
 
-  const chooseProvider = (nextPreset: ProviderPreset) => {
-    const keepExistingKey = nextPreset.id === selectedPreset && nextPreset.needsKey;
-    setSelectedPreset(nextPreset.id);
+  const selectMode = (nextMode: SetupMode) => {
+    setMode(nextMode);
+    setNotice(null);
+    setDownloadProgress(null);
+    if (nextMode === 'cloud') {
+      const preset = CLOUD_PROVIDERS[0];
+      setCloudPresetId(preset.id);
+      setConfig((current) => ({
+        ...current,
+        provider: 'openai-compatible',
+        providerLabel: preset.providerLabel,
+        baseUrl: preset.baseUrl,
+        model: preset.model,
+        apiKey: undefined,
+      }));
+      return;
+    }
+
+    const nextTier = recommendedTier(memoryGb, nextMode);
+    setSelectedTierId(nextTier.id);
+    setApiKeyDraft('');
+    if (nextMode === 'browser') {
+      setConfig((current) => ({
+        ...current,
+        provider: 'browser',
+        providerLabel: '浏览器 WebGPU',
+        baseUrl: 'browser://webgpu',
+        model: nextTier.browserModel ?? LOCAL_MODEL_TIERS.find((tier) => tier.browserModel)?.browserModel ?? '',
+        apiKey: undefined,
+      }));
+    } else {
+      setRuntime('ollama');
+      setConfig((current) => ({
+        ...current,
+        provider: 'local',
+        providerLabel: 'Ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: nextTier.ollamaModel ?? nextTier.deviceModel,
+        apiKey: undefined,
+      }));
+    }
+  };
+
+  const chooseCloudProvider = (preset: CloudPreset) => {
+    const keepKey = mode === 'cloud' && preset.id === cloudPresetId;
+    setCloudPresetId(preset.id);
     setConfig((current) => ({
       ...current,
-      provider: nextPreset.provider,
-      providerLabel: nextPreset.providerLabel,
-      baseUrl: nextPreset.baseUrl,
-      model: nextPreset.model,
-      apiKey: keepExistingKey ? current.apiKey : undefined,
+      provider: 'openai-compatible',
+      providerLabel: preset.providerLabel,
+      baseUrl: preset.baseUrl,
+      model: preset.model,
+      apiKey: keepKey ? current.apiKey : undefined,
     }));
-    if (!keepExistingKey) setApiKeyDraft('');
+    if (!keepKey) setApiKeyDraft('');
     setNotice(null);
   };
 
-  const chooseTone = (tone: (typeof TONES)[number]) => update('temperature', tone.temperature);
+  const chooseRuntime = (nextRuntime: LocalRuntime) => {
+    setRuntime(nextRuntime);
+    const runtimeConfig = nextRuntime === 'ollama'
+      ? { providerLabel: 'Ollama', baseUrl: 'http://localhost:11434/v1' }
+      : nextRuntime === 'lmstudio'
+        ? { providerLabel: 'LM Studio', baseUrl: 'http://localhost:1234/v1' }
+        : { providerLabel: '本地 OpenAI 兼容服务', baseUrl: '' };
+    setConfig((current) => ({
+      ...current,
+      provider: 'local',
+      ...runtimeConfig,
+      model: selectedTier.ollamaModel ?? selectedTier.deviceModel,
+      apiKey: undefined,
+    }));
+    setNotice(null);
+  };
+
+  const chooseTier = (tier: LocalModelTier) => {
+    if (mode === 'browser' && !tier.browserModel) return;
+    setSelectedTierId(tier.id);
+    update('model', mode === 'browser' ? (tier.browserModel ?? '') : (tier.ollamaModel ?? tier.deviceModel));
+  };
 
   const buildNextConfig = (): AiConfig => ({
     ...config,
     enabled: true,
-    apiKey: preset.needsKey ? (apiKeyDraft.trim() || config.apiKey) : undefined,
+    apiKey: mode === 'cloud' ? (apiKeyDraft.trim() || config.apiKey) : undefined,
     updatedAt: new Date().toISOString(),
   });
 
@@ -203,15 +242,22 @@ export default function AISettingsPage() {
       setNotice({ kind: 'error', text: errors.join(' ') });
       return;
     }
-
     setTesting(true);
-    setNotice({ kind: 'info', text: '正在连接模型，通常只需要几秒钟…' });
+    setNotice({ kind: 'info', text: mode === 'browser' ? '正在准备浏览器本地模型…' : '正在连接模型…' });
     try {
+      if (mode === 'browser') {
+        setDownloadProgress(0);
+        await prepareBrowserModel(next.model, (progress, text) => {
+          setDownloadProgress(progress);
+          setDownloadText(text);
+        });
+      }
       await testModelConnection(next);
       const saved = conversationRepository.saveAiConfig(next);
       setConfig(saved);
       setApiKeyDraft('');
-      setNotice({ kind: 'success', text: '连接成功，设置已经保存。' });
+      setDownloadProgress(mode === 'browser' ? 100 : null);
+      setNotice({ kind: 'success', text: mode === 'browser' ? '模型已保存在浏览器缓存中，可以离线对话。' : '连接成功，设置已经保存。' });
     } catch (error) {
       setNotice({ kind: 'error', text: error instanceof Error ? error.message : '连接失败，请检查填写内容后重试。' });
     } finally {
@@ -219,13 +265,20 @@ export default function AISettingsPage() {
     }
   };
 
+  const copyCommand = async () => {
+    const model = selectedTier.ollamaModel ?? config.model;
+    await navigator.clipboard?.writeText(`ollama pull ${model}`);
+    setNotice({ kind: 'success', text: '安装命令已复制。' });
+  };
+
   const clear = () => {
     conversationRepository.clearAiConfig();
     const fresh = conversationRepository.getAiConfig();
     setConfig(fresh);
-    setSelectedPreset(findPreset(fresh).id);
+    setMode('cloud');
+    setCloudPresetId(findCloudPreset(fresh).id);
     setApiKeyDraft('');
-    setNotice({ kind: 'info', text: '这台设备上的 AI 设置已清除。' });
+    setNotice({ kind: 'info', text: '这台设备上的 AI 设置已清除。浏览器模型缓存可在浏览器的网站数据中清除。' });
   };
 
   const exportConfig = async () => {
@@ -243,7 +296,10 @@ export default function AISettingsPage() {
     try {
       const next = sanitizeImportedConfig(JSON.parse(importText) as unknown, config);
       setConfig(next);
-      setSelectedPreset(findPreset(next).id);
+      setMode(initialMode(next));
+      setCloudPresetId(findCloudPreset(next).id);
+      setRuntime(runtimeFromConfig(next));
+      setSelectedTierId(findModelTier(next.model)?.id ?? selectedTierId);
       setNotice({ kind: 'success', text: '配置已载入。确认无误后，请点击“仅保存”。' });
     } catch (error) {
       setNotice({ kind: 'error', text: error instanceof Error ? error.message : '无法识别这份配置。' });
@@ -255,9 +311,9 @@ export default function AISettingsPage() {
       <div className="aurora-container ai-settings-inner">
         <header className="ai-settings-hero">
           <div>
-            <p className="aurora-eyebrow">AI CONNECTION</p>
-            <h1 className="aurora-title">连接你的 AI</h1>
-            <p className="aurora-lead">选一个服务，填入密钥，就可以开始对话。</p>
+            <p className="aurora-eyebrow">AI SETUP / 1M — 2.8T</p>
+            <h1 className="aurora-title">选择你的 AI</h1>
+            <p className="aurora-lead">云端、电脑本地或浏览器内运行，一步一步完成。</p>
           </div>
           {config.enabled && (
             <div className="ai-current-status">
@@ -268,162 +324,140 @@ export default function AISettingsPage() {
           )}
         </header>
 
-        <section className="ai-setup-card" aria-labelledby="provider-title">
-          <div className="ai-step-heading">
-            <span>1</span>
-            <div>
-              <h2 id="provider-title">选择 AI 服务</h2>
-              <p>不知道怎么选？DeepSeek 通常最容易上手。</p>
-            </div>
-          </div>
-          <div className="ai-provider-grid">
-            {PROVIDERS.map((item) => {
-              const Icon = item.icon;
-              const selected = item.id === selectedPreset;
-              return (
-                <button
-                  type="button"
-                  className={`ai-provider-card${selected ? ' is-selected' : ''}`}
-                  aria-pressed={selected}
-                  key={item.id}
-                  onClick={() => chooseProvider(item)}
-                >
-                  <span className="ai-provider-icon"><Icon /></span>
-                  <span><strong>{item.name}</strong><small>{item.description}</small></span>
-                  <Check className="ai-provider-check" />
-                </button>
-              );
-            })}
+        <section className="ai-setup-card">
+          <div className="ai-step-heading"><span>1</span><div><h2>AI 放在哪里运行？</h2><p>本地模式不会把对话发送给云端模型服务商。</p></div></div>
+          <div className="ai-placement-grid">
+            <button type="button" className={`ai-placement-card${mode === 'cloud' ? ' is-selected' : ''}`} onClick={() => selectMode('cloud')} aria-pressed={mode === 'cloud'}>
+              <Cloud /><span><strong>云端 API</strong><small>最省设备空间，需 API Key</small></span><Check />
+            </button>
+            <button type="button" className={`ai-placement-card${mode === 'device' ? ' is-selected' : ''}`} onClick={() => selectMode('device')} aria-pressed={mode === 'device'}>
+              <HardDrive /><span><strong>放在电脑本地</strong><small>Ollama / LM Studio，支持 1M—2.8T</small></span><Check />
+            </button>
+            <button type="button" className={`ai-placement-card${mode === 'browser' ? ' is-selected' : ''}`} onClick={() => selectMode('browser')} aria-pressed={mode === 'browser'}>
+              <Globe2 /><span><strong>放在浏览器</strong><small>无需安装，模型保存在浏览器缓存</small></span><Check />
+            </button>
           </div>
         </section>
 
-        <section className="ai-setup-card" aria-labelledby="account-title">
-          <div className="ai-step-heading">
-            <span>2</span>
-            <div>
-              <h2 id="account-title">{preset.needsKey ? '填写连接信息' : '确认本机模型'}</h2>
-              <p>{preset.needsKey ? '密钥只保存在当前浏览器中。' : '请先确认 Ollama 已在这台电脑上运行。'}</p>
+        {mode === 'cloud' ? (
+          <section className="ai-setup-card">
+            <div className="ai-step-heading"><span>2</span><div><h2>选择云端服务</h2><p>选择后只需填写密钥。</p></div></div>
+            <div className="ai-provider-grid">
+              {CLOUD_PROVIDERS.map((item) => {
+                const Icon = item.icon;
+                const selected = item.id === cloudPresetId;
+                return (
+                  <button type="button" className={`ai-provider-card${selected ? ' is-selected' : ''}`} aria-pressed={selected} key={item.id} onClick={() => chooseCloudProvider(item)}>
+                    <span className="ai-provider-icon"><Icon /></span>
+                    <span><strong>{item.name}</strong><small>{item.description}</small></span>
+                    <Check className="ai-provider-check" />
+                  </button>
+                );
+              })}
             </div>
-          </div>
-
-          <div className="ai-primary-fields">
-            {preset.needsKey && (
+            <div className="ai-primary-fields ai-cloud-fields">
               <label className="ai-field">
                 <span>API Key <small>{config.apiKey ? `已保存 ${maskSecret(config.apiKey)}` : '必填'}</small></span>
-                <div className="ai-secret-input">
-                  <KeyRound />
-                  <input
-                    type="password"
-                    value={apiKeyDraft}
-                    onChange={(event) => { setApiKeyDraft(event.target.value); setNotice(null); }}
-                    placeholder={config.apiKey ? '留空则继续使用已保存的密钥' : '粘贴你的 API Key'}
-                    autoComplete="new-password"
-                  />
-                </div>
-              </label>
-            )}
-
-            <label className="ai-field">
-              <span>模型 <small>已为你选择推荐项</small></span>
-              {preset.models.length > 0 ? (
-                <select value={config.model} onChange={(event) => update('model', event.target.value)}>
-                  {preset.models.map((model) => <option key={model} value={model}>{model}</option>)}
-                  {!preset.models.includes(config.model) && config.model && <option value={config.model}>{config.model}</option>}
-                </select>
-              ) : (
-                <input value={config.model} onChange={(event) => update('model', event.target.value)} placeholder="例如：my-model" />
-              )}
-            </label>
-          </div>
-
-          {selectedPreset === 'custom' && (
-            <div className="ai-custom-fields">
-              <label className="ai-field">
-                <span>服务名称</span>
-                <input value={config.providerLabel} onChange={(event) => update('providerLabel', event.target.value)} placeholder="例如：我的 AI 服务" />
+                <div className="ai-secret-input"><KeyRound /><input type="password" value={apiKeyDraft} onChange={(event) => { setApiKeyDraft(event.target.value); setNotice(null); }} placeholder={config.apiKey ? '留空则继续使用已保存的密钥' : '粘贴你的 API Key'} autoComplete="new-password" /></div>
               </label>
               <label className="ai-field">
-                <span>API 地址</span>
-                <input value={config.baseUrl} onChange={(event) => update('baseUrl', event.target.value)} placeholder="https://api.example.com/v1" />
+                <span>模型</span>
+                {cloudPreset.models.length ? <select value={config.model} onChange={(event) => update('model', event.target.value)}>{cloudPreset.models.map((model) => <option key={model}>{model}</option>)}</select> : <input value={config.model} onChange={(event) => update('model', event.target.value)} placeholder="模型名称" />}
               </label>
             </div>
-          )}
-
-          <details className="ai-advanced">
-            <summary><SlidersHorizontal />高级设置 <small>大多数人不需要修改</small><ChevronDown /></summary>
-            <div className="ai-advanced-body">
-              {selectedPreset !== 'custom' && (
-                <label className="ai-field">
-                  <span>API 地址</span>
-                  <input value={config.baseUrl} onChange={(event) => update('baseUrl', event.target.value)} />
-                </label>
-              )}
-              <div className="ai-tone-field">
-                <span>回答风格</span>
-                <div className="ai-tone-options">
-                  {TONES.map((tone) => (
+            {cloudPresetId === 'custom' && <div className="ai-custom-fields"><label className="ai-field"><span>服务名称</span><input value={config.providerLabel} onChange={(event) => update('providerLabel', event.target.value)} /></label><label className="ai-field"><span>API 地址</span><input value={config.baseUrl} onChange={(event) => update('baseUrl', event.target.value)} placeholder="https://api.example.com/v1" /></label></div>}
+          </section>
+        ) : (
+          <>
+            <section className="ai-setup-card">
+              <div className="ai-step-heading">
+                <span>2</span>
+                <div><h2>选择模型尺寸</h2><p>完整覆盖 1M 到 2.8T；默认已按这台设备推荐。</p></div>
+                <div className="ai-device-memory"><MemoryStick /><span>检测到<strong>{memoryGb ? `约 ${memoryGb} GB` : '未知内存'}</strong></span></div>
+              </div>
+              <div className="ai-scale-legend"><span>微型</span><span>个人设备</span><span>工作站</span><span>服务器</span><span>集群</span></div>
+              <div className="ai-size-grid" role="list" aria-label="模型参数规模">
+                {LOCAL_MODEL_TIERS.map((tier) => {
+                  const unavailable = mode === 'browser' && !tier.browserModel;
+                  return (
                     <button
                       type="button"
-                      className={findTone(config.temperature) === tone.id ? 'is-selected' : ''}
-                      onClick={() => chooseTone(tone)}
-                      key={tone.id}
+                      key={tier.id}
+                      className={`${tier.id === selectedTierId ? 'is-selected' : ''}${tier.id === recommended.id ? ' is-recommended' : ''}`}
+                      onClick={() => chooseTier(tier)}
+                      disabled={unavailable}
+                      title={unavailable ? '该尺寸不适合在浏览器中运行，请选择电脑本地模式' : tier.hardware}
                     >
-                      <strong>{tone.name}</strong><small>{tone.description}</small>
+                      <strong>{tier.label}</strong>
+                      {tier.id === recommended.id && <small>推荐</small>}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-              <div className="ai-advanced-grid">
-                <label className="ai-field"><span>最大输出长度</span><input type="number" min="128" max="32768" value={config.maxTokens} onChange={(event) => update('maxTokens', Math.round(numberValue(event.target.value, config.maxTokens)))} /></label>
-                <label className="ai-field"><span>超时时间（秒）</span><input type="number" min="5" max="300" value={Math.round(config.timeoutMs / 1000)} onChange={(event) => update('timeoutMs', Math.round(numberValue(event.target.value, config.timeoutMs / 1000) * 1000))} /></label>
+              <div className="ai-tier-detail">
+                <div><Cpu /><span><small>已选尺寸</small><strong>{selectedTier.label}</strong></span></div>
+                <div><MemoryStick /><span><small>4-bit 约需</small><strong>{selectedTier.quantizedMemory}</strong></span></div>
+                <div><Monitor /><span><small>建议设备</small><strong>{selectedTier.hardware}</strong></span></div>
+                <p>{selectedTier.description}</p>
               </div>
-              <label className="ai-switch-row">
-                <span><strong>流式显示回答</strong><small>像打字一样逐字出现</small></span>
-                <input type="checkbox" checked={config.stream} onChange={(event) => update('stream', event.target.checked)} />
-              </label>
-            </div>
-          </details>
-        </section>
+              {mode === 'browser' && <div className={`ai-capability-note ${webGpuReady ? 'is-ready' : 'is-warning'}`}>{webGpuReady ? <CheckCircle2 /> : <CircleAlert />}<span><strong>{webGpuReady ? '当前浏览器支持 WebGPU' : '当前浏览器没有可用的 WebGPU'}</strong>{webGpuReady ? ' 模型会下载到浏览器缓存，之后可离线使用。' : ' 请使用最新版 Chrome/Edge，或改用“电脑本地”。'}</span></div>}
+              {mode === 'device' && selectedTier.parameters >= 7e10 && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>这不是普通电脑能轻松运行的尺寸。</strong> 页面允许配置到 2.8T，但 70B 以上通常需要专业工作站、多 GPU 或分布式集群。</span></div>}
+            </section>
 
-        {notice && (
-          <div className={`ai-inline-notice is-${notice.kind}`} role="status" aria-live="polite">
-            {testing ? <LoaderCircle className="is-spinning" /> : notice.kind === 'success' ? <CheckCircle2 /> : <ShieldCheck />}
-            <span>{notice.text}</span>
-          </div>
+            <section className="ai-setup-card">
+              <div className="ai-step-heading"><span>3</span><div><h2>{mode === 'browser' ? '下载到浏览器' : '连接电脑上的 AI'}</h2><p>{mode === 'browser' ? '首次下载后，模型权重会留在当前浏览器。' : '按照下面三步即可完成本地部署。'}</p></div></div>
+              {mode === 'device' ? (
+                <>
+                  <div className="ai-runtime-grid">
+                    <button type="button" className={runtime === 'ollama' ? 'is-selected' : ''} onClick={() => chooseRuntime('ollama')}><Terminal /><span><strong>Ollama</strong><small>最简单，推荐</small></span></button>
+                    <button type="button" className={runtime === 'lmstudio' ? 'is-selected' : ''} onClick={() => chooseRuntime('lmstudio')}><Laptop /><span><strong>LM Studio</strong><small>图形界面</small></span></button>
+                    <button type="button" className={runtime === 'custom' ? 'is-selected' : ''} onClick={() => chooseRuntime('custom')}><Server /><span><strong>其他本地服务</strong><small>OpenAI 兼容接口</small></span></button>
+                  </div>
+                  <ol className="ai-deploy-steps">
+                    <li><span>1</span><div><strong>安装运行器</strong><p>{runtime === 'ollama' ? '下载安装 Ollama。' : runtime === 'lmstudio' ? '下载安装 LM Studio，并在 Local Server 中启动服务。' : '启动你的本地推理服务并打开 OpenAI 兼容接口。'}</p>{runtime !== 'custom' && <a href={runtime === 'ollama' ? 'https://ollama.com/download' : 'https://lmstudio.ai/'} target="_blank" rel="noreferrer">打开官方下载页 <ExternalLink /></a>}</div></li>
+                    <li><span>2</span><div><strong>{runtime === 'ollama' ? '下载模型' : '加载模型'}</strong>{runtime === 'ollama' && selectedTier.ollamaModel ? <button type="button" className="ai-command" onClick={() => void copyCommand()}><code>ollama pull {selectedTier.ollamaModel}</code><Copy /></button> : <p>{runtime === 'ollama' ? '这个尺寸没有预设模型，请在下方填写可用的 Ollama 模型名称。' : '在运行器里下载并加载对应尺寸的模型，然后填写它显示的模型名称。'}</p>}</div></li>
+                    <li><span>3</span><div><strong>测试连接</strong><p>保持本地服务运行，再点击页面底部的“保存并测试”。</p></div></li>
+                  </ol>
+                  <div className="ai-primary-fields">
+                    <label className="ai-field"><span>本地 API 地址</span><input value={config.baseUrl} onChange={(event) => update('baseUrl', event.target.value)} placeholder="http://localhost:11434/v1" /></label>
+                    <label className="ai-field"><span>模型名称</span><input value={config.model} onChange={(event) => update('model', event.target.value)} placeholder="例如：qwen2.5:7b" /></label>
+                  </div>
+                </>
+              ) : (
+                <div className="ai-browser-install">
+                  <div className="ai-browser-model"><Globe2 /><div><small>将下载到当前浏览器</small><strong>{selectedTier.label} · {selectedTier.browserModel}</strong><span>{selectedTier.browserDownload} · 无需 API Key · 对话不离开设备</span></div></div>
+                  <div className="ai-browser-facts"><span><Check />刷新页面后仍可使用</span><span><Check />模型由浏览器网站数据管理</span><span><Check />首次下载需要网络</span></div>
+                  {downloadProgress !== null && <div className="ai-download-progress"><div><span style={{ width: `${downloadProgress}%` }} /></div><p><strong>{downloadProgress}%</strong>{downloadText || '正在准备模型文件…'}</p></div>}
+                </div>
+              )}
+            </section>
+          </>
         )}
 
+        <details className="ai-setup-card ai-advanced">
+          <summary><SlidersHorizontal />高级生成设置 <small>大多数人不需要修改</small><ChevronDown /></summary>
+          <div className="ai-advanced-body">
+            <div className="ai-tone-field"><span>回答风格</span><div className="ai-tone-options">{TONES.map((tone) => <button type="button" className={findTone(config.temperature) === tone.id ? 'is-selected' : ''} onClick={() => update('temperature', tone.temperature)} key={tone.id}><strong>{tone.name}</strong><small>{tone.description}</small></button>)}</div></div>
+            <div className="ai-advanced-grid">
+              <label className="ai-field"><span>最大输出长度</span><input type="number" min="128" max="32768" value={config.maxTokens} onChange={(event) => update('maxTokens', Math.round(numberValue(event.target.value, config.maxTokens)))} /></label>
+              <label className="ai-field"><span>超时时间（秒）</span><input type="number" min="5" max="300" value={Math.round(config.timeoutMs / 1000)} onChange={(event) => update('timeoutMs', Math.round(numberValue(event.target.value, config.timeoutMs / 1000) * 1000))} /></label>
+            </div>
+            <label className="ai-switch-row"><span><strong>流式显示回答</strong><small>像打字一样逐字出现</small></span><input type="checkbox" checked={config.stream} onChange={(event) => update('stream', event.target.checked)} /></label>
+          </div>
+        </details>
+
+        {notice && <div className={`ai-inline-notice is-${notice.kind}`} role="status" aria-live="polite">{testing ? <LoaderCircle className="is-spinning" /> : notice.kind === 'success' ? <CheckCircle2 /> : <ShieldCheck />}<span>{notice.text}</span></div>}
+
         <div className="ai-main-actions">
-          <button type="button" className="ai-button ai-button-secondary" onClick={saveOnly} disabled={testing || !hasUsableKey}>
-            <Save />仅保存
-          </button>
-          <button type="button" className="ai-button ai-button-primary" onClick={() => void saveAndTest()} disabled={testing || !hasUsableKey}>
-            {testing ? <LoaderCircle className="is-spinning" /> : <Zap />}
-            {testing ? '正在连接…' : '保存并测试连接'}
-          </button>
+          <button type="button" className="ai-button ai-button-secondary" onClick={saveOnly} disabled={testing || !hasUsableKey}><Save />仅保存</button>
+          <button type="button" className="ai-button ai-button-primary" onClick={() => void saveAndTest()} disabled={testing || !hasUsableKey || (mode === 'browser' && !webGpuReady)}>{testing ? <LoaderCircle className="is-spinning" /> : mode === 'browser' ? <Download /> : <Zap />}{testing ? (mode === 'browser' ? '正在下载并加载…' : '正在连接…') : mode === 'browser' ? '下载模型并启用' : '保存并测试连接'}</button>
         </div>
 
-        <div className="ai-privacy-note">
-          <ShieldCheck />
-          <span><strong>密钥仅存储在这台设备上</strong>，不会出现在对话导出或配置导出中。</span>
-          <Link to="/chat">前往 AI 对话 <ExternalLink /></Link>
-        </div>
+        <div className="ai-privacy-note"><ShieldCheck /><span><strong>{mode === 'cloud' ? '密钥仅存储在这台设备上' : '本地模式不会把对话发送给云端模型服务商'}</strong>，配置导出中也不会包含密钥。</span><Link to="/chat">前往 AI 对话 <ExternalLink /></Link></div>
 
         <section className="ai-transfer">
-          <button type="button" className="ai-transfer-toggle" onClick={() => setShowTransfer((current) => !current)} aria-expanded={showTransfer}>
-            <span><Clipboard />配置迁移与清除</span><ChevronDown className={showTransfer ? 'is-open' : ''} />
-          </button>
-          {showTransfer && (
-            <div className="ai-transfer-body">
-              <p>可复制或导入不含密钥的配置，适合在不同设备间迁移。</p>
-              <div className="ai-settings-actions">
-                <button type="button" className="ai-button ai-button-secondary" onClick={() => void exportConfig()}><Clipboard />复制配置</button>
-                <button type="button" className="ai-button ai-button-danger" onClick={clear}><Trash2 />清除本机设置</button>
-                <button type="button" className="ai-button ai-button-secondary" onClick={() => setImportText('')}><RotateCcw />清空文本</button>
-              </div>
-              <textarea className="ai-import-box" value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="在这里粘贴配置 JSON" rows={6} />
-              <button type="button" className="ai-button ai-button-secondary" onClick={importConfig} disabled={!importText.trim()}>载入配置</button>
-            </div>
-          )}
+          <button type="button" className="ai-transfer-toggle" onClick={() => setShowTransfer((current) => !current)} aria-expanded={showTransfer}><span><Clipboard />配置迁移与清除</span><ChevronDown className={showTransfer ? 'is-open' : ''} /></button>
+          {showTransfer && <div className="ai-transfer-body"><p>可复制或导入不含密钥的配置，适合在不同设备间迁移。</p><div className="ai-settings-actions"><button type="button" className="ai-button ai-button-secondary" onClick={() => void exportConfig()}><Clipboard />复制配置</button><button type="button" className="ai-button ai-button-danger" onClick={clear}><Trash2 />清除本机设置</button><button type="button" className="ai-button ai-button-secondary" onClick={() => setImportText('')}><RotateCcw />清空文本</button></div><textarea className="ai-import-box" value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="在这里粘贴配置 JSON" rows={6} /><button type="button" className="ai-button ai-button-secondary" onClick={importConfig} disabled={!importText.trim()}>载入配置</button></div>}
         </section>
       </div>
     </main>

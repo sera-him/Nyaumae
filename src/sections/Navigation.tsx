@@ -14,8 +14,8 @@ const primaryItems = [
   { label: '角色档案', to: '/characters', icon: Users },
   { label: '故事章节', to: '/stories', icon: BookOpen },
   { label: '咪呀的空间', to: '/miia', icon: Sparkles },
-  { label: 'MathModels', to: '/math', icon: Sigma },
-  { label: 'Playground', to: '/playground', icon: Gamepad2 },
+  { label: '数学模型', to: '/math', icon: Sigma },
+  { label: '游戏', to: '/playground', icon: Gamepad2 },
   { label: '星海对话', to: '/chat', icon: MessageCircleMore },
   { label: 'AI 设置', to: '/settings/ai', icon: Settings2 },
 ];
@@ -75,7 +75,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: 'Playground', caption: 'PLAYGROUND', icon: Gamepad2,
+    label: '游戏', caption: 'PLAYGROUND', icon: Gamepad2,
     items: [
       { label: '可玩游戏', to: '/playground/games' },
       { label: '规则说明', to: '/playground/rules' },

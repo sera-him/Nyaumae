@@ -71,7 +71,7 @@ export const networkNodes: NetworkNode[] = [
   { id: 'lila',       name: 'Līlā',   group: 'independent', x: 16.66, y: 78.95 },
   { id: 'cola',       name: '可乐',   group: 'independent', x:  9.67, y: 58.32 },
   { id: 'linkmo',     name: '林可梦', group: 'independent', x: 29.71, y: 85.01 },
-  { id: 'ifchan',     name: 'あいえふちゃん', group: 'independent', x:  3.00, y: 71.96 },
+  { id: 'ifchan',     name: 'あいえふちゃん', group: 'independent', x:  3.00, y: 75.50 },
 
   // 数字生命 (3) 红色
   { id: 'miacubic',   name: 'mia³',   group: 'ai',       x: 74.62, y: 56.19 },
@@ -82,15 +82,15 @@ export const networkNodes: NetworkNode[] = [
   { id: 'quartus',    name: '卡塔斯', group: 'special',  x: 45.49, y: 85.01 },
 
   // 《大人国的小女孩》角色集中区
-  { id: 'changfeng',  name: '长风',     group: 'giant', x: 111, y: 17 },
-  { id: 'chuxia',     name: '初夏',     group: 'giant', x: 130, y: 17 },
-  { id: 'xiaoman',    name: '小满',     group: 'giant', x: 120, y: 32 },
-  { id: 'xiaogu',     name: '小谷',     group: 'giant', x: 109, y: 46 },
-  { id: 'xiaohe',     name: '小禾',     group: 'giant', x: 132, y: 46 },
-  { id: 'miaowu',     name: '喵呜',     group: 'giant', x: 120, y: 60 },
-  { id: 'xiulan',     name: '秀兰奶奶', group: 'giant', x: 108, y: 76 },
-  { id: 'zhouji',     name: '周济',     group: 'giant', x: 132, y: 76 },
-  { id: 'high-school-student', name: '陈予安', group: 'giant', x: 120, y: 90 },
+  { id: 'changfeng',  name: '长风',     group: 'giant', x: 10, y: 10 },
+  { id: 'chuxia',     name: '初夏',     group: 'giant', x: 30, y: 10 },
+  { id: 'xiaoman',    name: '小满',     group: 'giant', x:  2, y: 29 },
+  { id: 'xiaogu',     name: '小谷',     group: 'giant', x: 20, y: 42 },
+  { id: 'xiaohe',     name: '小禾',     group: 'giant', x: 38, y: 29 },
+  { id: 'miaowu',     name: '喵呜',     group: 'giant', x: 52, y: 42 },
+  { id: 'xiulan',     name: '秀兰奶奶', group: 'giant', x: 63, y: 10 },
+  { id: 'zhouji',     name: '周济',     group: 'giant', x: 85, y: 10 },
+  { id: 'high-school-student', name: '陈予安', group: 'giant', x: 74, y: 34 },
 ];
 
 /* ═══════════════════════════════════════════

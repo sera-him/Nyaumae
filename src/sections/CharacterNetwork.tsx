@@ -8,7 +8,7 @@ import type { RelationType } from '@/data/relationships';
 const groupColors: Record<string, string> = {
   'mia-family': '#F472B6', 'zhihua': '#8B5CF6', 'impact': '#00E5CC',
   'other': '#F59E0B', 'independent': '#3B82F6', 'ai': '#EF4444',
-  'special': '#E2E8F0', 'giant': '#FB923C',
+  'special': '#E2E8F0', 'giant': '#84CC16',
 };
 const groupLabels: Record<string, string> = {
   'mia-family': 'M/I/A 家族', 'zhihua': '哲华学校', 'impact': '因派',
@@ -24,68 +24,17 @@ interface PosNode {
   id: string; name: string; group: string; x: number; y: number;
 }
 
-function quadraticPoint(
-  start: { x: number; y: number },
-  control: { x: number; y: number },
-  end: { x: number; y: number },
-  t: number,
-) {
-  const mt = 1 - t;
-  return {
-    x: mt * mt * start.x + 2 * mt * t * control.x + t * t * end.x,
-    y: mt * mt * start.y + 2 * mt * t * control.y + t * t * end.y,
-  };
-}
-
-/** Route an edge around every unrelated character circle. */
-function getEdgePath(a: PosNode, b: PosNode, nodes: PosNode[], edgeIndex: number) {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const dist = Math.hypot(dx, dy) || 0.1;
-  const nx = dx / dist;
-  const ny = dy / dist;
-  const start = { x: a.x + nx * R, y: a.y + ny * R };
-  const end = { x: b.x - nx * R, y: b.y - ny * R };
-  const mid = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
-  const perpendicular = { x: -ny, y: nx };
-  const clearance = R + 0.9;
-
-  const isClear = (control: { x: number; y: number }) => {
-    for (let step = 1; step < 40; step += 1) {
-      const point = quadraticPoint(start, control, end, step / 40);
-      const blocked = nodes.some((node) => {
-        if (node.id === a.id || node.id === b.id) return false;
-        return Math.hypot(point.x - node.x, point.y - node.y) < clearance;
-      });
-      if (blocked) return false;
-    }
-    return true;
-  };
-
-  const preferredSide = edgeIndex % 2 === 0 ? 1 : -1;
-  const offsets = [0, 5, -5, 9, -9, 14, -14, 20, -20, 27, -27]
-    .map((offset) => offset * preferredSide);
-
-  for (const offset of offsets) {
-    const control = {
-      x: mid.x + perpendicular.x * offset,
-      y: mid.y + perpendicular.y * offset,
-    };
-    if (isClear(control)) {
-      return `M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`;
-    }
-  }
-
-  const fallbackOffset = 34 * preferredSide;
-  return `M ${start.x} ${start.y} Q ${mid.x + perpendicular.x * fallbackOffset} ${mid.y + perpendicular.y * fallbackOffset} ${end.x} ${end.y}`;
-}
-
 export default function CharacterNetwork() {
   const { ref, isVisible } = useScrollReveal();
   const [selected, setSelected] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<RelationType | null>(null);
 
-  const nodes: PosNode[] = networkNodes;
+  const nodes: PosNode[] = useMemo(
+    () => networkNodes.map((node) => (
+      node.group === 'giant' ? node : { ...node, y: node.y + 45 }
+    )),
+    [],
+  );
 
   const filteredRels = useMemo(() => {
     if (!activeFilter) return characterRelations;
@@ -138,8 +87,8 @@ export default function CharacterNetwork() {
 
         {/* SVG */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isVisible ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl overflow-hidden" style={{ height: 560 }}>
-          <svg className="w-full h-full select-none" viewBox="0 0 142 100" preserveAspectRatio="xMidYMid meet" onClick={onBgClick}>
+          className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl overflow-hidden" style={{ height: 760 }}>
+          <svg className="w-full h-full select-none" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet" onClick={onBgClick}>
             <defs>
               <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
                 <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#ffffff06" strokeWidth="0.3" />
@@ -148,17 +97,19 @@ export default function CharacterNetwork() {
             <rect width="100" height="100" fill="url(#grid)" />
 
             {/* EDGES */}
-            {filteredRels.map((rel, i) => {
+            {filteredRels.map((rel) => {
               const a = nodes.find((n) => n.id === rel.from);
               const b = nodes.find((n) => n.id === rel.to);
               if (!a || !b) return null;
-              const dist = Math.hypot(b.x - a.x, b.y - a.y);
+              const dx = b.x - a.x, dy = b.y - a.y;
+              const dist = Math.hypot(dx, dy);
               if (dist < R2) return null;
+              const nx = dx / dist, ny = dy / dist;
               const isDirect = selected === rel.from || selected === rel.to;
               return (
-                <path key={`${rel.from}-${rel.to}-${rel.type}`}
-                  d={getEdgePath(a, b, nodes, i)}
-                  fill="none"
+                <line key={`${rel.from}-${rel.to}-${rel.type}`}
+                  x1={a.x + nx * R} y1={a.y + ny * R}
+                  x2={b.x - nx * R} y2={b.y - ny * R}
                   stroke={relationColors[rel.type]} strokeWidth={0.45}
                   opacity={selected ? (isDirect ? 0.9 : 0.03) : 0.7} />
               );

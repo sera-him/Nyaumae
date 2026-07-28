@@ -297,15 +297,12 @@ export default function WorldSettings() {
         <div className="mb-8 rounded-2xl border border-[#8B5CF6]/15 bg-[#100A1A] p-4 sm:p-6">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-[#A78BFA]">
-                Xinyuan VRlog / Field Notes
-              </p>
-              <h3 className="text-xl font-semibold text-[#F0E6FF]">
-                {semanticHighlight("心界 · 海岛实景记录")}
+              <h3 className="text-xl font-semibold text-[#22C55E]">
+                {semanticHighlight("海岛实景记录")}
               </h3>
             </div>
             <p className="max-w-md text-sm leading-relaxed text-nc-text-muted sm:text-right">
-              林浅的私人镜头：驾驶玉桂狗主题座驾，穿过彩虹花田与巨型鸭鸭乐园。
+              记录两处海岛场景的实拍感画面，保留旅途中那种明亮、轻松的氛围。
             </p>
           </div>
 
@@ -313,28 +310,28 @@ export default function WorldSettings() {
             <figure className="group overflow-hidden rounded-xl border border-[#F472B6]/15 bg-[#0D0614]">
               <SmartImage
                 localSrc="/xinjie-vr-rainbow-drive.png"
-                alt="心界 VR 中，玉桂狗主题座驾停在彩虹与蓝色花田前"
+                alt="海岛实景记录：彩虹花田场景中的玉桂狗主题座驾"
                 aspectRatio="1024/476"
                 containerClassName="w-full"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
               <figcaption className="flex items-center justify-between gap-4 px-4 py-3">
                 <span className="text-sm font-medium text-[#F0E6FF]">彩虹花田</span>
-                <span className="font-mono text-[10px] tracking-[0.18em] text-nc-text-muted">VRLOG 01</span>
+                <span className="font-mono text-[10px] tracking-[0.18em] text-[#22C55E]">VRLOG 01</span>
               </figcaption>
             </figure>
 
             <figure className="group overflow-hidden rounded-xl border border-[#00E5CC]/15 bg-[#0D0614]">
               <SmartImage
                 localSrc="/xinjie-vr-duck-island.png"
-                alt="心界 VR 中，玉桂狗主题座驾停在巨型黄色鸭鸭乐园旁"
+                alt="海岛实景记录：鸭鸭乐园场景中的玉桂狗主题座驾"
                 aspectRatio="1024/476"
                 containerClassName="w-full"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
               <figcaption className="flex items-center justify-between gap-4 px-4 py-3">
                 <span className="text-sm font-medium text-[#F0E6FF]">鸭鸭乐园</span>
-                <span className="font-mono text-[10px] tracking-[0.18em] text-nc-text-muted">VRLOG 02</span>
+                <span className="font-mono text-[10px] tracking-[0.18em] text-[#22C55E]">VRLOG 02</span>
               </figcaption>
             </figure>
           </div>

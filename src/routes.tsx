@@ -141,8 +141,9 @@ export default function AppRoutes() {
         <Route path="/api/:provider" element={<SuspenseWrapper><ApiDocs /></SuspenseWrapper>} />
         <Route path="/settings" element={<Navigate to="/settings/ai" replace />} />
         <Route path="/settings/ai" element={<SuspenseWrapper><AISettingsPage /></SuspenseWrapper>} />
-        <Route path="/chat" element={<SuspenseWrapper><ConversationWorkbench /></SuspenseWrapper>} />
-        <Route path="/chat/legacy" element={<SuspenseWrapper><ChatSkin /></SuspenseWrapper>} />
+        <Route path="/chat" element={<SuspenseWrapper><ChatSkin /></SuspenseWrapper>} />
+        <Route path="/chat/system" element={<SuspenseWrapper><ConversationWorkbench /></SuspenseWrapper>} />
+        <Route path="/chat/legacy" element={<Navigate to="/chat" replace />} />
         <Route path="/sweetdream" element={<SuspenseWrapper><SweetDreamChat /></SuspenseWrapper>} />
 
         <Route path="*" element={<NotFoundPage message="页面未找到" />} />

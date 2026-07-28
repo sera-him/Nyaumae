@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
   BookOpen, Bot, ChevronDown, ChevronRight, Compass, Copy, Edit3, Eraser,
-  FileDown, Home, Menu, MessageCircle, MoreHorizontal, Paperclip,
-  Plus, RotateCcw, Search, Send, Settings2, Shield, Sparkles, Square,
+  FileDown, Home, Menu, MessageCircle, MoreHorizontal,
+  Plus, RotateCcw, Search, Send, Settings2, Shield, SmilePlus, Sparkles, Square,
   Trash2, UserRound, WandSparkles,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
@@ -13,6 +13,7 @@ import { memoryManager } from '@/conversation/memoryManager';
 import { maskSecret } from '@/conversation/privacy';
 import { conversationRepository } from '@/conversation/storage';
 import type { Citation, Conversation, ConversationMode, Message } from '@/conversation/types';
+import { CHAT_STICKERS, parseMessageParts, stickerToken } from '@/conversation/stickers';
 import './ThemedChat.css';
 
 type ChatTheme = 'ocean' | 'sweet';
@@ -23,12 +24,12 @@ interface ThemedChatProps {
 
 const themeCopy = {
   ocean: {
-    brand: 'NYAUMÆ',
-    subtitle: 'OCEAN OF THOUGHTS',
-    assistant: 'Nyaumæ AI',
-    welcome: '想从哪里开始探索？',
+    brand: '星海甜梦',
+    subtitle: 'STARRY SWEET DREAMS',
+    assistant: '星海甜梦 AI',
+    welcome: '今晚想从哪一颗星开始聊？',
     pet: '泡芙',
-    petLine: '今天也陪你一起探索～',
+    petLine: '带着一小团甜梦来陪你啦～',
   },
   sweet: {
     brand: '甜梦小屋',
@@ -88,10 +89,12 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
   const [memoryIds, setMemoryIds] = useState<string[]>([]);
   const [showContext, setShowContext] = useState(false);
   const [showControls, setShowControls] = useState(false);
+  const [showStickers, setShowStickers] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(() => typeof window === 'undefined' || window.innerWidth > 820);
   const [affection, setAffection] = useState(78);
   const abortRef = useRef<AbortController | null>(null);
   const threadEndRef = useRef<HTMLDivElement | null>(null);
+  const stickerPanelRef = useRef<HTMLElement | null>(null);
 
   const selectedConversation = conversations.find((conversation) => conversation.id === selectedId);
   const activeMode = selectedConversation?.mode ?? 'website-assistant';
@@ -143,6 +146,15 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
     threadEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages, streamingText]);
 
+  useEffect(() => {
+    if (!showStickers) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!stickerPanelRef.current?.contains(event.target as Node)) setShowStickers(false);
+    };
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+  }, [showStickers]);
+
   const selectConversation = (id: string) => {
     setSelectedId(id);
     const nextMessages = conversationEngine.getMessages(id);
@@ -184,9 +196,9 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
     refresh(selectedConversation.id);
   };
 
-  const send = async (event?: FormEvent) => {
+  const send = async (event?: FormEvent, explicitContent?: string) => {
     event?.preventDefault();
-    const content = input.trim();
+    const content = (explicitContent ?? input).trim();
     if (!content || !selectedConversation || isGenerating) return;
     setInput('');
     setNotice('');
@@ -219,6 +231,19 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
       setIsGenerating(false);
     }
   };
+
+  const sendSticker = (id: string) => {
+    setShowStickers(false);
+    void send(undefined, stickerToken(id));
+  };
+
+  const renderMessageContent = (content: string, keyPrefix: string) => (
+    <div className="original-chat-rich-message">
+      {parseMessageParts(content).map((part, index) => part.type === 'sticker'
+        ? <img className="original-chat-sticker-message" src={part.sticker.src} alt={part.sticker.label} title={part.sticker.label} key={`${keyPrefix}-sticker-${index}`} />
+        : part.value.split('\n').map((line, lineIndex) => <p key={`${keyPrefix}-text-${index}-${lineIndex}`}>{line || '\u00a0'}</p>))}
+    </div>
+  );
 
   const regenerate = async () => {
     if (!selectedConversation || isGenerating) return;
@@ -314,7 +339,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
             <div className={`${p}-model-mark`}><Bot /></div>
             <div>
               <p><strong>{selectedConversation?.title ?? copy.assistant}</strong><button type="button" onClick={() => setShowControls((value) => !value)} aria-label="对话设置"><ChevronDown /></button></p>
-              <span><i />{aiConfig.enabled ? `${aiConfig.providerLabel} · ${selectedConversation?.model ?? aiConfig.model}` : 'AI 尚未启用'}</span>
+              <span><i />{aiConfig.enabled ? `${aiConfig.providerLabel} · ${selectedConversation?.model ?? aiConfig.model}` : '本地星光预览 · 记忆与护栏运行中'}</span>
             </div>
           </div>
           <div className={`${p}-header-actions`}>
@@ -362,13 +387,13 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
               <div className={`${p}-avatar`}>{message.role === 'user' ? <UserRound /> : <Sparkles />}</div>
               <div className={`${p}-message-content`}>
                 <div className={`${p}-message-label`}><strong>{messageName(message, copy.assistant)}</strong><span>{formatTime(message.createdAt)} · {message.status}</span></div>
-                <div className={`${p}-bubble`}>{message.content.split('\n').map((line, index) => <p key={`${message.id}-${index}`}>{line || '\u00a0'}</p>)}</div>
+                <div className={`${p}-bubble`}>{renderMessageContent(message.content, message.id)}</div>
                 {message.role === 'assistant' && message.status === 'completed' && <div className="original-chat-message-actions"><button type="button" onClick={() => navigator.clipboard?.writeText(message.content)}><Copy />复制</button></div>}
               </div>
             </article>
           ))}
           {isGenerating && streamingText && <article className={`${p}-message`}>
-            <div className={`${p}-avatar`}><Sparkles /></div><div className={`${p}-message-content`}><div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>生成中</span></div><div className={`${p}-bubble`}><p>{streamingText}</p></div></div>
+            <div className={`${p}-avatar`}><Sparkles /></div><div className={`${p}-message-content`}><div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>生成中</span></div><div className={`${p}-bubble`}>{renderMessageContent(streamingText, 'streaming')}</div></div>
           </article>}
 
           {showContext && <section className="original-chat-context">
@@ -381,18 +406,28 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
 
         {notice && <div className="original-chat-notice" role="status"><Shield />{notice}<button type="button" onClick={() => setNotice('')}>×</button></div>}
 
-        <section className={`${p}-composer-shell`}>
+        <section className={`${p}-composer-shell`} ref={stickerPanelRef}>
           {editingId && <div className="original-chat-editing">正在编辑上一条消息 <button type="button" onClick={() => { setEditingId(''); setInput(''); }}>取消</button></div>}
           <div className={`${p}-quick-replies`}>
             {canRegenerate && <button type="button" onClick={() => void regenerate()}><RotateCcw />重新生成</button>}
             {lastUser && !isGenerating && <button type="button" onClick={() => { setInput(lastUser.content); setEditingId(lastUser.id); }}><Edit3 />编辑上一条</button>}
             <button type="button" onClick={() => setShowContext((value) => !value)}><Shield />来源与记忆</button>
           </div>
+          <div className="original-chat-sticker-anchor">
+            {showStickers && <div className="original-chat-sticker-panel" role="dialog" aria-label="猫猫表情包">
+              <header><div><strong>猫猫表情</strong><span>点击即可发送</span></div><button type="button" onClick={() => setShowStickers(false)} aria-label="关闭表情面板">×</button></header>
+              <div className="original-chat-sticker-grid">
+                {CHAT_STICKERS.map((sticker) => <button type="button" key={sticker.id} onClick={() => sendSticker(sticker.id)} title={sticker.label} aria-label={`发送${sticker.label}表情`}>
+                  <img src={sticker.src} alt="" /><span>{sticker.label}</span>
+                </button>)}
+              </div>
+            </div>}
+          </div>
           <form className={`${p}-composer`} onSubmit={(event) => void send(event)}>
-            <button type="button" aria-label="附件暂未开放" title="附件功能暂未开放"><Paperclip /></button>
+            <button type="button" onClick={() => setShowStickers((value) => !value)} aria-label="打开猫猫表情" title="猫猫表情"><SmilePlus /></button>
             <textarea value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void send(); }
-            }} placeholder={aiConfig.enabled ? '输入消息…' : '请先在设置中配置 AI 模型…'} rows={1} />
+            }} placeholder="在星海里说点什么…" rows={1} />
             <span className={`${p}-tool`}><WandSparkles />记忆已开启</span>
             {isGenerating
               ? <button type="button" className={`${p}-send`} onClick={() => abortRef.current?.abort()} aria-label="停止生成"><Square /></button>

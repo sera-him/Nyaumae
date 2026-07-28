@@ -307,7 +307,7 @@ export interface ModelAdapter {
   stream(request: ModelRequest, onToken: (token: string) => void, signal?: AbortSignal): Promise<ModelResult>;
 }
 
-export type AiProvider = 'openai-compatible' | 'local';
+export type AiProvider = 'openai-compatible' | 'local' | 'browser';
 
 export interface AiConfig {
   enabled: boolean;

@@ -1,5 +1,6 @@
 import type { AiConfig, ModelAdapter, ModelMessage, ModelRequest, ModelResult } from './types.ts';
 import { redactSensitiveText, safeErrorMessage } from './privacy.ts';
+import type { ChatCompletionMessageParam, MLCEngine } from '@mlc-ai/web-llm';
 
 export type ModelErrorCode =
   | 'missing-api-key'
@@ -242,6 +243,114 @@ export class LocalModelAdapter extends OpenAICompatibleAdapter {
   }
 }
 
+let browserEngine: MLCEngine | undefined;
+let browserEngineModel = '';
+let browserEnginePromise: Promise<MLCEngine> | undefined;
+
+export function browserSupportsLocalAI(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return Boolean((navigator as Navigator & { gpu?: unknown }).gpu);
+}
+
+export async function prepareBrowserModel(
+  model: string,
+  onProgress?: (progress: number, text: string) => void,
+): Promise<MLCEngine> {
+  if (!browserSupportsLocalAI()) {
+    throw new ModelAdapterError('local-service-unavailable', '当前浏览器不支持 WebGPU，请更新 Chrome、Edge 或使用电脑本地部署。');
+  }
+  if (browserEngine && browserEngineModel === model) return browserEngine;
+  if (browserEnginePromise && browserEngineModel === model) return browserEnginePromise;
+
+  browserEngineModel = model;
+  browserEnginePromise = import('@mlc-ai/web-llm')
+    .then(({ CreateMLCEngine }) => CreateMLCEngine(model, {
+      initProgressCallback: (report) => onProgress?.(Math.round(report.progress * 100), report.text),
+    }))
+    .then((engine) => {
+      browserEngine = engine;
+      return engine;
+    })
+    .catch((error) => {
+      browserEnginePromise = undefined;
+      browserEngine = undefined;
+      throw new ModelAdapterError('local-service-unavailable', `浏览器模型加载失败：${safeErrorMessage(error)}`);
+    });
+  return browserEnginePromise;
+}
+
+function toBrowserMessages(messages: ModelMessage[]): ChatCompletionMessageParam[] {
+  return messages.flatMap((message): ChatCompletionMessageParam[] => {
+    if (message.role === 'system') return [{ role: 'system', content: message.content }];
+    if (message.role === 'assistant') return [{ role: 'assistant', content: message.content }];
+    if (message.role === 'user') return [{ role: 'user', content: message.content }];
+    return [];
+  });
+}
+
+export class BrowserModelAdapter implements ModelAdapter {
+  readonly provider = 'Browser WebGPU';
+  private readonly config: AiConfig;
+
+  constructor(config: AiConfig) {
+    this.config = config;
+  }
+
+  async complete(request: ModelRequest, signal?: AbortSignal): Promise<ModelResult> {
+    if (signal?.aborted) throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+    const engine = await prepareBrowserModel(this.config.model);
+    const response = await engine.chat.completions.create({
+      messages: toBrowserMessages(request.messages),
+      model: request.model,
+      temperature: request.temperature,
+      max_tokens: request.maxTokens,
+      stream: false,
+    });
+    const content = response.choices[0]?.message?.content;
+    if (typeof content !== 'string' || !content) {
+      throw new ModelAdapterError('invalid-response', messageForCode('invalid-response', 'Invalid response.'));
+    }
+    return {
+      content,
+      model: request.model,
+      provider: this.provider,
+      finishReason: response.choices[0]?.finish_reason ?? undefined,
+      usage: response.usage ? {
+        promptTokens: response.usage.prompt_tokens,
+        completionTokens: response.usage.completion_tokens,
+        totalTokens: response.usage.total_tokens,
+      } : undefined,
+    };
+  }
+
+  async stream(request: ModelRequest, onToken: (token: string) => void, signal?: AbortSignal): Promise<ModelResult> {
+    const engine = await prepareBrowserModel(this.config.model);
+    const chunks = await engine.chat.completions.create({
+      messages: toBrowserMessages(request.messages),
+      model: request.model,
+      temperature: request.temperature,
+      max_tokens: request.maxTokens,
+      stream: true,
+    });
+    let content = '';
+    let finishReason: string | undefined;
+    for await (const chunk of chunks) {
+      if (signal?.aborted) {
+        await engine.interruptGenerate();
+        throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+      }
+      const token = chunk.choices[0]?.delta?.content ?? '';
+      if (token) {
+        content += token;
+        onToken(token);
+      }
+      finishReason = chunk.choices[0]?.finish_reason ?? finishReason;
+    }
+    if (!content) throw new ModelAdapterError('invalid-response', messageForCode('invalid-response', 'Invalid response.'));
+    return { content, model: request.model, provider: this.provider, finishReason };
+  }
+}
+
 export class EchoModelAdapter implements ModelAdapter {
   readonly provider = 'test-echo';
 
@@ -258,6 +367,7 @@ export class EchoModelAdapter implements ModelAdapter {
 }
 
 export function createModelAdapter(config: AiConfig): ModelAdapter {
+  if (config.provider === 'browser') return new BrowserModelAdapter(config);
   return config.provider === 'local' ? new LocalModelAdapter(config) : new OpenAICompatibleAdapter(config);
 }
 

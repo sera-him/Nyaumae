@@ -14,12 +14,14 @@ import type { PuzzleState } from '@/game/threeHoles/puzzleGen';
 import './ThreeHoles.css';
 
 type Mark = 0 | 1 | 2;
-type DragMode = 'exclude' | 'clear';
+type PaintMark = 1 | 2;
+type DragMode = 'paint' | 'clear';
 
 interface DragState {
   row: number;
   col: number;
   mode: DragMode;
+  paintMark: PaintMark;
   moved: boolean;
   committed: Set<string>;
 }
@@ -110,12 +112,6 @@ function formatTime(milliseconds: number): string {
   return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
-function nextMark(mark: Mark): Mark {
-  if (mark === 0) return 1;
-  if (mark === 1) return 2;
-  return 0;
-}
-
 function regionBorder(regions: number[][], row: number, col: number): CSSProperties {
   const n = regions.length;
   const region = regions[row][col];
@@ -144,6 +140,7 @@ function hasAdjacentRabbit(marks: Mark[][], row: number, col: number): boolean {
 export default function ThreeHoles() {
   const [difficultyIndex, setDifficultyIndex] = useState(0);
   const [state, setState] = useState<PuzzleState | null>(null);
+  const [paintMark, setPaintMark] = useState<PaintMark>(2);
   const [error, setError] = useState('');
   const [elapsed, setElapsed] = useState(0);
   const startTimeRef = useRef(0);
@@ -160,6 +157,7 @@ export default function ThreeHoles() {
     setError('');
     try {
       setState(createPuzzleState(DIFFICULTIES[difficultyIndex]));
+      setPaintMark(2);
       startTimeRef.current = Date.now();
       setElapsed(0);
       dragRef.current = null;
@@ -194,9 +192,7 @@ export default function ThreeHoles() {
     const key = `${row},${col}`;
     if (drag.committed.has(key)) return;
     drag.committed.add(key);
-    updateCell(row, col, (mark) => drag.mode === 'exclude'
-      ? (mark === 0 ? 1 : mark)
-      : 0);
+    updateCell(row, col, () => drag.mode === 'paint' ? drag.paintMark : 0);
   }, [updateCell]);
 
   const findPointerCell = (event: PointerEvent<HTMLDivElement>) => {
@@ -214,7 +210,8 @@ export default function ThreeHoles() {
     dragRef.current = {
       row,
       col,
-      mode: mark === 0 ? 'exclude' : 'clear',
+      mode: mark === paintMark ? 'clear' : 'paint',
+      paintMark,
       moved: false,
       committed: new Set(),
     };
@@ -238,7 +235,13 @@ export default function ThreeHoles() {
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag) return;
-    if (!drag.moved) updateCell(drag.row, drag.col, nextMark);
+    if (!drag.moved) {
+      updateCell(
+        drag.row,
+        drag.col,
+        (mark) => mark === drag.paintMark ? 0 : drag.paintMark,
+      );
+    }
     dragRef.current = null;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
@@ -248,7 +251,7 @@ export default function ThreeHoles() {
   const handleCellKeyDown = (event: KeyboardEvent<HTMLButtonElement>, row: number, col: number) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
-    updateCell(row, col, nextMark);
+    updateCell(row, col, (mark) => mark === paintMark ? 0 : paintMark);
   };
 
   if (!state) {
@@ -363,6 +366,26 @@ export default function ThreeHoles() {
 
       <div className="rabbit-layout">
         <section className="rabbit-board-panel" aria-label="游戏棋盘">
+          <div className="rabbit-tools" role="group" aria-label="标记工具">
+            <button
+              type="button"
+              className={paintMark === 2 ? 'is-active' : ''}
+              aria-pressed={paintMark === 2}
+              onClick={() => setPaintMark(2)}
+            >
+              <i className="rabbit-legend-hole" aria-hidden="true">●</i>
+              兔子洞
+            </button>
+            <button
+              type="button"
+              className={paintMark === 1 ? 'is-active' : ''}
+              aria-pressed={paintMark === 1}
+              onClick={() => setPaintMark(1)}
+            >
+              <i className="rabbit-legend-excluded" aria-hidden="true">×</i>
+              排除
+            </button>
+          </div>
           <div className="rabbit-board-scroll">
             <div
               className="rabbit-board"
@@ -437,7 +460,7 @@ export default function ThreeHoles() {
           </section>
 
           {rabbitCount === 0 && isActive && (
-            <p className="rabbit-notice" role="status">当前没有兔子洞标记。点击格子两次可确认兔子洞。</p>
+            <p className="rabbit-notice" role="status">当前没有兔子洞标记。选择“兔子洞”后点击格子即可放置。</p>
           )}
           {(overfilled || adjacentConflictCount > 0) && isActive && (
             <p className="rabbit-warning" role="status">
@@ -454,7 +477,7 @@ export default function ThreeHoles() {
 
           <section className="rabbit-help">
             <h2>操作</h2>
-            <p>点击格子依次切换：未判断 → 排除 → 兔子洞。拖动可快速排除或清除。</p>
+            <p>先选择“兔子洞”或“排除”，再点击格子放置标记；再次点击相同标记可清除。支持拖动连续标记。</p>
           </section>
 
           {isActive && (
