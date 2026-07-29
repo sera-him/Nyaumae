@@ -77,6 +77,7 @@ const navGroups: NavGroup[] = [
   {
     label: '游戏', caption: 'PLAYGROUND', icon: Gamepad2,
     items: [
+      { label: '猫咪机', to: '/playground/games/cat-machine' },
       { label: '递归回响', to: '/playground/games/fractal-echo' },
       { label: '可玩游戏', to: '/playground/games' },
       { label: '规则说明', to: '/playground/rules' },

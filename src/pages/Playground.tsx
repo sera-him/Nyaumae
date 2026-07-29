@@ -11,6 +11,7 @@ import HellMaze from '@/sections/HellMaze';
 import ThreeHoles from '@/sections/ThreeHoles';
 import SpaceGame from '@/sections/SpaceGame';
 import FractalEcho from '@/sections/FractalEcho';
+import CatMachine from '@/sections/CatMachine';
 
 /* ─── Types ─── */
 
@@ -35,6 +36,12 @@ const CATEGORIES: { key: GameEntry['category']; label: string }[] = [
 /* ─── Game data ─── */
 
 const games: GameEntry[] = [
+  {
+    id: 'cat-machine', name: '猫咪机',
+    desc: '九只猫、三层工位与两步决策。换位、连锁、天赋、突发事件和模块升级，一晚八班刚刚好。',
+    category: 'games', icon: '🐾', color: '#f8796f',
+    component: CatMachine,
+  },
   {
     id: 'stellar', name: '星际战线 Stellar',
     desc: '俯视角实时射击与十武器即时切换。识别弱点，连续正确切枪，点燃 Stellar Flow。',

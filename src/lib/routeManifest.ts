@@ -32,6 +32,7 @@ const canonicalRoutes: Record<string, RouteInfo> = {
   '/math/fla': { canonical: '/math/fla', domain: 'math', kind: 'section', label: 'PEMS-L FLA' },
   '/math/height-weight': { canonical: '/math/height-weight', domain: 'math', kind: 'section', label: '身高体重模型' },
   '/playground/games': { canonical: '/playground/games', domain: 'playground', kind: 'section', label: '可玩游戏' },
+  '/playground/games/cat-machine': { canonical: '/playground/games/cat-machine', domain: 'playground', kind: 'detail', label: '猫咪机' },
   '/playground/rules': { canonical: '/playground/rules', domain: 'playground', kind: 'section', label: '规则说明' },
   '/playground/scratch': { canonical: '/playground/scratch', domain: 'playground', kind: 'section', label: 'Scratch 小游戏' },
   '/api': { canonical: '/api', domain: 'api', kind: 'page', label: 'API 目录' },
@@ -49,6 +50,7 @@ const aliasMap: Record<string, string> = {
   '/fsiii': '/math/fsiii',
   '/world/overload': '/world/settings',
   '/playground/combo-chess': '/playground/games/compound-chess',
+  '/playground/cat-machine': '/playground/games/cat-machine',
   '/playground/box-duel': '/playground/games/box-battle',
   '/playground/super24': '/playground/games/super-24',
   '/playground/skill-ttt': '/playground/games/skill-tic-tac-toe',
@@ -72,6 +74,7 @@ const knownProviderIds = new Set([
 ]);
 
 const playgroundItems: Record<string, { category: 'games' | 'rules' | 'scratch' }> = {
+  'cat-machine': { category: 'games' },
   'stellar': { category: 'games' },
   'compound-chess': { category: 'games' },
   'box-battle': { category: 'games' },
