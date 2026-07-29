@@ -15,14 +15,14 @@
   position: relative;
   border-radius: 1.5rem;
   background:
-    radial-gradient(ellipse at 20% 15%, rgba(245, 230, 245, 0.6), transparent 50%),
-    radial-gradient(ellipse at 85% 20%, rgba(240, 225, 250, 0.5), transparent 45%),
-    radial-gradient(ellipse at 50% 85%, rgba(255, 240, 235, 0.5), transparent 50%),
-    linear-gradient(155deg, #fdf6f0, #f7eef5 30%, #f5ecf8 60%, #faf3f0);
+    radial-gradient(ellipse at 20% 15%, rgba(210, 164, 186, 0.38), transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(197, 151, 181, 0.3), transparent 45%),
+    radial-gradient(ellipse at 50% 85%, rgba(226, 177, 181, 0.32), transparent 50%),
+    linear-gradient(155deg, #d6a9b9, #c99aac 30%, #cfa0b2 60%, #dbafbd);
   box-shadow:
-    0 12px 48px rgba(160, 120, 180, 0.12),
-    0 4px 16px rgba(160, 120, 180, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 12px 48px rgba(82, 38, 60, 0.2),
+    0 4px 16px rgba(82, 38, 60, 0.13),
+    inset 0 1px 0 rgba(255, 235, 242, 0.35);
   color: #3d2d4d;
   animation: miia-float 7s ease-in-out infinite;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
@@ -41,13 +41,13 @@
   border-radius: 0.85rem;
   background: linear-gradient(
     160deg,
-    rgba(255, 252, 248, 0.92),
-    rgba(248, 242, 250, 0.88) 50%,
-    rgba(252, 245, 240, 0.85)
+    rgba(220, 182, 196, 0.82),
+    rgba(207, 161, 181, 0.78) 50%,
+    rgba(224, 184, 188, 0.74)
   );
   box-shadow:
-    0 2px 10px rgba(160, 130, 180, 0.06),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    0 2px 10px rgba(82, 38, 60, 0.14),
+    inset 0 0 0 1px rgba(255, 235, 242, 0.3);
 }
 
 .miia-diary-card::before {
@@ -352,15 +352,186 @@
   color: var(--miia-ink-muted) !important;
 }
 
+/* Final background correction: the site stays dark; only the manuscript
+ * surfaces inside Miia's three subpages keep a deliberately dimmed pink tint. */
+.site-theme-shell[data-site-theme='miia'] .miia-aurora-page,
+.site-theme-shell[data-site-theme='miia'] .miia-aurora-page .aurora-generic-page,
+.site-theme-shell[data-site-theme='miia'] .miia-subpage,
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section {
+  color: var(--aurora-text);
+  background-color: var(--aurora-bg) !important;
+  background-image:
+    radial-gradient(circle at 12% 4%, rgba(var(--aurora-accent-rgb), 0.12), transparent 30rem),
+    radial-gradient(circle at 90% 25%, rgba(255, 143, 199, 0.055), transparent 28rem) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-legacy-content {
+  color: var(--aurora-text-secondary);
+  border-color: var(--aurora-line);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-tabs {
+  border-color: var(--aurora-line);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-tab {
+  color: var(--aurora-text-secondary);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-tab-active {
+  color: var(--aurora-text);
+  background: rgba(var(--aurora-accent-rgb), 0.14);
+  box-shadow: inset 0 0 0 1px rgba(var(--aurora-accent-rgb), 0.24);
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-floating-island {
+  background:
+    radial-gradient(ellipse at 20% 15%, rgba(210, 164, 186, 0.38), transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(197, 151, 181, 0.3), transparent 45%),
+    radial-gradient(ellipse at 50% 85%, rgba(226, 177, 181, 0.32), transparent 50%),
+    linear-gradient(155deg, #d6a9b9, #c99aac 30%, #cfa0b2 60%, #dbafbd) !important;
+  color: #3d2d4d;
+  box-shadow:
+    0 12px 48px rgba(82, 38, 60, 0.2),
+    0 4px 16px rgba(82, 38, 60, 0.13),
+    inset 0 1px 0 rgba(255, 235, 242, 0.35);
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-diary-card {
+  background: linear-gradient(
+    160deg,
+    rgba(220, 182, 196, 0.82),
+    rgba(207, 161, 181, 0.78) 50%,
+    rgba(224, 184, 188, 0.74)
+  ) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='bg-nc-bg-secondary'] {
+  background-color: #100a1a !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='bg-nc-bg-tertiary'] {
+  background-color: #1a1025 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class~='bg-nc-bg'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='bg-[#0D0614]'] {
+  background-color: #0d0614 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='bg-[#100A1A]'] {
+  background-color: #100a1a !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#F0E6FF]'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class~='text-nc-text'] {
+  color: #f0e6ff !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class~='text-nc-text-secondary'] {
+  color: #c8bcd8 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class~='text-nc-text-muted'] {
+  color: #a597b8 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#A78BFA]'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#8B5CF6]'] {
+  color: #a78bfa !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#F472B6]'] {
+  color: #f472b6 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#00E5CC]'] {
+  color: #00e5cc !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class*='bg-nc-bg-secondary'] {
+  background-color: #100a1a !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='bg-nc-bg'],
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class*='bg-[#0a0a12]'] {
+  background-color: #08040f !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section .bg-gradient-to-br {
+  background-image: linear-gradient(135deg, rgba(251, 191, 36, 0.08), #100a1a 50%, rgba(139, 92, 246, 0.08)) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-text'] {
+  color: #f0e6ff !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-text-secondary'] {
+  color: #c8bcd8 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-text-muted'] {
+  color: #a597b8 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-cyan'] {
+  color: #00e5cc !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-violet'] {
+  color: #8b5cf6 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-rose'] {
+  color: #f472b6 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-story-fragment-card {
+  background: linear-gradient(140deg, rgba(92, 48, 67, 0.76), rgba(55, 27, 43, 0.82)) !important;
+  border-color: rgba(244, 114, 182, 0.2);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-nav-inner,
+.site-theme-shell[data-site-theme='miia'] .aurora-menu-shell,
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer {
+  color: var(--site-theme-text);
+  border-color: var(--site-theme-border-strong);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(8, 6, 14, 0.78)) !important;
+  box-shadow: var(--aurora-shadow-panel);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-nav-search,
+.site-theme-shell[data-site-theme='miia'] .aurora-icon-button,
+.site-theme-shell[data-site-theme='miia'] .aurora-menu-button {
+  color: var(--aurora-text-secondary);
+  border-color: var(--aurora-line);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.014));
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class*='bg-nc-bg-secondary'],
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class*='bg-nc-bg-tertiary'] {
+  background-color: #100a1a !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class~='text-nc-text'] {
+  color: #f0e6ff !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class~='text-nc-text-secondary'] {
+  color: #c8bcd8 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class~='text-nc-text-muted'] {
+  color: #a597b8 !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .miia-floating-island,
   .miia-water-ripple,
   .site-theme-shell:not([data-site-theme='miia']) .aurora-app-atmosphere {
     animation: none;
-  }
-
-  .site-theme-shell:not([data-site-theme='miia']) .aurora-app-atmosphere {
-    filter: none;
-    opacity: 0.28;
   }
 }
