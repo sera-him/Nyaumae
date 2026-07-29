@@ -130,7 +130,7 @@ function NoteParagraph({ text, index }: { text: string; index: number }) {
 
 export default function MiiaMathNotes() {
   return (
-    <section id="miia-math-notes" className="py-20 px-4 sm:px-6 bg-[#0D0614] relative overflow-hidden">
+    <section id="miia-math-notes" className="miia-subpage miia-math-page py-20 px-4 sm:px-6 bg-[#0D0614] relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none opacity-30">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl" />

@@ -26,7 +26,7 @@ export default function MiiaWorld() {
   }, [playTrack, currentTrack]);
 
   return (
-    <section id="miia-world" className="py-24 px-4 sm:px-6 bg-[#0D0614] relative overflow-hidden">
+    <section id="miia-world" className="miia-subpage miia-world-page py-24 px-4 sm:px-6 bg-[#0D0614] relative overflow-hidden">
       <ParticleField type="dream" density={25} />
       <div className="max-w-[1100px] mx-auto relative z-10">
         {/* Header */}

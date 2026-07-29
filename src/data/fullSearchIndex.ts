@@ -2,7 +2,7 @@ import { characters, zeroChar } from './characters';
 import { extraCharacters } from './extraCharacters';
 import { stories } from './stories';
 import { dictionary } from './dictionary';
-import { poems, extraPoems, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory } from './extraStories';
+import { poems, extraPoems, miiaStoryFragments, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory } from './extraStories';
 import { organizations, zhihuaClasses } from './organizations';
 import { timelineEvents } from './timeline';
 import { characterRelations, relationLabels } from './relationships';
@@ -99,7 +99,7 @@ for (const entry of dictionary) {
   add(`dict_${entry.word}`, `Dadi Sapichi: ${entry.word}`, `${entry.word}: ${entry.meaning} ${(entry.tags ?? []).join(' ')}`, '词典', '#dictionary');
 }
 
-for (const entry of [...poems, ...extraPoems]) {
+for (const entry of [...poems, ...extraPoems, ...miiaStoryFragments]) {
   add(`poem_${entry.title}`, entry.title, entry, '故事', '#extra-stories');
 }
 

@@ -169,9 +169,198 @@
   animation: miia-ripple 8s ease-in-out infinite;
 }
 
+/* Miia's three subpages share a light-pink manuscript surface. */
+.site-theme-shell[data-site-theme='miia'] {
+  --miia-page-surface: #f9e9f0;
+  --miia-page-surface-deep: #f2dce6;
+  --miia-card-surface: rgba(255, 248, 251, 0.86);
+  --miia-card-surface-soft: rgba(252, 237, 244, 0.82);
+  --miia-inset-surface: #f1dfe7;
+  --miia-ink: #4a2738;
+  --miia-ink-secondary: #745264;
+  --miia-ink-muted: #9f7486;
+  --miia-pink: #b84f78;
+  --miia-purple: #7b5aa6;
+  --miia-teal: #2c837a;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-aurora-page,
+.site-theme-shell[data-site-theme='miia'] .miia-aurora-page .aurora-generic-page,
+.site-theme-shell[data-site-theme='miia'] .miia-subpage,
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section {
+  color: var(--miia-ink);
+  background-color: var(--miia-page-surface) !important;
+  background-image:
+    radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.7), transparent 28rem),
+    radial-gradient(circle at 92% 24%, rgba(214, 151, 183, 0.16), transparent 26rem) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-legacy-content {
+  color: var(--miia-ink-secondary);
+  border-color: rgba(145, 67, 101, 0.18);
+  background: rgba(255, 248, 251, 0.58);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-tabs {
+  border-color: rgba(145, 67, 101, 0.18);
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-tab {
+  color: var(--miia-ink-secondary);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-tab-active {
+  color: var(--miia-ink);
+  background: rgba(184, 79, 120, 0.13);
+  box-shadow: inset 0 0 0 1px rgba(184, 79, 120, 0.22);
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-floating-island {
+  background:
+    radial-gradient(ellipse at 20% 15%, rgba(255, 255, 255, 0.78), transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(241, 192, 214, 0.42), transparent 45%),
+    radial-gradient(ellipse at 50% 85%, rgba(255, 231, 237, 0.58), transparent 50%),
+    linear-gradient(155deg, #fff7fa, #fbeaf1 38%, #f8e5ed 68%, #fff2f6);
+  color: var(--miia-ink);
+  box-shadow:
+    0 12px 48px rgba(128, 54, 83, 0.13),
+    0 4px 16px rgba(128, 54, 83, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='bg-nc-bg'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='bg-[#0D0614]'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='bg-[#100A1A]'] {
+  background-color: var(--miia-card-surface) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='bg-[#0D0614]'] {
+  background-color: var(--miia-inset-surface) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#F0E6FF]'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class~='text-nc-text'] {
+  color: var(--miia-ink) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class~='text-nc-text-secondary'] {
+  color: var(--miia-ink-secondary) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class~='text-nc-text-muted'] {
+  color: var(--miia-ink-muted) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#A78BFA]'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#8B5CF6]'] {
+  color: var(--miia-purple) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#F472B6]'] {
+  color: var(--miia-pink) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='text-[#00E5CC]'] {
+  color: var(--miia-teal) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='border-[#8B5CF6]'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='border-[#F472B6]'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage [class*='border-[#00E5CC]'] {
+  border-color: rgba(145, 67, 101, 0.18) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] #miia-math-notes h2[style] {
+  color: var(--miia-ink) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class*='bg-nc-bg'],
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class*='bg-[#0a0a12]'] {
+  background-color: var(--miia-card-surface) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section .bg-gradient-to-br {
+  background-image: linear-gradient(135deg, rgba(255, 246, 249, 0.9), rgba(249, 227, 237, 0.78)) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-text'] {
+  color: var(--miia-ink) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-text-secondary'] {
+  color: var(--miia-ink-secondary) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-text-muted'] {
+  color: var(--miia-ink-muted) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-cyan'] {
+  color: var(--miia-teal) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-violet'] {
+  color: var(--miia-purple) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class~='text-nc-rose'] {
+  color: var(--miia-pink) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section [class*='text-amber-'] {
+  color: #8d6022 !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-story-fragment-card {
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.88), rgba(252, 237, 244, 0.8));
+  border-color: rgba(184, 79, 120, 0.22);
+  box-shadow: 0 12px 30px rgba(128, 54, 83, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-nav-inner,
+.site-theme-shell[data-site-theme='miia'] .aurora-menu-shell,
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer {
+  color: var(--miia-ink);
+  border-color: rgba(145, 67, 101, 0.2);
+  background: linear-gradient(145deg, rgba(255, 250, 252, 0.9), rgba(248, 226, 236, 0.82));
+  box-shadow: 0 18px 55px rgba(128, 54, 83, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-nav-search,
+.site-theme-shell[data-site-theme='miia'] .aurora-icon-button,
+.site-theme-shell[data-site-theme='miia'] .aurora-menu-button {
+  color: var(--miia-ink-secondary);
+  border-color: rgba(145, 67, 101, 0.18);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class*='bg-nc-bg-secondary'],
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class*='bg-nc-bg-tertiary'] {
+  background-color: rgba(255, 248, 251, 0.72) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class~='text-nc-text'] {
+  color: var(--miia-ink) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class~='text-nc-text-secondary'] {
+  color: var(--miia-ink-secondary) !important;
+}
+
+.site-theme-shell[data-site-theme='miia'] .aurora-site-footer [class~='text-nc-text-muted'] {
+  color: var(--miia-ink-muted) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .miia-floating-island,
-  .miia-water-ripple {
+  .miia-water-ripple,
+  .site-theme-shell:not([data-site-theme='miia']) .aurora-app-atmosphere {
     animation: none;
+  }
+
+  .site-theme-shell:not([data-site-theme='miia']) .aurora-app-atmosphere {
+    filter: none;
+    opacity: 0.28;
   }
 }

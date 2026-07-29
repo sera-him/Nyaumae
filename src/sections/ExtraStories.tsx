@@ -1,6 +1,6 @@
 import {
   extraPoems, poems, chapterIndex, wishSection, correctOverdose, xishouStory,
-  absurdNarrative, tinyWish,
+  absurdNarrative, tinyWish, miiaStoryFragments,
 } from '@/data/extraStories';
 import {
   paradigmText, rtoText, yearDayFragment, numberFragments,
@@ -106,13 +106,39 @@ function coloredLine(text: string, lineIndex: number): React.ReactNode {
 
 export default function ExtraStories() {
   return (
-    <section id="extra-stories" className="py-24 px-4 sm:px-6 relative">
+    <section id="extra-stories" className="miia-poems-section py-24 px-4 sm:px-6 relative">
       <div className="max-w-[1100px] mx-auto">
         <div className="mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-nc-text mb-4 tracking-wide">{semanticHighlight("诗歌与碎片")}</h2>
           <p className="text-lg text-nc-text-secondary">
             Period 系列 · Corruption 0f Emotion · 更多叙事碎片
           </p>
+        </div>
+
+        {/* Newly added standalone stories */}
+        <div className="miia-story-fragments mb-12">
+          <div className="mb-5 flex items-center gap-2">
+            <BookOpen className="h-5 w-5 shrink-0 text-nc-rose" />
+            <h3 className="text-lg font-bold text-nc-rose">{semanticHighlight('新收录故事')}</h3>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-2">
+            {miiaStoryFragments.map((story, i) => (
+              <article key={story.title} className="miia-story-fragment-card rounded-2xl border border-nc-rose/20 p-6 sm:p-7">
+                <div className="mb-5 flex items-start justify-between gap-4 border-b border-nc-rose/15 pb-4">
+                  <div>
+                    <p className="mb-2 font-mono text-[10px] tracking-[0.18em] text-nc-rose/75 uppercase">STORY FRAGMENT / 0{i + 1}</p>
+                    <h4 className="text-xl font-bold text-nc-text sm:text-2xl">{semanticHighlight(story.title)}</h4>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-nc-rose/20 px-2.5 py-1 text-[10px] text-nc-text-muted">
+                    {story.period}
+                  </span>
+                </div>
+                <pre className="whitespace-pre-wrap font-serif-cn text-base leading-[2] text-nc-text-secondary sm:text-[17px]">
+                  {semanticHighlight(story.content)}
+                </pre>
+              </article>
+            ))}
+          </div>
         </div>
 
         {/* Poems from Stories */}

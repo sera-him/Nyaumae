@@ -117,26 +117,31 @@
 }
 
 .site-theme-shell[data-site-theme='miia'] {
-  --site-theme-bg: #130a18;
-  --site-theme-bg-rgb: 19, 10, 24;
-  --site-theme-bg-deep: #0b0610;
-  --site-theme-bg-deep-rgb: 11, 6, 16;
-  --site-theme-panel: #24132c;
-  --site-theme-panel-rgb: 36, 19, 44;
-  --site-theme-panel-strong: #311a38;
-  --site-theme-panel-strong-rgb: 49, 26, 56;
-  --site-theme-text: #fff8ff;
-  --site-theme-text-secondary: #e0c6e5;
-  --site-theme-text-muted: #ad90b5;
-  --site-theme-border: rgba(221, 165, 255, 0.18);
-  --site-theme-border-strong: rgba(221, 165, 255, 0.31);
-  --site-theme-accent: #dda5ff;
-  --site-theme-accent-rgb: 221, 165, 255;
-  --site-theme-accent-secondary: #ffadd3;
-  --site-theme-accent-secondary-rgb: 255, 173, 211;
-  --site-theme-environment-one-rgb: 221, 165, 255;
-  --site-theme-environment-two-rgb: 255, 173, 211;
-  --site-theme-environment-three-rgb: 248, 208, 131;
+  --site-theme-bg: #f9e9f0;
+  --site-theme-bg-rgb: 249, 233, 240;
+  --site-theme-bg-deep: #f2dce6;
+  --site-theme-bg-deep-rgb: 242, 220, 230;
+  --site-theme-panel: #fff7fa;
+  --site-theme-panel-rgb: 255, 247, 250;
+  --site-theme-panel-strong: #fbeaf1;
+  --site-theme-panel-strong-rgb: 251, 234, 241;
+  --site-theme-text: #4a2738;
+  --site-theme-text-secondary: #745264;
+  --site-theme-text-muted: #9f7486;
+  --site-theme-border: rgba(145, 67, 101, 0.2);
+  --site-theme-border-strong: rgba(145, 67, 101, 0.32);
+  --site-theme-accent: #b84f78;
+  --site-theme-accent-rgb: 184, 79, 120;
+  --site-theme-accent-secondary: #8664aa;
+  --site-theme-accent-secondary-rgb: 134, 100, 170;
+  --site-theme-environment-one-rgb: 234, 148, 181;
+  --site-theme-environment-two-rgb: 181, 137, 211;
+  --site-theme-environment-three-rgb: 244, 185, 126;
+  --site-theme-environment-opacity: 0.14;
+  --site-theme-grid-rgb: 166, 96, 125;
+  --site-theme-grid-opacity: 0.045;
+  --site-theme-shadow: rgba(128, 54, 83, 0.16);
+  --site-theme-particle-filter: saturate(0.75);
 }
 
 .site-theme-shell[data-site-theme='math'] {
@@ -342,6 +347,19 @@
     background-color 420ms ease;
 }
 
+/* Keep non-Miia routes subdued while their ambient layer moves through a
+ * quiet dark → light → dark cycle. Content itself is not filtered. */
+.site-theme-shell:not([data-site-theme='miia']) {
+  --site-theme-environment-opacity: 0.055;
+  --site-theme-grid-opacity: 0.009;
+}
+
+@keyframes site-lumen-cycle {
+  0%, 15% { opacity: 0.32; filter: brightness(0.78); }
+  48% { opacity: 0.72; filter: brightness(1.08); }
+  78%, 100% { opacity: 0.24; filter: brightness(0.7); }
+}
+
 .site-theme-shell .aurora-app-atmosphere {
   background:
     radial-gradient(
@@ -363,6 +381,10 @@
     linear-gradient(90deg, rgba(var(--site-theme-grid-rgb), var(--site-theme-grid-opacity)) 1px, transparent 1px);
   background-size: auto, auto, auto, 56px 56px, 56px 56px;
   transition: background 520ms ease, opacity 320ms ease;
+}
+
+.site-theme-shell:not([data-site-theme='miia']) .aurora-app-atmosphere {
+  animation: site-lumen-cycle 18s ease-in-out infinite;
 }
 
 /* Shared navigation material */
