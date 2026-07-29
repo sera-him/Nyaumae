@@ -227,6 +227,7 @@
 }
 
 .cm-round-dots,
+.cm-shift-counter,
 .cm-score-stat,
 .cm-rank-stat,
 .cm-fish-stat {
@@ -278,6 +279,27 @@
   background: var(--cm-coral);
   box-shadow: 0 0 0 4px rgba(248, 121, 111, 0.16);
   transform: scale(1.06);
+}
+
+.cm-shift-counter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cm-shift-counter strong {
+  margin-top: 4px;
+  color: #fff;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 20px;
+  letter-spacing: 0.06em;
+}
+
+.cm-shift-counter small {
+  margin-top: 3px;
+  color: var(--cm-mint);
+  font-size: 8px;
+  font-weight: 700;
 }
 
 .cm-score-stat {
@@ -1256,6 +1278,18 @@
   white-space: nowrap;
 }
 
+.cm-module-level {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  color: #1d1931;
+  background: var(--module-color);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 7px;
+  vertical-align: 1px;
+}
+
 .cm-module-list small {
   overflow: hidden;
   margin-top: 2px;
@@ -1491,6 +1525,61 @@
   margin-top: 19px;
   padding-top: 16px;
   border-top: 1px solid rgba(72, 48, 40, 0.1);
+}
+
+.cm-offline-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(87, 158, 142, 0.22);
+  border-radius: 12px;
+  background: rgba(105, 211, 195, 0.11);
+}
+
+.cm-offline-notice > span {
+  font-size: 22px;
+}
+
+.cm-offline-notice p,
+.cm-offline-notice strong,
+.cm-offline-notice small {
+  display: block;
+  margin: 0;
+}
+
+.cm-offline-notice strong {
+  color: var(--cm-ink);
+  font-size: 10px;
+}
+
+.cm-offline-notice small {
+  margin-top: 2px;
+  color: var(--cm-ink-soft);
+  font-size: 8px;
+}
+
+.cm-guide-modal > .cm-reset-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 6px 0;
+  border: 0;
+  color: rgba(83, 58, 52, 0.5);
+  background: transparent;
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.cm-guide-modal > .cm-reset-progress:hover {
+  color: var(--cm-coral-deep);
+}
+
+.cm-reset-progress svg {
+  width: 11px;
+  height: 11px;
 }
 
 .cm-guide-footer p {
@@ -1991,15 +2080,6 @@
     border-bottom: 0;
   }
 
-  .cm-round-dots > div {
-    gap: 3px;
-  }
-
-  .cm-round-dots i {
-    width: 21px;
-    height: 21px;
-  }
-
   .cm-event-banner {
     grid-template-columns: 36px 1fr;
   }
@@ -2074,6 +2154,7 @@
   }
 
   .cm-round-dots,
+  .cm-shift-counter,
   .cm-score-stat,
   .cm-rank-stat,
   .cm-fish-stat {
