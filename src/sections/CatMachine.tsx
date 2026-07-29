@@ -16,7 +16,7 @@ import {
 import './CatMachine.css';
 
 type Need = 'snack' | 'play' | 'nap';
-type Phase = 'intro' | 'arrange' | 'resolving' | 'result' | 'upgrade' | 'end';
+type Phase = 'intro' | 'arrange' | 'resolving' | 'result' | 'upgrade';
 type SoundKind = 'tap' | 'swap' | 'lever' | 'score' | 'gold';
 
 interface CatDefinition {
@@ -57,6 +57,7 @@ interface MachineModule {
 interface RoundResult {
   total: number;
   rawTotal: number;
+  growthBonus: number;
   base: number;
   traitBonus: number;
   rowBonus: number;
@@ -72,9 +73,25 @@ interface RoundResult {
   headline: string;
 }
 
-const MAX_ROUNDS = 8;
-const TARGET_SCORE = 320;
-const UPGRADE_ROUNDS = new Set([2, 4, 6]);
+interface SavedProgress {
+  version: 1;
+  savedAt: number;
+  round: number;
+  cats: Array<{ id: string; need: Need }>;
+  stations: Need[];
+  score: number;
+  fish: number;
+  energy: number;
+  streak: number;
+  moduleIds: string[];
+}
+
+interface LoadedProgress extends SavedProgress {
+  offlineGain: number;
+}
+
+const MODULE_INTERVAL = 3;
+const SAVE_KEY = 'cat-machine:incremental-save:v1';
 const NEED_ORDER: Need[] = ['snack', 'play', 'nap'];
 
 const NEEDS: Record<Need, { icon: string; label: string; station: string; short: string }> = {
@@ -261,8 +278,66 @@ function createInitialCats(): Cat[] {
   return CAT_DEFINITIONS.map((cat, index) => ({ ...cat, need: INITIAL_NEEDS[index] }));
 }
 
-function hasModule(modules: MachineModule[], id: string): boolean {
-  return modules.some((module) => module.id === id);
+function moduleLevel(modules: MachineModule[], id: string): number {
+  return modules.filter((module) => module.id === id).length;
+}
+
+function levelThreshold(level: number): number {
+  if (level <= 1) return 0;
+  return Math.round(90 * Math.pow(level - 1, 1.45));
+}
+
+function getShopLevel(score: number): number {
+  let level = 1;
+  while (score >= levelThreshold(level + 1)) level += 1;
+  return level;
+}
+
+function loadSavedProgress(): LoadedProgress | null {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null') as Partial<SavedProgress> | null;
+    if (!parsed || parsed.version !== 1 || !Array.isArray(parsed.cats) || !Array.isArray(parsed.stations)) return null;
+
+    const cats = parsed.cats
+      .map((savedCat) => {
+        const definition = CAT_DEFINITIONS.find((cat) => cat.id === savedCat.id);
+        return definition && NEED_ORDER.includes(savedCat.need) ? { id: definition.id, need: savedCat.need } : null;
+      })
+      .filter((cat): cat is { id: string; need: Need } => cat !== null);
+    if (cats.length !== CAT_DEFINITIONS.length || parsed.stations.length !== 3) return null;
+
+    const score = Math.max(0, Number(parsed.score) || 0);
+    const elapsedMinutes = Math.min(240, Math.floor((Date.now() - (Number(parsed.savedAt) || Date.now())) / 60_000));
+    const offlineGain = Math.max(0, Math.floor(elapsedMinutes * Math.max(0, getShopLevel(score) - 1) * 0.25));
+
+    return {
+      version: 1,
+      savedAt: Number(parsed.savedAt) || Date.now(),
+      round: Math.max(1, Math.floor(Number(parsed.round) || 1)),
+      cats,
+      stations: parsed.stations.every((need) => NEED_ORDER.includes(need))
+        ? parsed.stations as Need[]
+        : ['snack', 'play', 'nap'],
+      score,
+      fish: Math.max(0, Math.floor(Number(parsed.fish) || 0)),
+      energy: Math.max(0, Math.min(100, Number(parsed.energy) || 0)),
+      streak: Math.max(0, Math.floor(Number(parsed.streak) || 0)),
+      moduleIds: Array.isArray(parsed.moduleIds)
+        ? parsed.moduleIds.filter((id): id is string => MODULES.some((module) => module.id === id))
+        : [],
+      offlineGain,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function restoreCats(saved: LoadedProgress | null): Cat[] {
+  if (!saved) return createInitialCats();
+  return saved.cats.map((savedCat) => ({
+    ...CAT_DEFINITIONS.find((cat) => cat.id === savedCat.id)!,
+    need: savedCat.need,
+  }));
 }
 
 function areAdjacent(a: number, b: number): boolean {
@@ -286,55 +361,67 @@ function simpleLayoutValue(cats: Cat[], stations: Need[]): number {
   return value;
 }
 
-function getRank(score: number): { icon: string; name: string; note: string } {
-  if (score >= 390) return { icon: '👑', name: '传说猫店长', note: '整台机器都在为你打呼噜。' };
-  if (score >= TARGET_SCORE) return { icon: '🏆', name: '首席喵务官', note: '节奏漂亮，猫咪们想续一班。' };
-  if (score >= 240) return { icon: '🌟', name: '靠谱店员', note: '已经掌握了贴贴与连锁的诀窍。' };
-  return { icon: '🐾', name: '实习铲屎官', note: '再试一次，先追求一条完美整层。' };
+function getRank(level: number): { icon: string; name: string } {
+  if (level >= 20) return { icon: '👑', name: `无限猫塔 · ${level}F` };
+  if (level >= 12) return { icon: '🏆', name: '传奇猫店长' };
+  if (level >= 7) return { icon: '🌟', name: '金牌喵务官' };
+  if (level >= 4) return { icon: '✨', name: '熟练店员' };
+  if (level >= 2) return { icon: '🐈', name: '靠谱帮手' };
+  return { icon: '🐾', name: '实习铲屎官' };
 }
 
 export default function CatMachine() {
+  const [initialSave] = useState(loadSavedProgress);
   const [phase, setPhase] = useState<Phase>('intro');
-  const [round, setRound] = useState(1);
-  const [cats, setCats] = useState<Cat[]>(createInitialCats);
-  const [stations, setStations] = useState<Need[]>(['snack', 'play', 'nap']);
+  const [round, setRound] = useState(initialSave?.round ?? 1);
+  const [cats, setCats] = useState<Cat[]>(() => restoreCats(initialSave));
+  const [stations, setStations] = useState<Need[]>(initialSave?.stations ?? ['snack', 'play', 'nap']);
   const [movesLeft, setMovesLeft] = useState(2);
   const [selectedCat, setSelectedCat] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [fish, setFish] = useState(4);
-  const [energy, setEnergy] = useState(0);
+  const [score, setScore] = useState((initialSave?.score ?? 0) + (initialSave?.offlineGain ?? 0));
+  const [fish, setFish] = useState(initialSave?.fish ?? 4);
+  const [energy, setEnergy] = useState(initialSave?.energy ?? 0);
   const [goldArmed, setGoldArmed] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [modules, setModules] = useState<MachineModule[]>([]);
+  const [streak, setStreak] = useState(initialSave?.streak ?? 0);
+  const [modules, setModules] = useState<MachineModule[]>(() => (
+    initialSave?.moduleIds
+      .map((id) => MODULES.find((module) => module.id === id))
+      .filter((module): module is MachineModule => Boolean(module)) ?? []
+  ));
   const [roundResult, setRoundResult] = useState<RoundResult | null>(null);
   const [highlightedCats, setHighlightedCats] = useState<number[]>([]);
   const [hint, setHint] = useState<string | null>(null);
   const [showGuide, setShowGuide] = useState(false);
   const [soundOn, setSoundOn] = useState(true);
   const [extraMoveBought, setExtraMoveBought] = useState(false);
-  const [bestScore, setBestScore] = useState(() => {
-    try {
-      return Number(localStorage.getItem('cat-machine:best-score')) || 0;
-    } catch {
-      return 0;
-    }
-  });
+  const [hasSavedProgress, setHasSavedProgress] = useState(Boolean(initialSave));
+  const [offlineNotice, setOfflineNotice] = useState(initialSave?.offlineGain ?? 0);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const resolutionTimersRef = useRef<number[]>([]);
 
-  const event = EVENTS[(round - 1) % EVENTS.length];
+  const event = EVENTS[((round - 1) * 5) % EVENTS.length];
   const isArrangePhase = phase === 'arrange';
-  const extraMovePrice = hasModule(modules, 'treat-drawer') ? 2 : 4;
+  const treatDrawerLevel = moduleLevel(modules, 'treat-drawer');
+  const extraMovePrice = Math.max(1, 4 - treatDrawerLevel);
   const goldReady = energy >= 100;
-  const currentRank = getRank(score);
+  const shopLevel = getShopLevel(score);
+  const currentRank = getRank(shopLevel);
+  const nextLevelScore = levelThreshold(shopLevel + 1);
+  const currentLevelScore = levelThreshold(shopLevel);
+  const levelProgress = Math.min(100, ((score - currentLevelScore) / Math.max(1, nextLevelScore - currentLevelScore)) * 100);
+  const shiftsUntilModule = MODULE_INTERVAL - ((round - 1) % MODULE_INTERVAL);
 
   const upgradeChoices = useMemo(() => {
-    const available = MODULES.filter((module) => !hasModule(modules, module.id));
-    if (available.length <= 3) return available;
-    const offset = (round * 2 + modules.length) % available.length;
-    return [0, 1, 2].map((step) => available[(offset + step * 2) % available.length]);
+    const offset = (round * 2 + modules.length * 3) % MODULES.length;
+    return [0, 1, 2].map((step) => MODULES[(offset + step * 2) % MODULES.length]);
   }, [modules, round]);
+
+  const installedModules = useMemo(() => (
+    MODULES
+      .map((module) => ({ module, level: moduleLevel(modules, module.id) }))
+      .filter(({ level }) => level > 0)
+  ), [modules]);
 
   const validSwapIndices = useMemo(() => {
     if (selectedCat === null) return new Set<number>();
@@ -457,15 +544,26 @@ export default function CatMachine() {
   }, []);
 
   useEffect(() => {
-    if (phase !== 'end') return;
-    const nextBest = Math.max(bestScore, score);
-    if (nextBest !== bestScore) setBestScore(nextBest);
+    if (phase === 'intro' || phase === 'resolving') return;
+    const progress: SavedProgress = {
+      version: 1,
+      savedAt: Date.now(),
+      round,
+      cats: cats.map((cat) => ({ id: cat.id, need: cat.need })),
+      stations,
+      score,
+      fish,
+      energy,
+      streak,
+      moduleIds: modules.map((module) => module.id),
+    };
     try {
-      localStorage.setItem('cat-machine:best-score', String(nextBest));
+      localStorage.setItem(SAVE_KEY, JSON.stringify(progress));
+      setHasSavedProgress(true);
     } catch {
       // A private browsing context may reject storage.
     }
-  }, [bestScore, phase, score]);
+  }, [cats, energy, fish, modules, phase, round, score, stations, streak]);
 
   const changeStation = (row: number, need: Need) => {
     if (!isArrangePhase || movesLeft <= 0 || stations[row] === need) return;
@@ -626,16 +724,17 @@ export default function CatMachine() {
     const rowBonus = perfectRows.length * 8 + Math.min(nextStreak, 4) * 2 + harmonyBonus;
 
     let moduleBonus = 0;
-    if (hasModule(modules, 'snack-press')) moduleBonus += matchedIndices.filter((index) => cats[index].need === 'snack').length * 2;
-    if (hasModule(modules, 'laser-prism')) moduleBonus += matchedIndices.filter((index) => cats[index].need === 'play').length * 2;
-    if (hasModule(modules, 'warm-box')) moduleBonus += matchedIndices.filter((index) => cats[index].need === 'nap').length * 2;
-    if (hasModule(modules, 'purr-amp')) moduleBonus += perfectRows.length * 4;
-    if (hasModule(modules, 'paw-cache')) moduleBonus += movesLeft * 3;
-    if (hasModule(modules, 'buddy-radar')) {
+    moduleBonus += matchedIndices.filter((index) => cats[index].need === 'snack').length * 2 * moduleLevel(modules, 'snack-press');
+    moduleBonus += matchedIndices.filter((index) => cats[index].need === 'play').length * 2 * moduleLevel(modules, 'laser-prism');
+    moduleBonus += matchedIndices.filter((index) => cats[index].need === 'nap').length * 2 * moduleLevel(modules, 'warm-box');
+    moduleBonus += perfectRows.length * 4 * moduleLevel(modules, 'purr-amp');
+    moduleBonus += movesLeft * 3 * moduleLevel(modules, 'paw-cache');
+    const buddyRadarLevel = moduleLevel(modules, 'buddy-radar');
+    if (buddyRadarLevel > 0) {
       for (let row = 0; row < 3; row += 1) {
         for (let col = 0; col < 2; col += 1) {
           const index = row * 3 + col;
-          if (matched.has(index) && matched.has(index + 1)) moduleBonus += 2;
+          if (matched.has(index) && matched.has(index + 1)) moduleBonus += 2 * buddyRadarLevel;
         }
       }
     }
@@ -650,13 +749,17 @@ export default function CatMachine() {
     }
 
     const rawTotal = base + traitBonus + rowBonus + moduleBonus + eventBonus;
-    const multiplier = goldArmed ? (hasModule(modules, 'gold-polish') ? 1.8 : 1.5) : 1;
-    const total = Math.round(rawTotal * multiplier);
-    const goldBonus = total - rawTotal;
+    const growthMultiplier = 1 + (shopLevel - 1) * 0.08;
+    const grownTotal = Math.round(rawTotal * growthMultiplier);
+    const growthBonus = grownTotal - rawTotal;
+    const goldPolishLevel = moduleLevel(modules, 'gold-polish');
+    const goldMultiplier = goldArmed ? 1.5 + Math.min(goldPolishLevel, 6) * 0.15 : 1;
+    const total = Math.round(grownTotal * goldMultiplier);
+    const goldBonus = total - grownTotal;
     const fishEarned = perfectRows.length * 2
       + (matches >= 7 ? 1 : 0)
       + (event.fishPerPerfect ?? 0) * perfectRows.length
-      + (hasModule(modules, 'fish-bank') ? perfectRows.length : 0);
+      + moduleLevel(modules, 'fish-bank') * perfectRows.length;
     const energyGain = matches * 9 + perfectRows.length * 10;
 
     let headline = '有几只猫还在等合适的工位';
@@ -668,6 +771,7 @@ export default function CatMachine() {
     return {
       total,
       rawTotal,
+      growthBonus,
       base,
       traitBonus,
       rowBonus,
@@ -739,11 +843,7 @@ export default function CatMachine() {
   };
 
   const continueAfterResult = () => {
-    if (round >= MAX_ROUNDS) {
-      setPhase('end');
-      return;
-    }
-    if (UPGRADE_ROUNDS.has(round) && modules.length < 3) {
+    if (round % MODULE_INTERVAL === 0) {
       setPhase('upgrade');
       return;
     }
@@ -756,9 +856,16 @@ export default function CatMachine() {
     prepareNextRound();
   };
 
-  const restart = () => {
+  const resetProgress = () => {
+    if (!window.confirm('确定清空这台设备上的猫咪机进度吗？店铺等级、模块和累计呼噜都会归零。')) return;
     resolutionTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     resolutionTimersRef.current = [];
+    try {
+      localStorage.removeItem(SAVE_KEY);
+      localStorage.removeItem('cat-machine:best-score');
+    } catch {
+      // Storage is optional.
+    }
     setRound(1);
     setCats(createInitialCats());
     setStations(['snack', 'play', 'nap']);
@@ -774,16 +881,18 @@ export default function CatMachine() {
     setHighlightedCats([]);
     setHint(null);
     setExtraMoveBought(false);
-    setPhase('arrange');
+    setOfflineNotice(0);
+    setHasSavedProgress(false);
+    setShowGuide(false);
+    setPhase('intro');
     playSound('lever');
   };
 
   const startGame = () => {
+    setOfflineNotice(0);
     setPhase('arrange');
     playSound('gold');
   };
-
-  const finalRank = getRank(score);
 
   return (
     <section className="cat-machine" data-phase={phase} aria-label="猫咪机游戏">
@@ -815,25 +924,20 @@ export default function CatMachine() {
       </header>
 
       <div className="cm-scoreboard">
-        <div className="cm-round-dots" aria-label={`当前第 ${round} 班，共 ${MAX_ROUNDS} 班`}>
-          <span className="cm-kicker">夜班进度</span>
-          <div>
-            {Array.from({ length: MAX_ROUNDS }, (_, index) => (
-              <i key={index} className={index + 1 < round ? 'is-done' : index + 1 === round ? 'is-current' : ''}>
-                {index + 1}
-              </i>
-            ))}
-          </div>
+        <div className="cm-shift-counter" aria-label={`当前第 ${round} 班，无限营业`}>
+          <span className="cm-kicker">无限营业中</span>
+          <strong>SHIFT {String(round).padStart(2, '0')}</strong>
+          <small>再过 {shiftsUntilModule} 班选模块</small>
         </div>
         <div className="cm-score-stat">
-          <span>总呼噜</span>
+          <span>累计呼噜</span>
           <strong>{score}</strong>
-          <small>/ {TARGET_SCORE} 首席线</small>
+          <small>永久保留</small>
         </div>
         <div className="cm-rank-stat">
           <span>{currentRank.icon}</span>
           <div>
-            <small>当前称号</small>
+            <small>店铺 Lv.{shopLevel}</small>
             <strong>{currentRank.name}</strong>
           </div>
         </div>
@@ -1017,32 +1121,35 @@ export default function CatMachine() {
         <aside className="cm-side-panel">
           <section className="cm-side-card cm-goal-card">
             <div className="cm-side-heading">
-              <span>今晚目标</span>
+              <span>店铺成长 · Lv.{shopLevel}</span>
               <Trophy />
             </div>
-            <strong>8 班内收集 {TARGET_SCORE} 呼噜</strong>
-            <p>每只对上工位的猫得 4 分。最值钱的是凑齐一整层，再用猫咪天赋把连锁放大。</p>
-            <div className="cm-goal-progress" aria-label={`目标进度 ${Math.min(100, Math.round(score / TARGET_SCORE * 100))}%`}>
-              <i style={{ width: `${Math.min(100, score / TARGET_SCORE * 100)}%` }} />
+            <strong>距离 Lv.{shopLevel + 1} 还差 {Math.max(0, nextLevelScore - score)} 呼噜</strong>
+            <p>没有最终关。店铺升级会放大每班收益，模块也可以不断叠级，但高收益仍要靠你亲手排出完美整层。</p>
+            <div className="cm-goal-progress" aria-label={`店铺等级进度 ${Math.round(levelProgress)}%`}>
+              <i style={{ width: `${levelProgress}%` }} />
             </div>
           </section>
 
           <section className="cm-side-card">
             <div className="cm-side-heading">
-              <span>已装模块 · {modules.length}/3</span>
+              <span>永久模块 · {installedModules.length} 种</span>
               <Sparkles />
             </div>
             {modules.length === 0 ? (
               <div className="cm-empty-modules">
                 <span>?</span>
-                <p>第 2、4、6 班后各选一个模块。</p>
+                <p>每 3 班选一个模块；抽到已有模块会升一级。</p>
               </div>
             ) : (
               <div className="cm-module-list">
-                {modules.map((module) => (
+                {installedModules.map(({ module, level }) => (
                   <div key={module.id} style={{ '--module-color': module.color } as React.CSSProperties}>
                     <span>{module.icon}</span>
-                    <p><strong>{module.name}</strong><small>{module.description}</small></p>
+                    <p>
+                      <strong>{module.name}<b className="cm-module-level">Lv.{level}</b></strong>
+                      <small>{module.description}</small>
+                    </p>
                   </div>
                 ))}
               </div>
@@ -1098,7 +1205,13 @@ export default function CatMachine() {
               )}
               <div className="cm-guide-kicker"><span>🐾</span> 一分钟上手</div>
               <h3 id="cm-guide-title">不是抽奖，是一台会“贴贴连锁”的猫咪服务机</h3>
-              <p className="cm-guide-lead">每班只有两只猫爪。你要在“改工位”和“换猫座位”之间做选择，然后摇铃看九只猫一起触发天赋。</p>
+              <p className="cm-guide-lead">这里没有最后一班。每班用两只猫爪调整工位与座位，摇铃赚呼噜、升级店铺，再把永久模块一层层叠高。</p>
+              {offlineNotice > 0 && (
+                <div className="cm-offline-notice">
+                  <span>🌙</span>
+                  <p><strong>猫咪替你看了一会儿店</strong><small>离线获得 +{offlineNotice} 呼噜（最多累计 4 小时）</small></p>
+                </div>
+              )}
               <div className="cm-guide-steps">
                 <div>
                   <span>01</span>
@@ -1120,13 +1233,18 @@ export default function CatMachine() {
                 </div>
               </div>
               <div className="cm-guide-footer">
-                <p><Sparkles /> 金色毛球充满后可以留到最漂亮的一班再释放。</p>
+                <p><Sparkles /> 进度保存在这台设备；金色毛球可以留到最漂亮的一班再释放。</p>
                 {phase === 'intro' ? (
-                  <button type="button" onClick={startGame}>懂了，开第一班 <Bell /></button>
+                  <button type="button" onClick={startGame}>{hasSavedProgress ? '继续营业' : '懂了，开第一班'} <Bell /></button>
                 ) : (
                   <button type="button" onClick={() => setShowGuide(false)}>继续值班 <PawPrint /></button>
                 )}
               </div>
+              {hasSavedProgress && (
+                <button type="button" className="cm-reset-progress" onClick={resetProgress}>
+                  <RotateCcw /> 清空本机进度
+                </button>
+              )}
             </motion.div>
           </motion.div>
         )}
@@ -1154,6 +1272,7 @@ export default function CatMachine() {
                 <div><span>整层与连班</span><strong>+{roundResult.rowBonus}</strong></div>
                 <div><span>机器模块</span><strong>+{roundResult.moduleBonus}</strong></div>
                 <div><span>{event.icon} {event.name}</span><strong>+{roundResult.eventBonus}</strong></div>
+                {roundResult.growthBonus > 0 && <div><span>店铺 Lv.{shopLevel} 成长</span><strong>+{roundResult.growthBonus}</strong></div>}
                 {roundResult.goldBonus > 0 && <div className="is-gold"><span>✨ 金色呼噜</span><strong>+{roundResult.goldBonus}</strong></div>}
               </div>
               <div className="cm-result-rewards">
@@ -1161,7 +1280,7 @@ export default function CatMachine() {
                 <span><Sparkles /> +{roundResult.energyGain} 毛球能量</span>
               </div>
               <button type="button" onClick={continueAfterResult}>
-                {round >= MAX_ROUNDS ? '查看今晚评级' : UPGRADE_ROUNDS.has(round) ? '打开模块盲盒' : '进入下一班'}
+                {round % MODULE_INTERVAL === 0 ? '选择永久模块' : '进入下一班'}
                 <span aria-hidden="true">→</span>
               </button>
             </motion.div>
@@ -1179,8 +1298,8 @@ export default function CatMachine() {
               exit={{ opacity: 0, y: 18 }}
             >
               <div className="cm-guide-kicker"><span>🧰</span> 猫咪机升级时间</div>
-              <h3>选一个简单、但会改变接下来打法的模块</h3>
-              <p>模块会永久生效到第 8 班。你最多会装上三个。</p>
+              <h3>选一个永久模块，或者把旧模块再升一级</h3>
+              <p>每 3 班都会再选一次，没有安装上限。重复模块的效果会继续叠加。</p>
               <div className="cm-upgrade-grid">
                 {upgradeChoices.map((module) => (
                   <button
@@ -1190,43 +1309,13 @@ export default function CatMachine() {
                     style={{ '--module-color': module.color } as React.CSSProperties}
                   >
                     <span>{module.icon}</span>
-                    <small>永久模块</small>
+                    <small>{moduleLevel(modules, module.id) > 0 ? `Lv.${moduleLevel(modules, module.id)} → Lv.${moduleLevel(modules, module.id) + 1}` : '获得 Lv.1'}</small>
                     <strong>{module.name}</strong>
                     <p>{module.description}</p>
-                    <i>装上它 <b>→</b></i>
+                    <i>{moduleLevel(modules, module.id) > 0 ? '升级它' : '装上它'} <b>→</b></i>
                   </button>
                 ))}
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {phase === 'end' && (
-          <motion.div className="cm-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div
-              className="cm-modal cm-end-modal"
-              initial={{ opacity: 0, y: 28, scale: 0.94 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-            >
-              <div className="cm-confetti" aria-hidden="true">
-                {['🐾', '✨', '🐟', '🪶', '💛', '🐾'].map((item, index) => <i key={index}>{item}</i>)}
-              </div>
-              <div className="cm-end-rank">{finalRank.icon}</div>
-              <small>8 班营业结束 · TONIGHT&apos;S REPORT</small>
-              <h3>{finalRank.name}</h3>
-              <p>{finalRank.note}</p>
-              <div className="cm-final-score">
-                <span>{score}</span>
-                <small>总呼噜</small>
-              </div>
-              <div className="cm-end-stats">
-                <div><span>目标线</span><strong>{TARGET_SCORE}</strong></div>
-                <div><span>剩余鱼干</span><strong>{fish}</strong></div>
-                <div><span>本机最佳</span><strong>{Math.max(bestScore, score)}</strong></div>
-              </div>
-              <button type="button" onClick={restart}><RotateCcw /> 再开一晚</button>
             </motion.div>
           </motion.div>
         )}
