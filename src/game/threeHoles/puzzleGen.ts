@@ -8,6 +8,7 @@ export interface PuzzleState {
   regions: number[][];
   solution: boolean[][];
   marks: CellMark[][];
+  givens: boolean[][];
   puzzleId: string;
   surrendered: boolean;
   won: boolean;
@@ -24,6 +25,13 @@ interface EncodedCertificate {
   status: string;
   regionsConnected: boolean;
   solutionValid: boolean;
+  naturalRegions?: boolean;
+  clueCount?: number;
+}
+
+interface EncodedGiven {
+  cell: number;
+  value: 0 | 1;
 }
 
 interface EncodedPuzzle {
@@ -33,6 +41,10 @@ interface EncodedPuzzle {
   k: number;
   regions: string[];
   solution: string[];
+  givens?: EncodedGiven[];
+  // Backward-compatible input for older generated banks. Merged banks use
+  // `givens`, which can represent both fixed holes and fixed exclusions.
+  clues?: number[];
   certificate: EncodedCertificate;
 }
 
@@ -57,9 +69,13 @@ export const DIFFICULTIES: Difficulty[] = [
 ];
 
 const puzzleBank = puzzleBankJson as PuzzleBank;
-const puzzlesByDifficulty = new Map(
-  puzzleBank.puzzles.map((puzzle) => [puzzle.difficultyId, puzzle]),
-);
+const puzzlesByDifficulty = new Map<string, EncodedPuzzle[]>();
+for (const puzzle of puzzleBank.puzzles) {
+  const puzzles = puzzlesByDifficulty.get(puzzle.difficultyId) ?? [];
+  puzzles.push(puzzle);
+  puzzlesByDifficulty.set(puzzle.difficultyId, puzzles);
+}
+const lastPuzzleByDifficulty = new Map<string, string>();
 
 function decodeRows(rows: string[], n: number): number[][] {
   if (rows.length !== n || rows.some((row) => row.length !== n)) {
@@ -183,185 +199,70 @@ function solutionIsValid(
   return regionCounts.every((count) => count === k);
 }
 
-function hasNeighboringHole(solution: boolean[][], row: number, col: number): boolean {
-  for (let dr = -1; dr <= 1; dr++) {
-    for (let dc = -1; dc <= 1; dc++) {
-      if (dr === 0 && dc === 0) continue;
-      if (solution[row + dr]?.[col + dc]) return true;
-    }
-  }
-  return false;
-}
-
-function shuffle<T>(values: T[]): T[] {
-  for (let index = values.length - 1; index > 0; index--) {
-    const other = Math.floor(Math.random() * (index + 1));
-    [values[index], values[other]] = [values[other], values[index]];
-  }
-  return values;
-}
-
-function cellsAreOrthogonalNeighbors(left: number, right: number, n: number): boolean {
-  const leftRow = Math.floor(left / n);
-  const leftCol = left % n;
-  const rightRow = Math.floor(right / n);
-  const rightCol = right % n;
-  return Math.abs(leftRow - rightRow) + Math.abs(leftCol - rightCol) === 1;
-}
-
-/**
- * Make the answer less lattice-like without changing the row/column totals.
- * A cycle move takes one hole from several different rows and rotates their
- * columns. It is the smallest useful move for this puzzle: it preserves both
- * margins, while the final neighbor check keeps the king-neighbor rule intact.
- */
-function randomizeSolutionLayout(solution: boolean[][], attempts: number): boolean[][] {
-  const n = solution.length;
-  const mixed = solution.map((row) => [...row]);
-
-  for (let attempt = 0; attempt < attempts; attempt++) {
-    const cycleLength = Math.min(n, 2 + Math.floor(Math.random() * 5));
-    const rows = shuffle(Array.from({ length: n }, (_, index) => index))
-      .slice(0, cycleLength);
-    const usedColumns = new Set<number>();
-    const sourceColumns: number[] = [];
-    let possible = true;
-
-    for (const row of rows) {
-      const choices = mixed[row].flatMap(
-        (value, col) => value && !usedColumns.has(col) ? [col] : [],
-      );
-      if (choices.length === 0) {
-        possible = false;
-        break;
-      }
-      const column = choices[Math.floor(Math.random() * choices.length)];
-      sourceColumns.push(column);
-      usedColumns.add(column);
-    }
-    if (!possible) continue;
-
-    const direction = Math.random() < 0.5 ? 1 : -1;
-    const destinationColumns = sourceColumns.map(
-      (_, index) => sourceColumns[(index + direction + cycleLength) % cycleLength],
-    );
-    const removed = rows.map((row, index) => [row, sourceColumns[index]] as const);
-    const added = rows.map((row, index) => [row, destinationColumns[index]] as const);
-
-    if (added.some(([row, col]) => mixed[row][col])) continue;
-    for (const [row, col] of removed) mixed[row][col] = false;
-    for (const [row, col] of added) mixed[row][col] = true;
-
-    const adjacencyPreserved = added.every(
-      ([row, col]) => !hasNeighboringHole(mixed, row, col),
-    );
-    if (adjacencyPreserved) continue;
-
-    for (const [row, col] of added) mixed[row][col] = false;
-    for (const [row, col] of removed) mixed[row][col] = true;
-  }
-
-  return mixed;
-}
-
-function buildRandomHamiltonianPath(n: number): number[] {
-  const path: number[] = [];
-  const vertical = Math.random() < 0.5;
-  if (vertical) {
-    for (let col = 0; col < n; col++) {
-      const rows = col % 2 === 0
-        ? Array.from({ length: n }, (_, row) => row)
-        : Array.from({ length: n }, (_, row) => n - 1 - row);
-      for (const row of rows) path.push(row * n + col);
-    }
-  } else {
-    for (let row = 0; row < n; row++) {
-      const columns = row % 2 === 0
-        ? Array.from({ length: n }, (_, col) => col)
-        : Array.from({ length: n }, (_, col) => n - 1 - col);
-      for (const col of columns) path.push(row * n + col);
-    }
-  }
-  if (Math.random() < 0.5) path.reverse();
-
-  // Random 2-opt reversals keep the path connected but make the region cuts
-  // less stripe-like than the plain serpentine path.
-  for (let attempt = 0; attempt < n * n * 8; attempt++) {
-    const left = 1 + Math.floor(Math.random() * Math.max(1, path.length - 3));
-    const right = left + 1 + Math.floor(Math.random() * Math.max(1, path.length - left - 2));
-    if (right >= path.length - 1) continue;
-    if (!cellsAreOrthogonalNeighbors(path[left - 1], path[right], n)) continue;
-    if (!cellsAreOrthogonalNeighbors(path[left], path[right + 1], n)) continue;
-    const reversed = path.slice(left, right + 1).reverse();
-    path.splice(left, right - left + 1, ...reversed);
-  }
-  return path;
-}
-
-function buildRegionsForSolution(n: number, k: number, solution: boolean[][]): number[][] {
-  const path = buildRandomHamiltonianPath(n);
-  const holePositions = path.flatMap((value, position) => (
-    solution[Math.floor(value / n)][value % n] ? [position] : []
-  ));
-  if (holePositions.length !== n * k) {
-    throw new Error('题目答案中的兔子洞数量不正确');
-  }
-
-  const ends: number[] = [];
-  let previous = 0;
-  for (let region = 0; region < n - 1; region++) {
-    const lower = holePositions[(region + 1) * k - 1] + 1;
-    const upper = holePositions[(region + 1) * k];
-    const end = lower + Math.floor(Math.random() * (upper - lower + 1));
-    if (end <= previous) throw new Error('题目活动区切分失败');
-    ends.push(end);
-    previous = end;
-  }
-  ends.push(n * n);
-
-  const labels = Array.from({ length: n }, () => Array<number>(n).fill(-1));
-  let start = 0;
-  for (let region = 0; region < n; region++) {
-    for (let position = start; position < ends[region]; position++) {
-      const value = path[position];
-      labels[Math.floor(value / n)][value % n] = region;
-    }
-    start = ends[region];
-  }
-  return labels;
-}
-
 function loadPuzzle(difficulty: Difficulty): PuzzleState {
-  const encoded = puzzlesByDifficulty.get(difficulty.id);
-  if (!encoded || encoded.n !== difficulty.n || encoded.k !== difficulty.k) {
+  const candidates = puzzlesByDifficulty.get(difficulty.id)?.filter(
+    (puzzle) => puzzle.n === difficulty.n && puzzle.k === difficulty.k,
+  ) ?? [];
+  if (candidates.length === 0) {
     throw new Error(`缺少 ${difficulty.name} 的题目`);
   }
+  const previousId = lastPuzzleByDifficulty.get(difficulty.id);
+  const freshCandidates = candidates.length > 1
+    ? candidates.filter((puzzle) => puzzle.id !== previousId)
+    : candidates;
+  const encoded = freshCandidates[Math.floor(Math.random() * freshCandidates.length)];
+  lastPuzzleByDifficulty.set(difficulty.id, encoded.id);
+  const encodedGivens: EncodedGiven[] = encoded.givens ?? (encoded.clues ?? []).map(
+    (cell) => ({ cell, value: 1 }),
+  );
   if (
     encoded.certificate.status !== 'INFEASIBLE'
     || !encoded.certificate.regionsConnected
     || !encoded.certificate.solutionValid
+    || encoded.certificate.naturalRegions !== true
+    || (encoded.certificate.clueCount ?? encodedGivens.length) !== encodedGivens.length
+    || (encoded.givens !== undefined && encoded.clues !== undefined)
   ) {
     throw new Error(`${difficulty.name} 的题目证书无效`);
   }
 
   const { n } = difficulty;
-  const storedRegions = decodeRows(encoded.regions, n);
+  const rawRegions = decodeRows(encoded.regions, n);
   const rawSolution = decodeRows(encoded.solution, n).map(
     (row) => row.map((value) => value === 1),
   );
+  const rawGivens = Array.from({ length: n }, () => Array<boolean>(n).fill(false));
+  const rawMarks = Array.from({ length: n }, () => Array<CellMark>(n).fill(0));
+  const seenGivens = new Set<number>();
+  for (const given of encodedGivens) {
+    const row = Math.floor(given.cell / n);
+    const col = given.cell % n;
+    if (
+      !Number.isInteger(given.cell)
+      || row < 0
+      || row >= n
+      || col < 0
+      || col >= n
+      || (given.value !== 0 && given.value !== 1)
+      || rawSolution[row][col] !== (given.value === 1)
+      || seenGivens.has(given.cell)
+    ) {
+      throw new Error(`${difficulty.name} 的固定题面线索无效`);
+    }
+    seenGivens.add(given.cell);
+    rawGivens[row][col] = true;
+    rawMarks[row][col] = given.value === 1 ? 2 : 1;
+  }
   const symmetry = Math.floor(Math.random() * 8);
   const relabel = shuffledRegionLabels(n);
-  const transformedSolution = transformGrid(rawSolution, symmetry);
-  const solution = randomizeSolutionLayout(
-    transformedSolution,
-    Math.max(1_200, n * n * 40),
-  );
-  const regions = buildRegionsForSolution(n, difficulty.k, solution).map(
+  const regions = transformGrid(rawRegions, symmetry).map(
     (row) => row.map((region) => relabel[region]),
   );
+  const solution = transformGrid(rawSolution, symmetry);
+  const givens = transformGrid(rawGivens, symmetry);
+  const marks = transformGrid(rawMarks, symmetry);
 
-  if (!regionsAreConnected(storedRegions) || !regionsAreConnected(regions)
-    || !solutionIsValid(n, difficulty.k, regions, solution)) {
+  if (!regionsAreConnected(regions) || !solutionIsValid(n, difficulty.k, regions, solution)) {
     throw new Error(`${difficulty.name} 的题目在加载时校验失败`);
   }
 
@@ -370,9 +271,8 @@ function loadPuzzle(difficulty: Difficulty): PuzzleState {
     k: difficulty.k,
     regions,
     solution,
-    // Every new game starts from a genuinely empty board. Generated authoring
-    // clues are intentionally not imported into runtime state.
-    marks: Array.from({ length: n }, () => Array<CellMark>(n).fill(0)),
+    marks,
+    givens,
     puzzleId: encoded.id,
     surrendered: false,
     won: false,

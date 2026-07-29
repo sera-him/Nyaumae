@@ -68,167 +68,242 @@ class BoardTopology:
         )
 
 
-def sample_region_sizes(n: int, k: int, rng: random.Random) -> list[int]:
-    """Uniform ordered composition with every region at least 2*k-1 cells."""
-    minimum = max(1, 2 * k - 1)
-    volume = n * n
-    if n * minimum > volume:
-        raise ValueError(f"n={n}, k={k} cannot support minimum region size {minimum}")
-
-    # x_i = size_i - (minimum - 1) >= 1.
-    remaining = volume - n * (minimum - 1)
-    cuts = sorted(rng.sample(range(1, remaining), n - 1))
-    sizes: list[int] = []
-    previous = 0
-    for cut in cuts + [remaining]:
-        sizes.append(cut - previous + minimum - 1)
-        previous = cut
-    rng.shuffle(sizes)
-    assert sum(sizes) == volume and min(sizes) >= minimum
-    return sizes
+@dataclass(frozen=True)
+class RegionShape:
+    area: int
+    height: int
+    width: int
+    aspect: float
+    fill: float
+    longest_vertical: int
+    longest_horizontal: int
+    perimeter: int
 
 
-def balanced_region_sizes(n: int, k: int, rng: random.Random) -> list[int]:
-    """Keep region areas close to n while retaining a randomized distribution."""
-    variation = max(1, n // 6)
-    minimum = max(2 * k - 1, n - variation)
-    maximum = n + variation
-    sizes = [n] * n
-
-    # Unit transfers preserve the total area. The bounds avoid tiny regions
-    # that make an initial k-hole solution unnecessarily unlikely.
-    for _ in range(n * 20):
-        donor = rng.randrange(n)
-        receiver = rng.randrange(n - 1)
-        if receiver >= donor:
-            receiver += 1
-        if sizes[donor] <= minimum or sizes[receiver] >= maximum:
-            continue
-        sizes[donor] -= 1
-        sizes[receiver] += 1
-
-    rng.shuffle(sizes)
-    assert sum(sizes) == n * n and min(sizes) >= minimum and max(sizes) <= maximum
-    return sizes
+@dataclass(frozen=True)
+class BoardShape:
+    orientation_bias: float
+    maximum_aspect: float
+    minimum_fill: float
+    maximum_run_share: float
+    maximum_run: int
+    vertical_boundaries: int
+    horizontal_boundaries: int
 
 
-def hilbert_rot(size: int, x: int, y: int, rx: int, ry: int) -> tuple[int, int]:
-    if ry == 0:
-        if rx == 1:
-            x = size - 1 - x
-            y = size - 1 - y
-        x, y = y, x
-    return x, y
+def longest_consecutive(values: Iterable[int]) -> int:
+    ordered = sorted(values)
+    if not ordered:
+        return 0
+    best = current = 1
+    for left, right in zip(ordered, ordered[1:]):
+        current = current + 1 if right == left + 1 else 1
+        best = max(best, current)
+    return best
 
 
-def hilbert_d2xy(n: int, distance: int) -> tuple[int, int]:
-    x = y = 0
-    scale = 1
-    value = distance
-    while scale < n:
-        rx = 1 & (value // 2)
-        ry = 1 & (value ^ rx)
-        x, y = hilbert_rot(scale, x, y, rx, ry)
-        x += scale * rx
-        y += scale * ry
-        value //= 4
-        scale *= 2
-    return x, y
+def region_shape(values: Sequence[int], n: int) -> RegionShape:
+    members = set(values)
+    rows = [value // n for value in members]
+    cols = [value % n for value in members]
+    height = max(rows) - min(rows) + 1
+    width = max(cols) - min(cols) + 1
+    longest_vertical = max(
+        longest_consecutive(value // n for value in members if value % n == col)
+        for col in set(cols)
+    )
+    longest_horizontal = max(
+        longest_consecutive(value % n for value in members if value // n == row)
+        for row in set(rows)
+    )
+    perimeter = 0
+    for value in members:
+        row, col = divmod(value, n)
+        for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            rr, cc = row + dr, col + dc
+            if rr < 0 or rr >= n or cc < 0 or cc >= n or cell(n, rr, cc) not in members:
+                perimeter += 1
+    return RegionShape(
+        area=len(members),
+        height=height,
+        width=width,
+        aspect=max(height, width) / min(height, width),
+        fill=len(members) / (height * width),
+        longest_vertical=longest_vertical,
+        longest_horizontal=longest_horizontal,
+        perimeter=perimeter,
+    )
 
 
-def transform_xy(n: int, x: int, y: int, symmetry: int) -> tuple[int, int]:
-    if symmetry == 0:
-        return x, y
-    if symmetry == 1:
-        return n - 1 - y, x
-    if symmetry == 2:
-        return n - 1 - x, n - 1 - y
-    if symmetry == 3:
-        return y, n - 1 - x
-    if symmetry == 4:
-        return n - 1 - x, y
-    if symmetry == 5:
-        return x, n - 1 - y
-    if symmetry == 6:
-        return y, x
-    return n - 1 - y, n - 1 - x
+def region_shape_is_natural(
+    shape: RegionShape,
+    n: int,
+    k: int,
+    minimum_size: int,
+    maximum_size: int,
+) -> bool:
+    if not minimum_size <= shape.area <= maximum_size:
+        return False
+    if shape.area >= 7 and min(shape.height, shape.width) < 2:
+        return False
+    if shape.aspect > (2.8 if n <= 6 else 2.45):
+        return False
+    if shape.fill < (0.28 if shape.area <= 8 else 0.34):
+        return False
+    longest = max(shape.longest_vertical, shape.longest_horizontal)
+    if longest > max(4, math.ceil(2.25 * math.sqrt(shape.area))):
+        return False
+    if shape.area >= 8 and longest / shape.area > 0.56:
+        return False
+    if shape.perimeter > math.ceil(7.2 * math.sqrt(shape.area)):
+        return False
+    # A k-hole region needs room for the holes without turning into a corridor.
+    if shape.area < max(2 * k + 1, 3):
+        return False
+    return True
 
 
-def make_connected_path(n: int, rng: random.Random) -> list[int]:
-    """Hilbert for power-of-two boards; a Hamiltonian snake otherwise."""
-    symmetry = rng.randrange(8)
-    if n & (n - 1) == 0:
-        points = [hilbert_d2xy(n, distance) for distance in range(n * n)]
-    else:
-        points = []
-        for y in range(n):
-            columns: Iterable[int] = range(n) if y % 2 == 0 else range(n - 1, -1, -1)
-            points.extend((x, y) for x in columns)
-
-    path = [
-        cell(n, yy, xx)
-        for x, y in points
-        for xx, yy in (transform_xy(n, x, y, symmetry),)
-    ]
-    if rng.randrange(2):
-        path.reverse()
-    return path
+def region_shape_penalty(shape: RegionShape) -> float:
+    longest = max(shape.longest_vertical, shape.longest_horizontal)
+    return (
+        2.2 * (shape.aspect - 1.0) ** 2
+        + 3.0 * (1.0 - shape.fill)
+        + 0.65 * longest / math.sqrt(shape.area)
+        + 0.18 * shape.perimeter / math.sqrt(shape.area)
+    )
 
 
-def initial_regions(n: int, sizes: Sequence[int], rng: random.Random) -> list[int]:
-    path = make_connected_path(n, rng)
+def board_shape(labels: Sequence[int], n: int) -> BoardShape:
+    members: list[list[int]] = [[] for _ in range(n)]
+    for value, region in enumerate(labels):
+        members[region].append(value)
+    shapes = [region_shape(values, n) for values in members]
+    vertical_boundaries = sum(
+        labels[cell(n, row, col)] != labels[cell(n, row, col + 1)]
+        for row in range(n)
+        for col in range(n - 1)
+    )
+    horizontal_boundaries = sum(
+        labels[cell(n, row, col)] != labels[cell(n, row + 1, col)]
+        for row in range(n - 1)
+        for col in range(n)
+    )
+    boundary_total = vertical_boundaries + horizontal_boundaries
+    return BoardShape(
+        orientation_bias=(
+            abs(vertical_boundaries - horizontal_boundaries) / boundary_total
+            if boundary_total
+            else 1.0
+        ),
+        maximum_aspect=max(shape.aspect for shape in shapes),
+        minimum_fill=min(shape.fill for shape in shapes),
+        maximum_run_share=max(
+            max(shape.longest_vertical, shape.longest_horizontal) / shape.area
+            for shape in shapes
+        ),
+        maximum_run=max(
+            max(shape.longest_vertical, shape.longest_horizontal)
+            for shape in shapes
+        ),
+        vertical_boundaries=vertical_boundaries,
+        horizontal_boundaries=horizontal_boundaries,
+    )
+
+
+def board_shape_is_natural(
+    labels: Sequence[int],
+    n: int,
+    k: int,
+    minimum_size: int,
+    maximum_size: int,
+) -> bool:
+    members: list[list[int]] = [[] for _ in range(n)]
+    for value, region in enumerate(labels):
+        if region < 0 or region >= n:
+            return False
+        members[region].append(value)
+    if any(
+        not region_shape_is_natural(
+            region_shape(values, n),
+            n,
+            k,
+            minimum_size,
+            maximum_size,
+        )
+        for values in members
+    ):
+        return False
+    # This catches both vertical-strip and horizontal-strip boards. Runtime
+    # rotations therefore cannot turn an accepted board into a strip board.
+    return board_shape(labels, n).orientation_bias <= (0.46 if n <= 6 else 0.30)
+
+
+def natural_size_limits(n: int, k: int) -> tuple[int, int]:
+    return (
+        max(2 * k + 1, math.floor(n * 0.52)),
+        max(2 * k + 2, math.ceil(n * 1.72)),
+    )
+
+
+def spread_seeds(n: int, rng: random.Random) -> list[int]:
+    """Randomized farthest-point seeds for compact, non-grid Voronoi blobs."""
+    available = list(range(n * n))
+    seeds = [rng.choice(available)]
+    available.remove(seeds[0])
+    while len(seeds) < n:
+        sample_size = min(len(available), max(64, n * 5))
+        candidates = rng.sample(available, sample_size)
+
+        def candidate_score(value: int) -> float:
+            row, col = divmod(value, n)
+            nearest = min(
+                (row - seed // n) ** 2 + (col - seed % n) ** 2
+                for seed in seeds
+            )
+            # Keep the blue-noise spacing, but avoid a regular seed lattice.
+            return nearest * rng.uniform(0.72, 1.28)
+
+        chosen = max(candidates, key=candidate_score)
+        seeds.append(chosen)
+        available.remove(chosen)
+    rng.shuffle(seeds)
+    return seeds
+
+
+def voronoi_labels(n: int, seeds: Sequence[int], rng: random.Random) -> list[int]:
     labels = [-1] * (n * n)
-    offset = 0
-    for region, size in enumerate(sizes):
-        for value in path[offset : offset + size]:
-            labels[value] = region
-        offset += size
-    assert offset == n * n and all(label >= 0 for label in labels)
+    seed_order = list(range(n))
+    for value in range(n * n):
+        row, col = divmod(value, n)
+        rng.shuffle(seed_order)
+        labels[value] = min(
+            seed_order,
+            key=lambda region: (
+                (row - seeds[region] // n) ** 2 + (col - seeds[region] % n) ** 2,
+                seed_order.index(region),
+            ),
+        )
     return labels
 
 
-def regions_from_target_path(
+def generate_blob_regions(
     n: int,
     k: int,
-    target: Sequence[int],
     rng: random.Random,
-) -> tuple[list[int], list[int]]:
-    """Cut a connected path after each group of k target holes."""
-    path = make_connected_path(n, rng)
-    hole_positions = [index for index, value in enumerate(path) if target[value]]
-    if len(hole_positions) != n * k:
-        raise ValueError("target has the wrong number of holes")
-
-    ends: list[int] = []
-    previous = 0
-    for region in range(n - 1):
-        lower = hole_positions[(region + 1) * k - 1] + 1
-        upper = hole_positions[(region + 1) * k]
-        ideal = (region + 1) * n
-        jitter = rng.randint(-max(1, n // 8), max(1, n // 8))
-        end = min(upper, max(lower, ideal + jitter))
-        if end <= previous:
-            raise RuntimeError("invalid target-path boundary")
-        ends.append(end)
-        previous = end
-    ends.append(n * n)
-
-    labels = [-1] * (n * n)
-    sizes: list[int] = []
-    start = 0
-    for region, end in enumerate(ends):
-        for value in path[start:end]:
-            labels[value] = region
-        sizes.append(end - start)
-        start = end
-
-    assert all(label >= 0 for label in labels)
-    counts = [0] * n
-    for value, is_hole in enumerate(target):
-        if is_hole:
-            counts[labels[value]] += 1
-    assert all(count == k for count in counts)
-    return labels, sizes
+    attempts: int = 2_000,
+) -> tuple[list[int], list[int], BoardShape]:
+    minimum_size, maximum_size = natural_size_limits(n, k)
+    topology = BoardTopology.build(n)
+    for _ in range(attempts):
+        labels = voronoi_labels(n, spread_seeds(n, rng), rng)
+        state = RegionState(topology, labels)
+        if not state.validate_connected():
+            continue
+        sizes = [len(values) for values in state.members]
+        if not board_shape_is_natural(labels, n, k, minimum_size, maximum_size):
+            continue
+        return labels, sizes, board_shape(labels, n)
+    raise RuntimeError(f"could not grow a natural blob partition for {n}x{n}")
 
 
 class RegionState:
@@ -323,30 +398,355 @@ class RegionState:
         return True
 
 
+def natural_swap_score(
+    state: RegionState,
+    left: int,
+    right: int,
+    k: int,
+    minimum_size: int,
+    maximum_size: int,
+) -> float | None:
+    a = state.labels[left]
+    b = state.labels[right]
+    if a == b:
+        return None
+    next_a = [value for value in state.members[a] if value != left] + [right]
+    next_b = [value for value in state.members[b] if value != right] + [left]
+    shape_a = region_shape(next_a, state.n)
+    shape_b = region_shape(next_b, state.n)
+    if not region_shape_is_natural(shape_a, state.n, k, minimum_size, maximum_size):
+        return None
+    if not region_shape_is_natural(shape_b, state.n, k, minimum_size, maximum_size):
+        return None
+    return region_shape_penalty(shape_a) + region_shape_penalty(shape_b)
+
+
+def natural_move_score(
+    state: RegionState,
+    value: int,
+    destination: int,
+    k: int,
+    minimum_size: int,
+    maximum_size: int,
+) -> float | None:
+    source = state.labels[value]
+    if source == destination:
+        return None
+    next_source = [member for member in state.members[source] if member != value]
+    next_destination = list(state.members[destination]) + [value]
+    source_shape = region_shape(next_source, state.n)
+    destination_shape = region_shape(next_destination, state.n)
+    if not region_shape_is_natural(
+        source_shape,
+        state.n,
+        k,
+        minimum_size,
+        maximum_size,
+    ):
+        return None
+    if not region_shape_is_natural(
+        destination_shape,
+        state.n,
+        k,
+        minimum_size,
+        maximum_size,
+    ):
+        return None
+    return region_shape_penalty(source_shape) + region_shape_penalty(destination_shape)
+
+
+def target_region_counts(
+    state: RegionState,
+    target: Sequence[int],
+) -> list[int]:
+    counts = [0] * state.n
+    for value, selected in enumerate(target):
+        if selected:
+            counts[state.labels[value]] += 1
+    return counts
+
+
+def find_balancing_swap(
+    state: RegionState,
+    target: Sequence[int],
+    counts: Sequence[int],
+    k: int,
+    rng: random.Random,
+    minimum_size: int,
+    maximum_size: int,
+) -> tuple[int, int] | None:
+    adjacency: list[set[int]] = [set() for _ in range(state.n)]
+    for value in range(state.n * state.n):
+        source = state.labels[value]
+        for neighbor in state.topology.n4[value]:
+            destination = state.labels[neighbor]
+            if source != destination:
+                adjacency[source].add(destination)
+
+    distance = [state.n + 1] * state.n
+    queue = deque()
+    for region, count in enumerate(counts):
+        if count < k:
+            distance[region] = 0
+            queue.append(region)
+    while queue:
+        region = queue.popleft()
+        for neighbor in adjacency[region]:
+            if distance[neighbor] > distance[region] + 1:
+                distance[neighbor] = distance[region] + 1
+                queue.append(neighbor)
+
+    surplus = [region for region, count in enumerate(counts) if count > k]
+    for _ in range(max(1_000, state.n * state.n * 3)):
+        if not surplus:
+            return None
+        source = rng.choice(surplus)
+        left_candidates = [
+            value
+            for value in state.members[source]
+            if target[value] and state.removal_ok(source, value)
+        ]
+        if not left_candidates:
+            continue
+        left = rng.choice(left_candidates)
+        destinations = {
+            state.labels[neighbor]
+            for neighbor in state.topology.n4[left]
+            if state.labels[neighbor] != source
+            and counts[state.labels[neighbor]] <= k
+            and distance[state.labels[neighbor]] < distance[source]
+        }
+        if not destinations:
+            continue
+        destination = rng.choice(tuple(destinations))
+        right_candidates = [
+            value
+            for value in state.members[destination]
+            if not target[value]
+            and state.removal_ok(destination, value)
+            and state.has_neighbor_label(value, source, left)
+            and state.has_neighbor_label(left, destination, value)
+        ]
+        if not right_candidates:
+            continue
+        right = rng.choice(right_candidates)
+        if natural_swap_score(
+            state,
+            left,
+            right,
+            k,
+            minimum_size,
+            maximum_size,
+        ) is not None:
+            return left, right
+    return None
+
+
+def find_balancing_move(
+    state: RegionState,
+    target: Sequence[int],
+    counts: Sequence[int],
+    k: int,
+    rng: random.Random,
+    minimum_size: int,
+    maximum_size: int,
+) -> tuple[int, int] | None:
+    adjacency: list[set[int]] = [set() for _ in range(state.n)]
+    for value in range(state.n * state.n):
+        source = state.labels[value]
+        for neighbor in state.topology.n4[value]:
+            destination = state.labels[neighbor]
+            if source != destination:
+                adjacency[source].add(destination)
+    distance = [state.n + 1] * state.n
+    queue = deque()
+    for region, count in enumerate(counts):
+        if count < k:
+            distance[region] = 0
+            queue.append(region)
+    while queue:
+        region = queue.popleft()
+        for neighbor in adjacency[region]:
+            if distance[neighbor] > distance[region] + 1:
+                distance[neighbor] = distance[region] + 1
+                queue.append(neighbor)
+
+    surplus = [region for region, count in enumerate(counts) if count > k]
+    for _ in range(max(1_000, state.n * state.n * 3)):
+        if not surplus:
+            return None
+        source = rng.choice(surplus)
+        candidates = [
+            value
+            for value in state.members[source]
+            if target[value] and state.removal_ok(source, value)
+        ]
+        if not candidates:
+            continue
+        value = rng.choice(candidates)
+        destinations = {
+            state.labels[neighbor]
+            for neighbor in state.topology.n4[value]
+            if state.labels[neighbor] != source
+            and counts[state.labels[neighbor]] <= k
+            and distance[state.labels[neighbor]] < distance[source]
+        }
+        if not destinations:
+            continue
+        destination = rng.choice(tuple(destinations))
+        if natural_move_score(
+            state,
+            value,
+            destination,
+            k,
+            minimum_size,
+            maximum_size,
+        ) is not None:
+            return value, destination
+    return None
+
+
+def generate_target_aware_blob_regions(
+    n: int,
+    k: int,
+    topology: BoardTopology,
+    target: Sequence[int],
+    rng: random.Random,
+    attempts: int = 250,
+) -> tuple[RegionState, list[int], BoardShape] | None:
+    minimum_size, maximum_size = natural_size_limits(n, k)
+    for _ in range(attempts):
+        labels, _, _ = generate_blob_regions(n, k, rng)
+        state = RegionState(topology, labels)
+        counts = target_region_counts(state, target)
+        neutral_rounds = 0
+        for _step in range(n * n * 12):
+            if all(count == k for count in counts):
+                if board_shape_is_natural(
+                    state.labels,
+                    n,
+                    k,
+                    minimum_size,
+                    maximum_size,
+                ):
+                    sizes = [len(values) for values in state.members]
+                    return state, sizes, board_shape(state.labels, n)
+                break
+
+            balancing_swap = find_balancing_swap(
+                state,
+                target,
+                counts,
+                k,
+                rng,
+                minimum_size,
+                maximum_size,
+            )
+            balancing_move = (
+                None
+                if balancing_swap is not None
+                else find_balancing_move(
+                    state,
+                    target,
+                    counts,
+                    k,
+                    rng,
+                    minimum_size,
+                    maximum_size,
+                )
+            )
+            if balancing_swap is not None:
+                left, right = balancing_swap
+                source = state.labels[left]
+                destination = state.labels[right]
+                state.swap(left, right)
+                counts[source] -= 1
+                counts[destination] += 1
+                neutral_rounds = 0
+                continue
+            if balancing_move is not None:
+                value, destination = balancing_move
+                source = state.labels[value]
+                state.move(value, destination)
+                counts[source] -= 1
+                counts[destination] += 1
+                neutral_rounds = 0
+                continue
+
+            if neutral_rounds >= 8:
+                break
+            neutral_rounds += 1
+            random_preserving_mix(
+                state,
+                rng,
+                max(400, n * n * 4),
+                [target],
+                k,
+                minimum_size,
+                maximum_size,
+            )
+            random_preserving_empty_moves(
+                state,
+                rng,
+                max(400, n * n * 4),
+                [target],
+                k,
+                minimum_size,
+                maximum_size,
+            )
+            counts = target_region_counts(state, target)
+    return None
+
+
 def random_preserving_mix(
     state: RegionState,
     rng: random.Random,
     attempts: int,
     preserved_solutions: Sequence[Sequence[int]],
+    k: int,
+    minimum_size: int,
+    maximum_size: int,
     invalidity_guard: "InvalidityGuard | None" = None,
 ) -> int:
     accepted = 0
     n = state.n
     for _ in range(attempts):
-        a = rng.randrange(n)
-        b = rng.randrange(n - 1)
-        if b >= a:
-            b += 1
-        left = rng.choice(state.members[a])
-        right = rng.choice(state.members[b])
-
-        if any(solution[left] != solution[right] for solution in preserved_solutions):
+        left = rng.randrange(n * n)
+        a = state.labels[left]
+        neighboring_regions = {
+            state.labels[neighbor]
+            for neighbor in state.topology.n4[left]
+            if state.labels[neighbor] != a
+        }
+        if not neighboring_regions:
             continue
+        b = rng.choice(tuple(neighboring_regions))
+        right_candidates = [
+            value
+            for value in state.members[b]
+            if state.has_neighbor_label(value, a)
+            and all(
+                solution[left] == solution[value]
+                for solution in preserved_solutions
+            )
+        ]
+        if not right_candidates:
+            continue
+        right = rng.choice(right_candidates)
         if not state.has_neighbor_label(left, b, right):
             continue
         if not state.has_neighbor_label(right, a, left):
             continue
         if not state.removal_ok(a, left) or not state.removal_ok(b, right):
+            continue
+        if natural_swap_score(
+            state,
+            left,
+            right,
+            k,
+            minimum_size,
+            maximum_size,
+        ) is None:
             continue
 
         if invalidity_guard is not None and not invalidity_guard.allows_swap(state, left, right):
@@ -364,6 +764,7 @@ def random_preserving_empty_moves(
     rng: random.Random,
     attempts: int,
     preserved_solutions: Sequence[Sequence[int]],
+    k: int,
     minimum_size: int,
     maximum_size: int,
     invalidity_guard: "InvalidityGuard | None" = None,
@@ -386,6 +787,15 @@ def random_preserving_empty_moves(
         if not destinations or not state.removal_ok(source, value):
             continue
         destination = rng.choice(destinations)
+        if natural_move_score(
+            state,
+            value,
+            destination,
+            k,
+            minimum_size,
+            maximum_size,
+        ) is None:
+            continue
         if invalidity_guard is not None and not invalidity_guard.allows_move(
             state, value, destination
         ):
@@ -404,6 +814,7 @@ def build_cp_model(
     topology: BoardTopology,
     labels: Sequence[int] | None,
     blocked_solution: Sequence[int] | None = None,
+    objective_weights: Sequence[int] | None = None,
     clues: dict[int, int] | None = None,
 ) -> tuple[cp_model.CpModel, list[cp_model.IntVar]]:
     model = cp_model.CpModel()
@@ -436,6 +847,12 @@ def build_cp_model(
             <= n * k - 1
         )
 
+    if objective_weights is not None:
+        if len(objective_weights) != n * n:
+            raise ValueError("objective has the wrong dimensions")
+        model.maximize(
+            sum(weight * variables[value] for value, weight in enumerate(objective_weights))
+        )
     if clues:
         for value, expected in clues.items():
             model.add(variables[value] == expected)
@@ -459,13 +876,23 @@ def solve_one(
     timeout: float,
     workers: int,
     seed: int,
+    objective_weights: Sequence[int] | None = None,
     clues: dict[int, int] | None = None,
 ) -> SolveResult:
-    model, variables = build_cp_model(n, k, topology, labels, blocked_solution, clues)
+    model, variables = build_cp_model(
+        n,
+        k,
+        topology,
+        labels,
+        blocked_solution,
+        objective_weights,
+        clues,
+    )
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = timeout
     solver.parameters.num_search_workers = workers
     solver.parameters.random_seed = seed & 0x7FFFFFFF
+    solver.parameters.randomize_search = True
     started = time.perf_counter()
     status = solver.solve(model)
     elapsed = time.perf_counter() - started
@@ -474,6 +901,61 @@ def solve_one(
     else:
         solution = None
     return SolveResult(status=status, solution=solution, elapsed_seconds=elapsed)
+
+
+@dataclass(frozen=True)
+class PoolSolveResult:
+    status: int
+    solutions: list[list[int]]
+    elapsed_seconds: float
+
+
+class SolutionPoolCallback(cp_model.CpSolverSolutionCallback):
+    def __init__(self, variables: Sequence[cp_model.IntVar], limit: int):
+        super().__init__()
+        self.variables = variables
+        self.limit = limit
+        self.solutions: list[list[int]] = []
+
+    def on_solution_callback(self) -> None:
+        self.solutions.append([int(self.value(variable)) for variable in self.variables])
+        if len(self.solutions) >= self.limit:
+            self.stop_search()
+
+
+def solve_pool(
+    n: int,
+    k: int,
+    topology: BoardTopology,
+    labels: Sequence[int],
+    blocked_solution: Sequence[int],
+    timeout: float,
+    seed: int,
+    limit: int,
+    clues: dict[int, int] | None = None,
+) -> PoolSolveResult:
+    model, variables = build_cp_model(
+        n,
+        k,
+        topology,
+        labels,
+        blocked_solution,
+        clues=clues,
+    )
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = timeout
+    solver.parameters.num_search_workers = 1
+    solver.parameters.random_seed = seed & 0x7FFFFFFF
+    solver.parameters.randomize_search = True
+    solver.parameters.enumerate_all_solutions = True
+    callback = SolutionPoolCallback(variables, limit)
+    started = time.perf_counter()
+    status = solver.solve(model, callback)
+    return PoolSolveResult(
+        status=status,
+        solutions=callback.solutions,
+        elapsed_seconds=time.perf_counter() - started,
+    )
 
 
 def solution_is_valid(
@@ -497,6 +979,114 @@ def solution_is_valid(
     if any(count != k for count in counts):
         return False
     return all(not (solution[left] and solution[right]) for left, right in topology.king_edges)
+
+
+@dataclass(frozen=True)
+class SolutionPattern:
+    maximum_translation_overlap: float
+    maximum_axis_period: float
+    minimum_axis_diversity: float
+    checkerboard_share: float
+    dominant_gap_share: float
+
+
+def axis_patterns(solution: Sequence[int], n: int, transpose: bool) -> list[tuple[int, ...]]:
+    return [
+        tuple(
+            other
+            for other in range(n)
+            if solution[
+                cell(n, other, index) if transpose else cell(n, index, other)
+            ]
+        )
+        for index in range(n)
+    ]
+
+
+def solution_pattern(solution: Sequence[int], n: int, k: int) -> SolutionPattern:
+    holes = {value for value, selected in enumerate(solution) if selected}
+    maximum_translation_overlap = 0.0
+    for dr in range(1, min(7, n)):
+        for dc in range(-min(8, n - 1), min(8, n - 1) + 1):
+            matches = 0
+            for value in holes:
+                row, col = divmod(value, n)
+                rr, cc = row + dr, col + dc
+                if 0 <= rr < n and 0 <= cc < n and cell(n, rr, cc) in holes:
+                    matches += 1
+            maximum_translation_overlap = max(
+                maximum_translation_overlap,
+                matches / max(1, len(holes)),
+            )
+
+    row_patterns = axis_patterns(solution, n, False)
+    col_patterns = axis_patterns(solution, n, True)
+    maximum_axis_period = 0.0
+    for patterns in (row_patterns, col_patterns):
+        for period in range(2, min(7, n)):
+            matches = sum(
+                patterns[index] == patterns[index - period]
+                for index in range(period, n)
+            )
+            maximum_axis_period = max(
+                maximum_axis_period,
+                matches / max(1, n - period),
+            )
+
+    minimum_axis_diversity = min(
+        len(set(row_patterns)) / n,
+        len(set(col_patterns)) / n,
+    )
+    parity_counts = [0, 0, 0, 0]
+    for value in holes:
+        row, col = divmod(value, n)
+        parity_counts[(row % 2) * 2 + col % 2] += 1
+    checkerboard_share = max(parity_counts) / max(1, len(holes))
+
+    gaps: list[int] = []
+    for patterns in (row_patterns, col_patterns):
+        for positions in patterns:
+            gaps.extend(right - left for left, right in zip(positions, positions[1:]))
+    if gaps:
+        frequencies = {gap: gaps.count(gap) for gap in set(gaps)}
+        dominant_gap_share = max(frequencies.values()) / len(gaps)
+    else:
+        dominant_gap_share = 0.0
+
+    return SolutionPattern(
+        maximum_translation_overlap=maximum_translation_overlap,
+        maximum_axis_period=maximum_axis_period,
+        minimum_axis_diversity=minimum_axis_diversity,
+        checkerboard_share=checkerboard_share,
+        dominant_gap_share=dominant_gap_share,
+    )
+
+
+def solution_pattern_is_irregular(pattern: SolutionPattern, n: int, k: int) -> bool:
+    if n <= 6:
+        return pattern.maximum_translation_overlap <= 0.75
+    maximum_overlap = 0.56 if n <= 10 else 0.46
+    if pattern.maximum_translation_overlap > maximum_overlap:
+        return False
+    if pattern.maximum_axis_period > (0.55 if n <= 10 else 0.34):
+        return False
+    if k > 1 and n >= 12 and pattern.minimum_axis_diversity < 0.72:
+        return False
+    if k > 1 and n >= 12 and pattern.checkerboard_share > 0.62:
+        return False
+    if k > 1 and pattern.dominant_gap_share > 0.72:
+        return False
+    return True
+
+
+def pattern_score(pattern: SolutionPattern) -> float:
+    return (
+        5.0 * pattern.maximum_translation_overlap
+        + 3.0 * pattern.maximum_axis_period
+        + 2.0 * (1.0 - pattern.minimum_axis_diversity)
+        + 1.5 * pattern.checkerboard_share
+        + pattern.dominant_gap_share
+    )
 
 
 @dataclass
@@ -597,13 +1187,17 @@ class InvalidityGuard:
             assert guarded.bad_regions > 0
 
 
-def find_killing_swap(
+def killing_swap_candidates(
     state: RegionState,
     target: Sequence[int],
-    counterexample: Sequence[int],
+    counterexamples: Sequence[Sequence[int]],
     rng: random.Random,
+    k: int,
+    minimum_size: int,
+    maximum_size: int,
     invalidity_guard: InvalidityGuard | None = None,
-) -> tuple[int, int] | None:
+    limit: int = 16,
+) -> list[tuple[int, int]]:
     removable = [False] * (state.n * state.n)
     for region, members in enumerate(state.members):
         for value in members:
@@ -617,8 +1211,7 @@ def find_killing_swap(
             if a != b:
                 boundary[a, b].add(left)
 
-    chosen: tuple[int, int] | None = None
-    choices = 0
+    candidates: list[tuple[int, float, int, int]] = []
     for a in range(state.n):
         for b in range(a + 1, state.n):
             left_candidates = boundary.get((a, b))
@@ -634,7 +1227,11 @@ def find_killing_swap(
                         continue
                     if target[left] != target[right]:
                         continue
-                    if counterexample[left] == counterexample[right]:
+                    kill_count = sum(
+                        counterexample[left] != counterexample[right]
+                        for counterexample in counterexamples
+                    )
+                    if kill_count <= 0:
                         continue
                     if not state.has_neighbor_label(left, b, right):
                         continue
@@ -644,28 +1241,44 @@ def find_killing_swap(
                         state, left, right
                     ):
                         continue
+                    shape_score = natural_swap_score(
+                        state,
+                        left,
+                        right,
+                        k,
+                        minimum_size,
+                        maximum_size,
+                    )
+                    if shape_score is None:
+                        continue
+                    candidates.append(
+                        (-kill_count, shape_score + rng.random() * 0.75, left, right)
+                    )
+    return [
+        (left, right)
+        for _, _, left, right in sorted(candidates)[:limit]
+    ]
 
-                    choices += 1
-                    if rng.randrange(choices) == 0:
-                        chosen = (left, right)
-    return chosen
 
-
-def find_killing_move(
+def killing_move_candidates(
     state: RegionState,
     target: Sequence[int],
-    counterexample: Sequence[int],
+    counterexamples: Sequence[Sequence[int]],
     rng: random.Random,
+    k: int,
     minimum_size: int,
     maximum_size: int,
     invalidity_guard: InvalidityGuard | None = None,
-) -> tuple[int, int] | None:
+    limit: int = 16,
+) -> list[tuple[int, int]]:
     """Move an S-empty/T-hole boundary cell; this preserves S and kills T."""
-    chosen: tuple[int, int] | None = None
-    choices = 0
+    candidates: list[tuple[int, float, int, int]] = []
     for value in range(state.n * state.n):
         source = state.labels[value]
-        if target[value] or not counterexample[value]:
+        if target[value]:
+            continue
+        kill_count = sum(counterexample[value] for counterexample in counterexamples)
+        if kill_count <= 0:
             continue
         if len(state.members[source]) <= minimum_size:
             continue
@@ -683,20 +1296,109 @@ def find_killing_move(
                 state, value, destination
             ):
                 continue
-            choices += 1
-            if rng.randrange(choices) == 0:
-                chosen = (value, destination)
-    return chosen
+            shape_score = natural_move_score(
+                state,
+                value,
+                destination,
+                k,
+                minimum_size,
+                maximum_size,
+            )
+            if shape_score is None:
+                continue
+            candidates.append(
+                (-kill_count, shape_score + rng.random() * 0.75, value, destination)
+            )
+    return [
+        (value, destination)
+        for _, _, value, destination in sorted(candidates)[:limit]
+    ]
+
+
+def choose_killing_edit(
+    state: RegionState,
+    target: Sequence[int],
+    counterexamples: Sequence[Sequence[int]],
+    rng: random.Random,
+    k: int,
+    minimum_size: int,
+    maximum_size: int,
+    invalidity_guard: InvalidityGuard,
+    topology: BoardTopology,
+    timeout: float,
+    workers: int,
+) -> tuple[str, int, int] | None:
+    swaps = killing_swap_candidates(
+        state,
+        target,
+        counterexamples,
+        rng,
+        k,
+        minimum_size,
+        maximum_size,
+        invalidity_guard,
+    )
+    moves = killing_move_candidates(
+        state,
+        target,
+        counterexamples,
+        rng,
+        k,
+        minimum_size,
+        maximum_size,
+        invalidity_guard,
+    )
+    options = [
+        *(("swap", left, right) for left, right in swaps),
+        *(("move", value, destination) for value, destination in moves),
+    ]
+    if not options:
+        return None
+
+    # Near the end, several shape-safe edits can all kill the visible second
+    # solution, but only some avoid opening a new one. Briefly look ahead and
+    # prefer an edit that makes the blocked model immediately infeasible.
+    if len(counterexamples) <= 4:
+        for kind, first, second in options[:4]:
+            if kind == "swap":
+                state.swap(first, second)
+                proof = solve_one(
+                    state.n,
+                    k,
+                    topology,
+                    state.labels,
+                    target,
+                    min(timeout, 0.35),
+                    workers,
+                    rng.randrange(1 << 31),
+                )
+                state.swap(first, second)
+            else:
+                source = state.labels[first]
+                state.move(first, second)
+                proof = solve_one(
+                    state.n,
+                    k,
+                    topology,
+                    state.labels,
+                    target,
+                    min(timeout, 0.35),
+                    workers,
+                    rng.randrange(1 << 31),
+                )
+                state.move(first, source)
+            if proof.status == cp_model.INFEASIBLE:
+                return kind, first, second
+    return options[0]
 
 
 @dataclass(frozen=True)
 class ClueResult:
     clues: dict[int, int]
     proof_seconds: float
-    additions: int
 
 
-def make_unique_with_hole_clues(
+def make_unique_with_visible_clues(
     n: int,
     k: int,
     topology: BoardTopology,
@@ -705,43 +1407,67 @@ def make_unique_with_hole_clues(
     rng: random.Random,
     timeout: float,
     workers: int,
+    maximum_clues: int,
 ) -> ClueResult | None:
-    """Guaranteed-progress fallback: every alternative omits an S-hole."""
     clues: dict[int, int] = {}
-    additions = 0
     proof_seconds = 0.0
-
     while True:
-        result = solve_one(
+        pool = solve_pool(
             n,
             k,
             topology,
             labels,
             target,
-            timeout,
-            workers,
+            min(timeout, 1.5 if n >= 28 else 3.0),
             rng.randrange(1 << 31),
+            256,
             clues,
         )
-        proof_seconds = result.elapsed_seconds
-        if result.status == cp_model.INFEASIBLE:
-            break
-        if result.solution is None:
+        proof_seconds = pool.elapsed_seconds
+        alternatives = pool.solutions
+        if not alternatives:
+            result = solve_one(
+                n,
+                k,
+                topology,
+                labels,
+                target,
+                timeout,
+                workers,
+                rng.randrange(1 << 31),
+                clues=clues,
+            )
+            proof_seconds = result.elapsed_seconds
+            if result.status == cp_model.INFEASIBLE:
+                break
+            if result.solution is None:
+                return None
+            alternatives = [result.solution]
+        if len(clues) >= maximum_clues:
             return None
-
-        candidates = [
-            value
+        candidates = {
+            value: sum(
+                alternative[value] != target[value]
+                for alternative in alternatives
+            )
             for value in range(n * n)
-            if target[value] and not result.solution[value] and value not in clues
-        ]
-        if not candidates:
-            raise RuntimeError("a distinct equal-cardinality solution omitted no target hole")
-        clues[rng.choice(candidates)] = 1
-        additions += 1
+            if value not in clues
+        }
+        best_coverage = max(candidates.values(), default=0)
+        best = [value for value, coverage in candidates.items() if coverage == best_coverage]
+        if not best or best_coverage <= 0:
+            raise RuntimeError("a distinct solution disagreed with no target cell")
+        chosen = rng.choice(best)
+        clues[chosen] = int(target[chosen])
+        if len(clues) % 16 == 0:
+            print(f"    visible clues selected={len(clues)}", flush=True)
 
-    # Greedy irredundancy pass. UNKNOWN keeps the clue; only an exact
-    # INFEASIBLE result is allowed to remove it.
-    clue_order = list(clues)
+    # Keep only clues that are actually needed. A clue is removed only after
+    # a fresh blocked model is proved infeasible without it.
+    # On the 32x32 board, a full deletion pass can cost more than generating
+    # the proof itself. Keep the already-proved set there; smaller boards still
+    # receive the exhaustive redundancy pass.
+    clue_order = list(clues) if n < 28 else []
     rng.shuffle(clue_order)
     for value in clue_order:
         trial = dict(clues)
@@ -755,26 +1481,68 @@ def make_unique_with_hole_clues(
             timeout,
             workers,
             rng.randrange(1 << 31),
-            trial,
+            clues=trial,
         )
         if result.status == cp_model.INFEASIBLE:
             clues = trial
             proof_seconds = result.elapsed_seconds
+    return ClueResult(clues=clues, proof_seconds=proof_seconds)
 
-    final = solve_one(
-        n,
-        k,
-        topology,
-        labels,
-        target,
-        timeout,
-        workers,
-        rng.randrange(1 << 31),
-        clues,
-    )
-    if final.status != cp_model.INFEASIBLE:
-        return None
-    return ClueResult(clues=clues, proof_seconds=final.elapsed_seconds, additions=additions)
+
+@dataclass(frozen=True)
+class TargetResult:
+    solution: list[int]
+    pattern: SolutionPattern
+    attempts: int
+
+
+def find_irregular_target(
+    n: int,
+    k: int,
+    topology: BoardTopology,
+    labels: Sequence[int] | None,
+    rng: random.Random,
+    timeout: float,
+    workers: int,
+    attempts: int,
+) -> TargetResult | None:
+    best: tuple[float, TargetResult] | None = None
+    for attempt in range(1, attempts + 1):
+        weights = [rng.randrange(1, 1_000_000) for _ in range(n * n)]
+        result = solve_one(
+            n,
+            k,
+            topology,
+            labels,
+            None,
+            timeout,
+            workers,
+            rng.randrange(1 << 31),
+            objective_weights=weights,
+        )
+        if result.solution is None:
+            if result.status == cp_model.INFEASIBLE:
+                return None
+            continue
+        pattern = solution_pattern(result.solution, n, k)
+        candidate = TargetResult(result.solution, pattern, attempt)
+        score = pattern_score(pattern)
+        if best is None or score < best[0]:
+            best = (score, candidate)
+        if solution_pattern_is_irregular(pattern, n, k):
+            return candidate
+    if best is not None:
+        pattern = best[1].pattern
+        print(
+            "  best rejected target: "
+            f"translation={pattern.maximum_translation_overlap:.3f}, "
+            f"period={pattern.maximum_axis_period:.3f}, "
+            f"diversity={pattern.minimum_axis_diversity:.3f}, "
+            f"checker={pattern.checkerboard_share:.3f}, "
+            f"gap={pattern.dominant_gap_share:.3f}",
+            flush=True,
+        )
+    return None
 
 
 def encode_rows(values: Sequence[int], n: int) -> list[str]:
@@ -796,8 +1564,9 @@ class GeneratorSettings:
     kill_limit: int
     mix_factor: int
     unlock_factor: int
-    size_mode: str
     guard_limit: int
+    target_attempts: int
+    pool_size: int
 
 
 def generate_unique_puzzle(
@@ -810,79 +1579,92 @@ def generate_unique_puzzle(
 ) -> dict:
     topology = BoardTopology.build(n)
     rng = random.Random(seed)
+    minimum_size, maximum_size = natural_size_limits(n, k)
 
     for restart in range(1, settings.restarts + 1):
-        if settings.size_mode == "target-path":
-            first = solve_one(
+        target_result: TargetResult | None
+        if n >= 12:
+            print(
+                f"[{difficulty_id}] restart={restart} finding independent irregular target",
+                flush=True,
+            )
+            target_result = find_irregular_target(
                 n,
                 k,
                 topology,
                 None,
-                None,
+                rng,
                 settings.find_time,
                 settings.workers,
-                rng.randrange(1 << 31),
+                settings.target_attempts,
             )
-            if first.solution is None:
-                print(
-                    f"[{difficulty_id}] base target inconclusive: "
-                    f"{cp_model.CpSolver().status_name(first.status)}",
-                    flush=True,
-                )
+            if target_result is None:
+                print("  no irregular independent target; restarting", flush=True)
                 continue
-            target = first.solution
-            labels, sizes = regions_from_target_path(n, k, target, rng)
-            state = RegionState(topology, labels)
+            balanced = generate_target_aware_blob_regions(
+                n,
+                k,
+                topology,
+                target_result.solution,
+                rng,
+            )
+            if balanced is None:
+                print("  could not balance natural blobs around the target; restarting", flush=True)
+                continue
+            state, sizes, initial_shape = balanced
             print(
-                f"[{difficulty_id}] restart={restart} target-path sizes="
-                f"{min(sizes)}..{max(sizes)}",
+                f"  target-aware blobs sizes={min(sizes)}..{max(sizes)} "
+                f"orientation={initial_shape.orientation_bias:.3f}",
                 flush=True,
             )
         else:
-            sizes = (
-                balanced_region_sizes(n, k, rng)
-                if settings.size_mode == "balanced"
-                else sample_region_sizes(n, k, rng)
-            )
-            state = RegionState(topology, initial_regions(n, sizes, rng))
+            labels, sizes, initial_shape = generate_blob_regions(n, k, rng)
+            state = RegionState(topology, labels)
             print(
-                f"[{difficulty_id}] restart={restart} sizes={min(sizes)}..{max(sizes)} "
-                "finding target",
+                f"[{difficulty_id}] restart={restart} blob sizes={min(sizes)}..{max(sizes)} "
+                f"orientation={initial_shape.orientation_bias:.3f}; "
+                "finding irregular target",
                 flush=True,
             )
-            first = solve_one(
+            target_result = find_irregular_target(
                 n,
                 k,
                 topology,
                 state.labels,
-                None,
+                rng,
                 settings.find_time,
                 settings.workers,
-                rng.randrange(1 << 31),
+                settings.target_attempts,
             )
-            if first.solution is None:
-                print(
-                    f"  target inconclusive: {cp_model.CpSolver().status_name(first.status)}",
-                    flush=True,
-                )
-                continue
-            target = first.solution
+        if target_result is None:
+            print("  no irregular target for this blob partition; restarting", flush=True)
+            continue
+        target = target_result.solution
+        pattern = target_result.pattern
         assert solution_is_valid(n, k, topology, state.labels, target)
-
-        minimum_size = max(2 * k - 1, n // 2)
-        maximum_size = max(2 * n, max(sizes) + 2)
+        print(
+            f"  target attempt={target_result.attempts}, "
+            f"translation={pattern.maximum_translation_overlap:.3f}, "
+            f"period={pattern.maximum_axis_period:.3f}, "
+            f"diversity={pattern.minimum_axis_diversity:.3f}",
+            flush=True,
+        )
 
         accepted = random_preserving_mix(
             state,
             rng,
-            max(n * n * settings.mix_factor, 1_000),
+            max(n * n * settings.mix_factor, 200),
             [target],
+            k,
+            minimum_size,
+            maximum_size,
         )
         moved = random_preserving_empty_moves(
             state,
             rng,
-            max(n * n * settings.mix_factor, 1_000),
+            max(n * n * settings.mix_factor, 200),
             [target],
+            k,
             minimum_size,
             maximum_size,
         )
@@ -892,124 +1674,244 @@ def generate_unique_puzzle(
         )
         assert state.validate_connected()
         assert solution_is_valid(n, k, topology, state.labels, target)
+        if not board_shape_is_natural(
+            state.labels,
+            n,
+            k,
+            minimum_size,
+            maximum_size,
+        ):
+            print("  organic mixing crossed a shape limit; restarting", flush=True)
+            continue
 
         proof_seconds = 0.0
         unique = False
         iterations_used = 0
-        clues: dict[int, int] = {}
-        clue_additions = 0
         invalidity_guard = InvalidityGuard(k, settings.guard_limit)
-        for iteration in range(1, settings.kill_limit + 1):
-            iterations_used = iteration
-            second = solve_one(
+        shape_failed = False
+        stalled = False
+        solve_round = 0
+        while iterations_used < settings.kill_limit:
+            solve_round += 1
+            pool = solve_pool(
                 n,
                 k,
                 topology,
                 state.labels,
                 target,
-                settings.unique_time,
-                settings.workers,
+                min(settings.unique_time, 0.75),
                 rng.randrange(1 << 31),
+                settings.pool_size,
             )
-            proof_seconds = second.elapsed_seconds
-            if second.status == cp_model.INFEASIBLE:
-                unique = True
-                iterations_used = iteration
-                print(
-                    f"  iteration={iteration}: blocked model INFEASIBLE "
-                    f"({proof_seconds:.3f}s) -- UNIQUE",
-                    flush=True,
+            proof_seconds = pool.elapsed_seconds
+            counterexamples = pool.solutions
+            if not counterexamples:
+                proof = solve_one(
+                    n,
+                    k,
+                    topology,
+                    state.labels,
+                    target,
+                    settings.unique_time,
+                    settings.workers,
+                    rng.randrange(1 << 31),
                 )
-                break
-            if second.solution is None:
-                print(
-                    f"  iteration={iteration}: proof inconclusive "
-                    f"({cp_model.CpSolver().status_name(second.status)})",
-                    flush=True,
-                )
-                break
+                proof_seconds = proof.elapsed_seconds
+                if proof.status == cp_model.INFEASIBLE:
+                    unique = True
+                    print(
+                        f"  edits={iterations_used}, round={solve_round}: "
+                        f"blocked model INFEASIBLE "
+                        f"({proof_seconds:.3f}s) -- UNIQUE",
+                        flush=True,
+                    )
+                    break
+                if proof.solution is None:
+                    print(
+                        f"  round={solve_round}: proof inconclusive "
+                        f"({cp_model.CpSolver().status_name(proof.status)})",
+                        flush=True,
+                    )
+                    break
+                counterexamples = [proof.solution]
 
-            killer = find_killing_swap(
-                state,
-                target,
-                second.solution,
-                rng,
-                invalidity_guard,
-            )
-            killing_move = None if killer is not None else find_killing_move(
-                state,
-                target,
-                second.solution,
-                rng,
-                minimum_size,
-                maximum_size,
-                invalidity_guard,
-            )
-            if killer is None and killing_move is None:
-                unlocked = random_preserving_mix(
+            round_start = len(counterexamples)
+            round_killed = 0
+            neutral_attempts = 0
+            while counterexamples and iterations_used < settings.kill_limit:
+                chosen_edit = choose_killing_edit(
                     state,
+                    target,
+                    counterexamples,
                     rng,
-                    max(n * n * settings.unlock_factor, 200),
-                    [target, second.solution],
-                    invalidity_guard,
-                )
-                moved = random_preserving_empty_moves(
-                    state,
-                    rng,
-                    max(n * n * settings.unlock_factor, 200),
-                    [target, second.solution],
+                    k,
                     minimum_size,
                     maximum_size,
                     invalidity_guard,
+                    topology,
+                    settings.unique_time,
+                    settings.workers,
                 )
-                print(
-                    f"    no direct killer; neutral swaps={unlocked}, moves={moved}",
-                    flush=True,
-                )
-                killer = find_killing_swap(
-                    state,
-                    target,
-                    second.solution,
-                    rng,
-                    invalidity_guard,
-                )
-                killing_move = None if killer is not None else find_killing_move(
-                    state,
-                    target,
-                    second.solution,
-                    rng,
+                if chosen_edit is None and neutral_attempts < 8:
+                    neutral_attempts += 1
+                    unlocked = random_preserving_mix(
+                        state,
+                        rng,
+                        max(n * n * settings.unlock_factor, 200),
+                        [target, counterexamples[0]],
+                        k,
+                        minimum_size,
+                        maximum_size,
+                        invalidity_guard,
+                    )
+                    moved = random_preserving_empty_moves(
+                        state,
+                        rng,
+                        max(n * n * settings.unlock_factor, 200),
+                        [target, counterexamples[0]],
+                        k,
+                        minimum_size,
+                        maximum_size,
+                        invalidity_guard,
+                    )
+                    print(
+                        f"    no direct killer; neutral {neutral_attempts}/8, "
+                        f"swaps={unlocked}, moves={moved}",
+                        flush=True,
+                    )
+                    surviving: list[list[int]] = []
+                    for counterexample in counterexamples:
+                        if solution_is_valid(
+                            n,
+                            k,
+                            topology,
+                            state.labels,
+                            counterexample,
+                        ):
+                            surviving.append(counterexample)
+                        else:
+                            invalidity_guard.add(state, counterexample)
+                            round_killed += 1
+                    counterexamples = surviving
+                    continue
+                if chosen_edit is None:
+                    stalled = True
+                    break
+
+                kind, first, second = chosen_edit
+                if kind == "swap":
+                    left, right = first, second
+                    invalidity_guard.apply_swap(state, left, right)
+                    state.swap(left, right)
+                else:
+                    value, destination = first, second
+                    invalidity_guard.apply_move(state, value, destination)
+                    state.move(value, destination)
+                iterations_used += 1
+                assert solution_is_valid(n, k, topology, state.labels, target)
+                assert state.validate_connected()
+
+                surviving = []
+                killed = 0
+                eliminated: list[Sequence[int]] = []
+                for counterexample in counterexamples:
+                    if solution_is_valid(
+                        n,
+                        k,
+                        topology,
+                        state.labels,
+                        counterexample,
+                    ):
+                        surviving.append(counterexample)
+                    else:
+                        invalidity_guard.add(state, counterexample)
+                        killed += 1
+                        eliminated.append(counterexample)
+                assert killed > 0
+                round_killed += killed
+                counterexamples = surviving
+                if not counterexamples and round_start <= 4 and eliminated:
+                    # A lone alternative often turns into a different lone
+                    # alternative after one boundary edit. Reinforce the same
+                    # contradiction at several additional boundaries while
+                    # the invalidity guard guarantees it cannot be repaired.
+                    for _ in range(6):
+                        reinforcement_swaps = killing_swap_candidates(
+                            state,
+                            target,
+                            [eliminated[0]],
+                            rng,
+                            k,
+                            minimum_size,
+                            maximum_size,
+                            invalidity_guard,
+                            limit=1,
+                        )
+                        reinforcement_moves = killing_move_candidates(
+                            state,
+                            target,
+                            [eliminated[0]],
+                            rng,
+                            k,
+                            minimum_size,
+                            maximum_size,
+                            invalidity_guard,
+                            limit=1,
+                        )
+                        if reinforcement_swaps:
+                            left, right = reinforcement_swaps[0]
+                            invalidity_guard.apply_swap(state, left, right)
+                            state.swap(left, right)
+                        elif reinforcement_moves:
+                            value, destination = reinforcement_moves[0]
+                            invalidity_guard.apply_move(state, value, destination)
+                            state.move(value, destination)
+                        else:
+                            break
+                        iterations_used += 1
+                        assert solution_is_valid(
+                            n,
+                            k,
+                            topology,
+                            state.labels,
+                            target,
+                        )
+                if not board_shape_is_natural(
+                    state.labels,
+                    n,
+                    k,
                     minimum_size,
                     maximum_size,
-                    invalidity_guard,
-                )
-            if killer is None and killing_move is None:
-                print("    no killing region edit; switching to clue fallback", flush=True)
+                ):
+                    print(
+                        "    a uniqueness edit crossed the board-shape limit; restarting",
+                        flush=True,
+                    )
+                    shape_failed = True
+                    break
+
+            print(
+                f"  round={solve_round}: edits={iterations_used}, "
+                f"killed={round_killed}/{round_start}, guarded="
+                f"{len(invalidity_guard.guarded)}/{settings.guard_limit}",
+                flush=True,
+            )
+            if shape_failed or stalled:
                 break
 
-            if killer is not None:
-                left, right = killer
-                invalidity_guard.apply_swap(state, left, right)
-                state.swap(left, right)
-            else:
-                assert killing_move is not None
-                value, destination = killing_move
-                invalidity_guard.apply_move(state, value, destination)
-                state.move(value, destination)
-            assert solution_is_valid(n, k, topology, state.labels, target)
-            assert not solution_is_valid(n, k, topology, state.labels, second.solution)
-            assert state.validate_connected()
-            invalidity_guard.add(state, second.solution)
-
-            if iteration % 25 == 0:
-                print(
-                    f"  iteration={iteration}: guarded alternatives="
-                    f"{len(invalidity_guard.guarded)}/{settings.guard_limit}",
-                    flush=True,
-                )
-
+        if shape_failed:
+            print("  natural-shape uniqueness editing failed; restarting", flush=True)
+            continue
+        clues: dict[int, int] = {}
         if not unique:
-            print("  region editing did not converge; adding exact hole clues", flush=True)
-            clue_result = make_unique_with_hole_clues(
+            # Very large boards can have broad families of alternatives even
+            # after natural region shaping. Keep every clue explicit, but
+            # allow enough of them to finish a strict proof instead of
+            # accepting an unresolved puzzle.
+            clue_cap = 256 if n >= 28 else 64
+            clue_ratio = 1.5 if n >= 28 else 0.75
+            maximum_clues = max(1, min(clue_cap, math.ceil(n * k * clue_ratio)))
+            clue_result = make_unique_with_visible_clues(
                 n,
                 k,
                 topology,
@@ -1018,17 +1920,20 @@ def generate_unique_puzzle(
                 rng,
                 settings.unique_time,
                 settings.workers,
+                maximum_clues,
             )
             if clue_result is None:
-                print("  clue fallback was inconclusive; restarting", flush=True)
+                print(
+                    f"  more than {maximum_clues} visible binary clues would be needed; restarting",
+                    flush=True,
+                )
                 continue
             clues = clue_result.clues
-            clue_additions = clue_result.additions
             proof_seconds = clue_result.proof_seconds
             unique = True
             print(
-                f"  clue fallback UNIQUE: kept={len(clues)}, "
-                f"added={clue_additions}, proof={proof_seconds:.3f}s",
+                f"  visible binary-clue fallback UNIQUE: clues={len(clues)}, "
+                f"proof={proof_seconds:.3f}s",
                 flush=True,
             )
 
@@ -1043,7 +1948,7 @@ def generate_unique_puzzle(
             settings.unique_time,
             settings.workers,
             (seed ^ 0x5F3759DF) & 0x7FFFFFFF,
-            clues,
+            clues=clues,
         )
         if final_proof.status != cp_model.INFEASIBLE:
             print("  final independent rebuild was inconclusive; restarting", flush=True)
@@ -1051,6 +1956,15 @@ def generate_unique_puzzle(
 
         assert state.validate_connected()
         assert solution_is_valid(n, k, topology, state.labels, target)
+        assert solution_pattern_is_irregular(pattern, n, k)
+        assert board_shape_is_natural(
+            state.labels,
+            n,
+            k,
+            minimum_size,
+            maximum_size,
+        )
+        final_shape = board_shape(state.labels, n)
         return {
             "id": f"{difficulty_id}-{seed:x}",
             "difficultyId": difficulty_id,
@@ -1060,10 +1974,13 @@ def generate_unique_puzzle(
             "seed": str(seed),
             "regions": encode_rows(state.labels, n),
             "solution": encode_rows(target, n),
-            "clues": sorted(clues),
+            "givens": [
+                {"cell": value, "value": clues[value]}
+                for value in sorted(clues)
+            ],
             "certificate": {
                 "kind": (
-                    "cp-sat-blocked-solution-plus-clues-infeasible"
+                    "cp-sat-blocked-solution-plus-visible-binary-clues-infeasible"
                     if clues
                     else "cp-sat-blocked-solution-infeasible"
                 ),
@@ -1071,13 +1988,32 @@ def generate_unique_puzzle(
                 "ortoolsVersion": ortools_version,
                 "restart": restart,
                 "killIterations": iterations_used,
-                "sizeMode": settings.size_mode,
+                "regionMethod": "spread-seed-voronoi-blobs",
                 "guardLimit": settings.guard_limit,
                 "clueCount": len(clues),
-                "clueAdditionsBeforeMinimization": clue_additions,
                 "proofSeconds": round(final_proof.elapsed_seconds, 6),
                 "regionsConnected": True,
                 "solutionValid": True,
+                "naturalRegions": True,
+                "shapeMetrics": {
+                    "orientationBias": round(final_shape.orientation_bias, 6),
+                    "maximumAspect": round(final_shape.maximum_aspect, 6),
+                    "minimumFill": round(final_shape.minimum_fill, 6),
+                    "maximumRunShare": round(final_shape.maximum_run_share, 6),
+                    "maximumRun": final_shape.maximum_run,
+                    "verticalBoundaries": final_shape.vertical_boundaries,
+                    "horizontalBoundaries": final_shape.horizontal_boundaries,
+                },
+                "solutionMetrics": {
+                    "maximumTranslationOverlap": round(
+                        pattern.maximum_translation_overlap,
+                        6,
+                    ),
+                    "maximumAxisPeriod": round(pattern.maximum_axis_period, 6),
+                    "minimumAxisDiversity": round(pattern.minimum_axis_diversity, 6),
+                    "checkerboardShare": round(pattern.checkerboard_share, 6),
+                    "dominantGapShare": round(pattern.dominant_gap_share, 6),
+                },
             },
         }
 
@@ -1101,13 +2037,47 @@ def verify_bank(path: Path, timeout: float, workers: int) -> None:
         k = int(puzzle["k"])
         labels = decode_rows(puzzle["regions"], n)
         target = decode_rows(puzzle["solution"], n)
-        clues = {int(value): 1 for value in puzzle.get("clues", [])}
+        raw_givens = puzzle.get("givens")
+        if raw_givens is None:
+            raw_givens = [
+                {"cell": value, "value": 1}
+                for value in puzzle.get("clues", [])
+            ]
+        clues: dict[int, int] = {}
+        for given in raw_givens:
+            value = int(given["cell"])
+            expected = int(given["value"])
+            if value in clues:
+                raise RuntimeError(f"{puzzle['id']}: duplicate visible clue")
+            if (
+                value < 0
+                or value >= n * n
+                or expected not in (0, 1)
+                or target[value] != expected
+            ):
+                raise RuntimeError(f"{puzzle['id']}: a visible clue contradicts the target")
+            clues[value] = expected
+        certificate_count = int(puzzle.get("certificate", {}).get("clueCount", len(clues)))
+        if certificate_count != len(clues):
+            raise RuntimeError(f"{puzzle['id']}: visible clue count does not match its certificate")
         topology = BoardTopology.build(n)
         state = RegionState(topology, labels)
         if not state.validate_connected():
             raise RuntimeError(f"{puzzle['id']}: a region is disconnected")
         if not solution_is_valid(n, k, topology, labels, target):
             raise RuntimeError(f"{puzzle['id']}: stored solution is invalid")
+        minimum_size, maximum_size = natural_size_limits(n, k)
+        if not board_shape_is_natural(
+            labels,
+            n,
+            k,
+            minimum_size,
+            maximum_size,
+        ):
+            raise RuntimeError(f"{puzzle['id']}: region shapes failed the anti-stripe gate")
+        pattern = solution_pattern(target, n, k)
+        if not solution_pattern_is_irregular(pattern, n, k):
+            raise RuntimeError(f"{puzzle['id']}: rabbit layout is too repetitive")
 
         result = solve_one(
             n,
@@ -1118,7 +2088,7 @@ def verify_bank(path: Path, timeout: float, workers: int) -> None:
             timeout,
             workers,
             0x51A7,
-            clues,
+            clues=clues,
         )
         status_name = cp_model.CpSolver().status_name(result.status)
         print(f"[{puzzle['id']}] blocked model: {status_name} ({result.elapsed_seconds:.3f}s)")
@@ -1127,34 +2097,45 @@ def verify_bank(path: Path, timeout: float, workers: int) -> None:
 
 
 def merge_banks(paths: Sequence[Path], output: Path) -> None:
-    by_difficulty: dict[str, dict] = {}
+    by_difficulty: dict[str, list[dict]] = defaultdict(list)
+    seen_ids: set[str] = set()
     for path in paths:
         document = json.loads(path.read_text(encoding="utf-8"))
         for puzzle in document.get("puzzles", []):
             difficulty_id = puzzle["difficultyId"]
-            if difficulty_id in by_difficulty:
-                raise RuntimeError(f"duplicate puzzle for {difficulty_id}")
-            puzzle.setdefault("clues", [])
-            by_difficulty[difficulty_id] = puzzle
+            if puzzle["id"] in seen_ids:
+                raise RuntimeError(f"duplicate puzzle id {puzzle['id']}")
+            seen_ids.add(puzzle["id"])
+            if "givens" not in puzzle:
+                puzzle["givens"] = [
+                    {"cell": value, "value": 1}
+                    for value in puzzle.get("clues", [])
+                ]
+            puzzle.pop("clues", None)
+            by_difficulty[difficulty_id].append(puzzle)
 
     expected = [difficulty[0] for difficulty in DIFFICULTIES]
-    missing = [difficulty_id for difficulty_id in expected if difficulty_id not in by_difficulty]
+    missing = [difficulty_id for difficulty_id in expected if not by_difficulty[difficulty_id]]
     if missing:
         raise RuntimeError(f"missing puzzle(s): {', '.join(missing)}")
 
     document = {
-        "schemaVersion": 1,
+        "schemaVersion": 3,
         "generator": "three_holes_unique_generator.py",
-        "algorithm": "cp-sat-blocking-with-region-edits-and-irredundant-hole-clue-fallback",
+        "algorithm": "certified-natural-blobs-with-irregular-targets-and-binary-givens",
         "ortoolsVersion": ortools_version,
-        "puzzles": [by_difficulty[difficulty_id] for difficulty_id in expected],
+        "puzzles": [
+            puzzle
+            for difficulty_id in expected
+            for puzzle in sorted(by_difficulty[difficulty_id], key=lambda item: item["id"])
+        ],
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
         json.dumps(document, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
-    print(f"merged {len(expected)} certified puzzles into {output}")
+    print(f"merged {len(document['puzzles'])} certified puzzles into {output}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -1175,19 +2156,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--find-time", type=float, default=30.0)
     parser.add_argument("--unique-time", type=float, default=120.0)
     parser.add_argument("--restarts", type=int, default=100)
-    parser.add_argument("--kill-limit", type=int, default=500)
-    parser.add_argument("--mix-factor", type=int, default=100)
-    parser.add_argument("--unlock-factor", type=int, default=20)
-    parser.add_argument(
-        "--size-mode",
-        choices=("target-path", "balanced", "composition"),
-        default="target-path",
-        help="target-path is recommended for the multi-size web-game bank",
-    )
+    parser.add_argument("--kill-limit", type=int, default=1_000)
+    parser.add_argument("--mix-factor", type=int, default=8)
+    parser.add_argument("--unlock-factor", type=int, default=10)
+    parser.add_argument("--target-attempts", type=int, default=24)
+    parser.add_argument("--variants", type=int, default=2)
+    parser.add_argument("--pool-size", type=int, default=128)
     parser.add_argument(
         "--guard-limit",
         type=int,
-        default=256,
+        default=2_000,
         help="maximum prior counterexamples protected from resurrection",
     )
     return parser.parse_args()
@@ -1215,22 +2193,28 @@ def main() -> None:
         kill_limit=args.kill_limit,
         mix_factor=args.mix_factor,
         unlock_factor=args.unlock_factor,
-        size_mode=args.size_mode,
         guard_limit=args.guard_limit,
+        target_attempts=args.target_attempts,
+        pool_size=args.pool_size,
     )
     puzzles = []
     for index, (difficulty_id, name, n, k) in enumerate(DIFFICULTIES):
         if difficulty_id not in selected_ids:
             continue
-        puzzle_seed = args.seed + index * 0x9E3779B97F4A7C15
-        puzzles.append(
-            generate_unique_puzzle(difficulty_id, name, n, k, puzzle_seed, settings)
-        )
+        for variant in range(args.variants):
+            puzzle_seed = (
+                args.seed
+                + index * 0x9E3779B97F4A7C15
+                + variant * 0xD1B54A32D192ED03
+            )
+            puzzles.append(
+                generate_unique_puzzle(difficulty_id, name, n, k, puzzle_seed, settings)
+            )
 
     document = {
-        "schemaVersion": 1,
+        "schemaVersion": 3,
         "generator": "three_holes_unique_generator.py",
-        "algorithm": "cp-sat-blocking-plus-solution-preserving-region-swaps",
+        "algorithm": "certified-natural-blobs-with-irregular-targets-and-binary-givens",
         "ortoolsVersion": ortools_version,
         "puzzles": puzzles,
     }

@@ -291,6 +291,34 @@
   font-size: 0.48em;
 }
 
+.rabbit-cell--given {
+  opacity: 1;
+  box-shadow: inset 0 0 0
+    clamp(1px, calc(var(--rabbit-cell-size) * 0.08), 3px)
+    rgba(253, 230, 138, 0.92);
+}
+
+.rabbit-cell--given.rabbit-cell--2 span {
+  background: #0f766e;
+  border-color: #fef3c7;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.42),
+    0 0 0 2px rgba(15, 118, 110, 0.28);
+}
+
+.rabbit-cell--given.rabbit-cell--1 span {
+  width: 68%;
+  height: 68%;
+  display: grid;
+  place-items: center;
+  color: #fef3c7;
+  border: 2px solid #fde68a;
+  border-radius: 20%;
+  background: #0f766e;
+  opacity: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.36);
+}
+
 .rabbit-cell--conflict span {
   border-color: #fca5a5;
   background: #991b1b;
@@ -330,6 +358,22 @@
   border-radius: 50%;
   background: #7c2d12;
   font-size: 0.52rem;
+}
+
+.rabbit-legend-given {
+  color: #fef3c7;
+  border: 2px solid #fde68a;
+  border-radius: 50%;
+  background: #0f766e;
+  font-size: 0.52rem;
+}
+
+.rabbit-legend-given-excluded {
+  color: #fef3c7;
+  border: 2px solid #fde68a;
+  border-radius: 20%;
+  background: #0f766e;
+  font-size: 0.7rem;
 }
 
 .rabbit-sidebar {

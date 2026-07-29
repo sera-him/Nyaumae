@@ -181,6 +181,7 @@ export default function ThreeHoles() {
   const updateCell = useCallback((row: number, col: number, update: (mark: Mark) => Mark) => {
     setState((current) => {
       if (!current || current.won || current.surrendered) return current;
+      if (current.givens[row][col]) return current;
       const marks = current.marks.map((currentRow) => [...currentRow]) as Mark[][];
       marks[row][col] = update(marks[row][col]);
       const next = { ...current, marks };
@@ -206,6 +207,7 @@ export default function ThreeHoles() {
     if (!cell) return;
     const row = Number(cell.dataset.row);
     const col = Number(cell.dataset.col);
+    if (state!.givens[row][col]) return;
     const mark = state!.marks[row][col] as Mark;
     dragRef.current = {
       row,
@@ -299,6 +301,16 @@ export default function ThreeHoles() {
     (total, row) => total + row.filter((mark) => mark === 1).length,
     0,
   );
+  let givenHoleCount = 0;
+  let givenExcludedCount = 0;
+  for (let row = 0; row < n; row++) {
+    for (let col = 0; col < n; col++) {
+      if (!state.givens[row][col]) continue;
+      if (marks[row][col] === 2) givenHoleCount++;
+      if (marks[row][col] === 1) givenExcludedCount++;
+    }
+  }
+  const givenCount = givenHoleCount + givenExcludedCount;
   const rowCounts = marks.map((row) => row.filter((mark) => mark === 2).length);
   const colCounts = Array.from(
     { length: n },
@@ -400,12 +412,17 @@ export default function ThreeHoles() {
             >
               {Array.from({ length: n }, (_, row) =>
                 Array.from({ length: n }, (_, col) => {
+                  const isGiven = state.givens[row][col];
                   const visibleMark: Mark = state.surrendered
                     ? (state.solution[row][col] ? 2 : marks[row][col])
                     : marks[row][col] as Mark;
                   const region = regions[row][col];
                   const conflict = hasAdjacentRabbit(marks as Mark[][], row, col);
-                  const label = visibleMark === 2
+                  const label = isGiven
+                    ? `第${row + 1}行第${col + 1}列，${
+                      visibleMark === 2 ? '已知兔子洞' : '已知排除'
+                    }`
+                    : visibleMark === 2
                     ? `第${row + 1}行第${col + 1}列，兔子洞`
                     : visibleMark === 1
                       ? `第${row + 1}行第${col + 1}列，已排除`
@@ -418,15 +435,15 @@ export default function ThreeHoles() {
                       data-rabbit-cell
                       data-row={row}
                       data-col={col}
-                      className={`rabbit-cell rabbit-cell--${visibleMark}${conflict ? ' rabbit-cell--conflict' : ''}`}
+                      className={`rabbit-cell rabbit-cell--${visibleMark}${isGiven ? ' rabbit-cell--given' : ''}${conflict ? ' rabbit-cell--conflict' : ''}`}
                       style={{
                         backgroundColor: colors[region],
                         ...regionBorder(regions, row, col),
                       }}
                       aria-label={label}
-                      aria-disabled={!isActive}
-                      disabled={!isActive}
-                      tabIndex={isActive ? 0 : -1}
+                      aria-disabled={!isActive || isGiven}
+                      disabled={!isActive || isGiven}
+                      tabIndex={isActive && !isGiven ? 0 : -1}
                       onKeyDown={(event) => handleCellKeyDown(event, row, col)}
                     >
                       {visibleMark === 1 && <span aria-hidden="true">×</span>}
@@ -441,6 +458,12 @@ export default function ThreeHoles() {
             <span><i className="rabbit-legend-empty" />未判断</span>
             <span><i className="rabbit-legend-excluded">×</i>排除</span>
             <span><i className="rabbit-legend-hole">●</i>兔子洞</span>
+            {givenHoleCount > 0 && (
+              <span><i className="rabbit-legend-given">●</i>已知兔洞</span>
+            )}
+            {givenExcludedCount > 0 && (
+              <span><i className="rabbit-legend-given-excluded">×</i>已知排除</span>
+            )}
           </div>
         </section>
 
@@ -460,6 +483,13 @@ export default function ThreeHoles() {
             </div>
           </section>
 
+          {givenCount > 0 && (
+            <p className="rabbit-notice" role="status">
+              本题有 {givenCount} 个不可修改的题面线索：
+              {givenHoleCount} 个已知兔洞、{givenExcludedCount} 个已知排除；
+              它们已计入当前标记。
+            </p>
+          )}
           {rabbitCount === 0 && isActive && (
             <p className="rabbit-notice" role="status">当前没有兔子洞标记。选择“兔子洞”后点击格子即可放置。</p>
           )}

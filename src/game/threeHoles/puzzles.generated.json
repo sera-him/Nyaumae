@@ -1,21 +1,21 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "generator": "three_holes_unique_generator.py",
-  "algorithm": "cp-sat-blocking-with-region-edits-and-irredundant-hole-clue-fallback",
+  "algorithm": "certified-natural-blobs-with-irregular-targets-and-binary-givens",
   "ortoolsVersion": "9.15.6755",
   "puzzles": [
     {
-      "id": "very-easy-c0d320260723",
+      "id": "very-easy-28757b2",
       "difficultyId": "very-easy",
       "name": "非常简单",
       "n": 4,
       "k": 1,
-      "seed": "212013009995555",
+      "seed": "42424242",
       "regions": [
-        "0102",
-        "0002",
-        "0222",
-        "2233"
+        "1113",
+        "1033",
+        "0032",
+        "0022"
       ],
       "solution": [
         "0100",
@@ -27,13 +27,139 @@
         "kind": "cp-sat-blocked-solution-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
-        "restart": 5,
-        "killIterations": 1,
-        "proofSeconds": 0.001392,
+        "restart": 1,
+        "killIterations": 0,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.002328,
         "regionsConnected": true,
-        "solutionValid": true
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.090909,
+          "maximumAspect": 1.5,
+          "minimumFill": 0.666667,
+          "maximumRunShare": 0.75,
+          "maximumRun": 3,
+          "verticalBoundaries": 6,
+          "horizontalBoundaries": 5
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.5,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.25,
+          "dominantGapShare": 0.0
+        }
       },
-      "clues": []
+      "givens": []
+    },
+    {
+      "id": "very-easy-c0d320260723",
+      "difficultyId": "very-easy",
+      "name": "非常简单",
+      "n": 4,
+      "k": 1,
+      "seed": "212013009995555",
+      "regions": [
+        "0223",
+        "0233",
+        "0011",
+        "0111"
+      ],
+      "solution": [
+        "0100",
+        "0001",
+        "1000",
+        "0010"
+      ],
+      "certificate": {
+        "kind": "cp-sat-blocked-solution-infeasible",
+        "status": "INFEASIBLE",
+        "ortoolsVersion": "9.15.6755",
+        "restart": 1,
+        "killIterations": 0,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.002564,
+        "regionsConnected": true,
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.090909,
+          "maximumAspect": 2.0,
+          "minimumFill": 0.625,
+          "maximumRunShare": 0.8,
+          "maximumRun": 4,
+          "verticalBoundaries": 6,
+          "horizontalBoundaries": 5
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.5,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.25,
+          "dominantGapShare": 0.0
+        }
+      },
+      "givens": []
+    },
+    {
+      "id": "easy-9e3779b981d1d3c7",
+      "difficultyId": "easy",
+      "name": "简单",
+      "n": 6,
+      "k": 1,
+      "seed": "11400714819365622727",
+      "regions": [
+        "444411",
+        "222441",
+        "233333",
+        "000033",
+        "055003",
+        "555333"
+      ],
+      "solution": [
+        "001000",
+        "000001",
+        "100000",
+        "000100",
+        "010000",
+        "000010"
+      ],
+      "certificate": {
+        "kind": "cp-sat-blocked-solution-infeasible",
+        "status": "INFEASIBLE",
+        "ortoolsVersion": "9.15.6755",
+        "restart": 1,
+        "killIterations": 3,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.012433,
+        "regionsConnected": true,
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.357143,
+          "maximumAspect": 2.5,
+          "minimumFill": 0.55,
+          "maximumRunShare": 0.75,
+          "maximumRun": 5,
+          "verticalBoundaries": 9,
+          "horizontalBoundaries": 19
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.5,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.333333,
+          "dominantGapShare": 0.0
+        }
+      },
+      "givens": []
     },
     {
       "id": "easy-9e383a8c9f708338",
@@ -43,32 +169,111 @@
       "k": 1,
       "seed": "11400926832333194040",
       "regions": [
-        "011155",
-        "111445",
-        "121145",
-        "122144",
-        "133144",
-        "133444"
+        "551111",
+        "511333",
+        "221113",
+        "220133",
+        "200444",
+        "222224"
       ],
       "solution": [
+        "000100",
         "100000",
         "000001",
-        "000100",
-        "010000",
+        "001000",
         "000010",
-        "001000"
+        "010000"
       ],
       "certificate": {
         "kind": "cp-sat-blocked-solution-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
-        "restart": 12,
-        "killIterations": 3,
-        "proofSeconds": 0.005016,
+        "restart": 1,
+        "killIterations": 11,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.003245,
         "regionsConnected": true,
-        "solutionValid": true
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.241379,
+          "maximumAspect": 1.5,
+          "minimumFill": 0.5,
+          "maximumRunShare": 0.75,
+          "maximumRun": 5,
+          "verticalBoundaries": 11,
+          "horizontalBoundaries": 18
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.5,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.333333,
+          "dominantGapShare": 0.0
+        }
       },
-      "clues": []
+      "givens": []
+    },
+    {
+      "id": "medium-13c6ef373011c4fdc",
+      "difficultyId": "medium",
+      "name": "中等",
+      "n": 8,
+      "k": 1,
+      "seed": "22801429638688821212",
+      "regions": [
+        "75551111",
+        "77753331",
+        "73333331",
+        "70363444",
+        "00663444",
+        "06666424",
+        "22226224",
+        "22222224"
+      ],
+      "solution": [
+        "00010000",
+        "01000000",
+        "00000001",
+        "00100000",
+        "00000100",
+        "10000000",
+        "00001000",
+        "00000010"
+      ],
+      "certificate": {
+        "kind": "cp-sat-blocked-solution-infeasible",
+        "status": "INFEASIBLE",
+        "ortoolsVersion": "9.15.6755",
+        "restart": 2,
+        "killIterations": 58,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.011491,
+        "regionsConnected": true,
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.021277,
+          "maximumAspect": 2.333333,
+          "minimumFill": 0.5,
+          "maximumRunShare": 0.75,
+          "maximumRun": 7,
+          "verticalBoundaries": 23,
+          "horizontalBoundaries": 24
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.25,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.375,
+          "dominantGapShare": 0.0
+        }
+      },
+      "givens": []
     },
     {
       "id": "medium-13c6fb4461ebaff4d",
@@ -78,36 +283,119 @@
       "k": 1,
       "seed": "22801641651656392525",
       "regions": [
-        "77661001",
-        "67661101",
-        "67661101",
-        "66661111",
-        "63663111",
-        "63333332",
-        "55332222",
-        "55544444"
+        "77222211",
+        "07211114",
+        "07114414",
+        "00114444",
+        "60554343",
+        "60054343",
+        "65553343",
+        "66663333"
       ],
       "solution": [
-        "00000010",
-        "01000000",
         "00000100",
+        "01000000",
+        "00000010",
+        "10000000",
         "00100000",
         "00001000",
         "00000001",
-        "10000000",
         "00010000"
       ],
       "certificate": {
         "kind": "cp-sat-blocked-solution-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
-        "restart": 19,
-        "killIterations": 18,
-        "proofSeconds": 0.01046,
+        "restart": 2,
+        "killIterations": 39,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.009072,
         "regionsConnected": true,
-        "solutionValid": true
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.132075,
+          "maximumAspect": 2.0,
+          "minimumFill": 0.4375,
+          "maximumRunShare": 0.8,
+          "maximumRun": 4,
+          "verticalBoundaries": 30,
+          "horizontalBoundaries": 23
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.25,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.25,
+          "dominantGapShare": 0.0
+        }
       },
-      "clues": []
+      "givens": []
+    },
+    {
+      "id": "normal-1daa66d2c8066cbf1",
+      "difficultyId": "normal",
+      "name": "普通",
+      "n": 10,
+      "k": 1,
+      "seed": "34202144458012019697",
+      "regions": [
+        "8855533777",
+        "8855333777",
+        "5853333677",
+        "5553663667",
+        "4453366667",
+        "4433366660",
+        "4446666000",
+        "4244106099",
+        "2241100009",
+        "2211110999"
+      ],
+      "solution": [
+        "0000100000",
+        "0000000100",
+        "0100000000",
+        "0001000000",
+        "0000001000",
+        "0000000001",
+        "0010000000",
+        "0000000010",
+        "1000000000",
+        "0000010000"
+      ],
+      "certificate": {
+        "kind": "cp-sat-blocked-solution-infeasible",
+        "status": "INFEASIBLE",
+        "ortoolsVersion": "9.15.6755",
+        "restart": 1,
+        "killIterations": 171,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.087587,
+        "regionsConnected": true,
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.083333,
+          "maximumAspect": 1.666667,
+          "minimumFill": 0.44,
+          "maximumRunShare": 0.6,
+          "maximumRun": 5,
+          "verticalBoundaries": 39,
+          "horizontalBoundaries": 33
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.3,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.4,
+          "dominantGapShare": 0.0
+        }
+      },
+      "givens": []
     },
     {
       "id": "normal-1daa72dff9e057b62",
@@ -117,40 +405,123 @@
       "k": 1,
       "seed": "34202356470979591010",
       "regions": [
-        "0113477779",
-        "1113455579",
-        "1213445579",
-        "1223455779",
-        "1223456779",
-        "1113447778",
-        "1313447888",
-        "1333347888",
-        "1334447888",
-        "1133337888"
+        "5555334444",
+        "9593344400",
+        "9993344400",
+        "7773440000",
+        "7772211000",
+        "7772221110",
+        "7872661100",
+        "7822266100",
+        "8882226660",
+        "8888822266"
       ],
       "solution": [
-        "1000000000",
-        "0000010000",
-        "0000000001",
         "0010000000",
         "0000001000",
-        "0000000010",
+        "0100000000",
         "0001000000",
+        "0000000001",
+        "0000010000",
         "0000000100",
-        "0000100000",
-        "0100000000"
+        "1000000000",
+        "0000000010",
+        "0000100000"
       ],
       "certificate": {
         "kind": "cp-sat-blocked-solution-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
-        "restart": 79,
-        "killIterations": 41,
-        "proofSeconds": 0.015424,
+        "restart": 4,
+        "killIterations": 199,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.062772,
         "regionsConnected": true,
-        "solutionValid": true
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.027778,
+          "maximumAspect": 2.0,
+          "minimumFill": 0.375,
+          "maximumRunShare": 0.8,
+          "maximumRun": 8,
+          "verticalBoundaries": 35,
+          "horizontalBoundaries": 37
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.3,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.3,
+          "dominantGapShare": 0.0
+        }
       },
-      "clues": []
+      "givens": []
+    },
+    {
+      "id": "hard-278dde6e5ffb14806",
+      "difficultyId": "hard",
+      "name": "困难",
+      "n": 10,
+      "k": 2,
+      "seed": "45602859277335218182",
+      "regions": [
+        "8888499999",
+        "8144449999",
+        "1144499255",
+        "1111442255",
+        "1771142225",
+        "1777745525",
+        "7773333555",
+        "6777333333",
+        "6666333000",
+        "6666333000"
+      ],
+      "solution": [
+        "0010010000",
+        "1000000100",
+        "0000100001",
+        "0010001000",
+        "1000000010",
+        "0001010000",
+        "0100000010",
+        "0000101000",
+        "0100000001",
+        "0001000100"
+      ],
+      "certificate": {
+        "kind": "cp-sat-blocked-solution-infeasible",
+        "status": "INFEASIBLE",
+        "ortoolsVersion": "9.15.6755",
+        "restart": 2,
+        "killIterations": 43,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.122073,
+        "regionsConnected": true,
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.117647,
+          "maximumAspect": 2.0,
+          "minimumFill": 0.44,
+          "maximumRunShare": 0.8,
+          "maximumRun": 6,
+          "verticalBoundaries": 30,
+          "horizontalBoundaries": 38
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.3,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.25,
+          "dominantGapShare": 0.2
+        }
+      },
+      "givens": []
     },
     {
       "id": "hard-278dea7b91d4ff777",
@@ -160,151 +531,264 @@
       "k": 2,
       "seed": "45603071290302789495",
       "regions": [
-        "1334444888",
-        "1333444478",
-        "1133346778",
-        "1133366788",
-        "1331667789",
-        "1111567789",
-        "1022567999",
-        "0002577599",
-        "0002555599",
-        "2222299999"
+        "0009999922",
+        "0009979622",
+        "0999779662",
+        "0777766661",
+        "3787755561",
+        "3388455661",
+        "3384445551",
+        "3384444451",
+        "8884814111",
+        "8888811111"
       ],
       "solution": [
-        "0000001010",
-        "0100100000",
+        "0000100010",
+        "0010001000",
+        "0000100001",
+        "1000001000",
+        "0001000010",
+        "0100010000",
+        "0001000100",
+        "0100010000",
         "0000000101",
-        "0001010000",
-        "0000000101",
-        "0101000000",
-        "0000010010",
-        "1010000000",
-        "0000101000",
         "1010000000"
       ],
       "certificate": {
         "kind": "cp-sat-blocked-solution-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
-        "restart": 1,
-        "killIterations": 159,
-        "sizeMode": "target-path",
-        "proofSeconds": 0.101869,
+        "restart": 6,
+        "killIterations": 10,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 30000,
+        "clueCount": 0,
+        "proofSeconds": 0.078421,
         "regionsConnected": true,
-        "solutionValid": true
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.066667,
+          "maximumAspect": 2.333333,
+          "minimumFill": 0.4,
+          "maximumRunShare": 0.6,
+          "maximumRun": 7,
+          "verticalBoundaries": 40,
+          "horizontalBoundaries": 35
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.45,
+          "maximumAxisPeriod": 0.166667,
+          "minimumAxisDiversity": 0.9,
+          "checkerboardShare": 0.3,
+          "dominantGapShare": 0.4
+        }
       },
-      "clues": []
+      "givens": []
     },
     {
-      "id": "very-hard-3171621729c9a738c",
+      "id": "very-hard-31715609f7e149280",
       "difficultyId": "very-hard",
       "name": "极难",
       "n": 12,
       "k": 2,
-      "seed": "57003786109625987980",
+      "seed": "57003574096643265152",
       "regions": [
-        "553111000022",
-        "533331111022",
-        "555433130022",
-        "544443333000",
-        "555444444444",
-        "555555555464",
-        "957766656664",
-        "9777766666aa",
-        "98888888a66a",
-        "999988aaaaaa",
-        "b9aaaaaababa",
-        "bbbbbbbbbbba"
+        "333377774444",
+        "337777777544",
+        "777777755554",
+        "222288775544",
+        "2bbb80079555",
+        "22bb80009995",
+        "abb888000999",
+        "aab888000099",
+        "abbb88000999",
+        "aabbb6611999",
+        "aaabb6611119",
+        "aaaa66666999"
       ],
       "solution": [
-        "000000000101",
-        "000001010000",
-        "000000000101",
-        "000001010000",
-        "000100000010",
+        "000100000001",
         "010000001000",
-        "000100000010",
-        "010000001000",
+        "000000100001",
+        "000100001000",
+        "100000000010",
         "000010100000",
-        "101000000000",
-        "000010100000",
-        "101000000000"
+        "001000000100",
+        "000001010000",
+        "010000000010",
+        "000001010000",
+        "001000000100",
+        "100010000000"
       ],
       "certificate": {
-        "kind": "cp-sat-blocked-solution-infeasible",
+        "kind": "cp-sat-blocked-solution-plus-visible-clues-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
         "restart": 1,
-        "killIterations": 206,
-        "sizeMode": "target-path",
-        "proofSeconds": 0.078169,
+        "killIterations": 30,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 3000,
+        "clueCount": 6,
+        "proofSeconds": 0.034704,
         "regionsConnected": true,
-        "solutionValid": true
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.111111,
+          "maximumAspect": 2.0,
+          "minimumFill": 0.44,
+          "maximumRunShare": 0.666667,
+          "maximumRun": 7,
+          "verticalBoundaries": 44,
+          "horizontalBoundaries": 55
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.25,
+          "maximumAxisPeriod": 0.125,
+          "minimumAxisDiversity": 0.833333,
+          "checkerboardShare": 0.25,
+          "dominantGapShare": 0.291667
+        }
       },
-      "clues": []
+      "givens": [
+        {
+          "cell": 11,
+          "value": 1
+        },
+        {
+          "cell": 66,
+          "value": 1
+        },
+        {
+          "cell": 97,
+          "value": 1
+        },
+        {
+          "cell": 106,
+          "value": 1
+        },
+        {
+          "cell": 132,
+          "value": 1
+        },
+        {
+          "cell": 136,
+          "value": 1
+        }
+      ]
     },
     {
-      "id": "nightmare-3b54d9b2c1be4efa1",
+      "id": "nightmare-3b54cda58fd7de1ff",
       "difficultyId": "nightmare",
       "name": "噩梦",
       "n": 14,
       "k": 2,
-      "seed": "68404500928949186465",
+      "seed": "68404288915968483839",
       "regions": [
-        "11111112220000",
-        "77711311320200",
-        "77733331322226",
-        "77553533344446",
-        "77755555554466",
-        "87557554544466",
-        "87777544444446",
-        "87777777774666",
-        "88888877999999",
-        "baa99999999bb9",
-        "baaaa99cccbb99",
-        "bbbba9cccccb99",
-        "ddbbbbcccbbb99",
-        "dddddbbbbb9999"
+        "aa22dddddd3333",
+        "aaa222ddd33888",
+        "77aa2ddd333338",
+        "77aa2dddd34888",
+        "7aa222ddd44448",
+        "7772ccc9944888",
+        "777777cc944888",
+        "7777ccc9948880",
+        "7777ccc9999000",
+        "b11777cc999990",
+        "b111555c566600",
+        "bb115555566666",
+        "bbb11155555566",
+        "bbb11555555566"
       ],
       "solution": [
-        "00000000001010",
-        "00010001000000",
-        "00000000010100",
-        "00001001000000",
-        "00000000001010",
-        "00000100100000",
-        "00000000000101",
-        "01000000010000",
-        "00010100000000",
-        "01000000000001",
-        "00001010000000",
+        "00010010000000",
+        "10000000001000",
+        "00000001000010",
         "10100000000000",
+        "00001000010000",
+        "00100001000000",
+        "00000000000101",
+        "00000100010000",
+        "00000000000101",
         "00000010100000",
-        "10100000000000"
-      ],
-      "clues": [
-        66,
-        75,
-        95,
-        99,
-        139,
-        156
+        "00010000001000",
+        "01000100000000",
+        "00000000100010",
+        "01001000000000"
       ],
       "certificate": {
-        "kind": "cp-sat-blocked-solution-plus-clues-infeasible",
+        "kind": "cp-sat-blocked-solution-plus-visible-clues-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
         "restart": 1,
-        "killIterations": 100,
-        "sizeMode": "target-path",
-        "guardLimit": 64,
-        "clueCount": 6,
-        "clueAdditionsBeforeMinimization": 7,
-        "proofSeconds": 0.07605,
+        "killIterations": 30,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 3000,
+        "clueCount": 10,
+        "proofSeconds": 0.011386,
         "regionsConnected": true,
-        "solutionValid": true
-      }
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.104478,
+          "maximumAspect": 2.0,
+          "minimumFill": 0.458333,
+          "maximumRunShare": 0.571429,
+          "maximumRun": 7,
+          "verticalBoundaries": 60,
+          "horizontalBoundaries": 74
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.25,
+          "maximumAxisPeriod": 0.083333,
+          "minimumAxisDiversity": 0.928571,
+          "checkerboardShare": 0.285714,
+          "dominantGapShare": 0.321429
+        }
+      },
+      "givens": [
+        {
+          "cell": 6,
+          "value": 1
+        },
+        {
+          "cell": 14,
+          "value": 1
+        },
+        {
+          "cell": 24,
+          "value": 1
+        },
+        {
+          "cell": 35,
+          "value": 1
+        },
+        {
+          "cell": 40,
+          "value": 1
+        },
+        {
+          "cell": 42,
+          "value": 1
+        },
+        {
+          "cell": 60,
+          "value": 1
+        },
+        {
+          "cell": 72,
+          "value": 1
+        },
+        {
+          "cell": 77,
+          "value": 1
+        },
+        {
+          "cell": 159,
+          "value": 1
+        }
+      ]
     },
     {
       "id": "hell-4538514e59b2f6bb6",
@@ -314,484 +798,1279 @@
       "k": 3,
       "seed": "79805215748272384950",
       "regions": [
-        "2224488888addd",
-        "212446668aaccd",
-        "0123446888abcd",
-        "0123466868abcd",
-        "0123466668abcd",
-        "0123456778abcd",
-        "0123455778abcd",
-        "01234457aaabcd",
-        "0123455799abdd",
-        "012345779bbbdd",
-        "0133357999dbbd",
-        "0133357799dbdd",
-        "0113355999dbbd",
-        "113355559ddddd"
+        "222cccc7744411",
+        "222ccc77744441",
+        "22cccc74447741",
+        "2ccccc77777441",
+        "22ccccbbbbb441",
+        "0000cdbbbb1111",
+        "00000db9911115",
+        "0033ddbb911155",
+        "333dddb9995555",
+        "3a3ddd89995995",
+        "aa33d889999955",
+        "a333dd88966665",
+        "a33aadd8666665",
+        "aaaadd88886666"
       ],
       "solution": [
-        "00101000100000",
-        "00000010001010",
-        "01010000100000",
-        "00000100000101",
-        "01000001010000",
-        "00010100000010",
-        "10000001001000",
-        "00101000000010",
-        "10000000101000",
-        "00101010000000",
+        "10100000100000",
+        "00001010000010",
+        "01000000101000",
+        "00010100000001",
+        "00000001010100",
+        "01010100000000",
         "00000000010101",
-        "10000101000000",
-        "00000000010101",
-        "01010010000000"
-      ],
-      "clues": [
-        29,
-        55,
-        57,
-        102,
-        161,
-        181
+        "01010001000000",
+        "00000100010100",
+        "00100001000001",
+        "10001000001000",
+        "00100010000010",
+        "10001000001000",
+        "00000010100010"
       ],
       "certificate": {
-        "kind": "cp-sat-blocked-solution-plus-clues-infeasible",
+        "kind": "cp-sat-blocked-solution-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
-        "restart": 1,
-        "killIterations": 13,
-        "sizeMode": "target-path",
-        "guardLimit": 64,
-        "clueCount": 6,
-        "clueAdditionsBeforeMinimization": 8,
-        "proofSeconds": 0.097272,
+        "restart": 2,
+        "killIterations": 96,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 50000,
+        "clueCount": 0,
+        "proofSeconds": 0.245172,
         "regionsConnected": true,
-        "solutionValid": true
-      }
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.007194,
+          "maximumAspect": 2.25,
+          "minimumFill": 0.4,
+          "maximumRunShare": 0.538462,
+          "maximumRun": 7,
+          "verticalBoundaries": 69,
+          "horizontalBoundaries": 70
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.380952,
+          "maximumAxisPeriod": 0.125,
+          "minimumAxisDiversity": 0.857143,
+          "checkerboardShare": 0.261905,
+          "dominantGapShare": 0.517857
+        }
+      },
+      "givens": []
     },
     {
-      "id": "purgatory-4f1bc8e9f1a79e7cb",
+      "id": "purgatory-4f1bbcdcbfc2243de",
       "difficultyId": "purgatory",
       "name": "炼狱",
       "n": 18,
       "k": 3,
-      "seed": "91205930567595583435",
+      "seed": "91205718554615890910",
       "regions": [
-        "bbbbbbba8877442000",
-        "hbbebbaa8874422220",
-        "hbbebaa88877422220",
-        "hhbebbaa8777444220",
-        "hbbeebba8876642220",
-        "hgbeccba8876644420",
-        "hgeecbba8876643420",
-        "hgeeccbaa876333420",
-        "hggeecba9876634420",
-        "hggedcba9877333220",
-        "hhgedcba9877553222",
-        "ggggdcaa9877553212",
-        "gfffdcaa9875553212",
-        "gffddcca9875533211",
-        "gfffdccc9877532221",
-        "gfffdcc99875555211",
-        "gfffdcc98855555111",
-        "gfddddc99999999111"
+        "66444444444bbbbddd",
+        "6646614444bbbgbbbd",
+        "a666114444bbggbgdd",
+        "aaa111444bbbggggdd",
+        "aaaaa114444b7gggdd",
+        "aaaaaa117777777gdd",
+        "aaaa2aa117777777dd",
+        "aa2222111ff777dddd",
+        "222222111ff7ddddhh",
+        "220222ff1ffff3ddhh",
+        "000022fffff333hhh5",
+        "000000cccfff33hh55",
+        "088888cccf333hh555",
+        "ee8888ccc3339hh555",
+        "ee8888cccc339h5555",
+        "eeee88cccc39999595",
+        "eee888cc9339999995",
+        "ee8888999999999995"
       ],
       "solution": [
-        "000000100010010000",
-        "100100000000000001",
-        "000000000100100100",
-        "010101000000000000",
-        "000000010001000100",
-        "000001000100010000",
-        "010000000001000001",
-        "000001010000001000",
-        "010000000000100001",
-        "000100001000001000",
-        "100000100010000000",
-        "000010001000000010",
-        "001000000001001000",
-        "000000010100000010",
-        "001010000000100000",
-        "000000001010000100",
-        "001000100000010000",
-        "100010000000000010"
-      ],
-      "clues": [
-        21,
-        35,
-        45,
-        79,
-        87,
-        109,
-        125,
-        140,
-        145,
-        161,
-        176,
-        180,
-        202,
-        227,
-        256,
-        285,
-        306,
-        310
+        "010000001000010000",
+        "000010100001000000",
+        "101000000000000001",
+        "000000000010101000",
+        "100100001000000000",
+        "000000100000100100",
+        "000010001000000001",
+        "001000000001010000",
+        "000000100100000010",
+        "001010000000001000",
+        "100000010000000010",
+        "000001000010001000",
+        "000100000000100010",
+        "010000010100000000",
+        "000001000001000100",
+        "000100010100000000",
+        "000001000000010100",
+        "010000000010000001"
       ],
       "certificate": {
-        "kind": "cp-sat-blocked-solution-plus-clues-infeasible",
+        "kind": "cp-sat-blocked-solution-plus-visible-clues-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
-        "restart": 1,
-        "killIterations": 7,
-        "sizeMode": "target-path",
-        "guardLimit": 64,
-        "clueCount": 18,
-        "clueAdditionsBeforeMinimization": 25,
-        "proofSeconds": 0.078364,
+        "restart": 4,
+        "killIterations": 21,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 2000,
+        "clueCount": 16,
+        "proofSeconds": 0.082368,
         "regionsConnected": true,
-        "solutionValid": true
-      }
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.004926,
+          "maximumAspect": 2.2,
+          "minimumFill": 0.351852,
+          "maximumRunShare": 0.5,
+          "maximumRun": 11,
+          "verticalBoundaries": 101,
+          "horizontalBoundaries": 102
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.37037,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.259259,
+          "dominantGapShare": 0.277778
+        }
+      },
+      "givens": [
+        {
+          "cell": 8,
+          "value": 1
+        },
+        {
+          "cell": 13,
+          "value": 1
+        },
+        {
+          "cell": 36,
+          "value": 1
+        },
+        {
+          "cell": 53,
+          "value": 1
+        },
+        {
+          "cell": 72,
+          "value": 1
+        },
+        {
+          "cell": 150,
+          "value": 1
+        },
+        {
+          "cell": 153,
+          "value": 1
+        },
+        {
+          "cell": 180,
+          "value": 1
+        },
+        {
+          "cell": 212,
+          "value": 1
+        },
+        {
+          "cell": 219,
+          "value": 1
+        },
+        {
+          "cell": 257,
+          "value": 1
+        },
+        {
+          "cell": 267,
+          "value": 1
+        },
+        {
+          "cell": 301,
+          "value": 1
+        },
+        {
+          "cell": 307,
+          "value": 1
+        },
+        {
+          "cell": 316,
+          "value": 1
+        },
+        {
+          "cell": 323,
+          "value": 1
+        }
+      ]
     },
     {
-      "id": "dream-58ff4085899c463e0",
+      "id": "dream-58ff347857b4dec89",
       "difficultyId": "dream",
       "name": "梦魇",
       "n": 20,
       "k": 4,
-      "seed": "102606645386918781920",
+      "seed": "102606433373937069193",
       "regions": [
-        "1144446999bbbffhhhhj",
-        "1443446779bffffffhhj",
-        "1133456779bbfdfhfhhj",
-        "13344566799bddfhhhjj",
-        "11334566799bddffhjjj",
-        "01234566799bddffhhij",
-        "0123456779bbdddfhhij",
-        "0123456679bbbbdfghij",
-        "0123456779bbbddfggij",
-        "0123456679bbbdffggij",
-        "01234567778ccdeffgij",
-        "012345688888cdefggij",
-        "012245668aaccdefgiii",
-        "0122446688acddefgigi",
-        "0022446888accdefgggi",
-        "0220466888accdefgiii",
-        "0020446888accdefgggi",
-        "0220466888aaddefgiii",
-        "00200688aaadddeffffi",
-        "0000666888aaadeffiii"
+        "fffaaaaa111777777jjj",
+        "ffaaaaaaa1177777jjjj",
+        "fffffffaa11170777jjj",
+        "ffffaafaaa110077jjee",
+        "fffhhaaaaa110770jjee",
+        "fhffhhca111000000jee",
+        "hhhfhhc111100090ejee",
+        "hhhhhhcccc100099ejee",
+        "6666hhccccc00099eeee",
+        "6666hccccdd000922eee",
+        "6566hccdddd009922222",
+        "655555dddd9999222222",
+        "5555dddggdg999i22i22",
+        "5bbbddddgdg999i22i22",
+        "55bbbdddggggggiiiii2",
+        "555bbd44ggggggiiiiii",
+        "555bb4433ggggg8888i8",
+        "5555bb4433gggggg8888",
+        "555bbb443333g3ggg888",
+        "5bbbb4444433333g8888"
       ],
       "solution": [
-        "01001010000100000000",
-        "00000000010000010101",
-        "01010001000100000000",
-        "00000100010001000100",
-        "01010000000000010001",
-        "00000100010001000100",
-        "10100001000100000000",
-        "00000100000000010101",
-        "10000001000101000000",
-        "00010000010000001010",
-        "00000101000010100000",
-        "01010000000000001001",
-        "00000000101010100000",
-        "10101010000000000000",
-        "00000000101010100000",
-        "00101000000000001010",
-        "00000000101010100000",
-        "00001010000000001010",
-        "10100000001001000000",
-        "00000010100000010010"
-      ],
-      "clues": [
-        51,
-        99,
-        105,
-        109,
-        113,
-        122,
-        157,
-        160,
-        205,
-        212,
-        236,
-        239,
-        302,
-        316,
-        328,
-        356,
-        360,
-        386
+        "00010100001001000000",
+        "01000000000000010101",
+        "00010000101010000000",
+        "00000010000000010101",
+        "01000000101010000000",
+        "00001010000000100100",
+        "00100000010100000001",
+        "00001001000000101000",
+        "10100000000010000010",
+        "00001010100000010000",
+        "00100000001001000010",
+        "10000101000000010000",
+        "00000000000101000101",
+        "10101000100000000000",
+        "00000010000010101000",
+        "10010000010000000010",
+        "00000101000100100000",
+        "01000000010000001010",
+        "00010001000101000000",
+        "01000100010000001000"
       ],
       "certificate": {
-        "kind": "cp-sat-blocked-solution-plus-clues-infeasible",
+        "kind": "cp-sat-blocked-solution-plus-visible-clues-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
         "restart": 1,
-        "killIterations": 2,
-        "sizeMode": "target-path",
-        "guardLimit": 48,
+        "killIterations": 7,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 1000,
         "clueCount": 18,
-        "clueAdditionsBeforeMinimization": 20,
-        "proofSeconds": 0.387975,
+        "proofSeconds": 0.230976,
         "regionsConnected": true,
-        "solutionValid": true
-      }
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.039062,
+          "maximumAspect": 2.0,
+          "minimumFill": 0.375,
+          "maximumRunShare": 0.470588,
+          "maximumRun": 8,
+          "verticalBoundaries": 133,
+          "horizontalBoundaries": 123
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.35,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.25,
+          "dominantGapShare": 0.441667
+        }
+      },
+      "givens": [
+        {
+          "cell": 3,
+          "value": 1
+        },
+        {
+          "cell": 10,
+          "value": 1
+        },
+        {
+          "cell": 21,
+          "value": 1
+        },
+        {
+          "cell": 35,
+          "value": 1
+        },
+        {
+          "cell": 37,
+          "value": 1
+        },
+        {
+          "cell": 39,
+          "value": 1
+        },
+        {
+          "cell": 43,
+          "value": 1
+        },
+        {
+          "cell": 48,
+          "value": 1
+        },
+        {
+          "cell": 77,
+          "value": 1
+        },
+        {
+          "cell": 81,
+          "value": 1
+        },
+        {
+          "cell": 114,
+          "value": 1
+        },
+        {
+          "cell": 131,
+          "value": 1
+        },
+        {
+          "cell": 160,
+          "value": 1
+        },
+        {
+          "cell": 210,
+          "value": 1
+        },
+        {
+          "cell": 225,
+          "value": 1
+        },
+        {
+          "cell": 300,
+          "value": 1
+        },
+        {
+          "cell": 318,
+          "value": 1
+        },
+        {
+          "cell": 331,
+          "value": 1
+        }
+      ]
     },
     {
-      "id": "dream-ex-62e2b8212190edff5",
+      "id": "dream-58ff347857b8b935d",
+      "difficultyId": "dream",
+      "name": "梦魇",
+      "n": 20,
+      "k": 4,
+      "seed": "102606433373941109597",
+      "regions": [
+        "000jjjjjjaaaaaffffff",
+        "00jjjjjj44aa4afaafff",
+        "0000jjjj44444aaaafff",
+        "0066j9944422444affff",
+        "0066j99442222221ffff",
+        "0666699444232211ffgg",
+        "0066999444332111fggg",
+        "006699994433331ggggg",
+        "066999993333311ggggg",
+        "6669b9b33338311ggggg",
+        "6669b9b33388111111cg",
+        "6eebbbb38888181111cc",
+        "6eeebbiiii88888ccccc",
+        "eeebbbbbbi87788ccccc",
+        "eeeebbbbbii7888ccccc",
+        "eeeehhbbiii7777cccc5",
+        "eeeddhbhii77777c5555",
+        "eeeedhhhiiii777cc555",
+        "ddddddhhii777ccc5555",
+        "dddddhhhhh7777755555"
+      ],
+      "solution": [
+        "00000100000101001000",
+        "01010000100000000001",
+        "00000010000010101000",
+        "01001000001000000010",
+        "00000000100010101000",
+        "10000010001000000010",
+        "00101000100000010000",
+        "10000000000010000101",
+        "00101010001000000000",
+        "10000000000010100100",
+        "00100010101000000000",
+        "00001000000001010100",
+        "00100001010100000000",
+        "00000100000001010010",
+        "01010001010000000000",
+        "00000100000000101010",
+        "01010001000100000000",
+        "00000000010001000101",
+        "10000101000100000000",
+        "00010000010000010001"
+      ],
+      "certificate": {
+        "kind": "cp-sat-blocked-solution-plus-visible-clues-infeasible",
+        "status": "INFEASIBLE",
+        "ortoolsVersion": "9.15.6755",
+        "restart": 1,
+        "killIterations": 102,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 5000,
+        "clueCount": 18,
+        "proofSeconds": 0.132989,
+        "regionsConnected": true,
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.024,
+          "maximumAspect": 2.25,
+          "minimumFill": 0.428571,
+          "maximumRunShare": 0.5,
+          "maximumRun": 9,
+          "verticalBoundaries": 128,
+          "horizontalBoundaries": 122
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.4,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.275,
+          "dominantGapShare": 0.475
+        }
+      },
+      "givens": [
+        {
+          "cell": 21,
+          "value": 1
+        },
+        {
+          "cell": 23,
+          "value": 1
+        },
+        {
+          "cell": 39,
+          "value": 1
+        },
+        {
+          "cell": 88,
+          "value": 1
+        },
+        {
+          "cell": 106,
+          "value": 1
+        },
+        {
+          "cell": 152,
+          "value": 1
+        },
+        {
+          "cell": 166,
+          "value": 1
+        },
+        {
+          "cell": 170,
+          "value": 1
+        },
+        {
+          "cell": 180,
+          "value": 1
+        },
+        {
+          "cell": 197,
+          "value": 1
+        },
+        {
+          "cell": 275,
+          "value": 1
+        },
+        {
+          "cell": 314,
+          "value": 1
+        },
+        {
+          "cell": 318,
+          "value": 1
+        },
+        {
+          "cell": 331,
+          "value": 1
+        },
+        {
+          "cell": 360,
+          "value": 1
+        },
+        {
+          "cell": 383,
+          "value": 1
+        },
+        {
+          "cell": 395,
+          "value": 1
+        },
+        {
+          "cell": 399,
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "dream-ex-62e2ac13f3377de97",
       "difficultyId": "dream-ex",
       "name": "梦魇EX",
       "n": 24,
       "k": 5,
-      "seed": "114007360206241980405",
+      "seed": "114007148194214436503",
       "regions": [
-        "000000000000000000000000",
-        "020111111111111111002000",
-        "022222222222222222022222",
-        "223333333333333342222244",
-        "424444444444444444444444",
-        "444555555555555555554444",
-        "466666666666666666666666",
-        "497777777777777777778866",
-        "499799979888888888888888",
-        "99999999999999999999998a",
-        "99b9b9999bbbbaaaaaaaaaaa",
-        "bbbbbbbbbbcbbbbbbbbbacad",
-        "ddbddbbdbccccccccccccccd",
-        "dddddddddddddddddddddddd",
-        "ddffffffdeeeedeeeeeeeedd",
-        "fffhfhfffeegeeeeeeeegeed",
-        "hfhhhhhhffggggggggggghed",
-        "hhhjjhihhhhhhhhhhhhhhhhd",
-        "nhjjjjiiiiiiiiiiiiiiihdd",
-        "njjnjjjijjjjjjjjjjjjjddd",
-        "nnnnjjjjjkkkkkkkkkkkkkmm",
-        "nllllllllllllllllllllkkm",
-        "nnlnllnnmmmmmmmmmmmmmmkm",
-        "nnnnnnnnnnnnnnnnnnnmmmmm"
+        "88888888888ggddddd222222",
+        "8888l8888gggggdggddd2222",
+        "88lll88888ggggggddddd222",
+        "88llllllgggiggggcdddcc22",
+        "88llllllllliigggcdccc222",
+        "lllllllkiiliiiiicccccc12",
+        "lbkklllkkiiiiiicccccc112",
+        "bbkkkkkkiiii3cicccc11111",
+        "bbkk3333i3333ccccc111111",
+        "bbkk333333355555nf111f11",
+        "bkkkb3333333555nnffffff1",
+        "bbbbbmm33533555nnneffff1",
+        "bbbbbmm3553555nnnneefff1",
+        "bbbmmm00055555nnneeeef11",
+        "mbmmmmm0050000neeeeefff1",
+        "mmmmmmj0000999nnnneeeefe",
+        "mmmjmjj00j999999666eeeee",
+        "mmmjjjjjjjj99949966eeeea",
+        "mmm7jjjjjjj99946666aaeaa",
+        "mm777777jhh9h446666aaaaa",
+        "m77h7777jhh9h446666666aa",
+        "77hhhhhhhhhhh44466666aaa",
+        "777hhhhhhhh4h44666aa6aaa",
+        "777hhhhhhhh44444466aaaaa"
       ],
       "solution": [
-        "100000010100000000001010",
-        "000101000001010100000000",
-        "010000000000000001010101",
-        "000100100100010100000000",
-        "100000000001000001000101",
-        "000100100000010100010000",
-        "010000000101000001000010",
-        "000101010000010000010000",
-        "000000000101000010000101",
-        "101010010000000000010000",
-        "000000000000010101000101",
-        "101010010000000000010000",
-        "000000000101001001000100",
-        "010101010000000000000001",
-        "000000000010100100101000",
-        "101010101000000000000000",
-        "000000000010101010100000",
-        "001001001000000000001010",
-        "000000000010101010100000",
-        "001010101000000000001000",
-        "000000000010101010000010",
-        "010001001000000000101000",
-        "000000000010101010000010",
-        "010010101000000000100000"
+        "100000101000000001001000",
+        "001010000010101000000000",
+        "100000000000000010010101",
+        "000101010010010000000000",
+        "000000000000000101010101",
+        "000001010101010000000000",
+        "010100000000000101010000",
+        "000000101010100000000010",
+        "001010000000001000101000",
+        "100000100100000010000010",
+        "001000000000101000101000",
+        "000001010100000010000010",
+        "010100000001010000001000",
+        "000000101000000101000010",
+        "010100000010100000001000",
+        "000001001000001010100000",
+        "010100000010100000000010",
+        "000001010000001010010000",
+        "010000000101000000000101",
+        "000010000000010101010000",
+        "000000101001000000000101",
+        "101010000000000100100000",
+        "000000010001010000000101",
+        "101010000100000000100000"
       ],
-      "clues": [
-        7,
-        9,
-        49,
-        65,
-        78,
-        107,
-        126,
-        153,
-        161,
-        181,
-        208,
-        220,
-        268,
-        271,
-        283,
-        313,
-        351,
-        428,
-        505,
-        553,
-        556,
-        570
+      "givens": [
+        {
+          "cell": 0,
+          "value": 1
+        },
+        {
+          "cell": 6,
+          "value": 1
+        },
+        {
+          "cell": 8,
+          "value": 1
+        },
+        {
+          "cell": 16,
+          "value": 0
+        },
+        {
+          "cell": 19,
+          "value": 0
+        },
+        {
+          "cell": 47,
+          "value": 0
+        },
+        {
+          "cell": 64,
+          "value": 1
+        },
+        {
+          "cell": 67,
+          "value": 1
+        },
+        {
+          "cell": 74,
+          "value": 0
+        },
+        {
+          "cell": 84,
+          "value": 0
+        },
+        {
+          "cell": 196,
+          "value": 1
+        },
+        {
+          "cell": 226,
+          "value": 0
+        },
+        {
+          "cell": 228,
+          "value": 0
+        },
+        {
+          "cell": 329,
+          "value": 1
+        },
+        {
+          "cell": 357,
+          "value": 0
+        },
+        {
+          "cell": 365,
+          "value": 1
+        },
+        {
+          "cell": 387,
+          "value": 1
+        },
+        {
+          "cell": 439,
+          "value": 0
+        },
+        {
+          "cell": 469,
+          "value": 1
+        },
+        {
+          "cell": 471,
+          "value": 1
+        },
+        {
+          "cell": 506,
+          "value": 1
+        },
+        {
+          "cell": 534,
+          "value": 0
+        },
+        {
+          "cell": 556,
+          "value": 1
+        },
+        {
+          "cell": 561,
+          "value": 1
+        },
+        {
+          "cell": 570,
+          "value": 1
+        }
       ],
       "certificate": {
-        "kind": "cp-sat-blocked-solution-plus-clues-infeasible",
+        "kind": "cp-sat-blocked-solution-plus-visible-binary-clues-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
         "restart": 1,
-        "killIterations": 1,
-        "sizeMode": "target-path",
-        "guardLimit": 32,
-        "clueCount": 22,
-        "clueAdditionsBeforeMinimization": 27,
-        "proofSeconds": 0.286054,
+        "killIterations": 0,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 1000,
+        "clueCount": 25,
+        "proofSeconds": 6.107768,
         "regionsConnected": true,
-        "solutionValid": true
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.042017,
+          "maximumAspect": 2.2,
+          "minimumFill": 0.375,
+          "maximumRunShare": 0.388889,
+          "maximumRun": 11,
+          "verticalBoundaries": 171,
+          "horizontalBoundaries": 186
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.391667,
+          "maximumAxisPeriod": 0.045455,
+          "minimumAxisDiversity": 0.958333,
+          "checkerboardShare": 0.291667,
+          "dominantGapShare": 0.520833
+        }
       }
     },
     {
-      "id": "ragnarok-6cc62fbcb98595c0a",
+      "id": "ragnarok-6cc623af8b18674b4",
       "difficultyId": "ragnarok",
       "name": "诸神黄昏",
       "n": 32,
       "k": 6,
-      "seed": "125408075025565178890",
+      "seed": "125407863013516932276",
       "regions": [
-        "abbbbbbbbbbdddddjjjjjjjjjjkkllll",
-        "aaaaabdddbddeeddiiiiiiijjkklllll",
-        "aabbbbbbdddeeeiiieeiijjjkkkllllm",
-        "acbbbbbcddddeeeieeiiijjkklllllmm",
-        "acccccccddddeeeeeiijjjkkkkklkllm",
-        "aaaacddddddddeeeiiijjjjjjkkkkllm",
-        "aaacccdcdcdddeiiiiiijjjkjjklklmm",
-        "aaacccccccccceeeeihhhjjkkkklllmm",
-        "aacc99ccffffffeeeihhjjhhhmkkmllm",
-        "acc999c99feeeeeffihhhhhhmmmmmmmm",
-        "aca9a9c99ffeefffiihhhhhhhhhhmhhh",
-        "aaaaa9999feeefiiiiihhgghnnnhmmmh",
-        "88aaaa99fffeffffigihgghhnnhhhhhh",
-        "788889988ffeeeefigihggghhnhhnnnn",
-        "788899988feeefffqggggghhonnnnnnn",
-        "788898886ffffffqqgggggggoonnnnon",
-        "77888888666655rrqqqqqqggoooooooo",
-        "7777778886555rrrrqrqqggppoopoooo",
-        "7666677666665555rqrqrppppppppppo",
-        "7767777666465455rqrrrrrrppppoooo",
-        "776666766645545rrqqqrrrrpppoouuu",
-        "7777766644455455rqqrrrrrrpooouuu",
-        "7070664444454455rrrrrssprpoooouu",
-        "7000666644444445rssrssppppppouuv",
-        "7704444443443433rsssspppuppuoouv",
-        "700004114333333rrssspppuuupuuuuv",
-        "000004113332323rssssssssuuuuvuuv",
-        "011104113222222ssstssuuuuvvvvvuv",
-        "0001111122tt2t22tttsttttuuuuvvuv",
-        "00011111122ttttttttttttuuuvvvvuv",
-        "011111221222222222ttttttuuuvvvvv",
-        "001112222222222tttttttttttuuvvvv"
+        "tsssssssiiiiiiiiiii555rrrrrrrrrr",
+        "ttssssssiiiiiiiiii5555rrrrrrrrrr",
+        "ttsttsssiiiiiii555555552rrr22rrr",
+        "tttttsssssi666ih555555222r22222r",
+        "tttstsssssi6666hh5555552222222rr",
+        "ttsssssssiii6666h555h5522222222r",
+        "tttdddsksii66666h5hhhh5ooo22jj2r",
+        "tttddkkkkkk66669hhhh555oooojjj22",
+        "ttddddkkkkk66699hhhh55ooooojoj22",
+        "dddddkkkkkk69999hhhh554o4oooojjj",
+        "dddddkkk00k669999h9955444oojjjjj",
+        "dmmm000000k669999999444ooojjjjjj",
+        "ddmm00000kkkfff99999444oooojjjjj",
+        "ddmmm000kkkkffll9944444ooojjjvjj",
+        "dddmmm000k0fffll9994444444vjjvvv",
+        "mddmm7770000ffllll9l444p44vvvvvv",
+        "mmmmm7770000ffflll9ll44pppvvvvvv",
+        "mmmmm777000fffllllllllpppvvpvvvv",
+        "mmmmm777700fffffflllllppppppvvvv",
+        "mmmmm777700fffffffllllppppppvppp",
+        "bmmmmb77777fuuuffuuuull1eepppppp",
+        "bbbmmbqqqq788uuuuuuuul11eeeepppp",
+        "bbbbbbbqqq78888uuuuuu11eeeeeeeee",
+        "bbbbbqqqq7788888uuuuu111eeeeaaee",
+        "bbbbbqqq7778888uuuu11111eeeeeaee",
+        "bcbbbqqn777nn88888u11111eeaeeaaa",
+        "bccbbbqn7n7nn8g8g8u11311aaaaaaaa",
+        "bccccqqnnnnnngggguu11333aaaaaaa3",
+        "bccccqqqnnnnnngggggg11333aaa33a3",
+        "cccccqqqqnnnnnnnggg1113333a33333",
+        "cccccccccnnnggggggg1133333a33333",
+        "cccccccccnnnngggggg1133333333333"
       ],
       "solution": [
-        "00010101000001000000001000000010",
-        "01000000001000000001000010101000",
-        "00001010100000001000001000000010",
-        "00100000000101000000000010101000",
-        "10001001010000000000010000000010",
-        "00100000000100100000000101010000",
-        "00000101010000001010100000000000",
-        "01000000000101000000000010100010",
-        "00000100010000010100001000001000",
-        "00010001000100000001000000100010",
-        "10000000010000010100010100000000",
-        "00010101000000000000000000101010",
-        "01000000000000010101010100000000",
-        "00010100010010000000000000001001",
-        "01000000000000100101010001000000",
-        "00010101000000000000000100010100",
-        "00000000000101001010100001000000",
-        "01010000000000000000000100010101",
-        "00000000000101010101010000000000",
-        "01000000010000000000000001010101",
-        "00000000000010101010100100000000",
-        "00101010101000000000000000001000",
-        "00000000000010101010101000000000",
-        "00101010101000000000000010000000",
-        "10000000000010100010100000010000",
-        "00101010101000000000000010000000",
-        "10000000000010101000001000100000",
-        "00100010100000000000000010000101",
-        "10000000000010010101010000000000",
-        "00000010101000000000000001000101",
-        "10000000000001010010101000000000",
-        "00001000001000000000000001010101"
+        "00001000010000000100010010000010",
+        "01000010000010010001000000001000",
+        "00001000010000000000010101000010",
+        "10100000000101010100000000000000",
+        "00000010000000000001010100100001",
+        "10101000101000000000000000001000",
+        "00000000000001010000010101000010",
+        "01010001000000000101000000010000",
+        "00000100001010100000000010000010",
+        "01000000100000001001001000010000",
+        "00010010001010000000000010000010",
+        "00000000100000100101000000101000",
+        "10000000001010000000010100000010",
+        "00010101000000100000000001010000",
+        "00000000000100001010101000000100",
+        "00101010010001000000000000000001",
+        "00000000000100001000001010010100",
+        "01010100100000100000100000000000",
+        "00000000000010000010001000101001",
+        "00001010100000101000000010000000",
+        "00100000001000000010010000000101",
+        "10000101000000001000000010100000",
+        "00010000000101000010100000000001",
+        "01000010100000010000000001000100",
+        "00010000000010000101001000010000",
+        "01000100001000010000000001000100",
+        "00000001000001000010100100010000",
+        "10100100010000000000000001000100",
+        "00000000000100101010100100000000",
+        "00100001010000000000000000101001",
+        "10001000000001010000101000000000",
+        "00000001010100000100000000101000"
       ],
-      "clues": [
-        13,
-        22,
-        42,
-        80,
-        109,
-        120,
-        132,
-        135,
-        149,
-        158,
-        162,
-        212,
-        225,
-        237,
-        254,
-        271,
-        307,
-        320,
-        329,
-        335,
-        343,
-        359,
-        399,
-        407,
-        419,
-        425,
-        428,
-        447,
-        485,
-        487,
-        532,
-        537,
-        575,
-        617,
-        633,
-        660,
-        674,
-        676,
-        678,
-        700,
-        720,
-        726,
-        768,
-        786,
-        788,
-        810,
-        854,
-        858,
-        893,
-        895,
-        896,
-        911,
-        915,
-        917,
-        934,
-        938,
-        953,
-        957,
-        959,
-        960,
-        975,
-        978,
-        982,
-        996,
-        1002,
-        1017,
-        1021,
-        1023
+      "givens": [
+        {
+          "cell": 9,
+          "value": 1
+        },
+        {
+          "cell": 23,
+          "value": 0
+        },
+        {
+          "cell": 24,
+          "value": 1
+        },
+        {
+          "cell": 26,
+          "value": 0
+        },
+        {
+          "cell": 31,
+          "value": 0
+        },
+        {
+          "cell": 34,
+          "value": 0
+        },
+        {
+          "cell": 38,
+          "value": 1
+        },
+        {
+          "cell": 39,
+          "value": 0
+        },
+        {
+          "cell": 44,
+          "value": 1
+        },
+        {
+          "cell": 47,
+          "value": 1
+        },
+        {
+          "cell": 48,
+          "value": 0
+        },
+        {
+          "cell": 49,
+          "value": 0
+        },
+        {
+          "cell": 60,
+          "value": 1
+        },
+        {
+          "cell": 70,
+          "value": 0
+        },
+        {
+          "cell": 72,
+          "value": 0
+        },
+        {
+          "cell": 77,
+          "value": 0
+        },
+        {
+          "cell": 100,
+          "value": 0
+        },
+        {
+          "cell": 107,
+          "value": 1
+        },
+        {
+          "cell": 113,
+          "value": 1
+        },
+        {
+          "cell": 115,
+          "value": 0
+        },
+        {
+          "cell": 120,
+          "value": 0
+        },
+        {
+          "cell": 134,
+          "value": 1
+        },
+        {
+          "cell": 151,
+          "value": 1
+        },
+        {
+          "cell": 154,
+          "value": 1
+        },
+        {
+          "cell": 159,
+          "value": 1
+        },
+        {
+          "cell": 173,
+          "value": 0
+        },
+        {
+          "cell": 179,
+          "value": 0
+        },
+        {
+          "cell": 188,
+          "value": 1
+        },
+        {
+          "cell": 207,
+          "value": 1
+        },
+        {
+          "cell": 227,
+          "value": 1
+        },
+        {
+          "cell": 243,
+          "value": 1
+        },
+        {
+          "cell": 280,
+          "value": 1
+        },
+        {
+          "cell": 286,
+          "value": 1
+        },
+        {
+          "cell": 289,
+          "value": 1
+        },
+        {
+          "cell": 292,
+          "value": 0
+        },
+        {
+          "cell": 310,
+          "value": 1
+        },
+        {
+          "cell": 323,
+          "value": 1
+        },
+        {
+          "cell": 324,
+          "value": 0
+        },
+        {
+          "cell": 325,
+          "value": 0
+        },
+        {
+          "cell": 334,
+          "value": 0
+        },
+        {
+          "cell": 350,
+          "value": 1
+        },
+        {
+          "cell": 360,
+          "value": 1
+        },
+        {
+          "cell": 364,
+          "value": 0
+        },
+        {
+          "cell": 369,
+          "value": 1
+        },
+        {
+          "cell": 373,
+          "value": 0
+        },
+        {
+          "cell": 384,
+          "value": 1
+        },
+        {
+          "cell": 396,
+          "value": 1
+        },
+        {
+          "cell": 422,
+          "value": 0
+        },
+        {
+          "cell": 426,
+          "value": 0
+        },
+        {
+          "cell": 432,
+          "value": 0
+        },
+        {
+          "cell": 439,
+          "value": 0
+        },
+        {
+          "cell": 443,
+          "value": 1
+        },
+        {
+          "cell": 486,
+          "value": 1
+        },
+        {
+          "cell": 489,
+          "value": 1
+        },
+        {
+          "cell": 502,
+          "value": 0
+        },
+        {
+          "cell": 511,
+          "value": 1
+        },
+        {
+          "cell": 532,
+          "value": 0
+        },
+        {
+          "cell": 534,
+          "value": 1
+        },
+        {
+          "cell": 537,
+          "value": 0
+        },
+        {
+          "cell": 541,
+          "value": 1
+        },
+        {
+          "cell": 548,
+          "value": 0
+        },
+        {
+          "cell": 552,
+          "value": 1
+        },
+        {
+          "cell": 558,
+          "value": 1
+        },
+        {
+          "cell": 584,
+          "value": 0
+        },
+        {
+          "cell": 594,
+          "value": 1
+        },
+        {
+          "cell": 596,
+          "value": 0
+        },
+        {
+          "cell": 607,
+          "value": 1
+        },
+        {
+          "cell": 612,
+          "value": 1
+        },
+        {
+          "cell": 615,
+          "value": 0
+        },
+        {
+          "cell": 624,
+          "value": 1
+        },
+        {
+          "cell": 628,
+          "value": 0
+        },
+        {
+          "cell": 632,
+          "value": 1
+        },
+        {
+          "cell": 640,
+          "value": 0
+        },
+        {
+          "cell": 646,
+          "value": 0
+        },
+        {
+          "cell": 658,
+          "value": 1
+        },
+        {
+          "cell": 662,
+          "value": 0
+        },
+        {
+          "cell": 669,
+          "value": 1
+        },
+        {
+          "cell": 678,
+          "value": 0
+        },
+        {
+          "cell": 698,
+          "value": 1
+        },
+        {
+          "cell": 735,
+          "value": 1
+        },
+        {
+          "cell": 741,
+          "value": 0
+        },
+        {
+          "cell": 771,
+          "value": 1
+        },
+        {
+          "cell": 775,
+          "value": 0
+        },
+        {
+          "cell": 780,
+          "value": 1
+        },
+        {
+          "cell": 787,
+          "value": 1
+        },
+        {
+          "cell": 810,
+          "value": 1
+        },
+        {
+          "cell": 815,
+          "value": 1
+        },
+        {
+          "cell": 825,
+          "value": 1
+        },
+        {
+          "cell": 829,
+          "value": 1
+        },
+        {
+          "cell": 839,
+          "value": 1
+        },
+        {
+          "cell": 850,
+          "value": 1
+        },
+        {
+          "cell": 854,
+          "value": 0
+        },
+        {
+          "cell": 859,
+          "value": 1
+        },
+        {
+          "cell": 866,
+          "value": 1
+        },
+        {
+          "cell": 882,
+          "value": 0
+        },
+        {
+          "cell": 896,
+          "value": 0
+        },
+        {
+          "cell": 907,
+          "value": 1
+        },
+        {
+          "cell": 910,
+          "value": 1
+        },
+        {
+          "cell": 912,
+          "value": 1
+        },
+        {
+          "cell": 916,
+          "value": 1
+        },
+        {
+          "cell": 918,
+          "value": 0
+        },
+        {
+          "cell": 924,
+          "value": 0
+        },
+        {
+          "cell": 930,
+          "value": 1
+        },
+        {
+          "cell": 946,
+          "value": 0
+        },
+        {
+          "cell": 953,
+          "value": 0
+        },
+        {
+          "cell": 958,
+          "value": 0
+        },
+        {
+          "cell": 960,
+          "value": 1
+        },
+        {
+          "cell": 964,
+          "value": 1
+        },
+        {
+          "cell": 971,
+          "value": 0
+        },
+        {
+          "cell": 982,
+          "value": 1
+        },
+        {
+          "cell": 991,
+          "value": 0
+        },
+        {
+          "cell": 993,
+          "value": 0
+        },
+        {
+          "cell": 1009,
+          "value": 1
+        },
+        {
+          "cell": 1017,
+          "value": 0
+        }
       ],
       "certificate": {
-        "kind": "cp-sat-blocked-solution-plus-clues-infeasible",
+        "kind": "cp-sat-blocked-solution-plus-visible-binary-clues-infeasible",
         "status": "INFEASIBLE",
         "ortoolsVersion": "9.15.6755",
         "restart": 1,
-        "killIterations": 4,
-        "sizeMode": "target-path",
-        "guardLimit": 24,
-        "clueCount": 68,
-        "clueAdditionsBeforeMinimization": 88,
-        "proofSeconds": 47.590793,
+        "killIterations": 0,
+        "regionMethod": "spread-seed-voronoi-blobs",
+        "guardLimit": 1000,
+        "clueCount": 114,
+        "proofSeconds": 2.538266,
         "regionsConnected": true,
-        "solutionValid": true
+        "solutionValid": true,
+        "naturalRegions": true,
+        "shapeMetrics": {
+          "orientationBias": 0.033748,
+          "maximumAspect": 2.4,
+          "minimumFill": 0.4,
+          "maximumRunShare": 0.346154,
+          "maximumRun": 11,
+          "verticalBoundaries": 291,
+          "horizontalBoundaries": 272
+        },
+        "solutionMetrics": {
+          "maximumTranslationOverlap": 0.296875,
+          "maximumAxisPeriod": 0.0,
+          "minimumAxisDiversity": 1.0,
+          "checkerboardShare": 0.265625,
+          "dominantGapShare": 0.359375
+        }
       }
     }
   ]
