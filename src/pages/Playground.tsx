@@ -109,8 +109,8 @@ const games: GameEntry[] = [
   },
   {
     id: 'cat-mouse', name: '猫鼠迷踪',
-    desc: '连续平面上的猫鼠追逐。半径走位、诱饵骗术、真实嗅觉。IMO 2017 第3题的互动版。',
-    category: 'rules', icon: '🐱', color: '#f97316',
+    desc: '连续平面上的非对称追逐。诱饵骗术、真实气味、疾跑与终局封锁。支持双阵营实战与完整复盘。',
+    category: 'games', icon: '🐱', color: '#9d7df6',
     rules: [
       '连续二维平面，每回合分三步走：①老鼠在自己的半径1圆上选新位置（猫看不见） ②老鼠在新位置的半径2圆内放一个诱饵位置（猫看得见） ③猫在自己的半径1圆上选新位置',
       '捕获判定：每回合结束后，若猫鼠距离 ≤1，猫胜',
@@ -345,7 +345,13 @@ export default function Playground() {
 
   /* Navigate helper */
   const goToCategory = (cat: GameEntry['category']) => navigate(`/playground/${cat}`);
-  const goToGame = (g: GameEntry) => navigate(`/playground/${g.category}/${g.id}`);
+  const goToGame = (g: GameEntry) => {
+    if (g.id === 'cat-mouse') {
+      navigate('/cat-mouse');
+      return;
+    }
+    navigate(`/playground/${g.category}/${g.id}`);
+  };
   const goBack = () => { if (category) navigate(`/playground/${category}`); else navigate('/playground'); };
 
   return (

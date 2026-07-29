@@ -210,9 +210,11 @@ export default function AISettingsPage() {
   };
 
   const chooseTier = (tier: LocalModelTier) => {
-    if (mode === 'browser' && !tier.browserModel) return;
     setSelectedTierId(tier.id);
-    update('model', mode === 'browser' ? (tier.browserModel ?? '') : (tier.ollamaModel ?? tier.deviceModel));
+    update('model', mode === 'browser' ? (tier.browserModel ?? tier.deviceModel) : (tier.ollamaModel ?? tier.deviceModel));
+    if (mode === 'browser' && !tier.browserModel) {
+      setNotice({ kind: 'info', text: `${tier.label} 已选择。浏览器暂时没有这个尺寸的内置权重，请切换到“电脑本地”模式运行。` });
+    }
   };
 
   const buildNextConfig = (): AiConfig => ({
@@ -229,6 +231,10 @@ export default function AISettingsPage() {
       setNotice({ kind: 'error', text: errors.join(' ') });
       return;
     }
+    if (mode === 'browser' && !selectedTier.browserModel) {
+      setNotice({ kind: 'error', text: '当前选择的尺寸没有可供浏览器加载的内置权重，请切换到“电脑本地”模式后再保存。' });
+      return;
+    }
     const saved = conversationRepository.saveAiConfig(next);
     setConfig(saved);
     setApiKeyDraft('');
@@ -240,6 +246,10 @@ export default function AISettingsPage() {
     const errors = validateAiConfig(next);
     if (errors.length) {
       setNotice({ kind: 'error', text: errors.join(' ') });
+      return;
+    }
+    if (mode === 'browser' && !selectedTier.browserModel) {
+      setNotice({ kind: 'error', text: '当前选择的尺寸没有可供浏览器加载的内置权重，请切换到“电脑本地”模式后再保存并测试。' });
       return;
     }
     setTesting(true);
@@ -385,7 +395,6 @@ export default function AISettingsPage() {
                       key={tier.id}
                       className={`${tier.id === selectedTierId ? 'is-selected' : ''}${tier.id === recommended.id ? ' is-recommended' : ''}`}
                       onClick={() => chooseTier(tier)}
-                      disabled={unavailable}
                       title={unavailable ? '该尺寸不适合在浏览器中运行，请选择电脑本地模式' : tier.hardware}
                     >
                       <strong>{tier.label}</strong>
@@ -424,8 +433,9 @@ export default function AISettingsPage() {
                   </div>
                 </>
               ) : (
-                <div className="ai-browser-install">
-                  <div className="ai-browser-model"><Globe2 /><div><small>将下载到当前浏览器</small><strong>{selectedTier.label} · {selectedTier.browserModel}</strong><span>{selectedTier.browserDownload} · 无需 API Key · 对话不离开设备</span></div></div>
+                <div className={`ai-browser-install${selectedTier.browserModel ? '' : ' is-model-unavailable'}`}>
+                  {!selectedTier.browserModel && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>此尺寸可以选择</strong> 浏览器暂时没有对应权重，请切换到“电脑本地”模式运行。</span></div>}
+                  <div className="ai-browser-model"><Globe2 /><div><small>将下载到当前浏览器</small><strong>{selectedTier.label} · {selectedTier.browserModel ?? '暂无内置浏览器权重'}</strong><span>{selectedTier.browserModel ? `${selectedTier.browserDownload} · 无需 API Key · 对话不离开设备` : '请切换到“电脑本地”模式运行这个尺寸。'}</span></div></div>
                   <div className="ai-browser-facts"><span><Check />刷新页面后仍可使用</span><span><Check />模型由浏览器网站数据管理</span><span><Check />首次下载需要网络</span></div>
                   {downloadProgress !== null && <div className="ai-download-progress"><div><span style={{ width: `${downloadProgress}%` }} /></div><p><strong>{downloadProgress}%</strong>{downloadText || '正在准备模型文件…'}</p></div>}
                 </div>

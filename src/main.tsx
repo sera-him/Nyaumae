@@ -10,6 +10,7 @@ import './styles/world-textures.css'
 import './styles/accessibility.css'
 import './styles/responsive-fixes.css'
 import './styles/performance.css'
+import './styles/readability.css'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(

@@ -2,6 +2,7 @@ export interface StoryChapter {
   title: string;
   content: string;
   image?: string;
+  images?: string[];
 }
 
 export interface Story {
@@ -265,6 +266,7 @@ mia³ 捕捉到了咪呀那微小的闪避动作。她微微偏了下头，像�
       {
         title: '第一劫·洗髓',
         image: '/story-zhenhai-wash.jpg',
+        images: ['/story-zhenhai-wash-2.png'],
         content: `九幽冥髓虽黑，却裹着一身"浊煞"——盐分、水分、泥沙，皆是地脉中沾染的杂质。
 
 入阵第一关，便是洗髓。
@@ -276,6 +278,7 @@ mia³ 捕捉到了咪呀那微小的闪避动作。她微微偏了下头，像�
       {
         title: '第二劫·地火淬炼',
         image: '/story-zhenhai-fire-refining.jpg',
+        images: ['/story-zhenhai-fire-refining-2.png'],
         content: `洗髓毕，冥髓被送入宗门最核心的地火熔炉——一座高达数十丈的加热炉。
 
 炉中地火熊熊，温度骤升至三百六十度。冥髓在此被汽化，随后升入一座通天巨塔——分馏塔。此塔共三十余层，每层温度递减，冥髓中的不同元神便按轻重逐层剥离：
@@ -290,6 +293,7 @@ mia³ 捕捉到了咪呀那微小的闪避动作。她微微偏了下头，像�
       {
         title: '第三劫·转生',
         image: '/story-zhenhai-rebirth.jpg',
+        images: ['/story-zhenhai-rebirth-2.png'],
         content: `然而，地火淬炼之后，那些沉重的渣油、蜡油并未被弃置。镇海宗门有一门不传之秘——催化裂化大阵。
 
 渣油被送入另一座密室，与催化剂（一种白色粉末状的灵砂）混合，在高温下打碎重组。大分子被撕裂，小分子重新聚合，原本只能做铺路泥垢的渣油，竟有半数转生为轻质真元。
@@ -303,6 +307,7 @@ mia³ 捕捉到了咪呀那微小的闪避动作。她微微偏了下头，像�
       {
         title: '第四劫·蕴丹温养',
         image: '/story-zhenhai-conditioning.jpg',
+        images: ['/story-zhenhai-conditioning-2.png'],
         content: `一百个时辰后，玄黄真液初成，但元神尚躁，不可即刻服用。
 
 各色真液被导入巨大的玄阴玉瓶（成品储罐）中，按《天道丹方》（国家标准）调和配比。石脑灵气需与催化灵气按一定比例融合，再掺入抗爆剂、抗氧化剂等丹方辅料，方成最终的车用玄黄真液。
@@ -312,6 +317,7 @@ mia³ 捕捉到了咪呀那微小的闪避动作。她微微偏了下头，像�
       {
         title: '第五劫·天鉴',
         image: '/story-zhenhai-inspection.jpg',
+        images: ['/story-zhenhai-inspection-2.png'],
         content: `调和毕，便是宗门最严苛的关卡——天鉴。
 
 质检长老携气相色谱灵镜、荧光定硫神眼等法宝，对真液进行全方位扫描。辛烷值是否达标？硫含量是否超限？蒸气压是否合宜？芳烃占比是否合规？共十余项天道指标，一项不过，整罐作废，绝无通融。
@@ -321,6 +327,7 @@ mia³ 捕捉到了咪呀那微小的闪避动作。她微微偏了下头，像�
       {
         title: '第六劫·封坛·遁行',
         image: '/story-zhenhai-sealing-transit.jpg',
+        images: ['/story-zhenhai-sealing-transit-2.png'],
         content: `验明正身，便以封灵符（铅封）加印，录入天道玉册（出厂合格证），贴上质检金印。
 
 随后，玄黄真液被装入玄铁法器（油罐车），或注入地脉暗河（成品油管道），奔赴九州各地的灵石补给站（加油站）。远至西南边陲，需数十日；近走东海管道，半日即达。`,
@@ -328,6 +335,7 @@ mia³ 捕捉到了咪呀那微小的闪避动作。她微微偏了下头，像�
       {
         title: '尾声·入凡',
         image: '/story-zhenhai-mortal-epilogue.jpg',
+        images: ['/story-zhenhai-mortal-epilogue-2.png'],
         content: `最终，在凡间某处补给站，玄黄真液被注入一辆铁甲机关兽的腹中。
 
 那机关兽轰鸣一声，四蹄生风，载着凡人驰骋千里。

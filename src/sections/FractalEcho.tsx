@@ -1,480 +1,439 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles, Target, Zap } from 'lucide-react';
 import {
-  Activity, BookOpen, Check, ChevronRight, Copy, Focus, RotateCcw,
-  Sparkles, Target, ZoomIn, ZoomOut,
-} from 'lucide-react';
+  analyzeBoard,
+  applyAiTerrain,
+  broadcast,
+  colorLabel,
+  controllerLabel,
+  coordinateLabel,
+  createBoardStore,
+  getCellController,
+  randomSeed,
+  targetStats as getTargetStats,
+  type Board,
+  type BoardCell,
+  type BoardStats,
+  type BoardStore,
+  type Controller,
+  type EchoColor,
+} from '@/game/recursiveEcho/engine';
 import './FractalEcho.css';
 
-type Player = 'A' | 'B';
-type PatternId = 'spread' | 'reach' | 'curl';
-type Stamp = { pattern: PatternId };
-type StampMap = Record<string, Stamp>;
-type PlayerMap<T> = Record<Player, T>;
+type Player = 'blue' | 'orange';
+type Actor = Exclude<EchoColor, 'empty'>;
+type ModeId = 'rush' | 'light' | 'medium' | 'high';
 
-type Pattern = {
-  name: string;
-  action: string;
-  description: string;
-  angles: number[];
-  scales: number[];
-};
+interface ModeOption {
+  readonly id: ModeId;
+  readonly label: string;
+  readonly turns: number;
+  readonly note: string;
+}
 
-type Segment = {
-  owner: Player;
-  address: string;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  scale: number;
-  depth: number;
-};
+interface AiOption {
+  readonly moves: number;
+  readonly label: string;
+}
 
-type Contact = { a: Segment; b: Segment; x: number; y: number };
+interface ActionLog {
+  readonly turn: number;
+  readonly actor: Actor;
+  readonly coordinate: number;
+  readonly boardCount: bigint;
+  readonly detail: string;
+}
 
-const W = 960;
-const H = 620;
-const MAX_ROUNDS = 6;
-const MAX_TURNS = MAX_ROUNDS * 2;
-const LETTERS = ['L', 'M', 'R'] as const;
-const COLORS: PlayerMap<string> = { A: '#71f6d2', B: '#ff8fcf' };
+interface GameSession {
+  readonly store: BoardStore;
+  readonly root: Board;
+  readonly turn: number;
+  readonly seed: number;
+  readonly aiCoordinates: readonly number[];
+  readonly log: readonly ActionLog[];
+}
 
-const PATTERNS: Record<PatternId, Pattern> = {
-  spread: {
-    name: '展开',
-    action: '向两侧铺开',
-    description: '三个分支平均展开，适合抢占更大的区域。',
-    angles: [-48, 0, 48],
-    scales: [.58, .5, .58],
-  },
-  reach: {
-    name: '直达',
-    action: '把中枝推远',
-    description: '中间的分支更长，适合伸向远处的空位。',
-    angles: [-22, 0, 22],
-    scales: [.48, .78, .48],
-  },
-  curl: {
-    name: '回旋',
-    action: '沿一侧绕行',
-    description: '枝条向一侧弯曲，适合绕开已经拥挤的地方。',
-    angles: [-66, -18, 25],
-    scales: [.64, .55, .48],
-  },
-};
+const MODES: readonly ModeOption[] = [
+  { id: 'rush', label: '极速', turns: 8, note: '8 次' },
+  { id: 'light', label: '轻度', turns: 16, note: '16 次' },
+  { id: 'medium', label: '中等', turns: 32, note: '32 次' },
+  { id: 'high', label: '高强度', turns: 64, note: '64 次' },
+];
 
-const DEFAULT_PATTERN: PatternId = 'spread';
+const AI_OPTIONS: readonly AiOption[] = [
+  { moves: 0, label: '关闭（默认）' },
+  { moves: 1, label: '微扰 · 1 次' },
+  { moves: 2, label: '轻度 · 2 次' },
+  { moves: 4, label: '中度 · 4 次' },
+  { moves: 8, label: '混沌 · 8 次' },
+];
 
-const activePlayer = (turn: number): Player => turn % 2 === 0 ? 'A' : 'B';
+const PLAYER_COLORS: Record<Player, string> = { blue: '#35c6f4', orange: '#ff8753' };
+const COORDINATES = Array.from({ length: 9 }, (_, index) => index);
 
-const effectivePattern = (address: string, stamps: StampMap): PatternId => {
-  for (let i = address.length; i >= 0; i -= 1) {
-    const stamp = stamps[address.slice(0, i)];
-    if (stamp) return stamp.pattern;
+function popcount(value: number): number {
+  let remaining = value >>> 0;
+  let count = 0;
+  while (remaining > 0) {
+    count += remaining & 1;
+    remaining >>>= 1;
   }
-  return DEFAULT_PATTERN;
-};
+  return count;
+}
 
-const nearestStamp = (address: string, stamps: StampMap): string | null => {
-  for (let i = address.length; i >= 0; i -= 1) {
-    if (stamps[address.slice(0, i)]) return address.slice(0, i);
-  }
-  return null;
-};
+function actionPlayer(turnIndex: number): Player {
+  return popcount(turnIndex) % 2 === 0 ? 'blue' : 'orange';
+}
 
-const makeSegments = (owner: Player, stamps: StampMap, zoom: number): Segment[] => {
-  const out: Segment[] = [];
-  const rootX = owner === 'A' ? 425 : 535;
-  const rootAngle = owner === 'A' ? -78 : -102;
-  const baseLength = 116 * zoom;
-  const maxDepth = 8;
+function formatCount(value: bigint): string {
+  return value.toLocaleString('zh-CN');
+}
 
-  const walk = (address: string, x: number, y: number, angle: number, length: number, scale: number) => {
-    if (address.length >= maxDepth || length < 1.35) return;
-    const pattern = PATTERNS[effectivePattern(address, stamps)];
-    const mirror = owner === 'B' ? -1 : 1;
+function formatSeed(seed: number): string {
+  return `0x${seed.toString(16).padStart(8, '0')}`;
+}
 
-    pattern.angles.forEach((offset, index) => {
-      const childAddress = `${address}${LETTERS[index]}`;
-      const childAngle = angle + offset * mirror;
-      const childScale = pattern.scales[index];
-      const childLength = length * childScale;
-      const radians = childAngle * Math.PI / 180;
-      const x2 = x + Math.cos(radians) * childLength;
-      const y2 = y + Math.sin(radians) * childLength;
-      out.push({
-        owner,
-        address: childAddress,
-        x1: x,
-        y1: y,
-        x2,
-        y2,
-        scale: scale * childScale,
-        depth: childAddress.length,
-      });
-      walk(childAddress, x2, y2, childAngle, childLength, scale * childScale);
-    });
+function createSession(aiMoves: number): GameSession {
+  const store = createBoardStore();
+  const seed = randomSeed();
+  const terrain = applyAiTerrain(store.empty, aiMoves, seed, store);
+  return {
+    store,
+    root: terrain.root,
+    turn: 0,
+    seed,
+    aiCoordinates: terrain.coordinates,
+    log: [],
   };
+}
 
-  const rootY = 592;
-  const rootTopY = 515;
-  out.push({ owner, address: '', x1: 480, y1: rootY, x2: rootX, y2: rootTopY, scale: 1, depth: 0 });
-  walk('', rootX, rootTopY, rootAngle, baseLength, 1);
-  return out;
-};
+function tokenClass(color: EchoColor): string {
+  return `re-token re-token-${color}`;
+}
 
-const intersects = (a: Segment, b: Segment) => {
-  const den = (a.x1 - a.x2) * (b.y1 - b.y2) - (a.y1 - a.y2) * (b.x1 - b.x2);
-  if (Math.abs(den) < .001) return null;
-  const t = ((a.x1 - b.x1) * (b.y1 - b.y2) - (a.y1 - b.y1) * (b.x1 - b.x2)) / den;
-  const u = -((a.x1 - a.x2) * (a.y1 - b.y1) - (a.y1 - a.y2) * (a.x1 - b.x1)) / den;
-  if (t < .04 || t > .96 || u < .04 || u > .96) return null;
-  return { x: a.x1 + t * (a.x2 - a.x1), y: a.y1 + t * (a.y2 - a.y1) };
-};
+function cellLabel(cell: BoardCell): string {
+  if (cell.kind === 'empty') return '·';
+  if (cell.kind === 'token') return colorLabel(cell.color);
+  const controller = getCellController(cell);
+  return `↗ ${controller === 'neutral' ? '—' : controllerLabel(controller)}`;
+}
 
-const contactsOf = (a: Segment[], b: Segment[]): Contact[] => {
-  const contacts: Contact[] = [];
-  for (const left of a) {
-    if (left.depth < 2) continue;
-    for (const right of b) {
-      if (right.depth < 2) continue;
-      const point = intersects(left, right);
-      if (!point) continue;
-      contacts.push({ a: left, b: right, ...point });
-      if (contacts.length >= 20) return contacts;
-    }
+function cellDescription(cell: BoardCell): string {
+  if (cell.kind === 'empty') return '空格';
+  if (cell.kind === 'token') return `${colorLabel(cell.color)}色棋子`;
+  const stats = analyzeBoard(cell.board);
+  return `子盘，${controllerLabel(stats.controller)}控制，含 ${formatCount(1n + stats.boardCount)} 张递归盘`;
+}
+
+function reactionDetail(targets: ReturnType<typeof getTargetStats>, actor: Player): string {
+  const own = actor === 'blue' ? targets.blue : targets.orange;
+  const enemy = (actor === 'blue' ? targets.orange : targets.blue) + targets.ai;
+  return `空格播种 ${formatCount(targets.empty)} · 己色生长 ${formatCount(own)} · 敌色入侵 ${formatCount(enemy)} · 子盘递回 ${formatCount(targets.subboard)}`;
+}
+
+function resolveWinner(stats: BoardStats): { winner: Player | 'draw'; reason: string } {
+  if (stats.controller === 'blue') return { winner: 'blue', reason: '蓝方控制根盘' };
+  if (stats.controller === 'orange') return { winner: 'orange', reason: '橙方控制根盘' };
+
+  if (stats.votes.blue !== stats.votes.orange) {
+    const winner = stats.votes.blue > stats.votes.orange ? 'blue' : 'orange';
+    return { winner, reason: '根盘没有蓝/橙控制者，比较根盘票数' };
   }
-  return contacts;
-};
+  if (stats.controlledBoards.blue !== stats.controlledBoards.orange) {
+    const winner = stats.controlledBoards.blue > stats.controlledBoards.orange ? 'blue' : 'orange';
+    return { winner, reason: '根盘票数相同，比较全场受控子盘数' };
+  }
+  return { winner: 'draw', reason: '根盘票数与全场受控子盘数都相同' };
+}
 
-const fillGrid = (items: Segment[], n: number) => {
-  const cells = new Set<string>();
-  items.forEach((segment) => {
-    const steps = Math.max(2, Math.ceil(Math.hypot(segment.x2 - segment.x1, segment.y2 - segment.y1) / (W / n)));
-    for (let i = 0; i <= steps; i += 1) {
-      const t = i / steps;
-      const x = segment.x1 + (segment.x2 - segment.x1) * t;
-      const y = segment.y1 + (segment.y2 - segment.y1) * t;
-      const gx = Math.max(0, Math.min(n - 1, Math.floor(x / W * n)));
-      const gy = Math.max(0, Math.min(n - 1, Math.floor(y / H * n)));
-      cells.add(`${gx},${gy}`);
-    }
-  });
-  return cells;
-};
+function winnerLabel(winner: Player | 'draw'): string {
+  if (winner === 'blue') return '蓝方胜出';
+  if (winner === 'orange') return '橙方胜出';
+  return '平局';
+}
 
-const territoryOf = (own: Segment[], opponent: Segment[]) => {
-  const ownCells = fillGrid(own, 24);
-  const opponentCells = fillGrid(opponent, 24);
-  const union = new Set([...ownCells, ...opponentCells]);
-  if (!union.size) return .5;
-  let ownShare = 0;
-  union.forEach((cell) => {
-    if (ownCells.has(cell)) ownShare += opponentCells.has(cell) ? .5 : 1;
-  });
-  return ownShare / union.size;
-};
+function ControllerChip({ controller }: { controller: Controller }) {
+  return <span className={`re-controller-chip re-controller-${controller}`}>{controllerLabel(controller)}</span>;
+}
 
-const branchName = (address: string) => {
-  if (!address) return '主干';
-  const labels: Record<string, string> = { L: '左', M: '中', R: '右' };
-  return `第 ${address.length} 层 · ${address.split('').map((part) => labels[part]).join(' · ')}`;
-};
+function RootBoard({
+  root,
+  selected,
+  onSelect,
+  disabled,
+}: {
+  readonly root: Board;
+  readonly selected: number;
+  readonly onSelect: (coordinate: number) => void;
+  readonly disabled: boolean;
+}) {
+  return (
+    <div className="re-root-board" role="grid" aria-label="根盘 3×3 棋盘">
+      {COORDINATES.map((coordinate) => {
+        const cell = root.cells[coordinate];
+        if (!cell) return null;
+        const cellController = cell.kind === 'board' ? getCellController(cell) : 'neutral';
+        return (
+          <button
+            key={coordinate}
+            type="button"
+            role="gridcell"
+            className={`re-root-cell ${selected === coordinate ? 'is-selected' : ''} ${cell.kind === 'board' ? 'is-subboard' : ''}`}
+            onClick={() => onSelect(coordinate)}
+            disabled={disabled}
+            aria-label={`${coordinateLabel(coordinate)}：${cellDescription(cell)}`}
+          >
+            <span className="re-coordinate">{coordinateLabel(coordinate)}</span>
+            <span className={cell.kind === 'token' ? tokenClass(cell.color) : 're-cell-mark'}>{cellLabel(cell)}</span>
+            {cell.kind === 'board' && <ControllerChip controller={cellController} />}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
-const distanceToSegment = (x: number, y: number, segment: Segment) => {
-  const dx = segment.x2 - segment.x1;
-  const dy = segment.y2 - segment.y1;
-  const lengthSquared = dx * dx + dy * dy;
-  if (!lengthSquared) return Math.hypot(x - segment.x1, y - segment.y1);
-  const t = Math.max(0, Math.min(1, ((x - segment.x1) * dx + (y - segment.y1) * dy) / lengthSquared));
-  return Math.hypot(x - (segment.x1 + t * dx), y - (segment.y1 + t * dy));
-};
+function MiniBoard({ board }: { board: Board }) {
+  const stats = analyzeBoard(board);
+  return (
+    <div className="re-mini-board-wrap">
+      <div className="re-mini-board" role="img" aria-label={`子盘示例，${controllerLabel(stats.controller)}控制`}>
+        {board.cells.map((cell, index) => (
+          <span key={index} className={`re-mini-cell ${cell.kind === 'token' ? `re-mini-${cell.color}` : cell.kind === 'board' ? 're-mini-child' : ''}`}>
+            {cell.kind === 'empty' ? '' : cell.kind === 'board' ? '↗' : colorLabel(cell.color)}
+          </span>
+        ))}
+      </div>
+      <div className="re-mini-copy">
+        <span>选中格里的内层样本</span>
+        <strong><ControllerChip controller={stats.controller} /> · {formatCount(1n + stats.boardCount)} 张盘</strong>
+      </div>
+    </div>
+  );
+}
 
 export default function FractalEcho() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [turn, setTurn] = useState(0);
-  const [stamps, setStamps] = useState<PlayerMap<StampMap>>({ A: {}, B: {} });
-  const [lastPlaced, setLastPlaced] = useState<PlayerMap<Stamp | null>>({ A: null, B: null });
-  const [echoes, setEchoes] = useState<PlayerMap<number>>({ A: 2, B: 2 });
-  const [selected, setSelected] = useState<PlayerMap<string>>({ A: '', B: '' });
-  const [chosenPattern, setChosenPattern] = useState<PatternId>('spread');
-  const [zoom, setZoom] = useState(1);
-  const [showRules, setShowRules] = useState(false);
-  const [notice, setNotice] = useState('先点选一条枝，再选择它的生长形状。');
+  const [mode, setMode] = useState<ModeId>('medium');
+  const [aiMoves, setAiMoves] = useState(0);
+  const [session, setSession] = useState<GameSession>(() => createSession(0));
+  const [selected, setSelected] = useState(4);
+  const [showRules, setShowRules] = useState(true);
 
-  const finished = turn >= MAX_TURNS;
-  const player: Player = finished ? 'A' : activePlayer(turn);
-  const opponent: Player = player === 'A' ? 'B' : 'A';
-  const round = Math.min(MAX_ROUNDS, Math.floor(turn / 2) + 1);
+  const modeOption = MODES.find((option) => option.id === mode) ?? MODES[2];
+  const currentPlayer = actionPlayer(session.turn);
+  const finished = session.turn >= modeOption.turns;
+  const rootStats = useMemo(() => analyzeBoard(session.root), [session.root]);
+  const targets = useMemo(() => getTargetStats(session.root, selected), [session.root, selected]);
+  const selectedCell = session.root.cells[selected];
+  const endResult = useMemo(() => resolveWinner(rootStats), [rootStats]);
+  const aiControlledBoards = rootStats.controlledBoards.ai;
 
-  const segments = useMemo(() => ({
-    A: makeSegments('A', stamps.A, zoom),
-    B: makeSegments('B', stamps.B, zoom),
-  }), [stamps, zoom]);
-  const contacts = useMemo(() => contactsOf(segments.A, segments.B), [segments]);
-  const metrics = useMemo(() => {
-    const territoryA = territoryOf(segments.A, segments.B);
-    const territoryB = territoryOf(segments.B, segments.A);
-    return {
-      A: { territory: territoryA, score: Math.round(territoryA * 100) },
-      B: { territory: territoryB, score: Math.round(territoryB * 100) },
-    };
-  }, [segments]);
-
-  const currentAddress = selected[player];
-  const currentStamp = stamps[player][currentAddress];
-  const inheritedPattern = effectivePattern(currentAddress, stamps[player]);
-  const inheritedFrom = nearestStamp(currentAddress, stamps[player]);
-  const winner = metrics.A.score === metrics.B.score ? '平局' : metrics.A.score > metrics.B.score ? '玩家 A 获胜' : '玩家 B 获胜';
-
-  const advance = (message: string) => {
-    setTurn((value) => Math.min(MAX_TURNS, value + 1));
-    setNotice(message);
+  const restart = (nextAiMoves = aiMoves) => {
+    setSession(createSession(nextAiMoves));
+    setSelected(4);
   };
 
-  const grow = () => {
-    if (finished || currentStamp) return;
-    const stamp = { pattern: chosenPattern } satisfies Stamp;
-    setStamps((all) => ({ ...all, [player]: { ...all[player], [currentAddress]: stamp } }));
-    setLastPlaced((all) => ({ ...all, [player]: stamp }));
-    advance(`玩家 ${player} 让「${PATTERNS[chosenPattern].name}」从${branchName(currentAddress)}向下回响。`);
+  const changeMode = (nextMode: ModeId) => {
+    setMode(nextMode);
+    setSession(createSession(aiMoves));
+    setSelected(4);
   };
 
-  const echo = () => {
-    const source = lastPlaced[opponent];
-    if (finished || currentStamp || !source || echoes[player] <= 0) return;
-    setStamps((all) => ({ ...all, [player]: { ...all[player], [currentAddress]: source } }));
-    setLastPlaced((all) => ({ ...all, [player]: source }));
-    setEchoes((all) => ({ ...all, [player]: all[player] - 1 }));
-    advance(`玩家 ${player} 借用了对手刚刚的「${PATTERNS[source.pattern].name}」，回响到${branchName(currentAddress)}。`);
+  const changeAiMoves = (nextMoves: number) => {
+    setAiMoves(nextMoves);
+    restart(nextMoves);
   };
 
-  const reset = () => {
-    setTurn(0);
-    setStamps({ A: {}, B: {} });
-    setLastPlaced({ A: null, B: null });
-    setEchoes({ A: 2, B: 2 });
-    setSelected({ A: '', B: '' });
-    setChosenPattern('spread');
-    setZoom(1);
-    setShowRules(false);
-    setNotice('先点选一条枝，再选择它的生长形状。');
-  };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ratio = window.devicePixelRatio || 1;
-    canvas.width = W * ratio;
-    canvas.height = H * ratio;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-
-    const bg = ctx.createLinearGradient(0, 0, 0, H);
-    bg.addColorStop(0, '#071522');
-    bg.addColorStop(1, '#030b12');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.strokeStyle = 'rgba(167,220,255,.045)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < W; x += 40) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, H);
-      ctx.stroke();
-    }
-    for (let y = 0; y < H; y += 40) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(W, y);
-      ctx.stroke();
-    }
-
-    ctx.setLineDash([5, 8]);
-    ctx.strokeStyle = 'rgba(255,229,139,.12)';
-    ctx.beginPath();
-    ctx.moveTo(W / 2, 34);
-    ctx.lineTo(W / 2, H - 28);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    (['A', 'B'] as Player[]).forEach((owner) => {
-      segments[owner].forEach((segment) => {
-        const selectedHere = segment.address === selected[owner] && owner === player;
-        const stamped = Boolean(stamps[owner][segment.address]);
-        ctx.beginPath();
-        ctx.moveTo(segment.x1, segment.y1);
-        ctx.lineTo(segment.x2, segment.y2);
-        ctx.strokeStyle = COLORS[owner];
-        ctx.globalAlpha = Math.max(.16, .9 - segment.depth * .085);
-        ctx.lineWidth = selectedHere ? 5.4 : Math.max(.65, 5.5 * segment.scale);
-        ctx.shadowColor = COLORS[owner];
-        ctx.shadowBlur = selectedHere ? 18 : stamped ? 8 : 0;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-        ctx.globalAlpha = 1;
-
-        if (stamped || selectedHere) {
-          ctx.beginPath();
-          ctx.arc(segment.x2, segment.y2, selectedHere ? 7 : 3.4, 0, Math.PI * 2);
-          ctx.fillStyle = selectedHere ? '#ffffff' : '#fff8bd';
-          ctx.fill();
-        }
-      });
-    });
-
-    contacts.forEach((contact) => {
-      ctx.beginPath();
-      ctx.arc(contact.x, contact.y, 4.2, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffe58b';
-      ctx.shadowColor = '#ffbd59';
-      ctx.shadowBlur = 13;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    });
-  }, [segments, contacts, selected, stamps, player]);
-
-  const chooseFromCanvas = (event: React.PointerEvent<HTMLCanvasElement>) => {
+  const applyAction = () => {
     if (finished) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width * W;
-    const y = (event.clientY - rect.top) / rect.height * H;
-    const hit = segments[player].reduce<{ segment: Segment | null; distance: number }>((best, segment) => {
-      const distance = distanceToSegment(x, y, segment);
-      return distance < best.distance ? { segment, distance } : best;
-    }, { segment: null, distance: 26 });
-    if (!hit.segment) return;
-    setSelected((all) => ({ ...all, [player]: hit.segment!.address }));
-    setNotice(`已选中${branchName(hit.segment.address)}。现在选择它要长成的形状。`);
+    const actor = currentPlayer;
+    const nextRoot = broadcast(session.root, selected, actor, session.store);
+    const nextStats = analyzeBoard(nextRoot);
+    const entry: ActionLog = {
+      turn: session.turn + 1,
+      actor,
+      coordinate: selected,
+      boardCount: nextStats.boardCount,
+      detail: reactionDetail(targets, actor),
+    };
+    setSession((current) => ({
+      ...current,
+      root: nextRoot,
+      turn: current.turn + 1,
+      log: [entry, ...current.log].slice(0, 5),
+    }));
   };
 
-  const addressParts = currentAddress ? currentAddress.split('') : [];
-  const currentPattern = currentStamp?.pattern ?? inheritedPattern;
+  const selectedChild = selectedCell?.kind === 'board' ? selectedCell.board : null;
+  const selectionText = selectedCell ? cellDescription(selectedCell) : '空格';
+  const aiTerrainText = aiMoves === 0
+    ? 'AI 地形关闭'
+    : `AI 预先随机广播 ${aiMoves} 次：${session.aiCoordinates.map(coordinateLabel).join('、')}`;
 
   return (
     <section className="recursive-echo">
       <header className="re-hero">
         <div>
-          <div className="re-kicker"><Sparkles size={13} /> GROW · TOUCH · REPEAT</div>
-          <h2>分形回响 <span>Fractal Echo</span></h2>
-          <p>两棵树轮流生长。你放下的形状，会沿着枝条一层层重复。</p>
+          <div className="re-kicker"><Sparkles size={13} /> SYNCHRONOUS ECHO · 3×3 · BROADCAST</div>
+          <h2>递归回响 <span>同步回响版</span></h2>
+          <p>同一坐标，所有已存在递归层同时回响。每次行动都在整棵树上按下同一个键。</p>
         </div>
         <div className="re-header-actions">
-          <button onClick={() => setShowRules((value) => !value)}><BookOpen size={16} /> 怎么玩</button>
-          <button className="re-icon" onClick={reset} aria-label="重新开始"><RotateCcw size={17} /></button>
+          <button type="button" onClick={() => setShowRules((value) => !value)}>
+            <BookOpen size={15} /> 规则图 {showRules ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
+          <button type="button" className="re-icon-button" onClick={() => restart()} aria-label="重新开始">
+            <RotateCcw size={16} />
+          </button>
         </div>
       </header>
 
-      <div className="re-howto" aria-label="三步玩法">
-        <div className="re-howto-step"><b>1</b><div><strong>点一条枝</strong><span>从画面选你想改变的枝条</span></div></div>
-        <ChevronRight className="re-howto-arrow" size={16} />
-        <div className="re-howto-step"><b>2</b><div><strong>选一个形状</strong><span>展开、直达，或回旋</span></div></div>
-        <ChevronRight className="re-howto-arrow" size={16} />
-        <div className="re-howto-step"><b>3</b><div><strong>让它回响</strong><span>12 次生长后，覆盖更多的一方获胜</span></div></div>
+      <div className="re-setup" aria-label="对局设置">
+        <div className="re-setup-block">
+          <span className="re-setup-label">对局强度</span>
+          <div className="re-mode-list">
+            {MODES.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                className={mode === option.id ? 'is-active' : ''}
+                onClick={() => changeMode(option.id)}
+                aria-pressed={mode === option.id}
+              >
+                <strong>{option.label}</strong><small>{option.note}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+        <label className="re-ai-select">
+          <span className="re-setup-label">开局 AI 地形</span>
+          <select value={aiMoves} onChange={(event) => changeAiMoves(Number(event.target.value))}>
+            {AI_OPTIONS.map((option) => <option key={option.moves} value={option.moves}>{option.label}</option>)}
+          </select>
+        </label>
+        <div className="re-seed">
+          <span>本局种子</span>
+          <code>{formatSeed(session.seed)}</code>
+          <small>设置变化会重新开局</small>
+        </div>
+      </div>
+
+      <div className="re-sync-note">
+        <Zap size={15} />
+        <span><strong>本局已应用：</strong>{modeOption.turns} 次行动，对半分配给蓝/橙；行动方由 <code>popcount(r−1) mod 2</code> 决定。{aiTerrainText}。</span>
       </div>
 
       <div className="re-score-row">
-        {(['A', 'B'] as Player[]).map((side) => (
-          <article key={side} className={`re-player re-${side.toLowerCase()} ${player === side && !finished ? 'active' : ''}`}>
-            <div className="re-player-heading"><span className="re-player-dot" /> 玩家 {side}<b>{metrics[side].score}</b></div>
-            <div className="re-progress"><i style={{ width: `${metrics[side].score}%`, background: COLORS[side] }} /></div>
-            <div className="re-metrics">
-              <span>覆盖区域 <strong>{metrics[side].score}%</strong></span>
-              <span>生长 <strong>{Object.keys(stamps[side]).length}/6</strong></span>
-              <span>回响 <strong>{echoes[side]}</strong></span>
-            </div>
-          </article>
-        ))}
-        <article className="re-round">
-          <small>回合</small><strong>{String(round).padStart(2, '0')}</strong><span>/ {String(MAX_ROUNDS).padStart(2, '0')}</span>
-          <em>{finished ? winner : `轮到玩家 ${player}`}</em>
+        <article className="re-player-score re-blue-score">
+          <div><span className="re-player-dot" />蓝方受控子盘</div>
+          <strong>{formatCount(rootStats.controlledBoards.blue)}</strong>
+          <small>根盘票数 {formatCount(rootStats.votes.blue)}</small>
+        </article>
+        <article className="re-root-score">
+          <span>根盘控制</span>
+          <strong><ControllerChip controller={rootStats.controller} /></strong>
+          <small>蓝 {formatCount(rootStats.votes.blue)} · 橙 {formatCount(rootStats.votes.orange)} · AI {formatCount(rootStats.votes.ai)}</small>
+        </article>
+        <article className="re-player-score re-orange-score">
+          <div>橙方受控子盘<span className="re-player-dot" /></div>
+          <strong>{formatCount(rootStats.controlledBoards.orange)}</strong>
+          <small>根盘票数 {formatCount(rootStats.votes.orange)}</small>
         </article>
       </div>
 
-      <nav className="re-sequence" aria-label="12次行动顺序">
-        <span>行动顺序</span>
-        {Array.from({ length: MAX_TURNS }, (_, index) => {
-          const side = activePlayer(index);
-          return <i key={index} className={`${side.toLowerCase()} ${index === turn && !finished ? 'now' : ''} ${index < turn ? 'done' : ''}`}>{side}</i>;
-        })}
-      </nav>
-
-      {showRules && (
-        <aside className="re-rules">
-          <div><b>一回合只做一件事</b><p>点击自己的任意枝条，然后放置一个形状。放置后轮到另一位玩家。</p></div>
-          <div><b>形状会向下继承</b><p>一枚形状印记会影响这条枝往下的生长；在更深处放新形状，就能从那里改变方向。</p></div>
-          <div><b>金色光点是相遇</b><p>两边枝条交叉时会出现光点，它只负责提示空间关系，不需要额外计算或剪断。</p></div>
-          <div><b>覆盖区域就是分数</b><p>画面会把被枝条触碰的网格算进你的区域。12 次行动结束，百分比更高的一方获胜。</p></div>
-        </aside>
-      )}
+      <div className="re-sequence" aria-label="行动序列">
+        <span>行动序列</span>
+        <div className="re-sequence-grid">
+          {Array.from({ length: modeOption.turns }, (_, index) => {
+            const player = actionPlayer(index);
+            return <span key={index} className={`re-sequence-item re-sequence-${player} ${index < session.turn ? 'is-done' : ''} ${index === session.turn && !finished ? 'is-now' : ''}`}><b>{String(index + 1).padStart(2, '0')}</b>{player === 'blue' ? '蓝' : '橙'}</span>;
+          })}
+        </div>
+      </div>
 
       <div className="re-workspace">
-        <div className="re-board-wrap">
-          <div className="re-board-tools">
-            <div className="re-address">
-              <span className="re-location-label">当前枝条</span>
-              <button onClick={() => setSelected((all) => ({ ...all, [player]: '' }))}>主干</button>
-              {addressParts.map((part, index) => (
-                <span key={`${part}-${index}`}><ChevronRight size={12} /><button onClick={() => setSelected((all) => ({ ...all, [player]: currentAddress.slice(0, index + 1) }))}>{part === 'L' ? '左' : part === 'M' ? '中' : '右'}</button></span>
-              ))}
-            </div>
-            <div className="re-zoom">
-              <button onClick={() => setZoom((value) => Math.max(.78, value / 1.15))} aria-label="缩小"><ZoomOut size={15} /></button>
-              <b>{Math.round(zoom * 100)}%</b>
-              <button onClick={() => setZoom((value) => Math.min(1.8, value * 1.15))} aria-label="放大"><ZoomIn size={15} /></button>
-            </div>
+        <div className="re-board-panel">
+          <div className="re-panel-head">
+            <div><span className="re-eyebrow">ROOT BOARD · 3×3</span><h3>选择一个坐标</h3></div>
+            <div className="re-turn-counter"><span>第</span><strong>{Math.min(session.turn + 1, modeOption.turns)}</strong><span>/ {modeOption.turns}</span></div>
           </div>
-          <canvas ref={canvasRef} className="re-canvas" onPointerDown={chooseFromCanvas} />
-          <div className="re-legend"><span className="a">A 的树</span><span className="b">B 的树</span><span className="knot">相遇光点</span><span>白环 = 当前选择</span></div>
-          {finished && <div className="re-finish"><Activity size={28} /><small>12 次生长完成</small><h3>{winner}</h3><p>A {metrics.A.score}% · {metrics.B.score}% B</p><button onClick={reset}>再来一局</button></div>}
+          <RootBoard root={session.root} selected={selected} onSelect={setSelected} disabled={finished} />
+          <div className="re-board-legend">
+            <span className="re-legend-blue">蓝</span><span className="re-legend-orange">橙</span><span className="re-legend-ai">AI 地形</span><span className="re-legend-child">↗ 子盘</span><span>白框 = 当前坐标</span>
+          </div>
+          {selectedChild && <MiniBoard board={selectedChild} />}
         </div>
 
         <aside className="re-inspector">
-          <div className="re-turn-card">
-            <div><span className="re-step-caption">现在轮到</span><b style={{ color: COLORS[player] }}>玩家 {player}</b></div>
-            <strong>{currentStamp ? '换一条枝继续' : '点选一条枝，然后让它生长'}</strong>
-            <p>{currentStamp ? '这条枝已经有形状印记了，点击其他枝条。' : '选中的枝条会被白环标出。'}</p>
+          <div className="re-turn-card" style={{ '--turn-color': PLAYER_COLORS[currentPlayer] } as React.CSSProperties}>
+            <div className="re-turn-top"><span>当前行动方</span><strong>{finished ? '已结束' : currentPlayer === 'blue' ? '蓝方' : '橙方'}</strong></div>
+            <h3>{finished ? '广播序列完成' : `第 ${session.turn + 1} 次：广播一个坐标`}</h3>
+            <p>{finished ? '根盘与递归子盘已经完成最终结算。' : '根盘上的一次选择，会同时落到所有已存在棋盘的同一格。'}</p>
           </div>
 
-          <div className="re-selection">
-            <div className="re-panel-title"><Focus size={15} /><span>你选中的枝条</span><b>{branchName(currentAddress)}</b></div>
-            <div className="re-selection-name">{branchName(currentAddress)}</div>
-            <div className="re-selection-meta">当前继承：{PATTERNS[inheritedPattern].name}{inheritedFrom === null ? ' · 默认' : ` · 来自${branchName(inheritedFrom)}`}</div>
+          <div className="re-selection-card">
+            <div className="re-card-label">当前坐标 <b>{coordinateLabel(selected)}</b></div>
+            <strong>{selectionText}</strong>
+            <p>{selectedCell?.kind === 'empty' ? '将放置行动方颜色，得到 1 票。' : selectedCell?.kind === 'token' && selectedCell.color === currentPlayer ? '己色会变成一个新的子盘，子盘中心与十字格放置己色。' : selectedCell?.kind === 'token' ? '敌色（包括 AI）会触发入侵，子盘中心为行动方、十字格保留敌色。' : '入口保留；这个子盘内部的同坐标会继续递回。'}</p>
           </div>
 
-          <div className="re-rule-picker">
-            <div className="re-picker-label"><span>选择生长形状</span><small>放下后会向下回响</small></div>
-            <div className="re-pattern-grid">
-              {(Object.keys(PATTERNS) as PatternId[]).map((pattern) => (
-                <button key={pattern} className={chosenPattern === pattern ? 'selected' : ''} onClick={() => setChosenPattern(pattern)}>
-                  <span className={`re-pattern-art ${pattern}`}><i /><i /><i /></span>
-                  <span className="re-pattern-copy"><b>{PATTERNS[pattern].name}</b><small>{PATTERNS[pattern].action}</small></span>
-                  {chosenPattern === pattern && <Check size={14} className="re-pattern-check" />}
-                </button>
-              ))}
+          <div className="re-target-card">
+            <div className="re-card-label"><span>同步命中</span><b>{formatCount(targets.boards)} 张已存在棋盘</b></div>
+            <div className="re-target-grid">
+              <span><i className="re-target-empty" />空格 <b>{formatCount(targets.empty)}</b></span>
+              <span><i className="re-target-blue" />蓝色 <b>{formatCount(targets.blue)}</b></span>
+              <span><i className="re-target-orange" />橙色 <b>{formatCount(targets.orange)}</b></span>
+              <span><i className="re-target-ai" />AI色 <b>{formatCount(targets.ai)}</b></span>
+              <span><i className="re-target-child" />子盘 <b>{formatCount(targets.subboard)}</b></span>
             </div>
-            <p className="re-choice-note">{currentStamp ? `这条枝已经是「${PATTERNS[currentPattern].name}」，不能重复放置。` : PATTERNS[chosenPattern].description}</p>
+            <p className="re-target-note">{reactionDetail(targets, currentPlayer)}</p>
           </div>
 
-          <div className="re-actions">
-            <button className="primary" onClick={grow} disabled={finished || Boolean(currentStamp)}>
-              <Target size={15} /> {currentStamp ? '这条枝已生长' : `让「${PATTERNS[chosenPattern].name}」回响`}
-            </button>
-            <button onClick={echo} disabled={finished || Boolean(currentStamp) || !lastPlaced[opponent] || echoes[player] <= 0}>
-              <Copy size={15} /> 借用对手刚才的形状 <b>{echoes[player]}</b>
-            </button>
-          </div>
+          <button type="button" className="re-broadcast-button" onClick={applyAction} disabled={finished}>
+            <Target size={16} /> {finished ? '本局已结束' : `广播 ${coordinateLabel(selected)}`}<span>{currentPlayer === 'blue' ? '蓝方' : '橙方'}</span>
+          </button>
         </aside>
       </div>
 
-      <footer className="re-status">
-        <span style={{ background: COLORS[player] }} />
-        <p>{notice}</p>
-        <b>{contacts.length} 个相遇光点</b>
-      </footer>
+      {finished && (
+        <div className={`re-finish-banner re-finish-${endResult.winner}`}>
+          <div><span className="re-eyebrow">FINAL ECHO · {modeOption.turns} ACTIONS</span><h3>{winnerLabel(endResult.winner)}</h3><p>{endResult.reason}。蓝方受控子盘 {formatCount(rootStats.controlledBoards.blue)}，橙方 {formatCount(rootStats.controlledBoards.orange)}。</p></div>
+          <button type="button" onClick={() => restart()}><RotateCcw size={15} /> 再来一局</button>
+        </div>
+      )}
+
+      <div className="re-bottom-grid">
+        <section className="re-log-panel">
+          <div className="re-section-head"><div><span className="re-eyebrow">ECHO LOG</span><h3>最近回响</h3></div><span className="re-muted">AI 控制子盘 {formatCount(aiControlledBoards)} · 不计分</span></div>
+          {session.log.length === 0 ? <p className="re-empty-log">还没有玩家行动。先选一个坐标，再广播。</p> : (
+            <ol className="re-log-list">
+              {session.log.map((entry) => <li key={entry.turn}><span className={`re-log-dot re-log-${entry.actor}`} /><b>#{String(entry.turn).padStart(2, '0')} {entry.actor === 'blue' ? '蓝' : entry.actor === 'orange' ? '橙' : 'AI'}</b><strong>{coordinateLabel(entry.coordinate)}</strong><span>{entry.detail}</span><em>全场 {formatCount(entry.boardCount)} 盘</em></li>)}
+            </ol>
+          )}
+        </section>
+        <section className="re-ai-panel">
+          <div className="re-section-head"><div><span className="re-eyebrow">TERRAIN ONLY</span><h3>AI 地形</h3></div><span className="re-ai-status">{aiMoves === 0 ? '关闭' : `${aiMoves} 次`}</span></div>
+          <p>AI 只在开局前随机广播，使用第三种颜色改变地形。AI 是蓝橙双方的敌色，但不参加行动序列，也不获得胜利分数。</p>
+          <div className="re-ai-seed"><span>行动坐标</span><strong>{session.aiCoordinates.length ? session.aiCoordinates.map(coordinateLabel).join(' · ') : '—'}</strong></div>
+        </section>
+      </div>
+
+      {showRules && (
+        <section className="re-rules-section" id="recursive-echo-rules">
+          <div className="re-rules-image-wrap">
+            <div className="re-section-head"><div><span className="re-eyebrow">RULE IMAGE</span><h3>同步回响版规则图</h3></div></div>
+            <img src="/recursive-echo-rules.png" alt="递归回响同步回响版规则图" className="re-rules-image" />
+          </div>
+          <div className="re-rules-copy">
+            <div className="re-section-head"><div><span className="re-eyebrow">TEXT SUPPLEMENT</span><h3>本局补充说明</h3></div></div>
+            <div className="re-rule-block"><h4>1 · 行动序列</h4><p>极速、轻度、中等、高强度分别取 8 / 16 / 32 / 64 次行动，都是同一条序列的前缀。第 r 次行动方由 <code>popcount(r−1) mod 2</code> 决定：0 为蓝，1 为橙。</p></div>
+            <div className="re-rule-block"><h4>2 · 冻结与广播</h4><p>每次行动开始时冻结所有已存在的棋盘；每张盘只处理一次同坐标。行动中新生成的子盘从下一次行动才进入目标集合，子盘入口在父盘中保留。</p></div>
+            <div className="re-rule-block"><h4>3 · 四种反应</h4><p>空格播种行动方颜色；己色生长为己方十字形 5 票子盘；敌色（包括 AI 色）入侵为中心 1 格行动方、十字 4 格敌色的中立子盘；子盘递回则继续在内层结算同坐标。</p></div>
+            <div className="re-rule-block"><h4>4 · 控制与 AI</h4><p>一张 3×3 盘有至少 5 票才被控制；受控子盘在父盘中只算 1 票，并由最深处向外重算。AI 只改开局地形，不计入蓝橙分数；若根盘没有蓝/橙控制者，按蓝橙根盘票数，再按蓝橙受控子盘数比较。</p></div>
+            <div className="re-rule-note"><strong>忘记规则时停下：</strong>这一区域只补充模式和 AI 地形，其他判定以左侧原规则图为准。</div>
+          </div>
+        </section>
+      )}
     </section>
   );
 }

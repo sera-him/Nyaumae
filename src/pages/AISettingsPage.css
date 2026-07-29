@@ -552,6 +552,12 @@
   gap: .8rem;
 }
 
+.ai-browser-install.is-model-unavailable .ai-browser-model,
+.ai-browser-install.is-model-unavailable .ai-browser-facts,
+.ai-browser-install.is-model-unavailable .ai-download-progress {
+  display: none;
+}
+
 .ai-browser-model {
   display: flex;
   align-items: center;

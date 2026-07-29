@@ -73,6 +73,18 @@ export default function Footer() {
             <br />
             {semanticHighlight('——你会在乎别人的时刻表背得比你准吗？」')}
           </p>
+
+          <div className="aurora-footer-quotes grid gap-8 max-w-4xl mx-auto mt-8 text-left">
+            <blockquote className="aurora-footer-quote font-serif text-nc-text-secondary italic text-base leading-relaxed border-l border-nc-cyan/30 pl-5">
+              {semanticHighlight('残障未必可见，智力正常不等于所有功能正常；不要先判断品德，先理解实际困难。')}
+              <footer className="mt-3 text-sm not-italic text-nc-text-muted">—— Sol</footer>
+            </blockquote>
+
+            <blockquote className="aurora-footer-quote font-serif text-nc-text-secondary italic text-base leading-relaxed border-l border-nc-rose/30 pl-5">
+              {semanticHighlight('别急着用同一把尺子丈量所有人；能按自己的节奏走下去，也是一种抵达。')}
+              <footer className="mt-3 text-sm not-italic text-nc-text-muted">—— Luna</footer>
+            </blockquote>
+          </div>
         </motion.div>
       </div>
 

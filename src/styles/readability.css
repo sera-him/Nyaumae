@@ -1,0 +1,74 @@
+/* Site-wide text readability layer. */
+
+.site-theme-shell {
+  --aurora-text-muted: var(--site-theme-text-muted, #b8aec4);
+}
+
+/* Shared muted text is clearer everywhere while remaining secondary to normal text. */
+.site-theme-shell :where(.text-nc-text-muted, [class~='text-nc-text-muted']) {
+  color: var(--site-theme-text-muted, #b8aec4) !important;
+}
+
+/* Remove the low opacity that was making small labels disappear. */
+.site-theme-shell :where(
+  .text-nc-text-muted\/40,
+  .text-nc-text-muted\/50,
+  .text-nc-text-muted\/60,
+  .text-nc-text-muted\/70,
+  .text-white\/35,
+  .text-white\/45,
+  .text-white\/55,
+  .text-white\/60
+) {
+  color: var(--site-theme-text-muted, #b8aec4) !important;
+  opacity: 1 !important;
+}
+
+/* White opacity variants remain brighter than muted text but no longer fade away. */
+.site-theme-shell :where(.text-white\/70, .text-white\/75) {
+  color: var(--site-theme-text-secondary, #d8cfdf) !important;
+  opacity: 1 !important;
+}
+
+/* Common microcopy selectors used across games, cards, navigation, and status panels. */
+.site-theme-shell :where(
+  small,
+  [class*='-meta'],
+  [class*='-caption'],
+  [class*='-hint'],
+  [class*='-status'],
+  [class*='-note']
+) {
+  color: var(--site-theme-text-muted, #b8aec4) !important;
+}
+
+/* Slightly enlarge only the smallest labels; normal text sizes stay intact. */
+.site-theme-shell :where(small, .text-\[9px\], .text-\[10px\], .text-\[11px\]) {
+  font-size: 0.68rem;
+}
+
+/* Direct game-page styles with very low-opacity gray copy. */
+.site-theme-shell :where(
+  .re-howto-step span,
+  .re-metrics,
+  .re-round small,
+  .re-round span,
+  .re-sequence > span,
+  .re-rules p,
+  .re-location-label,
+  .re-board-tools b,
+  .re-legend,
+  .re-finish small,
+  .re-finish p,
+  .re-step-caption,
+  .re-turn-card p,
+  .re-selection-meta,
+  .re-picker-label small,
+  .re-pattern-copy small,
+  .re-choice-note,
+  .re-status,
+  .re-status b
+) {
+  color: var(--site-theme-text-muted, #b8aec4) !important;
+  opacity: 1 !important;
+}
