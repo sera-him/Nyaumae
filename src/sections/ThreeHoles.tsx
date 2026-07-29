@@ -278,8 +278,8 @@ export default function ThreeHoles() {
             </select>
           </label>
           <div className="rabbit-empty" role="status">
-            <span>当前兔子洞</span>
-            <strong>0</strong>
+            <span>本局目标兔子洞</span>
+            <strong>{DIFFICULTIES[difficultyIndex].n * DIFFICULTIES[difficultyIndex].k}</strong>
           </div>
           {error && <p className="rabbit-error" role="alert">{error}</p>}
           <button className="rabbit-primary-button" type="button" onClick={start}>
@@ -320,6 +320,7 @@ export default function ThreeHoles() {
     || colCounts.some((count) => count > k)
     || regionCounts.some((count) => count > k);
   const targetCount = n * k;
+  const displayedRabbitCount = state.surrendered ? targetCount : rabbitCount;
   const boardStyle = {
     '--rabbit-grid-size': n,
     '--rabbit-cell-size': `max(18px, min(48px, calc((min(100vw, 760px) - 5rem) / ${n})))`,
@@ -446,8 +447,8 @@ export default function ThreeHoles() {
         <aside className="rabbit-sidebar">
           <section className="rabbit-status" aria-label="当前状态">
             <div>
-              <span>兔子洞</span>
-              <strong>{rabbitCount}<small> / {targetCount}</small></strong>
+              <span>{state.surrendered ? '答案中的兔子洞' : '已标记兔子洞'}</span>
+              <strong>{displayedRabbitCount}<small> / {targetCount}</small></strong>
             </div>
             <div>
               <span>已排除</span>

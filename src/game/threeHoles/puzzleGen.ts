@@ -193,66 +193,142 @@ function hasNeighboringHole(solution: boolean[][], row: number, col: number): bo
   return false;
 }
 
+function shuffle<T>(values: T[]): T[] {
+  for (let index = values.length - 1; index > 0; index--) {
+    const other = Math.floor(Math.random() * (index + 1));
+    [values[index], values[other]] = [values[other], values[index]];
+  }
+  return values;
+}
+
+function cellsAreOrthogonalNeighbors(left: number, right: number, n: number): boolean {
+  const leftRow = Math.floor(left / n);
+  const leftCol = left % n;
+  const rightRow = Math.floor(right / n);
+  const rightCol = right % n;
+  return Math.abs(leftRow - rightRow) + Math.abs(leftCol - rightCol) === 1;
+}
+
 /**
- * Break up the solver's visually repetitive diagonal lattices with legal
- * 2×2 trades. Each accepted trade preserves every row and column count; the
- * region delta and king-neighbor checks preserve the remaining game rules.
+ * Make the answer less lattice-like without changing the row/column totals.
+ * A cycle move takes one hole from several different rows and rotates their
+ * columns. It is the smallest useful move for this puzzle: it preserves both
+ * margins, while the final neighbor check keeps the king-neighbor rule intact.
  */
-function randomizeSolutionLayout(
-  solution: boolean[][],
-  regions: number[][],
-  attempts: number,
-): boolean[][] {
+function randomizeSolutionLayout(solution: boolean[][], attempts: number): boolean[][] {
   const n = solution.length;
   const mixed = solution.map((row) => [...row]);
 
   for (let attempt = 0; attempt < attempts; attempt++) {
-    let top = Math.floor(Math.random() * n);
-    let bottom = Math.floor(Math.random() * (n - 1));
-    if (bottom >= top) bottom++;
-    if (top > bottom) [top, bottom] = [bottom, top];
+    const cycleLength = Math.min(n, 2 + Math.floor(Math.random() * 5));
+    const rows = shuffle(Array.from({ length: n }, (_, index) => index))
+      .slice(0, cycleLength);
+    const usedColumns = new Set<number>();
+    const sourceColumns: number[] = [];
+    let possible = true;
 
-    let left = Math.floor(Math.random() * n);
-    let right = Math.floor(Math.random() * (n - 1));
-    if (right >= left) right++;
-    if (left > right) [left, right] = [right, left];
-
-    const diagonal = mixed[top][left] && mixed[bottom][right]
-      && !mixed[top][right] && !mixed[bottom][left];
-    const antiDiagonal = mixed[top][right] && mixed[bottom][left]
-      && !mixed[top][left] && !mixed[bottom][right];
-    if (!diagonal && !antiDiagonal) continue;
-
-    const removed = diagonal
-      ? [[top, left], [bottom, right]] as const
-      : [[top, right], [bottom, left]] as const;
-    const added = diagonal
-      ? [[top, right], [bottom, left]] as const
-      : [[top, left], [bottom, right]] as const;
-
-    const regionDelta = new Map<number, number>();
-    for (const [row, col] of removed) {
-      const region = regions[row][col];
-      regionDelta.set(region, (regionDelta.get(region) ?? 0) - 1);
-      mixed[row][col] = false;
+    for (const row of rows) {
+      const choices = mixed[row].flatMap(
+        (value, col) => value && !usedColumns.has(col) ? [col] : [],
+      );
+      if (choices.length === 0) {
+        possible = false;
+        break;
+      }
+      const column = choices[Math.floor(Math.random() * choices.length)];
+      sourceColumns.push(column);
+      usedColumns.add(column);
     }
-    for (const [row, col] of added) {
-      const region = regions[row][col];
-      regionDelta.set(region, (regionDelta.get(region) ?? 0) + 1);
-      mixed[row][col] = true;
-    }
+    if (!possible) continue;
 
-    const regionsPreserved = [...regionDelta.values()].every((delta) => delta === 0);
+    const direction = Math.random() < 0.5 ? 1 : -1;
+    const destinationColumns = sourceColumns.map(
+      (_, index) => sourceColumns[(index + direction + cycleLength) % cycleLength],
+    );
+    const removed = rows.map((row, index) => [row, sourceColumns[index]] as const);
+    const added = rows.map((row, index) => [row, destinationColumns[index]] as const);
+
+    if (added.some(([row, col]) => mixed[row][col])) continue;
+    for (const [row, col] of removed) mixed[row][col] = false;
+    for (const [row, col] of added) mixed[row][col] = true;
+
     const adjacencyPreserved = added.every(
       ([row, col]) => !hasNeighboringHole(mixed, row, col),
     );
-    if (regionsPreserved && adjacencyPreserved) continue;
+    if (adjacencyPreserved) continue;
 
     for (const [row, col] of added) mixed[row][col] = false;
     for (const [row, col] of removed) mixed[row][col] = true;
   }
 
   return mixed;
+}
+
+function buildRandomHamiltonianPath(n: number): number[] {
+  const path: number[] = [];
+  const vertical = Math.random() < 0.5;
+  if (vertical) {
+    for (let col = 0; col < n; col++) {
+      const rows = col % 2 === 0
+        ? Array.from({ length: n }, (_, row) => row)
+        : Array.from({ length: n }, (_, row) => n - 1 - row);
+      for (const row of rows) path.push(row * n + col);
+    }
+  } else {
+    for (let row = 0; row < n; row++) {
+      const columns = row % 2 === 0
+        ? Array.from({ length: n }, (_, col) => col)
+        : Array.from({ length: n }, (_, col) => n - 1 - col);
+      for (const col of columns) path.push(row * n + col);
+    }
+  }
+  if (Math.random() < 0.5) path.reverse();
+
+  // Random 2-opt reversals keep the path connected but make the region cuts
+  // less stripe-like than the plain serpentine path.
+  for (let attempt = 0; attempt < n * n * 8; attempt++) {
+    const left = 1 + Math.floor(Math.random() * Math.max(1, path.length - 3));
+    const right = left + 1 + Math.floor(Math.random() * Math.max(1, path.length - left - 2));
+    if (right >= path.length - 1) continue;
+    if (!cellsAreOrthogonalNeighbors(path[left - 1], path[right], n)) continue;
+    if (!cellsAreOrthogonalNeighbors(path[left], path[right + 1], n)) continue;
+    const reversed = path.slice(left, right + 1).reverse();
+    path.splice(left, right - left + 1, ...reversed);
+  }
+  return path;
+}
+
+function buildRegionsForSolution(n: number, k: number, solution: boolean[][]): number[][] {
+  const path = buildRandomHamiltonianPath(n);
+  const holePositions = path.flatMap((value, position) => (
+    solution[Math.floor(value / n)][value % n] ? [position] : []
+  ));
+  if (holePositions.length !== n * k) {
+    throw new Error('题目答案中的兔子洞数量不正确');
+  }
+
+  const ends: number[] = [];
+  let previous = 0;
+  for (let region = 0; region < n - 1; region++) {
+    const lower = holePositions[(region + 1) * k - 1] + 1;
+    const upper = holePositions[(region + 1) * k];
+    const end = lower + Math.floor(Math.random() * (upper - lower + 1));
+    if (end <= previous) throw new Error('题目活动区切分失败');
+    ends.push(end);
+    previous = end;
+  }
+  ends.push(n * n);
+
+  const labels = Array.from({ length: n }, () => Array<number>(n).fill(-1));
+  let start = 0;
+  for (let region = 0; region < n; region++) {
+    for (let position = start; position < ends[region]; position++) {
+      const value = path[position];
+      labels[Math.floor(value / n)][value % n] = region;
+    }
+    start = ends[region];
+  }
+  return labels;
 }
 
 function loadPuzzle(difficulty: Difficulty): PuzzleState {
@@ -269,23 +345,23 @@ function loadPuzzle(difficulty: Difficulty): PuzzleState {
   }
 
   const { n } = difficulty;
-  const rawRegions = decodeRows(encoded.regions, n);
+  const storedRegions = decodeRows(encoded.regions, n);
   const rawSolution = decodeRows(encoded.solution, n).map(
     (row) => row.map((value) => value === 1),
   );
   const symmetry = Math.floor(Math.random() * 8);
   const relabel = shuffledRegionLabels(n);
-  const regions = transformGrid(rawRegions, symmetry).map(
-    (row) => row.map((region) => relabel[region]),
-  );
   const transformedSolution = transformGrid(rawSolution, symmetry);
   const solution = randomizeSolutionLayout(
     transformedSolution,
-    regions,
-    Math.max(800, n * n * 12),
+    Math.max(1_200, n * n * 40),
+  );
+  const regions = buildRegionsForSolution(n, difficulty.k, solution).map(
+    (row) => row.map((region) => relabel[region]),
   );
 
-  if (!regionsAreConnected(regions) || !solutionIsValid(n, difficulty.k, regions, solution)) {
+  if (!regionsAreConnected(storedRegions) || !regionsAreConnected(regions)
+    || !solutionIsValid(n, difficulty.k, regions, solution)) {
     throw new Error(`${difficulty.name} 的题目在加载时校验失败`);
   }
 
