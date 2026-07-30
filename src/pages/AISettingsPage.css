@@ -698,6 +698,16 @@
   color: #eeeaff;
 }
 
+.ai-model-picker {
+  display: grid;
+  gap: .45rem;
+}
+
+.ai-model-picker input {
+  border-color: rgba(0, 229, 204, .28);
+  background: rgba(0, 229, 204, .04);
+}
+
 .ai-secret-input {
   position: relative;
 }

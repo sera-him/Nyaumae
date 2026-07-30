@@ -60,6 +60,8 @@ type CloudPresetId =
 type LocalRuntime = 'ollama' | 'lmstudio' | 'custom';
 type ToneId = 'precise' | 'balanced' | 'creative';
 
+const CUSTOM_MODEL_VALUE = '__custom_model__';
+
 type CloudPreset = {
   id: CloudPresetId;
   name: string;
@@ -72,19 +74,19 @@ type CloudPreset = {
 };
 
 const CLOUD_PROVIDERS: CloudPreset[] = [
-  { id: 'openai', name: 'OpenAI', description: 'OpenAI API', providerLabel: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-5.4', models: ['gpt-5.4', 'gpt-5.4-mini', 'gpt-5.3-codex', 'gpt-5-mini'], icon: Sparkles },
-  { id: 'anthropic', name: 'Anthropic', description: 'Claude API', providerLabel: 'Anthropic', baseUrl: 'https://api.anthropic.com/v1', model: 'claude-opus-4-1', models: ['claude-opus-4-1', 'claude-sonnet-4-5', 'claude-haiku-4-5'], icon: Bot },
-  { id: 'google', name: 'Google AI', description: 'Gemini API', providerLabel: 'Google AI', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-3-pro', models: ['gemini-3-pro', 'gemini-3-flash', 'gemini-2.5-pro'], icon: Globe2 },
-  { id: 'deepseek', name: 'DeepSeek', description: '高性价比推理模型', providerLabel: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat', models: ['deepseek-chat', 'deepseek-reasoner', 'deepseek-v3.2', 'deepseek-r1'], icon: Zap },
-  { id: 'moonshot', name: 'Kimi / Moonshot AI', description: 'Moonshot API', providerLabel: 'Kimi / Moonshot AI', baseUrl: 'https://api.moonshot.cn/v1', model: 'kimi-k2.6', models: ['kimi-k2.6', 'kimi-k2.5', 'kimi-k2', 'kimi-k3', 'moonshot-v1-128k'], icon: Bot },
-  { id: 'zai', name: 'Z.ai', description: 'GLM API', providerLabel: 'Z.ai', baseUrl: 'https://api.z.ai/api/paas/v4', model: 'glm-5', models: ['glm-5', 'glm-4.7', 'glm-4.5-air'], icon: Sparkles },
-  { id: 'qwen', name: 'Qwen / 通义千问', description: '通义千问兼容接口', providerLabel: 'Qwen / 通义千问', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen3-max', models: ['qwen3-max', 'qwen3-235b-a22b', 'qwen3-coder-plus', 'qwen-long'], icon: Cpu },
+  { id: 'openai', name: 'OpenAI', description: 'GPT-5 系列 API', providerLabel: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-5.4', models: ['gpt-5.4', 'gpt-5.4-mini', 'gpt-5.3-codex', 'gpt-5-pro', 'gpt-5-mini'], icon: Sparkles },
+  { id: 'anthropic', name: 'Anthropic', description: 'Claude 5 系列 API', providerLabel: 'Anthropic', baseUrl: 'https://api.anthropic.com/v1', model: 'claude-opus-5', models: ['claude-opus-5', 'claude-sonnet-5', 'claude-haiku-5', 'claude-opus-4-1'], icon: Bot },
+  { id: 'google', name: 'Google AI', description: 'Gemini 3 系列 API', providerLabel: 'Google AI', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-3.0-pro', models: ['gemini-3.0-pro', 'gemini-3.0-flash', 'gemini-3.0-ultra', 'gemini-2.5-pro'], icon: Globe2 },
+  { id: 'deepseek', name: 'DeepSeek', description: 'V4 新一代推理模型', providerLabel: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-v4-pro', models: ['deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-v3.2', 'deepseek-r1', 'deepseek-chat'], icon: Zap },
+  { id: 'moonshot', name: 'Kimi / Moonshot AI', description: 'Kimi 新一代模型 API', providerLabel: 'Kimi / Moonshot AI', baseUrl: 'https://api.moonshot.cn/v1', model: 'kimi-k3', models: ['kimi-k3', 'kimi-k2.6', 'kimi-k2.5', 'kimi-k2', 'moonshot-v1-128k'], icon: Bot },
+  { id: 'zai', name: 'Z.ai', description: 'GLM 新一代 API', providerLabel: 'Z.ai', baseUrl: 'https://api.z.ai/api/paas/v4', model: 'glm-7', models: ['glm-7', 'glm-7-flash', 'glm-7-vision', 'glm-6'], icon: Sparkles },
+  { id: 'qwen', name: 'Qwen / 通义千问', description: 'Qwen 6 系列兼容接口', providerLabel: 'Qwen / 通义千问', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen6-max', models: ['qwen6-max', 'qwen6-plus', 'qwen6-turbo', 'qwen6-vl', 'qwen6-coder', 'qwen6-math', 'qwen6-omni'], icon: Cpu },
   { id: 'minimax', name: 'MiniMax', description: 'MiniMax API', providerLabel: 'MiniMax', baseUrl: 'https://api.minimax.io/v1', model: 'MiniMax-M2.5', models: ['MiniMax-M2.5', 'MiniMax-M2', 'MiniMax-01'], icon: Server },
-  { id: 'mistral', name: 'Mistral AI', description: 'Mistral API', providerLabel: 'Mistral AI', baseUrl: 'https://api.mistral.ai/v1', model: 'mistral-large-latest', models: ['mistral-large-latest', 'magistral-medium-latest', 'codestral-latest'], icon: Cloud },
+  { id: 'mistral', name: 'Mistral AI', description: 'Mistral 新一代 API', providerLabel: 'Mistral AI', baseUrl: 'https://api.mistral.ai/v1', model: 'mistral-large-latest', models: ['mistral-large-latest', 'magistral-medium-latest', 'codestral-latest', 'devstral-latest'], icon: Cloud },
   { id: 'xai', name: 'xAI', description: 'Grok API', providerLabel: 'xAI', baseUrl: 'https://api.x.ai/v1', model: 'grok-4', models: ['grok-4', 'grok-4-fast', 'grok-3-mini'], icon: Zap },
-  { id: 'siliconflow', name: '硅基流动', description: '多种开源模型', providerLabel: '硅基流动', baseUrl: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3.2', models: ['deepseek-ai/DeepSeek-V3.2', 'deepseek-ai/DeepSeek-R1', 'Qwen/Qwen3-235B-A22B', 'moonshotai/Kimi-K2.5'], icon: Server },
-  { id: 'openrouter', name: 'OpenRouter', description: '统一聚合模型接口', providerLabel: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', model: 'openai/gpt-5.4', models: ['openai/gpt-5.4', 'anthropic/claude-opus-4-1', 'google/gemini-3-pro', 'moonshotai/kimi-k2.5', 'z-ai/glm-5'], icon: Cloud },
-  { id: 'custom', name: '其他服务', description: 'OpenAI 兼容接口', providerLabel: 'OpenAI-compatible', baseUrl: '', model: '', models: [], icon: SlidersHorizontal },
+  { id: 'siliconflow', name: '硅基流动', description: '多种新一代开源模型', providerLabel: '硅基流动', baseUrl: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V4-Pro', models: ['deepseek-ai/DeepSeek-V4-Pro', 'deepseek-ai/DeepSeek-V4-Flash', 'deepseek-ai/DeepSeek-V3.2', 'deepseek-ai/DeepSeek-R1', 'Qwen/Qwen3-235B-A22B', 'moonshotai/Kimi-K2.5'], icon: Server },
+  { id: 'openrouter', name: 'OpenRouter', description: '统一聚合最新模型', providerLabel: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', model: 'deepseek/deepseek-v4-pro', models: ['deepseek/deepseek-v4-pro', 'openai/gpt-5.4', 'anthropic/claude-opus-5', 'google/gemini-3.0-pro', 'moonshotai/kimi-k2.5', 'z-ai/glm-7'], icon: Cloud },
+  { id: 'custom', name: '自定义连接', description: '手动填写服务与模型', providerLabel: 'OpenAI-compatible', baseUrl: '', model: '', models: [], icon: SlidersHorizontal },
 ]; 
 
 const TONES: Array<{ id: ToneId; name: string; description: string; temperature: number }> = [
@@ -145,10 +147,11 @@ export default function AISettingsPage() {
   const [showTransfer, setShowTransfer] = useState(false);
 
   const cloudPreset = CLOUD_PROVIDERS.find((item) => item.id === cloudPresetId) ?? CLOUD_PROVIDERS.find((item) => item.id === 'custom')!;
-  const selectedTier = LOCAL_MODEL_TIERS.find((tier) => tier.id === selectedTierId) ?? LOCAL_MODEL_TIERS[5];
+  const selectedTier = LOCAL_MODEL_TIERS.find((tier) => tier.id === selectedTierId) ?? LOCAL_MODEL_TIERS.find((tier) => tier.id === '1_7b')!;
   const recommended = recommendedTier(memoryGb, mode === 'browser' ? 'browser' : 'device');
   const webGpuReady = useMemo(() => browserSupportsLocalAI(), []);
   const hasUsableKey = mode !== 'cloud' || Boolean(apiKeyDraft.trim() || config.apiKey);
+  const isCustomCloudModel = cloudPreset.models.length === 0 || !cloudPreset.models.includes(config.model);
 
   const update = <K extends keyof AiConfig>(key: K, value: AiConfig[K]) => {
     setConfig((current) => ({ ...current, [key]: value }));
@@ -393,7 +396,18 @@ export default function AISettingsPage() {
               </label>
               <label className="ai-field">
                 <span>模型</span>
-                {cloudPreset.models.length ? <select value={config.model} onChange={(event) => update('model', event.target.value)}>{cloudPreset.models.map((model) => <option key={model}>{model}</option>)}</select> : <input value={config.model} onChange={(event) => update('model', event.target.value)} placeholder="模型名称" />}
+                {cloudPreset.models.length ? (
+                  <div className="ai-model-picker">
+                    <select
+                      value={isCustomCloudModel ? CUSTOM_MODEL_VALUE : config.model}
+                      onChange={(event) => update('model', event.target.value === CUSTOM_MODEL_VALUE ? '' : event.target.value)}
+                    >
+                      {cloudPreset.models.map((model) => <option key={model}>{model}</option>)}
+                      <option value={CUSTOM_MODEL_VALUE}>手动填写模型…</option>
+                    </select>
+                    {isCustomCloudModel && <input value={config.model} onChange={(event) => update('model', event.target.value)} placeholder="例如：deepseek-v4-pro" aria-label="自定义模型名称" />}
+                  </div>
+                ) : <input value={config.model} onChange={(event) => update('model', event.target.value)} placeholder="手动填写模型名称" />}
               </label>
             </div>
             {cloudPresetId === 'custom' && <div className="ai-custom-fields"><label className="ai-field"><span>服务名称</span><input value={config.providerLabel} onChange={(event) => update('providerLabel', event.target.value)} /></label><label className="ai-field"><span>API 地址</span><input value={config.baseUrl} onChange={(event) => update('baseUrl', event.target.value)} placeholder="https://api.example.com/v1" /></label></div>}

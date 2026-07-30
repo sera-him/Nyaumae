@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { characters, type Character } from '@/data/characters';
 import { extraCharacters } from '@/data/extraCharacters';
@@ -11,7 +11,7 @@ import { semanticHighlight } from '@/lib/semanticHighlight';
 import { getTierStyle, getPositionPercent } from '@/lib/fsiiiTiers';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Network, BookOpen, User, FolderKanban, X, EyeOff, ChevronDown } from 'lucide-react';
-import { frequencyMeta, wordFrequency } from '@/data/wordFrequency';
+import { frequencyMeta, loadWordFrequency, wordFrequency } from '@/data/wordFrequency';
 
 
 export default function CharacterDetail() {
@@ -19,6 +19,18 @@ export default function CharacterDetail() {
   const all = [...characters, ...extraCharacters] as (Character | typeof extraCharacters[0])[];
   const char = all.find((c) => c.id === id);
   const [showArchive, setShowArchive] = useState(false);
+  const [, setFrequencyRevision] = useState(0);
+
+  useEffect(() => {
+    if (!showArchive) return;
+    let cancelled = false;
+    void loadWordFrequency().then(() => {
+      if (!cancelled) setFrequencyRevision((revision) => revision + 1);
+    }).catch(() => {
+      // The archive is supplementary; keep the character page usable if it fails to load.
+    });
+    return () => { cancelled = true; };
+  }, [showArchive]);
 
   if (!char) {
     return (

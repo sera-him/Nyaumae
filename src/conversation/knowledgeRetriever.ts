@@ -116,9 +116,13 @@ export function citationForDocument(document: KnowledgeDocument, query = ''): Ci
 }
 
 export class KnowledgeRetriever {
-  private readonly source?: KnowledgeSource;
+  private source?: KnowledgeSource;
 
   constructor(source?: KnowledgeSource) {
+    this.source = source;
+  }
+
+  setSource(source: KnowledgeSource): void {
     this.source = source;
   }
 

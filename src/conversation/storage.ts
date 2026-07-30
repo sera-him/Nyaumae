@@ -40,7 +40,7 @@ const DEFAULT_AI_CONFIG: AiConfig = {
   provider: 'openai-compatible',
   providerLabel: 'OpenAI-compatible',
   baseUrl: 'https://api.openai.com/v1',
-  model: 'gpt-4o-mini',
+  model: 'gpt-5.4',
   temperature: 0.7,
   maxTokens: 1200,
   contextWindow: 16_000,

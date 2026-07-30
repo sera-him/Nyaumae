@@ -412,7 +412,7 @@ for (const [keyword, color] of frequencyHighlightMap) {
   if (!COLOR_MAP[keyword]) COLOR_MAP[keyword] = color;
 }
 
-const ALL_KEYS = Object.keys(COLOR_MAP).sort((a, b) => b.length - a.length);
+let ALL_KEYS = Object.keys(COLOR_MAP).sort((a, b) => b.length - a.length);
 
 // ═══════════════════════════════════════════════════════════════
 //  MATCHING ENGINE
@@ -430,6 +430,19 @@ function isDelimiter(ch: string): boolean {
 
 const MAX_CACHE_SIZE = 300;
 const highlightCache = new Map<string, React.ReactNode[]>();
+
+function syncFrequencyHighlights(): void {
+  let changed = false;
+  for (const [keyword, color] of frequencyHighlightMap) {
+    if (COLOR_MAP[keyword]) continue;
+    COLOR_MAP[keyword] = color;
+    changed = true;
+  }
+  if (changed) {
+    ALL_KEYS = Object.keys(COLOR_MAP).sort((a, b) => b.length - a.length);
+    highlightCache.clear();
+  }
+}
 
 function getCachedHighlight(text: string): React.ReactNode[] | undefined {
   return highlightCache.get(text);
@@ -449,6 +462,8 @@ function setCachedHighlight(text: string, result: React.ReactNode[]): void {
 
 export function semanticHighlight(text: string): React.ReactNode[] {
   if (!text) return [];
+
+  syncFrequencyHighlights();
 
   // Check cache first
   const cached = getCachedHighlight(text);
@@ -556,6 +571,8 @@ export function alternatingHighlight(
   targetWord?: string
 ): React.ReactNode[] {
   if (!text) return [];
+
+  syncFrequencyHighlights();
   const parts: React.ReactNode[] = [];
   let key = 0;
   let i = 0;

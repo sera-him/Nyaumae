@@ -22,6 +22,19 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  build: {
+    // WebLLM is a prebundled browser runtime and is loaded only for the Browser WebGPU provider.
+    // Keep it in its own lazy chunk and do not report its intentional size as a build regression.
+    chunkSizeWarningLimit: 7000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (/node_modules[\\/]@mlc-ai[\\/]web-llm[\\/]/.test(id)) return 'web-llm';
+          return undefined;
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

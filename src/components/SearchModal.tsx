@@ -2,9 +2,15 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, User, BookOpen, Sparkles, Settings, Swords, BookMarked, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { getPopularWords, getRelatedWords } from '@/data/wordFrequency';
+import { getPopularWords, getRelatedWords, loadWordFrequency, type WordFreq } from '@/data/wordFrequency';
 
-type FullSearchItem = import('@/data/fullSearchIndex').FullSearchItem;
+interface FullSearchItem {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  href: string;
+}
 
 const categoryIcons: Record<string, React.ElementType> = {
   '角色': User, '故事': BookOpen, '技能': Sparkles,
@@ -121,15 +127,26 @@ function resolveRoute(item: FullSearchItem): string {
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<{ item: FullSearchItem; score: number }[]>([]);
+  const [popularWords, setPopularWords] = useState<WordFreq[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  const popularWords = getPopularWords(18);
 
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
       setTimeout(() => { setQuery(''); setResults([]); }, 0);
     }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    void loadWordFrequency().then(() => {
+      if (!cancelled) setPopularWords(getPopularWords(18));
+    }).catch(() => {
+      if (!cancelled) setPopularWords([]);
+    });
+    return () => { cancelled = true; };
   }, [isOpen]);
 
   useEffect(() => {
@@ -140,8 +157,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         return;
       }
       const searchQuery = query.toLowerCase().trim() === 'sera-him' ? query + ' Nyaumæ' : query;
-      const { fullTextSearch } = await import('@/data/fullSearchIndex');
+      const [{ fullTextSearch }] = await Promise.all([
+        import('@/data/fullSearchIndex'),
+        loadWordFrequency(),
+      ]);
       if (!cancelled) {
+        setPopularWords(getPopularWords(18));
         const r = fullTextSearch(searchQuery);
         setResults(r);
       }

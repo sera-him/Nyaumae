@@ -8,7 +8,7 @@ import type {
 } from './types.ts';
 import { conversationRepository, type ConversationRepository } from './storage.ts';
 import { ContextBuilder } from './contextBuilder.ts';
-import { contextBuilder } from './siteContextBuilder.ts';
+import { contextBuilder, ensureSiteKnowledgeLoaded } from './siteContextBuilder.ts';
 import { createModelAdapter, ModelAdapterError } from './modelAdapters.ts';
 import { LevelSystem, levelSystem } from './levelSystem.ts';
 import { isAbortError, estimateTokens, nowIso } from './utils.ts';
@@ -180,6 +180,7 @@ export class ConversationEngine {
       this.persist.setConversationSummary(conversation.id, summarize(previousMessages, conversation.id));
     }
     const latestConversation = this.persist.getConversation(conversation.id) ?? conversation;
+    await ensureSiteKnowledgeLoaded();
     const builtContext = this.context.build({
       conversation: latestConversation,
       currentInput: content,

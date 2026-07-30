@@ -481,7 +481,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === 'k') {
+      if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLocaleLowerCase() === 'o') {
         event.preventDefault();
         newConversation();
         return;
@@ -532,7 +532,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
           <button type="button" onClick={() => setSidebarOpen(false)} aria-label="收起侧栏"><Menu /></button>
         </div>
         <button type="button" className={`${p}-new-chat`} onClick={newConversation}>
-          <Plus /><span>新建对话</span><kbd>Ctrl K</kbd>
+          <Plus /><span>新建对话</span><kbd>Ctrl Shift O</kbd>
         </button>
         <label className={`${p}-search`}>
           <Search /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索对话" />
