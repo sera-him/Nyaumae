@@ -117,7 +117,7 @@
 .ocean-profile small { color: #9eacc2; font-size: 9px; }
 .ocean-profile svg { width: 14px; color: #9caec8; }
 
-.ocean-chat-main { position: relative; z-index: 2; display: flex; flex-direction: column; min-width: 0; min-height: calc(100vh - 72px); }
+.ocean-chat-main { position: relative; z-index: 2; display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
 .ocean-chat-header { display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 24px; border-bottom: 1px solid rgba(141,174,210,.16); background: rgba(255,255,255,.36); backdrop-filter: blur(14px); }
 .ocean-header-left, .ocean-header-actions { display: flex; align-items: center; gap: 10px; }
 .ocean-model-mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 14px; color: white; background: linear-gradient(135deg, #74d8e5, #829fea 58%, #d19bf2); box-shadow: 0 8px 18px rgba(113,166,218,.22); }
@@ -178,6 +178,7 @@
 .ocean-composer .ocean-tool svg { width: 13px; }
 .ocean-composer .ocean-send { color: white; background: linear-gradient(135deg, #78dce4, #8aa1ee 58%, #d494eb); box-shadow: 0 7px 16px rgba(126,157,224,.28); }
 .ocean-composer .ocean-send:hover { background: linear-gradient(135deg, #68d5df, #7e95e7 58%, #ca87e3); }
+.ocean-composer .ocean-send:disabled { background: #c9d2df; box-shadow: none; }
 .ocean-composer-shell > p { margin: 7px 0 0; text-align: center; color: #9baec3; font-size: 8px; letter-spacing: .04em; }
 
 .ocean-pet-dock { position: fixed; z-index: 7; right: 20px; bottom: 22px; display: flex; flex-direction: column; align-items: center; width: 154px; pointer-events: none; }
@@ -218,7 +219,7 @@
   .ocean-chat, .ocean-chat[data-sidebar="closed"] { grid-template-columns: 1fr; min-height: calc(100svh - 64px); }
   .ocean-sidebar { position: fixed; z-index: 12; inset: 0 auto 0 0; width: min(300px, 88vw); margin: 0; transform: translateX(0); box-shadow: 24px 0 70px rgba(65,100,150,.24); }
   .ocean-chat[data-sidebar="closed"] .ocean-sidebar { margin: 0; transform: translateX(-102%); }
-  .ocean-chat-main { min-height: calc(100svh - 64px); }
+  .ocean-chat-main { min-height: 0; height: 100%; }
   .ocean-chat-header { height: 58px; padding: 0 14px; }
   .ocean-share { padding: 9px; }
   .ocean-share span { display: none; }
