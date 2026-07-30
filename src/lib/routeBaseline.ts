@@ -321,14 +321,6 @@ export const ROUTE_MANIFEST: RouteEntry[] = [
     imageAssets: [],
   },
   {
-    path: '/playground/rules',
-    title: '规则说明',
-    description: '游戏规则文档',
-    parentRoute: '/playground',
-    theme: 'playground',
-    imageAssets: [],
-  },
-  {
     path: '/playground/scratch',
     title: 'Scratch 小游戏',
     description: 'Scratch 小游戏集合',

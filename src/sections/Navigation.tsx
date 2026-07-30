@@ -77,20 +77,14 @@ const navGroups: NavGroup[] = [
   {
     label: '游戏', caption: 'PLAYGROUND', icon: Gamepad2,
     items: [
-      { label: '猫咪机', to: '/playground/games/cat-machine' },
-      { label: '神经回响', to: '/playground/games/neural-echo' },
-      { label: '递归回响', to: '/playground/games/fractal-echo' },
-      { label: '神经交锋', to: '/playground/games/neural-clash' },
       { label: '可玩游戏', to: '/playground/games' },
-      { label: '规则说明', to: '/playground/rules' },
       { label: 'Scratch 小游戏', to: '/playground/scratch' },
     ],
   },
   {
     label: '星海对话', caption: 'DREAMY GPT', icon: MessageCircleMore,
     items: [
-      { label: '星海甜梦舱', to: '/chat' },
-      { label: '✦ 甜梦舱', to: '/sweetdream' },
+      { label: '✦ 星海甜梦舱', to: '/chat' },
     ],
   },
   {

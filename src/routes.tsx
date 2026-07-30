@@ -134,8 +134,6 @@ export default function AppRoutes() {
         <Route path="/playground/games" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
         <Route path="/playground/games/:game" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
         <Route path="/cat-mouse" element={<SuspenseWrapper><CatMouseGame /></SuspenseWrapper>} />
-        <Route path="/playground/rules" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
-        <Route path="/playground/rules/:rule" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
         <Route path="/playground/scratch" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
         <Route path="/playground/scratch/:game" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
 

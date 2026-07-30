@@ -33,7 +33,6 @@ const canonicalRoutes: Record<string, RouteInfo> = {
   '/math/height-weight': { canonical: '/math/height-weight', domain: 'math', kind: 'section', label: '身高体重模型' },
   '/playground/games': { canonical: '/playground/games', domain: 'playground', kind: 'section', label: '可玩游戏' },
   '/playground/games/cat-machine': { canonical: '/playground/games/cat-machine', domain: 'playground', kind: 'detail', label: '猫咪机' },
-  '/playground/rules': { canonical: '/playground/rules', domain: 'playground', kind: 'section', label: '规则说明' },
   '/playground/scratch': { canonical: '/playground/scratch', domain: 'playground', kind: 'section', label: 'Scratch 小游戏' },
   '/api': { canonical: '/api', domain: 'api', kind: 'page', label: 'API 目录' },
   '/chat': { canonical: '/chat', domain: 'chat', kind: 'page', label: '星海甜梦舱' },
@@ -56,7 +55,7 @@ const aliasMap: Record<string, string> = {
   '/playground/skill-ttt': '/playground/games/skill-tic-tac-toe',
   '/playground/hell-maze': '/playground/games/hell-maze-vi',
   '/playground/three-holes': '/playground/games/cunning-rabbit',
-  '/playground/cat-mouse-mystery': '/playground/rules/cat-mouse',
+  '/playground/cat-mouse-mystery': '/cat-mouse',
   '/playground/fractal-war': '/playground/games/fractal-echo',
   '/playground/neural': '/playground/games/neural-clash',
   '/playground/neural-echo': '/playground/games/neural-echo',
@@ -74,7 +73,7 @@ const knownProviderIds = new Set([
   'groq', 'perplexity', 'opencode',
 ]);
 
-const playgroundItems: Record<string, { category: 'games' | 'rules' | 'scratch' }> = {
+const playgroundItems: Record<string, { category: 'games' | 'scratch' }> = {
   'cat-machine': { category: 'games' },
   'stellar': { category: 'games' },
   'compound-chess': { category: 'games' },
@@ -87,7 +86,7 @@ const playgroundItems: Record<string, { category: 'games' | 'rules' | 'scratch' 
   'fractal-echo': { category: 'games' },
   'neural-echo': { category: 'games' },
   'neural-clash': { category: 'games' },
-  'cat-mouse': { category: 'rules' },
+  'cat-mouse': { category: 'games' },
   'dont-touch-cat-2': { category: 'scratch' },
   'knife-vs-archer': { category: 'scratch' },
   'royal-chess': { category: 'scratch' },
@@ -134,7 +133,7 @@ export function isKnownPlaygroundItem(id: string): boolean {
   return id in playgroundItems;
 }
 
-export function getPlaygroundItemCategory(id: string): 'games' | 'rules' | 'scratch' | null {
+export function getPlaygroundItemCategory(id: string): 'games' | 'scratch' | null {
   return playgroundItems[id]?.category ?? null;
 }
 

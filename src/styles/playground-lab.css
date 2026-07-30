@@ -59,47 +59,6 @@
   background: linear-gradient(90deg, transparent, rgba(166, 133, 255, 0.08), transparent);
 }
 
-.pg-rule-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 50%;
-  font-size: 0.6rem;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  background: rgba(121, 169, 255, 0.06);
-  color: rgba(121, 169, 255, 0.5);
-  border: 1px solid rgba(121, 169, 255, 0.08);
-  flex-shrink: 0;
-  margin-top: 0.1rem;
-  line-height: 1;
-}
-
-.pg-stepped-rule {
-  position: relative;
-  display: flex;
-  gap: 0.6rem;
-  align-items: flex-start;
-  padding: 0.25rem 0;
-}
-
-.pg-stepped-rule::before {
-  content: '';
-  position: absolute;
-  left: 0.7rem;
-  top: 1.5rem;
-  bottom: -0.5rem;
-  width: 1px;
-  background: rgba(121, 169, 255, 0.06);
-  pointer-events: none;
-}
-
-.pg-stepped-rule:last-child::before {
-  display: none;
-}
-
 .pg-card-texture-board {
   background-image:
     repeating-linear-gradient(
@@ -115,17 +74,6 @@
       transparent 28px,
       rgba(121, 169, 255, 0.02) 28px,
       rgba(121, 169, 255, 0.02) 29px
-    );
-}
-
-.pg-card-texture-rules {
-  background-image:
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 20px,
-      rgba(121, 169, 255, 0.015) 20px,
-      rgba(121, 169, 255, 0.015) 21px
     );
 }
 

@@ -36,7 +36,7 @@ const ROUTE_BY_ANCHOR: Record<string, string> = {
   '#miia-world': '/miia/world',
   '#math': '/math/fsiii',
   '#problems': '/playground/games',
-  '#chess': '/playground/rules/compound-chess',
+  '#chess': '/playground/games/compound-chess',
 };
 
 function routeForItem(id: string, href: string): string {

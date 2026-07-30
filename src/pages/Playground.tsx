@@ -21,17 +21,15 @@ interface GameEntry {
   id: string;
   name: string;
   desc: string;
-  category: 'games' | 'rules' | 'scratch';
+  category: 'games' | 'scratch';
   icon: string;
   color: string;
-  rules?: string[];
   component?: React.ComponentType;
   scratchId?: number;
 }
 
 const CATEGORIES: { key: GameEntry['category']; label: string }[] = [
   { key: 'games', label: '可玩游戏' },
-  { key: 'rules', label: '规则说明' },
   { key: 'scratch', label: 'Scratch 小游戏' },
 ];
 
@@ -106,29 +104,11 @@ const games: GameEntry[] = [
     desc: '100节点·666突触的大图博弈。神经核控场、强化突触主攻、脉冲自动结算。',
     category: 'games', icon: '🧠', color: '#06b6d4',
     component: NeuralClash,
-    rules: [
-      '图结构：100节点（含10个神经核）+ ~666条突触（200条强化突触为可操作边，466条普通突触仅被动投票）',
-      '每人每回合3行动点（AP）：占据邻接空节点（强化突触，1AP），攻击邻接敌节点（强化突触，2AP，每回合限1次）',
-      '双方行动后→神经脉冲自动结算：攻击每个中立节点，统计邻接投票（普通=1票，强化=2票，邻接神经核+1票）',
-      '得票多者占领该节点；平票→节点变为死亡（双方永久无法占领）',
-      '反向脉冲（每人1次）：指定一个节点，对其及所有邻居立即触发一次脉冲结算（己方得票+2）',
-      '25轮后或一方占领全部10个神经核时结束：神经核=10分，普通节点=1分，控制神经核多数邻居另有加成',
-      '先手平衡：双方出生点图距离5-7且度数中心性相近；不平则后手+3目',
-    ],
   },
   {
     id: 'cat-mouse', name: '猫鼠迷踪',
     desc: '连续平面上的非对称追逐。诱饵骗术、真实气味、疾跑与终局封锁。支持双阵营实战与完整复盘。',
     category: 'games', icon: '🐱', color: '#9d7df6',
-    rules: [
-      '连续二维平面，每回合分三步走：①老鼠在自己的半径1圆上选新位置（猫看不见） ②老鼠在新位置的半径2圆内放一个诱饵位置（猫看得见） ③猫在自己的半径1圆上选新位置',
-      '捕获判定：每回合结束后，若猫鼠距离 ≤1，猫胜',
-      '特殊资源——猫：真实气味（3次）。使用时，老鼠第②步必须把诱饵放在真实位置（猫强制获取真相）',
-      '特殊资源——鼠：疾跑（3次）。使用时，老鼠第①步的移动半径变为2',
-      '鼠胜条件：存活35回合，且结束时猫鼠距离 >3',
-      '平面边界：±50（软边界，超出则拉回）',
-      '灵感来源：IMO 2017 第3题（猎人与兔子）',
-    ],
   },
 
   /* ─── Scratch games ─── */
@@ -154,7 +134,6 @@ const NAV_ALIAS: Record<string, { category: GameEntry['category']; id: string }>
   'skill-ttt': { category: 'games', id: 'skill-tic-tac-toe' },
   'hell-maze': { category: 'games', id: 'hell-maze-vi' },
   'three-holes': { category: 'games', id: 'cunning-rabbit' },
-  'cat-mouse-mystery': { category: 'rules', id: 'cat-mouse' },
   'fractal-war': { category: 'games', id: 'fractal-echo' },
   'neural': { category: 'games', id: 'neural-clash' },
   'neural-echo': { category: 'games', id: 'neural-echo' },
@@ -181,7 +160,7 @@ function resolvePlaygroundPath(pathname: string) {
   if (parts.length === 0) return { category: null as GameEntry['category'] | null, item: null as string | null };
 
   const rawCategory = parts[0];
-  const category = (rawCategory === 'games' || rawCategory === 'rules' || rawCategory === 'scratch') ? rawCategory as GameEntry['category'] : null;
+  const category = (rawCategory === 'games' || rawCategory === 'scratch') ? rawCategory as GameEntry['category'] : null;
   const item = parts.length > 1 ? parts.slice(1).join('/') : null;
 
   if (category) return { category, item };
@@ -265,40 +244,6 @@ function ScratchDetail({ game, onBack }: { game: GameEntry; onBack: () => void }
   );
 }
 
-/* ─── Rules detail ─── */
-
-function RulesDetail({ game, onBack }: { game: GameEntry; onBack: () => void }) {
-  return (
-    <div className="rounded-2xl overflow-hidden border border-white/[0.06] pg-lab-frame">
-      <div className="pg-experiment-bar">
-        <span className="pg-status-dot" style={{ backgroundColor: game.color }} />
-        <span className="text-xs font-mono font-semibold" style={{ color: game.color }}>{game.name}</span>
-        <span className="text-xs text-nc-text-muted/50">EXPERIMENT / {game.id.toUpperCase()}</span>
-      </div>
-      <div className="flex items-center justify-between px-4 py-2.5 bg-nc-bg-tertiary/50">
-        <div className="flex items-center gap-2">
-          <GameIcon icon={game.icon} color={game.color} />
-          <div>
-            <div className="text-sm font-medium">{game.name}</div>
-            <div className="text-xs text-nc-text-muted/50">{game.desc}</div>
-          </div>
-        </div>
-        <button onClick={onBack} className="text-xs text-nc-text-muted hover:text-nc-text transition-colors px-2 py-1">
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="px-4 py-3 text-sm text-nc-text-secondary bg-nc-bg-tertiary/20">
-        {game.rules!.map((r, i) => (
-          <div key={i} className="pg-stepped-rule">
-            <span className="pg-rule-number">{i + 1}</span>
-            <span>{r}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ─── Playable game component ─── */
 
 function PlayableGame({ game, onBack }: { game: GameEntry; onBack: () => void }) {
@@ -329,7 +274,7 @@ function PlayableGame({ game, onBack }: { game: GameEntry; onBack: () => void })
 
 function LandingPage({ onCategory }: { onCategory: (cat: GameEntry['category']) => void }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {CATEGORIES.map(c => (
         <button
           key={c.key}
@@ -400,11 +345,6 @@ export default function Playground() {
         {selectedGame && category === 'games' && (
           <motion.div key={selectedGame.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
             <PlayableGame game={selectedGame} onBack={goBack} />
-          </motion.div>
-        )}
-        {selectedGame && category === 'rules' && (
-          <motion.div key={selectedGame.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-            <RulesDetail game={selectedGame} onBack={goBack} />
           </motion.div>
         )}
         {selectedGame && category === 'scratch' && (
