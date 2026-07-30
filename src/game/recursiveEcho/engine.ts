@@ -20,12 +20,12 @@ export interface BoardStats {
 }
 
 export interface TargetStats {
-  readonly boards: bigint;
-  readonly empty: bigint;
-  readonly blue: bigint;
-  readonly orange: bigint;
-  readonly ai: bigint;
-  readonly subboard: bigint;
+  boards: bigint;
+  empty: bigint;
+  blue: bigint;
+  orange: bigint;
+  ai: bigint;
+  subboard: bigint;
 }
 
 type NonEmptyColor = Exclude<EchoColor, 'empty'>;
