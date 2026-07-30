@@ -154,7 +154,7 @@ Lost Number，Lost Future
 export const miiaStoryFragments: PoemEntry[] = [
   {
     title: 'UN=PIG',
-    period: '新收录 · 电路寓言',
+    period: '收录 · 电路寓言',
     content: `R：整个电路的总电阻
 G：某个元件自身的局部电阻
 I：流过该元件的电流
@@ -165,7 +165,7 @@ N：该元件消耗的功率
   },
   {
     title: '四只小猫的故事',
-    period: '新收录 · 寓言',
+    period: '收录 · 寓言',
     content: `四只小猫听说大灰狼要来了，所以它们就在一起商量，应该怎么对付这只大灰狼。
 
 然后，它们决定各自去盖一座房子。

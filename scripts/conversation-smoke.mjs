@@ -39,6 +39,27 @@ test('memory conflicts create versions and retrieval prefers the latest valid re
   assert.equal(memories.getVersionHistory(second.id).length, 2);
 });
 
+test('localized new conversations receive a useful title from the first user message', () => {
+  const repository = new ConversationRepository();
+  const conversation = repository.createConversation({ title: '新对话' });
+  const timestamp = new Date().toISOString();
+  repository.saveMessage({
+    id: 'localized-title-message',
+    conversationId: conversation.id,
+    role: 'user',
+    content: '请带我认识这个世界的主要角色',
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    citations: [],
+    toolCalls: [],
+    attachments: [],
+    tokenEstimate: 8,
+    status: 'completed',
+    metadata: {},
+  });
+  assert.equal(repository.getConversation(conversation.id)?.title, '请带我认识这个世界的主要角色');
+});
+
 test('character memory isolation rejects another character', () => {
   const repository = new ConversationRepository();
   const memories = new MemoryManager(repository);

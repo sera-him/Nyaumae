@@ -186,9 +186,13 @@ export default function StoryReader() {
           className={`aurora-reader-paper prose prose-invert max-w-none ${paperClass}`}
         >
           <h2 className="text-xl font-semibold text-nc-text mb-6">{chapter.title}</h2>
-          {chapter.image && (
-            <div className="mb-6 rounded-xl overflow-hidden">
-              <img src={chapter.image} alt={chapter.title} className="w-full object-cover" />
+          {(chapter.image || chapter.images?.length) && (
+            <div className="mb-6 grid gap-4 md:grid-cols-2">
+              {[chapter.image, ...(chapter.images ?? [])].filter(Boolean).map((image, imageIndex) => (
+                <div key={image} className="rounded-xl overflow-hidden">
+                  <img src={image} alt={`${chapter.title} 图片 ${imageIndex + 1}`} className="w-full object-cover" />
+                </div>
+              ))}
             </div>
           )}
           <div className={`text-nc-text-secondary leading-[1.9] text-[15px] space-y-4 whitespace-pre-wrap ${titleFontClass}`}>

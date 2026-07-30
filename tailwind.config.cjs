@@ -54,7 +54,7 @@ module.exports = {
           "bg-tertiary": "#1A1025",
           text: "#F0E6FF",
           "text-secondary": "#C8BCD8",
-          "text-muted": "#A597B8",
+          "text-muted": "#BFB3CA",
           cyan: "#00E5CC",
           violet: "#8B5CF6",
           rose: "#F472B6",

@@ -42,7 +42,7 @@ export default function Dictionary() {
             </h2>
           </div>
           <p className="text-nc-text text-lg">
-            Chinese Dictionary 2.0 · 自创语言对照词典
+            Chinese Dictionary 2.1 · 自创语言对照词典
           </p>
         </div>
 

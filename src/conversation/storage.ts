@@ -227,7 +227,7 @@ export class ConversationRepository {
     if (conversation) {
       conversation.updatedAt = normalized.updatedAt;
       conversation.lastMessageAt = normalized.updatedAt;
-      if (conversation.title === 'New conversation' && message.role === 'user') {
+      if (['New conversation', '新对话'].includes(conversation.title) && message.role === 'user') {
         conversation.title = message.content.trim().slice(0, 42) || conversation.title;
       }
     }

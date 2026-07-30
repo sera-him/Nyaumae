@@ -115,32 +115,6 @@ export default function ExtraStories() {
           </p>
         </div>
 
-        {/* Newly added standalone stories */}
-        <div className="miia-story-fragments mb-12">
-          <div className="mb-5 flex items-center gap-2">
-            <BookOpen className="h-5 w-5 shrink-0 text-nc-rose" />
-            <h3 className="text-lg font-bold text-nc-rose">{semanticHighlight('新收录故事')}</h3>
-          </div>
-          <div className="grid gap-5 lg:grid-cols-2">
-            {miiaStoryFragments.map((story, i) => (
-              <article key={story.title} className="miia-story-fragment-card rounded-2xl border border-nc-rose/20 p-6 sm:p-7">
-                <div className="mb-5 flex items-start justify-between gap-4 border-b border-nc-rose/15 pb-4">
-                  <div>
-                    <p className="mb-2 font-mono text-[10px] tracking-[0.18em] text-nc-rose/75 uppercase">STORY FRAGMENT / 0{i + 1}</p>
-                    <h4 className="text-xl font-bold text-nc-text sm:text-2xl">{semanticHighlight(story.title)}</h4>
-                  </div>
-                  <span className="shrink-0 rounded-full border border-nc-rose/20 px-2.5 py-1 text-[10px] text-nc-text-muted">
-                    {story.period}
-                  </span>
-                </div>
-                <pre className="whitespace-pre-wrap font-serif-cn text-base leading-[2] text-nc-text-secondary sm:text-[17px]">
-                  {semanticHighlight(story.content)}
-                </pre>
-              </article>
-            ))}
-          </div>
-        </div>
-
         {/* Poems from Stories */}
         <div className="mb-10">
           <h3 className="text-lg font-bold text-nc-rose mb-4 flex items-center gap-2">
@@ -151,7 +125,7 @@ export default function ExtraStories() {
             {poems.map((poem, i) => (
               <div
                 key={i}
-                className="bg-nc-bg border border-nc-violet/10 rounded-xl p-5 sm:p-6 hover:border-nc-rose/20 transition-all"
+                className="miia-story-card bg-nc-bg border border-nc-violet/10 rounded-xl p-5 sm:p-6 hover:border-nc-rose/20 transition-all"
               >
                 <div className="flex items-center gap-2 mb-4">
                   <Feather className="w-4 h-4 text-nc-text-secondary" />
@@ -173,7 +147,7 @@ export default function ExtraStories() {
             <Sun className="w-5 h-5 shrink-0" />
             {semanticHighlight("荒诞叙事")}
           </h3>
-          <article className="relative overflow-hidden rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-400/[0.08] via-nc-bg-secondary to-violet-500/[0.08] p-6 sm:p-9">
+          <article className="miia-story-card relative overflow-hidden rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-400/[0.08] via-nc-bg-secondary to-violet-500/[0.08] p-6 sm:p-9">
             <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-amber-300/10 blur-2xl" />
             <div className="relative">
               <p className="mb-2 font-mono text-xs tracking-[0.18em] text-amber-300/80 uppercase">
@@ -190,7 +164,7 @@ export default function ExtraStories() {
         </div>
 
         {/* The deliberately mismatched scales are easier to scan as a wish list. */}
-        <div className="mb-10 rounded-2xl border border-cyan-400/15 bg-nc-bg-secondary p-6 sm:p-8">
+        <div className="miia-story-card mb-10 rounded-2xl border border-cyan-400/15 bg-nc-bg-secondary p-6 sm:p-8">
           <div className="mb-6 flex items-start gap-3">
             <Sparkles className="mt-1 h-5 w-5 shrink-0 text-nc-cyan" />
             <div>
@@ -224,7 +198,7 @@ export default function ExtraStories() {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 mb-8">
             {numberFragments.slice(0, 8).map((frag, i) => (
-              <div key={i} className={`bg-nc-bg-secondary border rounded-lg p-3 sm:p-4 text-center hover:scale-[1.02] transition-transform ${
+              <div key={i} className={`miia-story-card bg-nc-bg-secondary border rounded-lg p-3 sm:p-4 text-center hover:scale-[1.02] transition-transform ${
                 [
                   'border-pink-400/20',
                   'border-cyan-400/20',
@@ -242,7 +216,7 @@ export default function ExtraStories() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
             {numberFragments.slice(8).map((frag, i) => (
-              <div key={i} className={`bg-nc-bg-secondary border rounded-lg p-3 sm:p-4 text-center hover:scale-[1.02] transition-transform ${
+              <div key={i} className={`miia-story-card bg-nc-bg-secondary border rounded-lg p-3 sm:p-4 text-center hover:scale-[1.02] transition-transform ${
                 ['border-nc-gold/20', 'border-nc-cyan/20'][i % 2]
               }`}>
                 <p className="text-sm font-mono text-nc-text leading-relaxed">{semanticHighlight(frag)}</p>
@@ -253,21 +227,21 @@ export default function ExtraStories() {
 
         {/* Year Day & TaskLens & 408 */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-10">
-          <div className="bg-nc-bg-secondary border border-nc-gold/20 rounded-xl p-4 sm:p-6">
+          <div className="miia-story-card bg-nc-bg-secondary border border-nc-gold/20 rounded-xl p-4 sm:p-6">
             <Hash className="w-4 h-4 text-nc-gold mb-3" />
             <pre className="font-mono text-sm text-nc-text-secondary whitespace-pre-wrap">{semanticHighlight(yearDayFragment)}</pre>
           </div>
-          <div className="bg-nc-bg-secondary border border-nc-cyan/20 rounded-xl p-4 sm:p-6 text-center sm:text-left">
+          <div className="miia-story-card bg-nc-bg-secondary border border-nc-cyan/20 rounded-xl p-4 sm:p-6 text-center sm:text-left">
             <p className="font-mono text-base text-nc-cyan font-bold mb-2">TaskLens 2025</p>
             <p className="font-mono text-2xl text-nc-rose font-bold">Σ = 1314</p>
           </div>
-          <div className="bg-nc-bg-secondary border border-nc-violet/20 rounded-xl p-4 sm:p-6 text-center sm:text-left">
+          <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/20 rounded-xl p-4 sm:p-6 text-center sm:text-left">
             <p className="font-mono text-base text-nc-violet font-bold">{semanticHighlight(rtoText)}</p>
           </div>
         </div>
 
         {/* Paradigm */}
-        <div className="bg-nc-bg-secondary border border-nc-rose/20 rounded-xl p-8 sm:p-10 mb-10">
+        <div className="miia-story-card bg-nc-bg-secondary border border-nc-rose/20 rounded-xl p-8 sm:p-10 mb-10">
           <SmartImage
             localSrc="/story-paradigm.jpg"
             alt="Paradigm"
@@ -281,7 +255,7 @@ export default function ExtraStories() {
         </div>
 
         {/* Period / Chapter Index */}
-        <div className="bg-nc-bg-secondary border border-nc-violet/15 rounded-xl p-6 sm:p-8 mb-10">
+        <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/15 rounded-xl p-6 sm:p-8 mb-10">
           <h3 className="text-xl font-bold text-nc-text mb-6 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-nc-cyan" />
             章节索引
@@ -313,7 +287,7 @@ export default function ExtraStories() {
           {extraPoems.filter(p => p.content).map((poem, i) => (
             <div
               key={i}
-              className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6 hover:border-nc-violet/20 transition-all"
+              className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6 hover:border-nc-violet/20 transition-all"
             >
               <div className="flex items-center gap-2 mb-4">
                 <Feather className="w-4 h-4 text-nc-rose shrink-0" />
@@ -339,7 +313,7 @@ export default function ExtraStories() {
         </div>
 
         {/* id().val.exp.redir()?dif:dis — standalone code fragment */}
-        <div className="bg-[#0a0a12] border border-nc-violet/20 rounded-xl p-6 sm:p-8 mb-10">
+        <div className="miia-story-card bg-[#0a0a12] border border-nc-violet/20 rounded-xl p-6 sm:p-8 mb-10">
           <h3 className="text-lg font-bold text-nc-violet mb-4 flex items-center gap-2">
             <Code2 className="w-5 h-5 shrink-0" />
             {semanticHighlight("碎片：id().val.exp.redir()?dif:dis")}
@@ -377,7 +351,7 @@ export default function ExtraStories() {
         </div>
 
         {/* Bad Rabbit - 3 versions */}
-        <div className="bg-nc-bg-secondary border border-red-500/15 rounded-xl overflow-hidden mb-10">
+        <div className="miia-story-card bg-nc-bg-secondary border border-red-500/15 rounded-xl overflow-hidden mb-10">
           <div className="px-4 sm:px-6 py-4 border-b border-red-500/10 flex items-center gap-2">
             <Rabbit className="w-5 h-5 text-red-400 shrink-0" />
             <h3 className="text-xl font-bold text-nc-text">{semanticHighlight("坏兔子（三个版本）")}</h3>
@@ -407,22 +381,22 @@ export default function ExtraStories() {
 
         {/* Short poems row - 3 columns after removing duplicate mimiAndMiiaPoem */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-10">
-          <div className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
+          <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
             <Flower2 className="w-4 h-4 text-nc-rose mb-3" />
             <pre className="font-serif text-nc-text leading-[2.2] whitespace-pre-wrap text-base">{semanticHighlight(huaPoem)}</pre>
           </div>
-          <div className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
+          <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
             <Baby className="w-4 h-4 text-nc-gold mb-3" />
             <pre className="text-base text-nc-text leading-relaxed whitespace-pre-wrap">{semanticHighlight(diminutiveText)}</pre>
           </div>
-          <div className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
+          <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
             <CloudRain className="w-4 h-4 text-indigo-400 mb-3" />
             <p className="font-serif text-base text-nc-text leading-relaxed">{rainbowLine(rainyDay)}</p>
           </div>
         </div>
 
         {/* Sheep's Song */}
-        <div className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-8 text-center mb-10">
+        <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-8 text-center mb-10">
           <SmartImage
             localSrc="/story-sheep-song.jpg"
             alt="绵羊之歌"
@@ -436,7 +410,7 @@ export default function ExtraStories() {
         </div>
 
         {/* Correct Overdose */}
-        <div className="bg-nc-bg-secondary border border-red-500/15 rounded-xl p-8 sm:p-10 mb-10">
+        <div className="miia-story-card bg-nc-bg-secondary border border-red-500/15 rounded-xl p-8 sm:p-10 mb-10">
           <h3 className="text-xl font-bold text-red-400 mb-4 flex items-center gap-2">
             <Skull className="w-5 h-5 shrink-0" />
             Correct Overdose ICU
@@ -454,7 +428,7 @@ export default function ExtraStories() {
         </div>
 
         {/* XiShou Story */}
-        <div className="bg-nc-bg-secondary border border-nc-gold/15 rounded-xl p-8 sm:p-10 mb-10">
+        <div className="miia-story-card bg-nc-bg-secondary border border-nc-gold/15 rounded-xl p-8 sm:p-10 mb-10">
           <h3 className="text-xl font-bold text-nc-gold mb-4 flex items-center gap-2">
             <Sparkles className="w-5 h-5 shrink-0" />
             {semanticHighlight("夕兽与年兽")}
@@ -467,6 +441,32 @@ export default function ExtraStories() {
             className="object-cover"
           />
           <p className="text-base sm:text-lg text-nc-text leading-relaxed">{semanticHighlight(xishouStory)}</p>
+        </div>
+
+        {/* Collected stories stay at the end of the poetry and fragments archive. */}
+        <div className="miia-story-fragments mb-12">
+          <div className="mb-5 flex items-center gap-2">
+            <BookOpen className="h-5 w-5 shrink-0 text-nc-rose" />
+            <h3 className="text-lg font-bold text-nc-rose">{semanticHighlight('收录故事')}</h3>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-2">
+            {miiaStoryFragments.map((story, i) => (
+              <article key={story.title} className="miia-story-card miia-story-fragment-card rounded-2xl border border-nc-rose/20 p-6 sm:p-7">
+                <div className="mb-5 flex items-start justify-between gap-4 border-b border-nc-rose/15 pb-4">
+                  <div>
+                    <p className="mb-2 font-mono text-[10px] tracking-[0.18em] text-nc-rose/75 uppercase">STORY FRAGMENT / 0{i + 1}</p>
+                    <h4 className="text-xl font-bold text-nc-text sm:text-2xl">{semanticHighlight(story.title)}</h4>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-nc-rose/20 px-2.5 py-1 text-[10px] text-nc-text-muted">
+                    {story.period}
+                  </span>
+                </div>
+                <pre className="whitespace-pre-wrap font-serif-cn text-base leading-[2] text-nc-text-secondary sm:text-[17px]">
+                  {semanticHighlight(story.content)}
+                </pre>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>

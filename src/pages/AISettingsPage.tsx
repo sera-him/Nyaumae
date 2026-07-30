@@ -43,7 +43,20 @@ import './AISettingsPage.css';
 
 type Notice = { kind: 'success' | 'error' | 'info'; text: string } | null;
 type SetupMode = 'cloud' | 'device' | 'browser';
-type CloudPresetId = 'openai' | 'deepseek' | 'kimi' | 'siliconflow' | 'custom';
+type CloudPresetId =
+  | 'openai'
+  | 'anthropic'
+  | 'google'
+  | 'deepseek'
+  | 'moonshot'
+  | 'zai'
+  | 'qwen'
+  | 'minimax'
+  | 'mistral'
+  | 'xai'
+  | 'siliconflow'
+  | 'openrouter'
+  | 'custom';
 type LocalRuntime = 'ollama' | 'lmstudio' | 'custom';
 type ToneId = 'precise' | 'balanced' | 'creative';
 
@@ -59,12 +72,20 @@ type CloudPreset = {
 };
 
 const CLOUD_PROVIDERS: CloudPreset[] = [
-  { id: 'openai', name: 'OpenAI', description: 'OpenAI API', providerLabel: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini', models: ['gpt-4o-mini', 'gpt-4o'], icon: Sparkles },
-  { id: 'deepseek', name: 'DeepSeek', description: '国内访问方便', providerLabel: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat', models: ['deepseek-chat', 'deepseek-reasoner'], icon: Zap },
-  { id: 'kimi', name: 'Kimi', description: 'Moonshot API', providerLabel: 'Kimi', baseUrl: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k', models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'], icon: Bot },
-  { id: 'siliconflow', name: '硅基流动', description: '多种开源模型', providerLabel: 'SiliconFlow', baseUrl: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3', models: ['deepseek-ai/DeepSeek-V3', 'Qwen/Qwen2.5-72B-Instruct'], icon: Server },
+  { id: 'openai', name: 'OpenAI', description: 'OpenAI API', providerLabel: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-5.4', models: ['gpt-5.4', 'gpt-5.4-mini', 'gpt-5.3-codex', 'gpt-5-mini'], icon: Sparkles },
+  { id: 'anthropic', name: 'Anthropic', description: 'Claude API', providerLabel: 'Anthropic', baseUrl: 'https://api.anthropic.com/v1', model: 'claude-opus-4-1', models: ['claude-opus-4-1', 'claude-sonnet-4-5', 'claude-haiku-4-5'], icon: Bot },
+  { id: 'google', name: 'Google AI', description: 'Gemini API', providerLabel: 'Google AI', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-3-pro', models: ['gemini-3-pro', 'gemini-3-flash', 'gemini-2.5-pro'], icon: Globe2 },
+  { id: 'deepseek', name: 'DeepSeek', description: '高性价比推理模型', providerLabel: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat', models: ['deepseek-chat', 'deepseek-reasoner', 'deepseek-v3.2', 'deepseek-r1'], icon: Zap },
+  { id: 'moonshot', name: 'Kimi / Moonshot AI', description: 'Moonshot API', providerLabel: 'Kimi / Moonshot AI', baseUrl: 'https://api.moonshot.cn/v1', model: 'kimi-k2.6', models: ['kimi-k2.6', 'kimi-k2.5', 'kimi-k2', 'kimi-k3', 'moonshot-v1-128k'], icon: Bot },
+  { id: 'zai', name: 'Z.ai', description: 'GLM API', providerLabel: 'Z.ai', baseUrl: 'https://api.z.ai/api/paas/v4', model: 'glm-5', models: ['glm-5', 'glm-4.7', 'glm-4.5-air'], icon: Sparkles },
+  { id: 'qwen', name: 'Qwen / 通义千问', description: '通义千问兼容接口', providerLabel: 'Qwen / 通义千问', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen3-max', models: ['qwen3-max', 'qwen3-235b-a22b', 'qwen3-coder-plus', 'qwen-long'], icon: Cpu },
+  { id: 'minimax', name: 'MiniMax', description: 'MiniMax API', providerLabel: 'MiniMax', baseUrl: 'https://api.minimax.io/v1', model: 'MiniMax-M2.5', models: ['MiniMax-M2.5', 'MiniMax-M2', 'MiniMax-01'], icon: Server },
+  { id: 'mistral', name: 'Mistral AI', description: 'Mistral API', providerLabel: 'Mistral AI', baseUrl: 'https://api.mistral.ai/v1', model: 'mistral-large-latest', models: ['mistral-large-latest', 'magistral-medium-latest', 'codestral-latest'], icon: Cloud },
+  { id: 'xai', name: 'xAI', description: 'Grok API', providerLabel: 'xAI', baseUrl: 'https://api.x.ai/v1', model: 'grok-4', models: ['grok-4', 'grok-4-fast', 'grok-3-mini'], icon: Zap },
+  { id: 'siliconflow', name: '硅基流动', description: '多种开源模型', providerLabel: '硅基流动', baseUrl: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3.2', models: ['deepseek-ai/DeepSeek-V3.2', 'deepseek-ai/DeepSeek-R1', 'Qwen/Qwen3-235B-A22B', 'moonshotai/Kimi-K2.5'], icon: Server },
+  { id: 'openrouter', name: 'OpenRouter', description: '统一聚合模型接口', providerLabel: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', model: 'openai/gpt-5.4', models: ['openai/gpt-5.4', 'anthropic/claude-opus-4-1', 'google/gemini-3-pro', 'moonshotai/kimi-k2.5', 'z-ai/glm-5'], icon: Cloud },
   { id: 'custom', name: '其他服务', description: 'OpenAI 兼容接口', providerLabel: 'OpenAI-compatible', baseUrl: '', model: '', models: [], icon: SlidersHorizontal },
-];
+]; 
 
 const TONES: Array<{ id: ToneId; name: string; description: string; temperature: number }> = [
   { id: 'precise', name: '严谨', description: '回答稳定直接', temperature: 0.25 },
@@ -80,7 +101,7 @@ function initialMode(config: AiConfig): SetupMode {
 
 function findCloudPreset(config: AiConfig): CloudPreset {
   return CLOUD_PROVIDERS.find((item) => item.baseUrl && config.baseUrl.replace(/\/+$/, '') === item.baseUrl.replace(/\/+$/, ''))
-    ?? CLOUD_PROVIDERS[4];
+    ?? CLOUD_PROVIDERS.find((item) => item.id === 'custom')!;
 }
 
 function deviceMemory(): number | undefined {
@@ -123,7 +144,7 @@ export default function AISettingsPage() {
   const [importText, setImportText] = useState('');
   const [showTransfer, setShowTransfer] = useState(false);
 
-  const cloudPreset = CLOUD_PROVIDERS.find((item) => item.id === cloudPresetId) ?? CLOUD_PROVIDERS[4];
+  const cloudPreset = CLOUD_PROVIDERS.find((item) => item.id === cloudPresetId) ?? CLOUD_PROVIDERS.find((item) => item.id === 'custom')!;
   const selectedTier = LOCAL_MODEL_TIERS.find((tier) => tier.id === selectedTierId) ?? LOCAL_MODEL_TIERS[5];
   const recommended = recommendedTier(memoryGb, mode === 'browser' ? 'browser' : 'device');
   const webGpuReady = useMemo(() => browserSupportsLocalAI(), []);
@@ -210,9 +231,11 @@ export default function AISettingsPage() {
   };
 
   const chooseTier = (tier: LocalModelTier) => {
-    if (mode === 'browser' && !tier.browserModel) return;
     setSelectedTierId(tier.id);
-    update('model', mode === 'browser' ? (tier.browserModel ?? '') : (tier.ollamaModel ?? tier.deviceModel));
+    update('model', mode === 'browser' ? (tier.browserModel ?? tier.deviceModel) : (tier.ollamaModel ?? tier.deviceModel));
+    if (mode === 'browser' && !tier.browserModel) {
+      setNotice({ kind: 'info', text: `${tier.label} 已选择。浏览器暂时没有这个尺寸的内置权重，请切换到“电脑本地”模式运行。` });
+    }
   };
 
   const buildNextConfig = (): AiConfig => ({
@@ -229,6 +252,10 @@ export default function AISettingsPage() {
       setNotice({ kind: 'error', text: errors.join(' ') });
       return;
     }
+    if (mode === 'browser' && !selectedTier.browserModel) {
+      setNotice({ kind: 'error', text: '当前选择的尺寸没有可供浏览器加载的内置权重，请切换到“电脑本地”模式后再保存。' });
+      return;
+    }
     const saved = conversationRepository.saveAiConfig(next);
     setConfig(saved);
     setApiKeyDraft('');
@@ -240,6 +267,10 @@ export default function AISettingsPage() {
     const errors = validateAiConfig(next);
     if (errors.length) {
       setNotice({ kind: 'error', text: errors.join(' ') });
+      return;
+    }
+    if (mode === 'browser' && !selectedTier.browserModel) {
+      setNotice({ kind: 'error', text: '当前选择的尺寸没有可供浏览器加载的内置权重，请切换到“电脑本地”模式后再保存并测试。' });
       return;
     }
     setTesting(true);
@@ -385,7 +416,6 @@ export default function AISettingsPage() {
                       key={tier.id}
                       className={`${tier.id === selectedTierId ? 'is-selected' : ''}${tier.id === recommended.id ? ' is-recommended' : ''}`}
                       onClick={() => chooseTier(tier)}
-                      disabled={unavailable}
                       title={unavailable ? '该尺寸不适合在浏览器中运行，请选择电脑本地模式' : tier.hardware}
                     >
                       <strong>{tier.label}</strong>
@@ -424,8 +454,9 @@ export default function AISettingsPage() {
                   </div>
                 </>
               ) : (
-                <div className="ai-browser-install">
-                  <div className="ai-browser-model"><Globe2 /><div><small>将下载到当前浏览器</small><strong>{selectedTier.label} · {selectedTier.browserModel}</strong><span>{selectedTier.browserDownload} · 无需 API Key · 对话不离开设备</span></div></div>
+                <div className={`ai-browser-install${selectedTier.browserModel ? '' : ' is-model-unavailable'}`}>
+                  {!selectedTier.browserModel && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>此尺寸可以选择</strong> 浏览器暂时没有对应权重，请切换到“电脑本地”模式运行。</span></div>}
+                  <div className="ai-browser-model"><Globe2 /><div><small>将下载到当前浏览器</small><strong>{selectedTier.label} · {selectedTier.browserModel ?? '暂无内置浏览器权重'}</strong><span>{selectedTier.browserModel ? `${selectedTier.browserDownload} · 无需 API Key · 对话不离开设备` : '请切换到“电脑本地”模式运行这个尺寸。'}</span></div></div>
                   <div className="ai-browser-facts"><span><Check />刷新页面后仍可使用</span><span><Check />模型由浏览器网站数据管理</span><span><Check />首次下载需要网络</span></div>
                   {downloadProgress !== null && <div className="ai-download-progress"><div><span style={{ width: `${downloadProgress}%` }} /></div><p><strong>{downloadProgress}%</strong>{downloadText || '正在准备模型文件…'}</p></div>}
                 </div>

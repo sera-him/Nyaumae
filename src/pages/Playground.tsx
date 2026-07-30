@@ -11,7 +11,9 @@ import HellMaze from '@/sections/HellMaze';
 import ThreeHoles from '@/sections/ThreeHoles';
 import SpaceGame from '@/sections/SpaceGame';
 import FractalEcho from '@/sections/FractalEcho';
+import NeuralEcho from '@/sections/NeuralEcho';
 import CatMachine from '@/sections/CatMachine';
+import NeuralClash from '@/pages/NeuralClash';
 
 /* ─── Types ─── */
 
@@ -90,13 +92,20 @@ const games: GameEntry[] = [
     category: 'games', icon: '❋', color: '#10b981',
     component: FractalEcho,
   },
+  {
+    id: 'neural-echo', name: '神经回响',
+    desc: '分支生长与剪枝的双人策略对战。安排三叉生长、克隆对手节奏，在连续平面上争夺神经网络。',
+    category: 'games', icon: '✦', color: '#2dd4bf',
+    component: NeuralEcho,
+  },
 
   /* ─── Rule-based ─── */
 
   {
     id: 'neural-clash', name: '神经交锋',
     desc: '100节点·666突触的大图博弈。神经核控场、强化突触主攻、脉冲自动结算。',
-    category: 'rules', icon: '🧠', color: '#06b6d4',
+    category: 'games', icon: '🧠', color: '#06b6d4',
+    component: NeuralClash,
     rules: [
       '图结构：100节点（含10个神经核）+ ~666条突触（200条强化突触为可操作边，466条普通突触仅被动投票）',
       '每人每回合3行动点（AP）：占据邻接空节点（强化突触，1AP），攻击邻接敌节点（强化突触，2AP，每回合限1次）',
@@ -109,8 +118,8 @@ const games: GameEntry[] = [
   },
   {
     id: 'cat-mouse', name: '猫鼠迷踪',
-    desc: '连续平面上的猫鼠追逐。半径走位、诱饵骗术、真实嗅觉。IMO 2017 第3题的互动版。',
-    category: 'rules', icon: '🐱', color: '#f97316',
+    desc: '连续平面上的非对称追逐。诱饵骗术、真实气味、疾跑与终局封锁。支持双阵营实战与完整复盘。',
+    category: 'games', icon: '🐱', color: '#9d7df6',
     rules: [
       '连续二维平面，每回合分三步走：①老鼠在自己的半径1圆上选新位置（猫看不见） ②老鼠在新位置的半径2圆内放一个诱饵位置（猫看得见） ③猫在自己的半径1圆上选新位置',
       '捕获判定：每回合结束后，若猫鼠距离 ≤1，猫胜',
@@ -147,7 +156,8 @@ const NAV_ALIAS: Record<string, { category: GameEntry['category']; id: string }>
   'three-holes': { category: 'games', id: 'cunning-rabbit' },
   'cat-mouse-mystery': { category: 'rules', id: 'cat-mouse' },
   'fractal-war': { category: 'games', id: 'fractal-echo' },
-  'neural': { category: 'rules', id: 'neural-clash' },
+  'neural': { category: 'games', id: 'neural-clash' },
+  'neural-echo': { category: 'games', id: 'neural-echo' },
   'quiz': { category: 'games', id: 'quiz' },
   'problems': { category: 'games', id: 'quiz' },
   'more': { category: 'scratch', id: 'scratch' },
@@ -190,6 +200,11 @@ function resolvePlaygroundPath(pathname: string) {
 
 const scratchUrl = (id: number) => `https://www.haohaodada.com/new/Scratch3/index.html?id=${id}`;
 
+const displayGameName = (game: GameEntry) => game.name;
+const displayGameDescription = (game: GameEntry) => game.id === 'fractal-echo'
+  ? '3×3 同坐标广播的递归棋盘：蓝橙对半行动，支持极速到高强度与开局 AI 地形。'
+  : game.desc;
+
 /* ─── GameIcon ─── */
 
 function GameIcon({ icon, color }: { icon: string; color: string }) {
@@ -208,8 +223,8 @@ function GameCard({ game, onClick }: { game: GameEntry; onClick: () => void }) {
     <button onClick={onClick} className="playground-aurora-card flex items-center gap-3 px-4 py-3 text-left w-full text-nc-text-secondary hover:text-nc-text">
       <GameIcon icon={game.icon} color={game.color} />
       <div className="min-w-0">
-        <div className="text-sm font-medium truncate">{game.name}</div>
-        <div className="text-xs text-nc-text-muted/50 truncate">{game.desc}</div>
+        <div className="text-sm font-medium truncate">{displayGameName(game)}</div>
+        <div className="text-xs text-nc-text-muted/50 truncate">{displayGameDescription(game)}</div>
       </div>
     </button>
   );
@@ -292,7 +307,7 @@ function PlayableGame({ game, onBack }: { game: GameEntry; onBack: () => void })
       <div className="relative pg-lab-frame">
         <div className="pg-experiment-bar">
           <span className="pg-status-dot" style={{ backgroundColor: game.color }} />
-          <span className="text-xs font-mono font-semibold" style={{ color: game.color }}>{game.name}</span>
+          <span className="text-xs font-mono font-semibold" style={{ color: game.color }}>{displayGameName(game)}</span>
           <span className="text-xs text-nc-text-muted/50">EXPERIMENT / {game.id.toUpperCase()}</span>
         </div>
         <div className="sticky top-0 z-10 flex items-center gap-2 px-4 py-2 bg-nc-bg/80 backdrop-blur-sm border-b border-white/[0.06] rounded-t-2xl">
@@ -301,7 +316,7 @@ function PlayableGame({ game, onBack }: { game: GameEntry; onBack: () => void })
           </button>
           <span className="text-xs text-nc-text-muted/50">|</span>
           <GameIcon icon={game.icon} color={game.color} />
-          <span className="text-sm font-medium">{game.name}</span>
+          <span className="text-sm font-medium">{displayGameName(game)}</span>
         </div>
         <game.component />
       </div>
@@ -345,7 +360,13 @@ export default function Playground() {
 
   /* Navigate helper */
   const goToCategory = (cat: GameEntry['category']) => navigate(`/playground/${cat}`);
-  const goToGame = (g: GameEntry) => navigate(`/playground/${g.category}/${g.id}`);
+  const goToGame = (g: GameEntry) => {
+    if (g.id === 'cat-mouse') {
+      navigate('/cat-mouse');
+      return;
+    }
+    navigate(`/playground/${g.category}/${g.id}`);
+  };
   const goBack = () => { if (category) navigate(`/playground/${category}`); else navigate('/playground'); };
 
   return (

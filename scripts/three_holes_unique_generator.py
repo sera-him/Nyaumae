@@ -1393,12 +1393,99 @@ def choose_killing_edit(
 
 
 @dataclass(frozen=True)
-class ClueResult:
+class HittingSetResult:
+    cells: tuple[int, ...]
+    minimum_count: int
+    elapsed_seconds: float
+
+
+@dataclass(frozen=True)
+class ExclusionClueResult:
     clues: dict[int, int]
     proof_seconds: float
+    minimum_proof_seconds: float
+    counterexample_count: int
+    iterations: int
 
 
-def make_unique_with_visible_clues(
+def solve_minimum_hitting_set(
+    candidate_cells: Sequence[int],
+    counterexample_supports: Sequence[frozenset[int]],
+    timeout: float,
+    workers: int,
+    seed: int,
+) -> HittingSetResult:
+    """Return a proved minimum set of target-empty cells hitting every support."""
+    if not counterexample_supports:
+        return HittingSetResult(cells=(), minimum_count=0, elapsed_seconds=0.0)
+
+    model = cp_model.CpModel()
+    variables = {
+        value: model.new_bool_var(f"exclude_{value}")
+        for value in candidate_cells
+    }
+    coverage = {value: 0 for value in candidate_cells}
+    for support in counterexample_supports:
+        supported_variables = [variables[value] for value in support if value in variables]
+        if not supported_variables:
+            raise RuntimeError("a different solution adds no hole on a target-empty cell")
+        model.add(sum(supported_variables) >= 1)
+        for value in support:
+            if value in coverage:
+                coverage[value] += 1
+
+    clue_count = sum(variables.values())
+    model.minimize(clue_count)
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = timeout
+    solver.parameters.num_search_workers = workers
+    solver.parameters.random_seed = seed & 0x7FFFFFFF
+    solver.parameters.randomize_search = True
+    started = time.perf_counter()
+    status = solver.solve(model)
+    elapsed = time.perf_counter() - started
+    if status != cp_model.OPTIMAL:
+        raise RuntimeError(
+            "minimum exclusion hitting-set proof was inconclusive "
+            f"({solver.status_name(status)})"
+        )
+
+    minimum_count = int(round(solver.objective_value))
+    selected = tuple(
+        value for value in candidate_cells if solver.value(variables[value])
+    )
+
+    # The first solve proves the minimum cardinality. Among equally small sets,
+    # prefer cells that cover many already-known alternatives; this usually
+    # reduces the number of counterexample rounds without weakening the proof.
+    model.add(clue_count == minimum_count)
+    model.maximize(
+        sum(coverage[value] * variables[value] for value in candidate_cells)
+    )
+    tie_solver = cp_model.CpSolver()
+    tie_solver.parameters.max_time_in_seconds = min(timeout, 30.0)
+    tie_solver.parameters.num_search_workers = workers
+    tie_solver.parameters.random_seed = (seed ^ 0x6A09E667) & 0x7FFFFFFF
+    tie_solver.parameters.randomize_search = True
+    tie_started = time.perf_counter()
+    tie_status = tie_solver.solve(model)
+    elapsed += time.perf_counter() - tie_started
+    if tie_status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        selected = tuple(
+            value
+            for value in candidate_cells
+            if tie_solver.value(variables[value])
+        )
+    if len(selected) != minimum_count:
+        raise RuntimeError("minimum hitting-set solver returned the wrong cardinality")
+    return HittingSetResult(
+        cells=selected,
+        minimum_count=minimum_count,
+        elapsed_seconds=elapsed,
+    )
+
+
+def make_unique_with_minimum_exclusions(
     n: int,
     k: int,
     topology: BoardTopology,
@@ -1407,11 +1494,21 @@ def make_unique_with_visible_clues(
     rng: random.Random,
     timeout: float,
     workers: int,
-    maximum_clues: int,
-) -> ClueResult | None:
-    clues: dict[int, int] = {}
+    pool_size: int,
+) -> ExclusionClueResult:
+    """Compute exclusion-only givens and prove their count globally minimum."""
+    candidate_cells = tuple(
+        value for value, is_hole in enumerate(target) if not is_hole
+    )
+    counterexample_supports: list[frozenset[int]] = []
+    seen_supports: set[frozenset[int]] = set()
+    selected: tuple[int, ...] = ()
+    minimum_proof_seconds = 0.0
     proof_seconds = 0.0
+    iterations = 0
+
     while True:
+        clues = {value: 0 for value in selected}
         pool = solve_pool(
             n,
             k,
@@ -1420,13 +1517,12 @@ def make_unique_with_visible_clues(
             target,
             min(timeout, 1.5 if n >= 28 else 3.0),
             rng.randrange(1 << 31),
-            256,
+            pool_size,
             clues,
         )
-        proof_seconds = pool.elapsed_seconds
         alternatives = pool.solutions
         if not alternatives:
-            result = solve_one(
+            proof = solve_one(
                 n,
                 k,
                 topology,
@@ -1437,56 +1533,61 @@ def make_unique_with_visible_clues(
                 rng.randrange(1 << 31),
                 clues=clues,
             )
-            proof_seconds = result.elapsed_seconds
-            if result.status == cp_model.INFEASIBLE:
-                break
-            if result.solution is None:
-                return None
-            alternatives = [result.solution]
-        if len(clues) >= maximum_clues:
-            return None
-        candidates = {
-            value: sum(
-                alternative[value] != target[value]
-                for alternative in alternatives
-            )
-            for value in range(n * n)
-            if value not in clues
-        }
-        best_coverage = max(candidates.values(), default=0)
-        best = [value for value, coverage in candidates.items() if coverage == best_coverage]
-        if not best or best_coverage <= 0:
-            raise RuntimeError("a distinct solution disagreed with no target cell")
-        chosen = rng.choice(best)
-        clues[chosen] = int(target[chosen])
-        if len(clues) % 16 == 0:
-            print(f"    visible clues selected={len(clues)}", flush=True)
+            proof_seconds = proof.elapsed_seconds
+            if proof.status == cp_model.INFEASIBLE:
+                # Every globally unique exclusion set must hit every collected
+                # counterexample. The selected set is an OPTIMAL hitting set
+                # for that unavoidable family and it eliminates all remaining
+                # alternatives, so its cardinality is globally minimum.
+                return ExclusionClueResult(
+                    clues=clues,
+                    proof_seconds=proof_seconds,
+                    minimum_proof_seconds=minimum_proof_seconds,
+                    counterexample_count=len(counterexample_supports),
+                    iterations=iterations,
+                )
+            if proof.solution is None:
+                raise RuntimeError(
+                    "minimum exclusion uniqueness proof was inconclusive "
+                    f"({cp_model.CpSolver().status_name(proof.status)})"
+                )
+            alternatives = [proof.solution]
 
-    # Keep only clues that are actually needed. A clue is removed only after
-    # a fresh blocked model is proved infeasible without it.
-    # On the 32x32 board, a full deletion pass can cost more than generating
-    # the proof itself. Keep the already-proved set there; smaller boards still
-    # receive the exhaustive redundancy pass.
-    clue_order = list(clues) if n < 28 else []
-    rng.shuffle(clue_order)
-    for value in clue_order:
-        trial = dict(clues)
-        del trial[value]
-        result = solve_one(
-            n,
-            k,
-            topology,
-            labels,
-            target,
+        added = 0
+        for alternative in alternatives:
+            support = frozenset(
+                value for value in candidate_cells if alternative[value]
+            )
+            if not support:
+                raise RuntimeError(
+                    "a different solution adds no hole on a target-empty cell"
+                )
+            if support in seen_supports:
+                continue
+            seen_supports.add(support)
+            counterexample_supports.append(support)
+            added += 1
+        if added == 0:
+            raise RuntimeError(
+                "the alternative-solution search repeated an already-hit support"
+            )
+
+        hitting_set = solve_minimum_hitting_set(
+            candidate_cells,
+            counterexample_supports,
             timeout,
             workers,
             rng.randrange(1 << 31),
-            clues=trial,
         )
-        if result.status == cp_model.INFEASIBLE:
-            clues = trial
-            proof_seconds = result.elapsed_seconds
-    return ClueResult(clues=clues, proof_seconds=proof_seconds)
+        minimum_proof_seconds += hitting_set.elapsed_seconds
+        selected = hitting_set.cells
+        iterations += 1
+        print(
+            "    minimum exclusions "
+            f"round={iterations}, alternatives={len(counterexample_supports)}, "
+            f"lower-bound={hitting_set.minimum_count}",
+            flush=True,
+        )
 
 
 @dataclass(frozen=True)
@@ -1903,15 +2004,11 @@ def generate_unique_puzzle(
             print("  natural-shape uniqueness editing failed; restarting", flush=True)
             continue
         clues: dict[int, int] = {}
+        minimum_proof_seconds = 0.0
+        minimum_counterexamples = 0
+        minimum_iterations = 0
         if not unique:
-            # Very large boards can have broad families of alternatives even
-            # after natural region shaping. Keep every clue explicit, but
-            # allow enough of them to finish a strict proof instead of
-            # accepting an unresolved puzzle.
-            clue_cap = 256 if n >= 28 else 64
-            clue_ratio = 1.5 if n >= 28 else 0.75
-            maximum_clues = max(1, min(clue_cap, math.ceil(n * k * clue_ratio)))
-            clue_result = make_unique_with_visible_clues(
+            clue_result = make_unique_with_minimum_exclusions(
                 n,
                 k,
                 topology,
@@ -1920,19 +2017,16 @@ def generate_unique_puzzle(
                 rng,
                 settings.unique_time,
                 settings.workers,
-                maximum_clues,
+                settings.pool_size,
             )
-            if clue_result is None:
-                print(
-                    f"  more than {maximum_clues} visible binary clues would be needed; restarting",
-                    flush=True,
-                )
-                continue
             clues = clue_result.clues
             proof_seconds = clue_result.proof_seconds
+            minimum_proof_seconds = clue_result.minimum_proof_seconds
+            minimum_counterexamples = clue_result.counterexample_count
+            minimum_iterations = clue_result.iterations
             unique = True
             print(
-                f"  visible binary-clue fallback UNIQUE: clues={len(clues)}, "
+                f"  minimum exclusion fallback UNIQUE: exclusions={len(clues)}, "
                 f"proof={proof_seconds:.3f}s",
                 flush=True,
             )
@@ -1980,7 +2074,7 @@ def generate_unique_puzzle(
             ],
             "certificate": {
                 "kind": (
-                    "cp-sat-blocked-solution-plus-visible-binary-clues-infeasible"
+                    "cp-sat-blocked-solution-plus-minimum-visible-exclusions-infeasible"
                     if clues
                     else "cp-sat-blocked-solution-infeasible"
                 ),
@@ -1991,7 +2085,12 @@ def generate_unique_puzzle(
                 "regionMethod": "spread-seed-voronoi-blobs",
                 "guardLimit": settings.guard_limit,
                 "clueCount": len(clues),
+                "exclusionClueCount": len(clues),
+                "exclusionClueMinimumProved": True,
                 "proofSeconds": round(final_proof.elapsed_seconds, 6),
+                "minimumProofSeconds": round(minimum_proof_seconds, 6),
+                "minimumProofCounterexamples": minimum_counterexamples,
+                "minimumProofIterations": minimum_iterations,
                 "regionsConnected": True,
                 "solutionValid": True,
                 "naturalRegions": True,
@@ -2026,7 +2125,54 @@ def decode_rows(rows: Sequence[str], n: int) -> list[int]:
     return [int(char, 36) for row in rows for char in row]
 
 
-def verify_bank(path: Path, timeout: float, workers: int) -> None:
+def minimum_exclusion_certificate_kind(clue_count: int) -> str:
+    if clue_count:
+        return "cp-sat-blocked-solution-plus-minimum-visible-exclusions-infeasible"
+    return "cp-sat-blocked-solution-infeasible"
+
+
+def stable_puzzle_seed(base_seed: int, puzzle_id: str) -> int:
+    mixed = base_seed & 0x7FFFFFFF
+    for index, character in enumerate(puzzle_id):
+        mixed = (
+            mixed * 1_000_003
+            + (index + 1) * ord(character)
+            + 0x9E3779B9
+        ) & 0x7FFFFFFF
+    return mixed
+
+
+def read_exclusion_clues(puzzle: dict, target: Sequence[int]) -> dict[int, int]:
+    if "clues" in puzzle:
+        raise RuntimeError(f"{puzzle['id']}: legacy rabbit-hole clues are forbidden")
+    clues: dict[int, int] = {}
+    for given in puzzle.get("givens", []):
+        value = int(given["cell"])
+        expected = int(given["value"])
+        if value in clues:
+            raise RuntimeError(f"{puzzle['id']}: duplicate visible exclusion")
+        if (
+            value < 0
+            or value >= len(target)
+            or expected != 0
+            or target[value] != 0
+        ):
+            raise RuntimeError(
+                f"{puzzle['id']}: every visible given must be a target-empty exclusion"
+            )
+        clues[value] = 0
+    return clues
+
+
+def reclue_bank(
+    path: Path,
+    output: Path,
+    timeout: float,
+    workers: int,
+    pool_size: int,
+    seed: int,
+) -> None:
+    """Preserve every board and answer while replacing givens with exact minima."""
     document = json.loads(path.read_text(encoding="utf-8"))
     puzzles = document.get("puzzles", [])
     if not puzzles:
@@ -2037,29 +2183,141 @@ def verify_bank(path: Path, timeout: float, workers: int) -> None:
         k = int(puzzle["k"])
         labels = decode_rows(puzzle["regions"], n)
         target = decode_rows(puzzle["solution"], n)
-        raw_givens = puzzle.get("givens")
-        if raw_givens is None:
-            raw_givens = [
-                {"cell": value, "value": 1}
-                for value in puzzle.get("clues", [])
-            ]
-        clues: dict[int, int] = {}
-        for given in raw_givens:
-            value = int(given["cell"])
-            expected = int(given["value"])
-            if value in clues:
-                raise RuntimeError(f"{puzzle['id']}: duplicate visible clue")
-            if (
-                value < 0
-                or value >= n * n
-                or expected not in (0, 1)
-                or target[value] != expected
-            ):
-                raise RuntimeError(f"{puzzle['id']}: a visible clue contradicts the target")
-            clues[value] = expected
+        topology = BoardTopology.build(n)
+        state = RegionState(topology, labels)
+        if not state.validate_connected():
+            raise RuntimeError(f"{puzzle['id']}: a region is disconnected")
+        if not solution_is_valid(n, k, topology, labels, target):
+            raise RuntimeError(f"{puzzle['id']}: stored solution is invalid")
+        minimum_size, maximum_size = natural_size_limits(n, k)
+        if not board_shape_is_natural(
+            labels,
+            n,
+            k,
+            minimum_size,
+            maximum_size,
+        ):
+            raise RuntimeError(f"{puzzle['id']}: region shapes failed the anti-stripe gate")
+        pattern = solution_pattern(target, n, k)
+        if not solution_pattern_is_irregular(pattern, n, k):
+            raise RuntimeError(f"{puzzle['id']}: rabbit layout is too repetitive")
+
+        print(f"[{puzzle['id']}] computing minimum visible exclusions", flush=True)
+        puzzle_rng = random.Random(stable_puzzle_seed(seed, puzzle["id"]))
+        clue_result = make_unique_with_minimum_exclusions(
+            n,
+            k,
+            topology,
+            labels,
+            target,
+            puzzle_rng,
+            timeout,
+            workers,
+            pool_size,
+        )
+        clues = clue_result.clues
+
+        # Rebuild the final uniqueness proof independently from the CEGIS loop.
+        final_proof = solve_one(
+            n,
+            k,
+            topology,
+            labels,
+            target,
+            timeout,
+            workers,
+            stable_puzzle_seed(seed ^ 0x5F3759DF, puzzle["id"]),
+            clues=clues,
+        )
+        if final_proof.status != cp_model.INFEASIBLE:
+            raise RuntimeError(
+                f"{puzzle['id']}: independent exclusion-only uniqueness proof failed"
+            )
+
+        puzzle["givens"] = [
+            {"cell": value, "value": 0}
+            for value in sorted(clues)
+        ]
+        puzzle.pop("clues", None)
+        certificate = puzzle.setdefault("certificate", {})
+        certificate.update(
+            {
+                "kind": minimum_exclusion_certificate_kind(len(clues)),
+                "status": "INFEASIBLE",
+                "ortoolsVersion": ortools_version,
+                "clueCount": len(clues),
+                "exclusionClueCount": len(clues),
+                "exclusionClueMinimumProved": True,
+                "proofSeconds": round(final_proof.elapsed_seconds, 6),
+                "minimumProofSeconds": round(
+                    clue_result.minimum_proof_seconds
+                    + clue_result.proof_seconds,
+                    6,
+                ),
+                "minimumProofCounterexamples": clue_result.counterexample_count,
+                "minimumProofIterations": clue_result.iterations,
+                "regionsConnected": True,
+                "solutionValid": True,
+                "naturalRegions": True,
+            }
+        )
+        print(
+            f"  UNIQUE with globally minimum exclusions={len(clues)} "
+            f"(counterexamples={clue_result.counterexample_count})",
+            flush=True,
+        )
+
+    document["schemaVersion"] = 4
+    document["generator"] = "three_holes_unique_generator.py"
+    document["algorithm"] = (
+        "certified-natural-blobs-with-irregular-targets-and-minimum-visible-exclusions"
+    )
+    document["ortoolsVersion"] = ortools_version
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        json.dumps(document, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    print(f"reclued {len(puzzles)} certified puzzle(s) into {output}")
+
+
+def verify_bank(
+    path: Path,
+    timeout: float,
+    workers: int,
+    pool_size: int,
+    seed: int,
+    prove_minimum: bool,
+) -> None:
+    document = json.loads(path.read_text(encoding="utf-8"))
+    puzzles = document.get("puzzles", [])
+    if not puzzles:
+        raise RuntimeError("puzzle bank is empty")
+    if int(document.get("schemaVersion", 0)) < 4:
+        raise RuntimeError("puzzle bank does not use exclusion-only schema version 4")
+
+    for puzzle in puzzles:
+        n = int(puzzle["n"])
+        k = int(puzzle["k"])
+        labels = decode_rows(puzzle["regions"], n)
+        target = decode_rows(puzzle["solution"], n)
+        clues = read_exclusion_clues(puzzle, target)
+        certificate = puzzle.get("certificate", {})
         certificate_count = int(puzzle.get("certificate", {}).get("clueCount", len(clues)))
         if certificate_count != len(clues):
-            raise RuntimeError(f"{puzzle['id']}: visible clue count does not match its certificate")
+            raise RuntimeError(
+                f"{puzzle['id']}: visible exclusion count does not match its certificate"
+            )
+        if int(certificate.get("exclusionClueCount", -1)) != len(clues):
+            raise RuntimeError(
+                f"{puzzle['id']}: exclusion clue count does not match its certificate"
+            )
+        if certificate.get("exclusionClueMinimumProved") is not True:
+            raise RuntimeError(
+                f"{puzzle['id']}: minimum exclusion clue count was not certified"
+            )
+        if certificate.get("kind") != minimum_exclusion_certificate_kind(len(clues)):
+            raise RuntimeError(f"{puzzle['id']}: exclusion certificate kind is invalid")
         topology = BoardTopology.build(n)
         state = RegionState(topology, labels)
         if not state.validate_connected():
@@ -2094,6 +2352,28 @@ def verify_bank(path: Path, timeout: float, workers: int) -> None:
         print(f"[{puzzle['id']}] blocked model: {status_name} ({result.elapsed_seconds:.3f}s)")
         if result.status != cp_model.INFEASIBLE:
             raise RuntimeError(f"{puzzle['id']}: uniqueness was not proved")
+        if prove_minimum:
+            minimum_result = make_unique_with_minimum_exclusions(
+                n,
+                k,
+                topology,
+                labels,
+                target,
+                random.Random(stable_puzzle_seed(seed, puzzle["id"])),
+                timeout,
+                workers,
+                pool_size,
+            )
+            if len(minimum_result.clues) != len(clues):
+                raise RuntimeError(
+                    f"{puzzle['id']}: stored exclusions={len(clues)}, "
+                    f"proved minimum={len(minimum_result.clues)}"
+                )
+            print(
+                f"[{puzzle['id']}] minimum exclusions: {len(clues)} "
+                f"(counterexamples={minimum_result.counterexample_count})",
+                flush=True,
+            )
 
 
 def merge_banks(paths: Sequence[Path], output: Path) -> None:
@@ -2106,12 +2386,8 @@ def merge_banks(paths: Sequence[Path], output: Path) -> None:
             if puzzle["id"] in seen_ids:
                 raise RuntimeError(f"duplicate puzzle id {puzzle['id']}")
             seen_ids.add(puzzle["id"])
-            if "givens" not in puzzle:
-                puzzle["givens"] = [
-                    {"cell": value, "value": 1}
-                    for value in puzzle.get("clues", [])
-                ]
-            puzzle.pop("clues", None)
+            target = decode_rows(puzzle["solution"], int(puzzle["n"]))
+            read_exclusion_clues(puzzle, target)
             by_difficulty[difficulty_id].append(puzzle)
 
     expected = [difficulty[0] for difficulty in DIFFICULTIES]
@@ -2120,9 +2396,11 @@ def merge_banks(paths: Sequence[Path], output: Path) -> None:
         raise RuntimeError(f"missing puzzle(s): {', '.join(missing)}")
 
     document = {
-        "schemaVersion": 3,
+        "schemaVersion": 4,
         "generator": "three_holes_unique_generator.py",
-        "algorithm": "certified-natural-blobs-with-irregular-targets-and-binary-givens",
+        "algorithm": (
+            "certified-natural-blobs-with-irregular-targets-and-minimum-visible-exclusions"
+        ),
         "ortoolsVersion": ortools_version,
         "puzzles": [
             puzzle
@@ -2147,6 +2425,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=Path("src/game/threeHoles/puzzles.generated.json"))
     parser.add_argument("--verify", type=Path, help="verify an existing generated JSON bank instead")
     parser.add_argument(
+        "--reclue",
+        type=Path,
+        help="preserve boards and answers while recomputing minimum exclusion-only givens",
+    )
+    parser.add_argument(
         "--merge",
         type=Path,
         action="append",
@@ -2163,6 +2446,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--variants", type=int, default=2)
     parser.add_argument("--pool-size", type=int, default=128)
     parser.add_argument(
+        "--skip-minimum-proof",
+        action="store_true",
+        help="during --verify, trust the recorded minimum proof after checking uniqueness",
+    )
+    parser.add_argument(
         "--guard-limit",
         type=int,
         default=2_000,
@@ -2173,8 +2461,30 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    selected_modes = sum(
+        mode is not None for mode in (args.verify, args.reclue, args.merge)
+    )
+    if selected_modes > 1:
+        raise ValueError("--verify, --reclue, and --merge are mutually exclusive")
     if args.verify:
-        verify_bank(args.verify, args.unique_time, args.workers)
+        verify_bank(
+            args.verify,
+            args.unique_time,
+            args.workers,
+            args.pool_size,
+            args.seed,
+            not args.skip_minimum_proof,
+        )
+        return
+    if args.reclue:
+        reclue_bank(
+            args.reclue,
+            args.output,
+            args.unique_time,
+            args.workers,
+            args.pool_size,
+            args.seed,
+        )
         return
     if args.merge:
         merge_banks(args.merge, args.output)
@@ -2212,9 +2522,11 @@ def main() -> None:
             )
 
     document = {
-        "schemaVersion": 3,
+        "schemaVersion": 4,
         "generator": "three_holes_unique_generator.py",
-        "algorithm": "certified-natural-blobs-with-irregular-targets-and-binary-givens",
+        "algorithm": (
+            "certified-natural-blobs-with-irregular-targets-and-minimum-visible-exclusions"
+        ),
         "ortoolsVersion": ortools_version,
         "puzzles": puzzles,
     }

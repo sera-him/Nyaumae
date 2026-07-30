@@ -198,7 +198,7 @@
 
 .sweet-chat-main {
   position: relative; z-index: 2; display: flex; flex-direction: column;
-  min-width: 0; min-height: calc(100vh - 72px);
+  min-width: 0; min-height: 0; height: 100%;
 }
 .sweet-chat-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -340,6 +340,7 @@
 .sweet-composer .sweet-tool svg { width: 15px; }
 .sweet-composer .sweet-send { color: white; background: linear-gradient(135deg, #ffb3d9, #c9b1ff, #7ee8d4); box-shadow: 0 6px 18px rgba(255, 179, 217, 0.2); transition: all 0.2s; }
 .sweet-composer .sweet-send:hover { background: linear-gradient(135deg, #ff9ec8, #bda3f7, #68dac8); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255, 179, 217, 0.3); }
+.sweet-composer .sweet-send:disabled { background: #ddd5e3; box-shadow: none; transform: none; }
 .sweet-composer-shell > p { margin: 8px 0 0; text-align: center; color: #c9b1ff; font-size: 9px; letter-spacing: 0.04em; }
 
 .sweet-pet-dock {
@@ -436,7 +437,7 @@
   .sweet-chat, .sweet-chat[data-sidebar="closed"] { grid-template-columns: 1fr; min-height: calc(100svh - 64px); }
   .sweet-sidebar { position: fixed; z-index: 12; inset: 0 auto 0 0; width: min(300px, 88vw); margin: 0; transform: translateX(0); box-shadow: 24px 0 70px rgba(255, 179, 217, 0.12); }
   .sweet-chat[data-sidebar="closed"] .sweet-sidebar { margin: 0; transform: translateX(-102%); }
-  .sweet-chat-main { min-height: calc(100svh - 64px); }
+  .sweet-chat-main { min-height: 0; height: 100%; }
   .sweet-chat-header { height: 60px; padding: 0 14px; }
   .sweet-share { padding: 10px; }
   .sweet-share span { display: none; }

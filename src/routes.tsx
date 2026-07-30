@@ -16,6 +16,7 @@ const ChatSkin = lazy(() => import('@/pages/ChatSkin'));
 const SweetDreamChat = lazy(() => import('@/pages/SweetDreamChat'));
 const AISettingsPage = lazy(() => import('@/pages/AISettingsPage'));
 const ConversationWorkbench = lazy(() => import('@/pages/ConversationWorkbench'));
+const CatMouseGame = lazy(() => import('@/pages/CatMouseGame'));
 
 function PageLoader() {
   return (
@@ -132,6 +133,7 @@ export default function AppRoutes() {
         <Route path="/playground" element={<Navigate to="/playground/games" replace />} />
         <Route path="/playground/games" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
         <Route path="/playground/games/:game" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
+        <Route path="/cat-mouse" element={<SuspenseWrapper><CatMouseGame /></SuspenseWrapper>} />
         <Route path="/playground/rules" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
         <Route path="/playground/rules/:rule" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
         <Route path="/playground/scratch" element={<SuspenseWrapper><Playground /></SuspenseWrapper>} />
@@ -145,6 +147,7 @@ export default function AppRoutes() {
         <Route path="/chat/system" element={<SuspenseWrapper><ConversationWorkbench /></SuspenseWrapper>} />
         <Route path="/chat/legacy" element={<Navigate to="/chat" replace />} />
         <Route path="/sweetdream" element={<SuspenseWrapper><SweetDreamChat /></SuspenseWrapper>} />
+        <Route path="/neural-clash" element={<Navigate to="/playground/games/neural-clash" replace />} />
 
         <Route path="*" element={<NotFoundPage message="页面未找到" />} />
       </Routes>

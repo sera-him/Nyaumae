@@ -494,6 +494,13 @@
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
+/* The collected-story tone is the shared surface for every story card. */
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section .miia-story-card {
+  background: linear-gradient(140deg, rgba(92, 48, 67, 0.76), rgba(55, 27, 43, 0.82)) !important;
+  border-color: rgba(244, 114, 182, 0.2) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
 .site-theme-shell[data-site-theme='miia'] .aurora-nav-inner,
 .site-theme-shell[data-site-theme='miia'] .aurora-menu-shell,
 .site-theme-shell[data-site-theme='miia'] .aurora-site-footer {

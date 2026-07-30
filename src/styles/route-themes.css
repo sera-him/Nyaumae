@@ -15,7 +15,7 @@
   --site-theme-panel-strong-rgb: 25, 21, 38;
   --site-theme-text: #f8f4ff;
   --site-theme-text-secondary: #c8bfd2;
-  --site-theme-text-muted: #9a8ea6;
+  --site-theme-text-muted: #b8aec4;
   --site-theme-border: rgba(255, 255, 255, 0.16);
   --site-theme-border-strong: rgba(255, 255, 255, 0.24);
   --site-theme-accent: #a685ff;
@@ -58,7 +58,7 @@
   --site-theme-panel-strong-rgb: 17, 43, 43;
   --site-theme-text: #f1fffc;
   --site-theme-text-secondary: #bbd9d4;
-  --site-theme-text-muted: #86aaa5;
+  --site-theme-text-muted: #a9cdc7;
   --site-theme-border: rgba(136, 237, 222, 0.17);
   --site-theme-border-strong: rgba(136, 237, 222, 0.29);
   --site-theme-accent: #66e9da;
@@ -81,7 +81,7 @@
   --site-theme-panel-strong-rgb: 33, 24, 49;
   --site-theme-text: #fbf6ff;
   --site-theme-text-secondary: #cec2dc;
-  --site-theme-text-muted: #9b8daa;
+  --site-theme-text-muted: #b9aac8;
   --site-theme-border: rgba(190, 158, 255, 0.17);
   --site-theme-border-strong: rgba(190, 158, 255, 0.29);
   --site-theme-accent: #b292ff;
@@ -104,7 +104,7 @@
   --site-theme-panel-strong-rgb: 45, 23, 40;
   --site-theme-text: #fff7fb;
   --site-theme-text-secondary: #dec4d2;
-  --site-theme-text-muted: #ad8e9e;
+  --site-theme-text-muted: #c9aaba;
   --site-theme-border: rgba(255, 157, 205, 0.17);
   --site-theme-border-strong: rgba(255, 157, 205, 0.29);
   --site-theme-accent: #ff8fc7;
@@ -127,7 +127,7 @@
   --site-theme-panel-strong-rgb: 49, 26, 56;
   --site-theme-text: #fff8ff;
   --site-theme-text-secondary: #e0c6e5;
-  --site-theme-text-muted: #ad90b5;
+  --site-theme-text-muted: #c6a9cc;
   --site-theme-border: rgba(221, 165, 255, 0.18);
   --site-theme-border-strong: rgba(221, 165, 255, 0.31);
   --site-theme-accent: #dda5ff;
@@ -150,7 +150,7 @@
   --site-theme-panel-strong-rgb: 38, 37, 18;
   --site-theme-text: #fffbed;
   --site-theme-text-secondary: #d9d1b7;
-  --site-theme-text-muted: #a49c7f;
+  --site-theme-text-muted: #c2b98f;
   --site-theme-border: rgba(245, 202, 112, 0.18);
   --site-theme-border-strong: rgba(245, 202, 112, 0.31);
   --site-theme-accent: #f2c879;
@@ -175,7 +175,7 @@
   --site-theme-panel-strong-rgb: 22, 40, 70;
   --site-theme-text: #f4f8ff;
   --site-theme-text-secondary: #c2cee2;
-  --site-theme-text-muted: #8d9bb4;
+  --site-theme-text-muted: #b1bfd8;
   --site-theme-border: rgba(130, 178, 255, 0.18);
   --site-theme-border-strong: rgba(130, 178, 255, 0.31);
   --site-theme-accent: #79a9ff;
@@ -199,7 +199,7 @@
   --site-theme-panel-strong-rgb: 16, 40, 34;
   --site-theme-text: #effffb;
   --site-theme-text-secondary: #b8d9d0;
-  --site-theme-text-muted: #7fa89e;
+  --site-theme-text-muted: #a8cbc0;
   --site-theme-border: rgba(94, 234, 212, 0.18);
   --site-theme-border-strong: rgba(94, 234, 212, 0.31);
   --site-theme-accent: #5eead4;
@@ -223,7 +223,7 @@
   --site-theme-panel-strong-rgb: 35, 29, 60;
   --site-theme-text: #fbf8ff;
   --site-theme-text-secondary: #d2c8e3;
-  --site-theme-text-muted: #9d91b5;
+  --site-theme-text-muted: #b9add0;
   --site-theme-border: rgba(185, 160, 255, 0.18);
   --site-theme-border-strong: rgba(185, 160, 255, 0.31);
   --site-theme-accent: #b9a0ff;
@@ -246,7 +246,7 @@
   --site-theme-panel-strong-rgb: 11, 64, 81;
   --site-theme-text: #efffff;
   --site-theme-text-secondary: #c2e3e5;
-  --site-theme-text-muted: #89b3ba;
+  --site-theme-text-muted: #a9d2d2;
   --site-theme-border: rgba(86, 232, 220, 0.19);
   --site-theme-border-strong: rgba(86, 232, 220, 0.34);
   --site-theme-accent: #56e8dc;
@@ -271,7 +271,7 @@
   --site-theme-panel-strong-rgb: 36, 45, 44;
   --site-theme-text: #f2e7d3;
   --site-theme-text-secondary: #cdbfa8;
-  --site-theme-text-muted: #988b79;
+  --site-theme-text-muted: #b9ac98;
   --site-theme-border: rgba(213, 154, 85, 0.2);
   --site-theme-border-strong: rgba(213, 154, 85, 0.34);
   --site-theme-accent: #d59a55;
@@ -297,7 +297,7 @@
   --site-theme-panel-strong-rgb: 28, 37, 24;
   --site-theme-text: #fffbed;
   --site-theme-text-secondary: #d8d0b9;
-  --site-theme-text-muted: #9f987f;
+  --site-theme-text-muted: #bcb39b;
   --site-theme-border: rgba(233, 191, 114, 0.19);
   --site-theme-border-strong: rgba(233, 191, 114, 0.33);
   --site-theme-accent: #e9bf72;
@@ -322,7 +322,7 @@
   --site-theme-panel-strong-rgb: 32, 54, 73;
   --site-theme-text: #f8f5e9;
   --site-theme-text-secondary: #cedbe0;
-  --site-theme-text-muted: #93a9b3;
+  --site-theme-text-muted: #a9c0c9;
   --site-theme-border: rgba(147, 201, 255, 0.18);
   --site-theme-border-strong: rgba(147, 201, 255, 0.31);
   --site-theme-accent: #93c9ff;

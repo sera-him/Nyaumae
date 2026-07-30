@@ -42,6 +42,7 @@ function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const siteTheme = resolveSiteTheme(location.pathname);
+  const immersive = location.pathname === '/neural-clash';
 
   useEffect(() => {
     window.history.scrollRestoration = 'manual';
@@ -149,7 +150,7 @@ function App() {
             data-site-theme={siteTheme}
           >
             <div className="aurora-app-atmosphere" aria-hidden="true" />
-            <Navigation onSearchClick={handleSearchOpen} />
+            {!immersive && <Navigation onSearchClick={handleSearchOpen} />}
             <main className="aurora-site-main relative z-[1]">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
@@ -163,10 +164,10 @@ function App() {
                 </motion.div>
               </AnimatePresence>
             </main>
-            <Footer />
-            <div className="aurora-search-host">
+            {!immersive && <Footer />}
+            {!immersive && <div className="aurora-search-host">
               <SearchModal isOpen={searchOpen} onClose={handleSearchClose} />
-            </div>
+            </div>}
           </div>
         </OverloadProvider>
       </MusicProvider>
