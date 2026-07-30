@@ -738,6 +738,15 @@
   color: var(--site-theme-text-secondary);
 }
 
+.site-theme-shell .aurora-footer-quotes {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  align-items: start;
+}
+
+.site-theme-shell .aurora-footer-quote-card {
+  min-width: 0;
+}
+
 /* Keep keyboard location unmistakable in every visual climate. */
 .site-theme-shell :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--site-theme-accent);

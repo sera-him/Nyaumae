@@ -7,6 +7,45 @@ import { AnimatedWorldStats } from '@/components/AnimatedStats';
 import ParticleField from '@/components/ParticleField';
 import FeedbackModal from '@/components/FeedbackModal';
 
+const FOOTER_QUOTES = [
+  {
+    author: 'Nyaumæ',
+    borderClass: 'border-nc-violet/30',
+    lines: [
+      '「AGI 来了，AGI 来了，',
+      '卷王走了，',
+      'tourist 依然在我之上，',
+      '可这重要吗？这不重要——',
+      '你会在乎别人的时刻表，',
+      '背得比你更准吗？」',
+    ],
+  },
+  {
+    author: 'Sol',
+    borderClass: 'border-nc-cyan/30',
+    lines: [
+      '「残障未必可见，',
+      '智力正常，',
+      '也不等于所有功能正常；',
+      '不要急着判断品德，',
+      '先去理解，',
+      '一个人实际遇见的困难。」',
+    ],
+  },
+  {
+    author: 'Luna',
+    borderClass: 'border-nc-rose/30',
+    lines: [
+      '「别急着用同一把尺子，',
+      '丈量所有的人；',
+      '有人走得快，',
+      '也有人需要慢一点。',
+      '能按照自己的节奏走下去，',
+      '本身也是一种抵达。」',
+    ],
+  },
+] as const;
+
 export default function Footer() {
   const { ref, isVisible } = useScrollReveal();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -62,28 +101,19 @@ export default function Footer() {
 
           <div className="aurora-footer-divider w-full max-w-md mx-auto h-px bg-gradient-to-r from-transparent via-nc-violet/20 to-transparent mb-8" />
 
-          <p className="aurora-footer-quote font-serif text-nc-text-secondary italic text-base leading-relaxed">
-            {semanticHighlight('「AGI 来了，AGI 来了，')}
-            <br />
-            {semanticHighlight('卷王走了，')}
-            <br />
-            {semanticHighlight('tourist 依然在我之上，')}
-            <br />
-            {semanticHighlight('可这重要吗？这不重要')}
-            <br />
-            {semanticHighlight('——你会在乎别人的时刻表背得比你准吗？」')}
-          </p>
-
-          <div className="aurora-footer-quotes grid gap-8 max-w-4xl mx-auto mt-8 text-left">
-            <blockquote className="aurora-footer-quote font-serif text-nc-text-secondary italic text-base leading-relaxed border-l border-nc-cyan/30 pl-5">
-              {semanticHighlight('残障未必可见，智力正常不等于所有功能正常；不要先判断品德，先理解实际困难。')}
-              <footer className="mt-3 text-sm not-italic text-nc-text-muted">—— Sol</footer>
-            </blockquote>
-
-            <blockquote className="aurora-footer-quote font-serif text-nc-text-secondary italic text-base leading-relaxed border-l border-nc-rose/30 pl-5">
-              {semanticHighlight('别急着用同一把尺子丈量所有人；能按自己的节奏走下去，也是一种抵达。')}
-              <footer className="mt-3 text-sm not-italic text-nc-text-muted">—— Luna</footer>
-            </blockquote>
+          <div className="aurora-footer-quotes grid gap-8 max-w-[1100px] mx-auto mt-8 text-left">
+            {FOOTER_QUOTES.map((quote) => (
+              <figure key={quote.author} className="aurora-footer-quote-card min-w-0">
+                <blockquote className={`aurora-footer-quote font-serif text-nc-text-secondary italic text-base leading-relaxed border-l-2 pl-5 ${quote.borderClass}`}>
+                  {quote.lines.map((line) => (
+                    <span key={`${quote.author}-${line}`} className="block">
+                      {semanticHighlight(line)}
+                    </span>
+                  ))}
+                </blockquote>
+                <figcaption className="mt-3 pl-5 text-sm not-italic text-nc-text-muted">—— {quote.author}</figcaption>
+              </figure>
+            ))}
           </div>
         </motion.div>
       </div>
