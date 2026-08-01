@@ -1,76 +1,126 @@
-const CACHE_NAME = 'neural-connection-v6';
+const CACHE_PREFIX = 'neural-connection-';
+const CACHE_VERSION = 'v7';
+const PRECACHE_NAME = `${CACHE_PREFIX}precache-${CACHE_VERSION}`;
+const STATIC_CACHE_NAME = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
+const CURRENT_CACHE_NAMES = [PRECACHE_NAME, STATIC_CACHE_NAME];
+const OFFLINE_FALLBACK_URL = '/index.html';
+const MAX_STATIC_ENTRIES = 80;
+
 const STATIC_ASSETS = [
   '/',
-  '/index.html',
+  OFFLINE_FALLBACK_URL,
   '/manifest.json',
 ];
 
-// Install: cache static assets
+const STATIC_ASSET_PATTERN = /\.(?:css|js)$/i;
+
+function isSameOrigin(request) {
+  return new URL(request.url).origin === self.location.origin;
+}
+
+function isCacheableStaticAsset(request) {
+  if (!isSameOrigin(request)) return false;
+
+  const url = new URL(request.url);
+  return request.destination === 'script'
+    || request.destination === 'style'
+    || STATIC_ASSET_PATTERN.test(url.pathname);
+}
+
+function isSuccessfulStaticResponse(response) {
+  return Boolean(response)
+    && response.status === 200
+    && response.type === 'basic';
+}
+
+async function trimCache(cacheName, maxEntries) {
+  const cache = await caches.open(cacheName);
+  const requests = await cache.keys();
+  const staleRequests = requests.slice(0, Math.max(0, requests.length - maxEntries));
+
+  await Promise.all(staleRequests.map((request) => cache.delete(request)));
+}
+
+async function storeStaticAsset(request, response) {
+  if (!isSuccessfulStaticResponse(response)) return;
+
+  const cache = await caches.open(STATIC_CACHE_NAME);
+  await cache.put(request, response);
+  await trimCache(STATIC_CACHE_NAME, MAX_STATIC_ENTRIES);
+}
+
+async function networkFirstNavigation(event) {
+  try {
+    const response = await fetch(event.request);
+
+    // Cache only successful same-origin HTML. Failed responses must never
+    // replace the offline shell with an error page.
+    if (response.ok && response.type === 'basic') {
+      event.waitUntil(
+        caches.open(PRECACHE_NAME).then((cache) => (
+          cache.put(OFFLINE_FALLBACK_URL, response.clone())
+        ))
+      );
+    }
+
+    return response;
+  } catch {
+    return caches.match(OFFLINE_FALLBACK_URL);
+  }
+}
+
+async function cacheFirstStaticAsset(event) {
+  const cache = await caches.open(STATIC_CACHE_NAME);
+  const cached = await cache.match(event.request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(event.request);
+
+    // Only JS/CSS assets reach this function. Images, video, audio, API
+    // responses, opaque responses, and failures are deliberately not cached.
+    if (isSuccessfulStaticResponse(response)) {
+      event.waitUntil(storeStaticAsset(event.request, response.clone()));
+    }
+
+    return response;
+  } catch {
+    // Let the browser surface a failed asset request when no cached copy is
+    // available. The document-level offline fallback is handled above.
+    return Response.error();
+  }
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    }).then(() => {
-      return self.skipWaiting();
-    })
+    caches.open(PRECACHE_NAME)
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate: clean old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
+    caches.keys()
+      .then((cacheNames) => Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME)
+          .filter((name) => name.startsWith(CACHE_PREFIX) && !CURRENT_CACHE_NAMES.includes(name))
           .map((name) => caches.delete(name))
-      );
-    }).then(() => {
-      return self.clients.claim();
-    })
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Fetch: cache-first strategy
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const { request } = event;
+  if (request.method !== 'GET' || !isSameOrigin(request)) return;
 
-  // Always prefer fresh HTML so deployments are visible immediately.
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', copy));
-          }
-          return response;
-        })
-        .catch(() => caches.match('/index.html'))
-    );
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirstNavigation(event));
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      
-      return fetch(event.request).then((response) => {
-        // Don't cache non-success responses or non-GET requests
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-        
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        
-        return response;
-      }).catch(() => {
-        // Return offline fallback if available
-        return caches.match('/index.html');
-      });
-    })
-  );
+  if (isCacheableStaticAsset(request)) {
+    event.respondWith(cacheFirstStaticAsset(event));
+  }
 });
