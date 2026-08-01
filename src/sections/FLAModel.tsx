@@ -215,7 +215,7 @@ export default function FLAModel() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-60px' }}
                   transition={{ delay: index * 0.05 }}
-                  className={`liquid-glass-subtle relative overflow-hidden rounded-2xl border border-white/[0.06] p-5 ${index === 4 ? 'md:col-span-2' : ''}`}
+                  className={`fla-dimension-card liquid-glass-subtle relative overflow-hidden rounded-2xl border border-white/[0.06] p-5 ${index === 4 ? 'md:col-span-2' : ''}`}
                 >
                   <div className="absolute right-4 top-1 font-mono text-6xl font-black opacity-[0.055]" style={{ color: dimension.color }}>
                     {dimension.code}
@@ -298,7 +298,7 @@ export default function FLAModel() {
           <Formula math={'Q=q_P^{0.05}q_E^{0.30}q_M^{0.25}q_S^{0.15}q_L^{0.25}'} />
 
           <div className="mt-6">
-            <div className="mb-3 flex h-3 overflow-hidden rounded-full bg-white/[0.04]">
+            <div className="fla-weight-bar mb-3 flex h-3 overflow-hidden rounded-full bg-white/[0.04]" data-motion-reveal>
               {weights.map((weight) => (
                 <div
                   key={weight.code}

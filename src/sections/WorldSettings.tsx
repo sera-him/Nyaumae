@@ -176,7 +176,7 @@ function FourDimensionTestQuiz() {
   if (resultIndex !== null) {
     const r = fourDimensionTest.results[resultIndex];
     return (
-      <div className="bg-[#1A1025] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6">
+      <div className="world-test-result bg-[#1A1025] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6">
         <div className={`text-center p-6 rounded-lg ${get4dResultBg(resultIndex, fourDimensionTest.results.length)}`}>
           <p className="text-sm text-nc-text-secondary mb-2">{timedOut ? '……你人呢？' : '你的四维测试结果'}</p>
           <h4 className={`text-4xl font-bold font-mono mb-3 ${get4dResultColor(resultIndex, fourDimensionTest.results.length)}`}>
@@ -201,7 +201,7 @@ function FourDimensionTestQuiz() {
     const dimQuestionsDone = answers.filter((_, i) => shuffledQuestions[i].dim === q.dim).length + 1;
 
     return (
-      <div className="bg-[#1A1025] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6">
+      <div className="world-test-question bg-[#1A1025] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6">
         {/* Progress bar: 12 segments */}
         <div className="flex gap-0.5 mb-3">
           {Array.from({ length: 12 }, (_, i) => (
@@ -223,13 +223,13 @@ function FourDimensionTestQuiz() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button
             onClick={() => handleAnswer(0)}
-            className="p-4 bg-[#8B5CF6]/5 hover:bg-orange-500/10 border border-[#8B5CF6]/10 hover:border-orange-500/30 rounded-lg text-nc-text transition-all text-left"
+            className="world-test-choice p-4 bg-[#8B5CF6]/5 hover:bg-orange-500/10 border border-[#8B5CF6]/10 hover:border-orange-500/30 rounded-lg text-nc-text transition-all text-left"
           >
             <span className="text-sm text-orange-400/80">🐮 {cowCatHighlight(q.human)}</span>
           </button>
           <button
             onClick={() => handleAnswer(1)}
-            className="p-4 bg-[#8B5CF6]/5 hover:bg-cyan-500/10 border border-[#8B5CF6]/10 hover:border-cyan-500/30 rounded-lg text-nc-text transition-all text-left"
+            className="world-test-choice p-4 bg-[#8B5CF6]/5 hover:bg-cyan-500/10 border border-[#8B5CF6]/10 hover:border-cyan-500/30 rounded-lg text-nc-text transition-all text-left"
           >
             <span className="text-sm text-cyan-400/80">🐱 {cowCatHighlight(q.cat)}</span>
           </button>
@@ -240,7 +240,7 @@ function FourDimensionTestQuiz() {
 
   // Start screen (no easter egg hint!)
   return (
-    <div className="bg-[#1A1025] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6 text-center">
+    <div className="world-test-start bg-[#1A1025] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6 text-center">
       <p className="text-nc-text-secondary mb-4">12个问题，测出你的牛马/猫咪属性</p>
       <button
         onClick={startQuiz}
@@ -476,7 +476,7 @@ export default function WorldSettings() {
 
         {/* Sensory Overload Zone - auto-triggers on scroll */}
         <OverloadMusicSync />
-        <section id="overload" className="relative bg-[#0A0510] border border-[#EF4444]/20 rounded-xl overflow-hidden mb-8">
+        <section id="overload" className="relative bg-[#0A0510] border border-[#EF4444]/20 rounded-xl overflow-hidden mb-8" data-motion-loop>
           <OverloadCanvas />
           <div className="relative z-10 p-6 sm:p-8">
             <div className="flex items-center justify-between mb-6">

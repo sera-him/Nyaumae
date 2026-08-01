@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FocusEvent as ReactFocusEvent } from 'react';
 import { Link } from 'react-router';
 import { ArrowLeft, ArrowRight, BookOpen, Cpu, Gamepad2, Globe2, Heart, Users } from 'lucide-react';
+import { useMotionActivity } from '@/hooks/useMotionActivity';
 import './PortalAurora.css';
 
 const slides = [
@@ -33,11 +34,12 @@ const entries = [
 type Particle = { x: number; y: number; vx: number; vy: number; r: number; a: number; c: number[] };
 
 function NeuralParticles() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { ref: canvasRef, isMotionActive } = useMotionActivity<HTMLCanvasElement>('120px 0px');
   const particlesRef = useRef<Particle[]>([]);
   const pointerRef = useRef({ x: 0, y: 0, active: false });
 
   useEffect(() => {
+    if (!isMotionActive) return;
     const canvas = canvasRef.current;
     const hero = canvas?.parentElement;
     const context = canvas?.getContext('2d');
@@ -98,7 +100,7 @@ function NeuralParticles() {
     hero.addEventListener('pointermove', move, { passive: true }); hero.addEventListener('pointerleave', leave); hero.addEventListener('pointerdown', burst);
     canvas.dataset.particleCount = String(particlesRef.current.length);
     return () => { cancelAnimationFrame(frame); observer.disconnect(); hero.removeEventListener('pointermove', move); hero.removeEventListener('pointerleave', leave); hero.removeEventListener('pointerdown', burst); };
-  }, []);
+  }, [canvasRef, isMotionActive]);
   return <canvas ref={canvasRef} className="portal-particles" aria-hidden="true" />;
 }
 
@@ -106,9 +108,9 @@ export default function Portal() {
   const [slide, setSlide] = useState(0);
   const [carouselHovered, setCarouselHovered] = useState(false);
   const [carouselFocused, setCarouselFocused] = useState(false);
-  const [pageVisible, setPageVisible] = useState(() => typeof document === 'undefined' || !document.hidden);
   const [timerReset, setTimerReset] = useState(0);
-  const carouselPaused = carouselHovered || carouselFocused || !pageVisible;
+  const { ref: carouselRef, isMotionActive: carouselMotionActive } = useMotionActivity<HTMLDivElement>('240px 0px');
+  const carouselPaused = carouselHovered || carouselFocused || !carouselMotionActive;
 
   const go = useCallback((next: number) => {
     setSlide((next + slides.length) % slides.length);
@@ -126,12 +128,6 @@ export default function Portal() {
   }, []);
 
   useEffect(() => {
-    const handleVisibility = () => setPageVisible(!document.hidden);
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, []);
-
-  useEffect(() => {
     if (carouselPaused) return;
     const timer = window.setInterval(advance, 5200);
     return () => window.clearInterval(timer);
@@ -144,7 +140,7 @@ export default function Portal() {
 
   return (
     <div className="portal-aurora">
-      <section className="portal-hero">
+      <section className="portal-hero" data-motion-loop>
         <div className="portal-hero-bg" />
         <div className="portal-hero-refraction" aria-hidden="true" />
         <NeuralParticles />
@@ -183,11 +179,13 @@ export default function Portal() {
         </figure>
         <div className="portal-archive-divider" aria-hidden="true"><span>SIX PERSPECTIVES</span><span>01 — 06</span></div>
         <div
+          ref={carouselRef}
           className="portal-carousel-shell"
           role="region"
           aria-roledescription="轮播图"
           aria-label="世界的六个切面视觉档案"
           data-paused={carouselPaused}
+          data-motion-loop
           onMouseEnter={() => setCarouselHovered(true)}
           onMouseLeave={() => setCarouselHovered(false)}
           onFocusCapture={() => setCarouselFocused(true)}

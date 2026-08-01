@@ -25,7 +25,7 @@ export default function WorldOverview() {
         </motion.div>
 
         {/* Overview Images */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+        <div className="world-overview-visuals grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
@@ -35,7 +35,7 @@ export default function WorldOverview() {
               localSrc="/world-overview-1.png"
               alt="World Overview 1"
               aspectRatio="16/9"
-              containerClassName="w-full rounded-xl overflow-hidden border border-nc-violet/10"
+              containerClassName="world-overview-image w-full rounded-xl overflow-hidden border border-nc-violet/10"
               className="object-cover"
             />
           </motion.div>
@@ -48,7 +48,7 @@ export default function WorldOverview() {
               localSrc="/world-overview-2.png"
               alt="World Overview 2"
               aspectRatio="16/9"
-              containerClassName="w-full rounded-xl overflow-hidden border border-nc-violet/10"
+              containerClassName="world-overview-image w-full rounded-xl overflow-hidden border border-nc-violet/10"
               className="object-cover"
             />
           </motion.div>
@@ -62,7 +62,7 @@ export default function WorldOverview() {
               initial={{ opacity: 0, y: 30 }}
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 + i * 0.1 }}
-              className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-5 hover:border-nc-cyan/30 transition-all duration-300"
+              className="world-stat-motion bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-5 hover:border-nc-cyan/30 transition-all duration-300"
             >
               <div className="font-mono text-2xl sm:text-3xl font-bold text-nc-cyan mb-1">
                 {stat.value}
@@ -79,7 +79,7 @@ export default function WorldOverview() {
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-5 mb-12 hover:border-nc-cyan/30 transition-all duration-300 max-w-[540px]"
+          className="world-stat-motion world-fsiii-stat bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-5 mb-12 hover:border-nc-cyan/30 transition-all duration-300 max-w-[540px]"
         >
           <div className="flex items-center gap-2 mb-3">
             <BrainCircuit className="w-5 h-5 text-nc-text-secondary" />
@@ -100,7 +100,7 @@ export default function WorldOverview() {
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6 max-w-md"
+          className="world-holiday-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6 max-w-md"
         >
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-nc-text-secondary" />

@@ -130,6 +130,7 @@ export default function Problems() {
                 key={opt}
                 type="button"
                 onClick={() => handleRefCheckboxChange(slotIdx, opt, !selected)}
+                aria-pressed={selected}
                 className={`w-7 h-7 rounded text-xs font-mono font-bold transition-all
                   ${selected
                     ? 'bg-nc-cyan/30 text-nc-cyan border border-nc-cyan/50 shadow-[0_0_6px_rgba(0,229,204,0.3)]'

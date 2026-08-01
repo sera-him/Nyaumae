@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useMusic } from '@/contexts/MusicContext';
 import { useOverload } from '@/contexts/OverloadContext';
 import { getRandomOverloadColor } from '@/lib/semanticHighlight';
+import { useMotionActivity } from '@/hooks/useMotionActivity';
 
 interface GlitchTextProps {
   text: string;
@@ -14,9 +15,10 @@ export function GlitchText({ text, className = '' }: GlitchTextProps) {
   const [colorClass, setColorClass] = useState('');
   const intervalRef = useRef<number>(0);
   const colorIntervalRef = useRef<number>(0);
+  const { ref: motionRef, isMotionActive } = useMotionActivity<HTMLSpanElement>();
 
   useEffect(() => {
-    if (!active) {
+    if (!active || !isMotionActive) {
       setDisplay(text);
       setColorClass('');
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -50,10 +52,10 @@ export function GlitchText({ text, className = '' }: GlitchTextProps) {
       clearInterval(intervalRef.current);
       clearInterval(colorIntervalRef.current);
     };
-  }, [text, active]);
+  }, [text, active, isMotionActive]);
 
   return (
-    <span className={`inline-block transition-opacity ${active ? `font-bold ${colorClass}` : ''} ${className}`}>
+    <span ref={motionRef} className={`inline-block transition-opacity ${active ? `font-bold ${colorClass}` : ''} ${className}`}>
       {display}
     </span>
   );
@@ -62,12 +64,12 @@ export function GlitchText({ text, className = '' }: GlitchTextProps) {
 // Overload Canvas Effect
 export function OverloadCanvas() {
   const { active } = useOverload();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { ref: canvasRef, isMotionActive } = useMotionActivity<HTMLCanvasElement>();
   const animRef = useRef<number>(0);
   const destroyedRef = useRef(false);
 
   useEffect(() => {
-    if (!active) return;
+    if (!active || !isMotionActive) return;
     destroyedRef.current = false;
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -160,7 +162,7 @@ export function OverloadCanvas() {
       ro.disconnect();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
-  }, [active]);
+  }, [active, canvasRef, isMotionActive]);
 
   if (!active) return null;
 

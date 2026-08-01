@@ -15,11 +15,11 @@ export default function Timeline() {
   const { ref, isVisible } = useScrollReveal();
 
   return (
-    <div ref={ref} className="px-4 sm:px-6 py-6">
+    <div ref={ref} className="timeline-motion px-4 sm:px-6 py-6">
       <div className="max-w-[1100px] mx-auto">
 
         {/* Timeline Images Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div className="timeline-motion-gallery grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           {timelineImages.map((img, i) => (
             <motion.div
               key={img.src}
@@ -31,7 +31,7 @@ export default function Timeline() {
                 localSrc={img.src}
                 alt={img.alt}
                 aspectRatio="16/9"
-                containerClassName="w-full rounded-xl overflow-hidden border border-nc-violet/10"
+                containerClassName="timeline-motion-visual w-full rounded-xl overflow-hidden border border-nc-violet/10"
                 className="object-cover"
               />
             </motion.div>
@@ -41,7 +41,13 @@ export default function Timeline() {
         {/* Single timeline */}
         <div className="relative">
           {/* Vertical line */}
-          <div className="absolute left-4 sm:left-6 top-0 bottom-0 w-px bg-nc-violet/20" />
+          <motion.div
+            className="timeline-motion-rail absolute left-4 sm:left-6 top-0 bottom-0 w-px"
+            initial={{ scaleY: 0, opacity: 0 }}
+            animate={isVisible ? { scaleY: 1, opacity: 1 } : {}}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            aria-hidden="true"
+          />
 
           <div className="space-y-1">
             {timelineEvents.map((event, i) => (
@@ -49,11 +55,11 @@ export default function Timeline() {
                 key={`${event.year}-${event.title}`}
                 initial={{ opacity: 0, x: -20 }}
                 animate={isVisible ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.1 + i * 0.05 }}
-                className="relative pl-12 sm:pl-14"
+                transition={{ duration: 0.5, delay: 0.1 + Math.min(i * 0.035, 0.45) }}
+                className="timeline-motion-event relative pl-12 sm:pl-14"
               >
                 {/* Dot */}
-                <div className="absolute left-2.5 sm:left-4.5 top-2 w-3 h-3 rounded-full border-2 border-nc-violet/40 bg-nc-bg" />
+                <div className="timeline-motion-node absolute left-2.5 sm:left-4.5 top-2 w-3 h-3 rounded-full border-2 border-nc-violet/40 bg-nc-bg" />
 
                 <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-4 py-3 border-b border-nc-violet/10">
                   <span className="font-mono text-sm font-bold text-nc-violet shrink-0 w-24">

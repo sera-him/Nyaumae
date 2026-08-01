@@ -16,6 +16,7 @@
   grid-template-columns: 270px minmax(0, 1fr);
   min-height: calc(100vh - 72px);
   overflow: hidden;
+  color: #5b4b6b;
   font-family: 'Quicksand', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   background:
     radial-gradient(ellipse at 20% 80%, rgba(255, 182, 193, 0.25) 0%, transparent 50%),
@@ -383,6 +384,7 @@
   animation: sweetHaloGlow 3.5s ease-in-out infinite;
 }
 .sweet-pet-toppings { position: absolute; z-index: 3; inset: 0; pointer-events: none; }
+.sweet-pet-toppings b { position: absolute; }
 .sweet-topping {
   position: absolute; width: 10px; height: 10px; border-radius: 50%;
   animation: sweetToppingFloat 4s ease-in-out infinite;

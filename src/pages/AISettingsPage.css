@@ -539,12 +539,66 @@
 }
 
 .ai-command code {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-size: .66rem;
 }
 
 .ai-command svg {
   width: .8rem;
   height: .8rem;
+}
+
+.ai-model-download {
+  display: grid;
+  gap: .4rem;
+  margin-top: .45rem;
+}
+
+.ai-model-download-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+}
+
+.ai-model-download-kind {
+  color: #b8fff3;
+  font-size: .65rem;
+  font-weight: 700;
+}
+
+.ai-model-download-heading a {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  margin-top: 0;
+  font-size: .62rem;
+}
+
+.ai-model-download-heading a svg {
+  width: .7rem;
+  height: .7rem;
+}
+
+.ai-model-download.is-huggingface .ai-command {
+  border-color: rgba(255, 189, 98, .24);
+  color: #ffddb0;
+}
+
+.ai-model-download > p {
+  margin: 0;
+  color: rgba(211, 203, 238, .58);
+  font-size: .64rem;
+  line-height: 1.55;
+}
+
+.ai-model-download .ai-capability-note {
+  margin-top: .2rem;
+}
+
+.ai-cloud-model-note {
+  margin-top: .8rem;
 }
 
 .ai-browser-install {

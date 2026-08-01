@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useMusic } from '@/contexts/MusicContext';
 import { useLocation, useNavigate } from 'react-router';
@@ -118,61 +118,67 @@ export default function CharactersPage() {
           </AuroraPanel>
 
           <div className="characters-aurora-grid">
-            {filtered.map((char, i) => (
-              <motion.div
-                key={char.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
-              >
-                <Link
-                  to={`/characters/${char.id}`}
-                  className="character-aurora-card group"
+            <AnimatePresence mode="popLayout" initial={false}>
+              {filtered.map((char, i) => (
+                <motion.div
+                  layout="position"
+                  key={char.id}
+                  initial={{ opacity: 0, y: 16, scale: 0.985 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.3, delay: Math.min(i * 0.025, 0.25), ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <div className="aspect-square relative overflow-hidden">
-                    {(() => {
-                      const locSrc = getCharacterCardImageLocal(char.id) || '/characters/miia-generated.png';
-                      const localImages = getCharacterImageSetLocal(char.id);
-                      return localImages && localImages.length > 1 ? (
-                        <RotatingImage
-                          localImages={localImages}
-                          alt={char.name}
-                          containerClassName="absolute inset-0"
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <SmartImage
-                          localSrc={locSrc}
-                          alt={char.name}
-                          containerClassName="absolute inset-0"
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      );
-                    })()}
-                    <div className={`absolute inset-0 bg-gradient-to-t ${groupColors[char.group]} opacity-0 group-hover:opacity-20 transition-opacity`} />
-                  </div>
-                  <div className="character-aurora-card-copy">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-sm font-semibold text-nc-text truncate">
-                        {semanticHighlight(char.name)}
-                      </h3>
-                      {char.fsiii ? (
-                        <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${getTierStyle(char.fsiii).rankBadgeClass}`}>
-                          {char.fsiii}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-nc-text-muted font-mono">
-                          {char.approximateAge ? '约 ' : ''}{char.age} 岁
-                        </span>
-                      )}
+                  <Link
+                    to={`/characters/${char.id}`}
+                    className="character-aurora-card motion-signal-card group"
+                    data-motion-interactive="true"
+                  >
+                    <div className="aspect-square relative overflow-hidden">
+                      {(() => {
+                        const locSrc = getCharacterCardImageLocal(char.id) || '/characters/miia-generated.png';
+                        const localImages = getCharacterImageSetLocal(char.id);
+                        return localImages && localImages.length > 1 ? (
+                          <RotatingImage
+                            localImages={localImages}
+                            alt={char.name}
+                            containerClassName="absolute inset-0"
+                            className="character-card-image object-cover"
+                          />
+                        ) : (
+                          <SmartImage
+                            localSrc={locSrc}
+                            alt={char.name}
+                            containerClassName="absolute inset-0"
+                            className="character-card-image object-cover"
+                          />
+                        );
+                      })()}
+                      <div className={`absolute inset-0 bg-gradient-to-t ${groupColors[char.group]} opacity-0 group-hover:opacity-20 group-focus-visible:opacity-20 transition-opacity`} />
                     </div>
-                    <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full border ${groupLabelColors[char.group]}`}>
-                      {char.groupLabel}
-                    </span>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                    <div className="character-aurora-card-copy">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-sm font-semibold text-nc-text truncate">
+                          {semanticHighlight(char.name)}
+                        </h3>
+                        {char.fsiii ? (
+                          <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${getTierStyle(char.fsiii).rankBadgeClass}`}>
+                            {char.fsiii}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-nc-text-muted font-mono">
+                            {char.approximateAge ? '约 ' : ''}{char.age} 岁
+                          </span>
+                        )}
+                      </div>
+                      <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full border ${groupLabelColors[char.group]}`}>
+                        {char.groupLabel}
+                      </span>
+                    </div>
+                    <span className="character-card-signal" aria-hidden="true" />
+                  </Link>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
 
           {/* 补充角色 */}
@@ -190,7 +196,8 @@ export default function CharactersPage() {
                   >
                     <Link
                       to={`/characters/${char.id}`}
-                      className="character-aurora-card group"
+                      className="character-aurora-card motion-signal-card group"
+                      data-motion-interactive="true"
                     >
                       <div className="aspect-square relative overflow-hidden">
                         {localSrc ? (
@@ -198,7 +205,7 @@ export default function CharactersPage() {
                             localSrc={localSrc}
                             alt={char.name}
                             containerClassName="absolute inset-0"
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="character-card-image object-cover"
                           />
                         ) : (
                           <div className="absolute inset-0 bg-nc-bg-secondary flex items-center justify-center">
@@ -219,6 +226,7 @@ export default function CharactersPage() {
                           {char.category}
                         </span>
                       </div>
+                      <span className="character-card-signal" aria-hidden="true" />
                     </Link>
                   </motion.div>
                 );

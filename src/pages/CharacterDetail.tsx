@@ -71,7 +71,7 @@ export default function CharacterDetail() {
         className="aurora-detail-hero flex flex-col md:flex-row gap-8 mb-12"
       >
         <div className="shrink-0">
-          <div className="aurora-detail-portrait w-48 h-48 rounded-2xl overflow-hidden flex items-center justify-center relative">
+          <div className="aurora-detail-portrait character-detail-portrait-motion w-48 h-48 rounded-2xl overflow-hidden flex items-center justify-center relative">
             {(() => {
               return localImages && localImages.length > 1 ? (
                 <RotatingImage
@@ -161,11 +161,17 @@ export default function CharacterDetail() {
           <p className="text-nc-text-secondary leading-relaxed mb-4">{char.bio.replaceAll('巨人国', '大人国')}</p>
           {mainChar?.profile && mainChar.profile.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
-              {mainChar.profile.map((item) => (
-                <div key={item.label} className="rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2.5">
+              {mainChar.profile.map((item, index) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12 + Math.min(index * 0.045, 0.28), duration: 0.35 }}
+                  className="character-profile-item rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2.5"
+                >
                   <p className="text-[11px] text-nc-text-muted mb-0.5">{item.label.replaceAll('巨人国', '大人国')}</p>
                   <p className="text-sm text-nc-text font-medium">{item.value.replaceAll('巨人国', '大人国')}</p>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
@@ -209,7 +215,8 @@ export default function CharacterDetail() {
                 <Link
                   key={i}
                   to={`/characters/${otherId}`}
-                  className="flex items-center gap-2 rounded-xl liquid-glass-subtle border border-white/[0.06] px-3 py-2 hover:border-cyan-400/20 transition-all"
+                  className="character-relation-link motion-signal-card flex items-center gap-2 rounded-xl liquid-glass-subtle border border-white/[0.06] px-3 py-2 hover:border-cyan-400/20 transition-all"
+                  data-motion-interactive="true"
                 >
                   <span className="text-sm text-nc-text">{semanticHighlight(other.name)}</span>
                   <span
@@ -238,7 +245,8 @@ export default function CharacterDetail() {
               <Link
                 key={s.id}
                 to={`/stories/${s.id}`}
-                className="block rounded-xl liquid-glass-subtle border border-white/[0.06] p-4 hover:border-cyan-400/20 transition-all"
+                className="character-story-link motion-signal-card block rounded-xl liquid-glass-subtle border border-white/[0.06] p-4 hover:border-cyan-400/20 transition-all"
+                data-motion-interactive="true"
               >
                 <h3 className="text-base font-medium text-nc-text mb-1">{s.title}</h3>
                 {s.subtitle && <p className="text-sm text-nc-text-secondary">{s.subtitle}</p>}

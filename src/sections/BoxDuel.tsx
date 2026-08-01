@@ -499,27 +499,36 @@ export default function BoxDuel() {
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-4 mb-4">
         <div className="grid grid-cols-7 sm:grid-cols-13 gap-1.5 p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
           {sorted.map(c => {
-            let cls = 'aspect-square flex items-center justify-center rounded-lg font-bold text-xs transition-all border-2 cursor-pointer select-none overflow-hidden text-center';
+            let cls = 'box-duel-case aspect-square flex items-center justify-center rounded-lg font-bold text-xs transition-all border-2 cursor-pointer select-none overflow-hidden text-center';
             let style: React.CSSProperties = {};
             if (c.opened) {
-              cls += ' opacity-85 cursor-default';
+              cls += ' is-opened opacity-85 cursor-default';
               style = { background: 'linear-gradient(145deg, #2c3e50, #1a252f)', borderColor: '#34495e', color: '#e74c3c' };
             } else if (c.isPlayer) {
-              cls += ' cursor-default';
+              cls += ' is-player cursor-default';
               style = { background: 'linear-gradient(145deg, #2ecc71, #27ae60)', borderColor: '#27ae60', color: '#fff', fontSize: '1.3em' };
             } else {
               style = { background: 'linear-gradient(145deg, #e9c46a, #c8956c)', borderColor: '#f4a261', color: '#1a1a2e' };
               if (phase !== 'select' && phase !== 'opening') { cls += ' opacity-35 cursor-not-allowed'; }
             }
+            const available = (phase === 'select' || phase === 'opening') && !c.opened && !c.isPlayer;
             return (
-              <div key={c.id} className={cls} style={style} onClick={() => {
-                if ((phase === 'select' || phase === 'opening') && !c.opened && !c.isPlayer) {
+              <button
+                key={c.id}
+                type="button"
+                className={cls}
+                style={style}
+                disabled={!available}
+                aria-label={c.opened ? `箱子 ${c.id}，已打开，金额 ${fmt(c.amount)}` : c.isPlayer ? `箱子 ${c.id}，玩家保留箱` : `选择箱子 ${c.id}`}
+                onClick={() => {
+                if (available) {
                   if (phase === 'select') selectCase(c.id);
                   else openCase(c.id);
                 }
-              }}>
+              }}
+              >
                 {c.opened ? fmt(c.amount) : c.isPlayer ? '👤' : c.id}
-              </div>
+              </button>
             );
           })}
         </div>

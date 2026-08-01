@@ -27,7 +27,7 @@ export default function MiiaWorld() {
 
   return (
     <section id="miia-world" className="miia-subpage miia-world-page py-24 px-4 sm:px-6 bg-[#0D0614] relative overflow-hidden">
-      <ParticleField type="dream" density={25} />
+      <ParticleField type="dream" density={25} markLoop={false} />
       <div className="max-w-[1100px] mx-auto relative z-10">
         {/* Header */}
         <div className="mb-12">
@@ -45,7 +45,8 @@ export default function MiiaWorld() {
             <button
               key={text.id}
               onClick={() => setActiveText(i)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+              aria-pressed={activeText === i}
+              className={`miia-text-tab px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                 activeText === i
                   ? 'bg-[#8B5CF6]/20 text-[#A78BFA] border border-[#8B5CF6]/30'
                   : 'bg-[#100A1A] text-nc-text-muted border border-[#8B5CF6]/10 hover:text-nc-text'
@@ -61,12 +62,12 @@ export default function MiiaWorld() {
           localSrc="/story-miia-dream.jpg"
           alt="咪呀的世界"
           aspectRatio="16/9"
-          containerClassName="w-full rounded-xl border border-[#8B5CF6]/10 mb-8"
+          containerClassName="miia-dream-image w-full rounded-xl border border-[#8B5CF6]/10 mb-8"
           className="object-cover"
         />
 
         {/* Active Text */}
-        <div className="bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 sm:p-8 mb-8 miia-diary-card">
+        <div key={activeText} className="miia-active-text bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 sm:p-8 mb-8 miia-diary-card">
           <div className="flex items-center gap-3 mb-4">
             <ScrollText className="w-5 h-5 text-[#A78BFA]" />
             <h3 className="text-lg font-semibold text-[#F0E6FF]">

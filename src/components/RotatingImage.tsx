@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { cn, p } from '@/lib/utils';
 import { imageHostMap } from '@/lib/imageHostMap';
+import { useMotionActivity } from '@/hooks/useMotionActivity';
 
 interface RotatingImageProps {
   localImages: string[];
@@ -23,15 +24,17 @@ export default function RotatingImage({
   const [loaded, setLoaded] = useState<Set<number>>(new Set());
   const [failed, setFailed] = useState<Set<number>>(new Set());
   const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
+  const { ref: containerRef, isMotionActive } = useMotionActivity<HTMLDivElement>();
 
   const failedArr = failed;
 
   useEffect(() => {
+    if (!isMotionActive || localImages.length <= 1) return;
     timerRef.current = setInterval(() => {
       setCurrent((prev) => (prev + 1) % localImages.length);
     }, interval);
     return () => clearInterval(timerRef.current);
-  }, [localImages.length, interval]);
+  }, [localImages.length, interval, isMotionActive]);
 
   const handleLoad = useCallback((i: number) => {
     setLoaded((prev) => { const n = new Set(prev); n.add(i); return n; });
@@ -45,7 +48,7 @@ export default function RotatingImage({
   if (localImages.length === 0) return null;
 
   return (
-    <div className={cn('relative overflow-hidden', containerClassName)}>
+    <div ref={containerRef} className={cn('relative overflow-hidden', containerClassName)} data-motion-loop>
       {localImages.map((src, i) => {
         const imgSrc = !remoteFirst || failedArr.has(i)
           ? p(src)

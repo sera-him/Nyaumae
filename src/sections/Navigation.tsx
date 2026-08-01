@@ -84,7 +84,10 @@ const navGroups: NavGroup[] = [
   {
     label: '星海对话', caption: 'DREAMY GPT', icon: MessageCircleMore,
     items: [
-      { label: '✦ 星海甜梦舱', to: '/chat' },
+      { label: '✦ 聊天主题选择', to: '/chat' },
+      { label: '✦ 星海甜梦 · 海洋', to: '/chat/ocean' },
+      { label: '✦ 甜梦小屋 · 粉色', to: '/sweetdream' },
+      { label: '✦ 极光星语 · 极光', to: '/chat/aurora' },
     ],
   },
   {
@@ -145,6 +148,14 @@ export default function Navigation({ onSearchClick }: NavigationProps) {
               return (
                 <Link key={to} to={to} className={isActive ? 'is-active' : ''} aria-current={isActive ? 'page' : undefined}>
                   <Icon /><span>{label}</span>
+                  {isActive && (
+                    <motion.span
+                      className="aurora-nav-active-indicator"
+                      layoutId="aurora-nav-active-indicator"
+                      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                      aria-hidden="true"
+                    />
+                  )}
                 </Link>
               );
             })}

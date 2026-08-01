@@ -196,6 +196,212 @@ section {
     );
     pointer-events: none;
   }
+
+  /* ═══════════════════════════════════════════════
+     nc-* → aurora token ALIAS LAYER
+     Legacy nc-* utility classes (bg-nc-*, text-nc-*, border-nc-* …)
+     are aliased to the --aurora-* design tokens here — this is their
+     single source of truth. New code should use the tokens directly
+     (var(--aurora-*)) instead of adding more nc-* classes.
+     Placed after @tailwind utilities so these override any
+     config-generated utilities with equal specificity.
+     ═══════════════════════════════════════════════ */
+
+  /* ---- bg: solid ---- */
+  .bg-nc-bg { background-color: var(--aurora-bg); }
+  .bg-nc-bg-secondary { background-color: var(--aurora-bg-raised); }
+  .bg-nc-bg-tertiary { background-color: var(--aurora-bg-soft); }
+  .bg-nc-cyan { background-color: var(--aurora-cyan); }
+  .bg-nc-gold { background-color: var(--aurora-gold); }
+  .bg-nc-rose { background-color: var(--aurora-pink); }
+  .bg-nc-violet { background-color: var(--aurora-violet); }
+
+  /* ---- bg: alpha variants ---- */
+  .bg-nc-bg\/50 { background-color: color-mix(in srgb, var(--aurora-bg) 50%, transparent); }
+  .bg-nc-bg\/60 { background-color: color-mix(in srgb, var(--aurora-bg) 60%, transparent); }
+  .bg-nc-bg\/80 { background-color: color-mix(in srgb, var(--aurora-bg) 80%, transparent); }
+  .bg-nc-bg-secondary\/30 { background-color: color-mix(in srgb, var(--aurora-bg-raised) 30%, transparent); }
+  .bg-nc-bg-secondary\/40 { background-color: color-mix(in srgb, var(--aurora-bg-raised) 40%, transparent); }
+  .bg-nc-bg-secondary\/50 { background-color: color-mix(in srgb, var(--aurora-bg-raised) 50%, transparent); }
+  .bg-nc-bg-secondary\/60 { background-color: color-mix(in srgb, var(--aurora-bg-raised) 60%, transparent); }
+  .bg-nc-bg-secondary\/95 { background-color: color-mix(in srgb, var(--aurora-bg-raised) 95%, transparent); }
+  .bg-nc-bg-tertiary\/15 { background-color: color-mix(in srgb, var(--aurora-bg-soft) 15%, transparent); }
+  .bg-nc-bg-tertiary\/20 { background-color: color-mix(in srgb, var(--aurora-bg-soft) 20%, transparent); }
+  .bg-nc-bg-tertiary\/30 { background-color: color-mix(in srgb, var(--aurora-bg-soft) 30%, transparent); }
+  .bg-nc-bg-tertiary\/50 { background-color: color-mix(in srgb, var(--aurora-bg-soft) 50%, transparent); }
+  .bg-nc-cyan\/8 { background-color: color-mix(in srgb, var(--aurora-cyan) 8%, transparent); }
+  .bg-nc-cyan\/10 { background-color: color-mix(in srgb, var(--aurora-cyan) 10%, transparent); }
+  .bg-nc-cyan\/15 { background-color: color-mix(in srgb, var(--aurora-cyan) 15%, transparent); }
+  .bg-nc-cyan\/30 { background-color: color-mix(in srgb, var(--aurora-cyan) 30%, transparent); }
+  .bg-nc-cyan\/40 { background-color: color-mix(in srgb, var(--aurora-cyan) 40%, transparent); }
+  .bg-nc-cyan\/50 { background-color: color-mix(in srgb, var(--aurora-cyan) 50%, transparent); }
+  .bg-nc-cyan\/70 { background-color: color-mix(in srgb, var(--aurora-cyan) 70%, transparent); }
+  .bg-nc-gold\/5 { background-color: color-mix(in srgb, var(--aurora-gold) 5%, transparent); }
+  .bg-nc-gold\/10 { background-color: color-mix(in srgb, var(--aurora-gold) 10%, transparent); }
+  .bg-nc-gold\/15 { background-color: color-mix(in srgb, var(--aurora-gold) 15%, transparent); }
+  .bg-nc-gold\/20 { background-color: color-mix(in srgb, var(--aurora-gold) 20%, transparent); }
+  .bg-nc-gold\/30 { background-color: color-mix(in srgb, var(--aurora-gold) 30%, transparent); }
+  .bg-nc-rose\/10 { background-color: color-mix(in srgb, var(--aurora-pink) 10%, transparent); }
+  .bg-nc-rose\/15 { background-color: color-mix(in srgb, var(--aurora-pink) 15%, transparent); }
+  .bg-nc-rose\/30 { background-color: color-mix(in srgb, var(--aurora-pink) 30%, transparent); }
+  .bg-nc-text-muted\/20 { background-color: color-mix(in srgb, var(--aurora-text-muted) 20%, transparent); }
+  .bg-nc-text-muted\/25 { background-color: color-mix(in srgb, var(--aurora-text-muted) 25%, transparent); }
+  .bg-nc-violet\/8 { background-color: color-mix(in srgb, var(--aurora-violet) 8%, transparent); }
+  .bg-nc-violet\/10 { background-color: color-mix(in srgb, var(--aurora-violet) 10%, transparent); }
+  .bg-nc-violet\/15 { background-color: color-mix(in srgb, var(--aurora-violet) 15%, transparent); }
+  .bg-nc-violet\/20 { background-color: color-mix(in srgb, var(--aurora-violet) 20%, transparent); }
+  .bg-nc-violet\/25 { background-color: color-mix(in srgb, var(--aurora-violet) 25%, transparent); }
+  .bg-nc-violet\/30 { background-color: color-mix(in srgb, var(--aurora-violet) 30%, transparent); }
+
+  /* ---- text: solid ---- */
+  .text-nc-text { color: var(--aurora-text); }
+  .text-nc-text-secondary { color: var(--aurora-text-secondary); }
+  .text-nc-text-muted { color: var(--aurora-text-muted); }
+  .text-nc-cyan { color: var(--aurora-cyan); }
+  .text-nc-gold { color: var(--aurora-gold); }
+  .text-nc-rose { color: var(--aurora-pink); }
+  .text-nc-violet { color: var(--aurora-violet); }
+
+  /* ---- text: alpha variants ---- */
+  .text-nc-text-secondary\/70 { color: color-mix(in srgb, var(--aurora-text-secondary) 70%, transparent); }
+  .text-nc-text-muted\/30 { color: color-mix(in srgb, var(--aurora-text-muted) 30%, transparent); }
+  .text-nc-text-muted\/40 { color: color-mix(in srgb, var(--aurora-text-muted) 40%, transparent); }
+  .text-nc-text-muted\/50 { color: color-mix(in srgb, var(--aurora-text-muted) 50%, transparent); }
+  .text-nc-text-muted\/60 { color: color-mix(in srgb, var(--aurora-text-muted) 60%, transparent); }
+  .text-nc-text-muted\/70 { color: color-mix(in srgb, var(--aurora-text-muted) 70%, transparent); }
+  .text-nc-cyan\/70 { color: color-mix(in srgb, var(--aurora-cyan) 70%, transparent); }
+  .text-nc-cyan\/80 { color: color-mix(in srgb, var(--aurora-cyan) 80%, transparent); }
+  .text-nc-cyan\/90 { color: color-mix(in srgb, var(--aurora-cyan) 90%, transparent); }
+  .text-nc-rose\/10 { color: color-mix(in srgb, var(--aurora-pink) 10%, transparent); }
+  .text-nc-rose\/75 { color: color-mix(in srgb, var(--aurora-pink) 75%, transparent); }
+  .text-nc-violet\/30 { color: color-mix(in srgb, var(--aurora-violet) 30%, transparent); }
+  .text-nc-violet\/60 { color: color-mix(in srgb, var(--aurora-violet) 60%, transparent); }
+
+  /* ---- border: solid ---- */
+  .border-nc-bg { border-color: var(--aurora-bg); }
+  .border-nc-cyan { border-color: var(--aurora-cyan); }
+  .border-nc-text-muted { border-color: var(--aurora-text-muted); }
+
+  /* ---- border: alpha variants ---- */
+  .border-nc-cyan\/8 { border-color: color-mix(in srgb, var(--aurora-cyan) 8%, transparent); }
+  .border-nc-cyan\/10 { border-color: color-mix(in srgb, var(--aurora-cyan) 10%, transparent); }
+  .border-nc-cyan\/15 { border-color: color-mix(in srgb, var(--aurora-cyan) 15%, transparent); }
+  .border-nc-cyan\/20 { border-color: color-mix(in srgb, var(--aurora-cyan) 20%, transparent); }
+  .border-nc-cyan\/25 { border-color: color-mix(in srgb, var(--aurora-cyan) 25%, transparent); }
+  .border-nc-cyan\/30 { border-color: color-mix(in srgb, var(--aurora-cyan) 30%, transparent); }
+  .border-nc-cyan\/40 { border-color: color-mix(in srgb, var(--aurora-cyan) 40%, transparent); }
+  .border-nc-cyan\/50 { border-color: color-mix(in srgb, var(--aurora-cyan) 50%, transparent); }
+  .border-nc-gold\/10 { border-color: color-mix(in srgb, var(--aurora-gold) 10%, transparent); }
+  .border-nc-gold\/15 { border-color: color-mix(in srgb, var(--aurora-gold) 15%, transparent); }
+  .border-nc-gold\/20 { border-color: color-mix(in srgb, var(--aurora-gold) 20%, transparent); }
+  .border-nc-gold\/30 { border-color: color-mix(in srgb, var(--aurora-gold) 30%, transparent); }
+  .border-nc-gold\/40 { border-color: color-mix(in srgb, var(--aurora-gold) 40%, transparent); }
+  .border-nc-rose\/15 { border-color: color-mix(in srgb, var(--aurora-pink) 15%, transparent); }
+  .border-nc-rose\/20 { border-color: color-mix(in srgb, var(--aurora-pink) 20%, transparent); }
+  .border-nc-rose\/30 { border-color: color-mix(in srgb, var(--aurora-pink) 30%, transparent); }
+  .border-nc-text-muted\/20 { border-color: color-mix(in srgb, var(--aurora-text-muted) 20%, transparent); }
+  .border-nc-violet\/5 { border-color: color-mix(in srgb, var(--aurora-violet) 5%, transparent); }
+  .border-nc-violet\/8 { border-color: color-mix(in srgb, var(--aurora-violet) 8%, transparent); }
+  .border-nc-violet\/10 { border-color: color-mix(in srgb, var(--aurora-violet) 10%, transparent); }
+  .border-nc-violet\/15 { border-color: color-mix(in srgb, var(--aurora-violet) 15%, transparent); }
+  .border-nc-violet\/20 { border-color: color-mix(in srgb, var(--aurora-violet) 20%, transparent); }
+  .border-nc-violet\/25 { border-color: color-mix(in srgb, var(--aurora-violet) 25%, transparent); }
+  .border-nc-violet\/30 { border-color: color-mix(in srgb, var(--aurora-violet) 30%, transparent); }
+  .border-nc-violet\/40 { border-color: color-mix(in srgb, var(--aurora-violet) 40%, transparent); }
+  .border-nc-violet\/50 { border-color: color-mix(in srgb, var(--aurora-violet) 50%, transparent); }
+
+  /* ---- border-left / divide ---- */
+  .border-l-nc-cyan { border-left-color: var(--aurora-cyan); }
+  .border-l-nc-gold { border-left-color: var(--aurora-gold); }
+  .border-l-nc-rose { border-left-color: var(--aurora-pink); }
+  .border-l-nc-violet { border-left-color: var(--aurora-violet); }
+  .divide-nc-violet\/10 > :not([hidden]) ~ :not([hidden]) {
+    border-color: color-mix(in srgb, var(--aurora-violet) 10%, transparent);
+  }
+
+  /* ---- ring / shadow / accent ---- */
+  .ring-nc-cyan { --tw-ring-color: var(--aurora-cyan); }
+  .ring-nc-gold { --tw-ring-color: var(--aurora-gold); }
+  .ring-nc-gold\/40 { --tw-ring-color: color-mix(in srgb, var(--aurora-gold) 40%, transparent); }
+  .ring-nc-rose\/60 { --tw-ring-color: color-mix(in srgb, var(--aurora-pink) 60%, transparent); }
+  .ring-nc-violet\/30 { --tw-ring-color: color-mix(in srgb, var(--aurora-violet) 30%, transparent); }
+  .ring-nc-violet\/40 { --tw-ring-color: color-mix(in srgb, var(--aurora-violet) 40%, transparent); }
+  .shadow-nc-cyan\/20 {
+    --tw-shadow-color: color-mix(in srgb, var(--aurora-cyan) 20%, transparent);
+    --tw-shadow: var(--tw-shadow-colored);
+  }
+  .shadow-nc-violet\/20 {
+    --tw-shadow-color: color-mix(in srgb, var(--aurora-violet) 20%, transparent);
+    --tw-shadow: var(--tw-shadow-colored);
+  }
+  .accent-nc-cyan { accent-color: var(--aurora-cyan); }
+
+  /* ---- gradient stops (from / via / to) ---- */
+  .from-nc-bg {
+    --tw-gradient-from: var(--aurora-bg) var(--tw-gradient-from-position);
+    --tw-gradient-to: color-mix(in srgb, var(--aurora-bg) 0%, transparent) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+  .from-nc-bg\/60 {
+    --tw-gradient-from: color-mix(in srgb, var(--aurora-bg) 60%, transparent) var(--tw-gradient-from-position);
+    --tw-gradient-to: color-mix(in srgb, var(--aurora-bg) 0%, transparent) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+  .from-nc-violet\/5 {
+    --tw-gradient-from: color-mix(in srgb, var(--aurora-violet) 5%, transparent) var(--tw-gradient-from-position);
+    --tw-gradient-to: color-mix(in srgb, var(--aurora-violet) 0%, transparent) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+  .via-nc-bg\/40 {
+    --tw-gradient-to: color-mix(in srgb, var(--aurora-bg) 0%, transparent) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), color-mix(in srgb, var(--aurora-bg) 40%, transparent) var(--tw-gradient-via-position), var(--tw-gradient-to);
+  }
+  .via-nc-bg-secondary {
+    --tw-gradient-to: color-mix(in srgb, var(--aurora-bg-raised) 0%, transparent) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--aurora-bg-raised) var(--tw-gradient-via-position), var(--tw-gradient-to);
+  }
+  .via-nc-violet\/20 {
+    --tw-gradient-to: color-mix(in srgb, var(--aurora-violet) 0%, transparent) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), color-mix(in srgb, var(--aurora-violet) 20%, transparent) var(--tw-gradient-via-position), var(--tw-gradient-to);
+  }
+  .via-nc-violet\/25 {
+    --tw-gradient-to: color-mix(in srgb, var(--aurora-violet) 0%, transparent) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), color-mix(in srgb, var(--aurora-violet) 25%, transparent) var(--tw-gradient-via-position), var(--tw-gradient-to);
+  }
+  .to-nc-bg { --tw-gradient-to: var(--aurora-bg) var(--tw-gradient-to-position); }
+
+  /* ---- state variants actually used in src ---- */
+  .hover\:bg-nc-bg-tertiary:hover { background-color: var(--aurora-bg-soft); }
+  .hover\:bg-nc-bg-tertiary\/30:hover { background-color: color-mix(in srgb, var(--aurora-bg-soft) 30%, transparent); }
+  .hover\:bg-nc-bg-tertiary\/50:hover { background-color: color-mix(in srgb, var(--aurora-bg-soft) 50%, transparent); }
+  .hover\:bg-nc-cyan\/15:hover { background-color: color-mix(in srgb, var(--aurora-cyan) 15%, transparent); }
+  .hover\:bg-nc-gold\/30:hover { background-color: color-mix(in srgb, var(--aurora-gold) 30%, transparent); }
+  .hover\:bg-nc-violet\/10:hover { background-color: color-mix(in srgb, var(--aurora-violet) 10%, transparent); }
+  .hover\:bg-nc-violet\/15:hover { background-color: color-mix(in srgb, var(--aurora-violet) 15%, transparent); }
+  .hover\:bg-nc-violet\/25:hover { background-color: color-mix(in srgb, var(--aurora-violet) 25%, transparent); }
+  .hover\:bg-nc-violet\/30:hover { background-color: color-mix(in srgb, var(--aurora-violet) 30%, transparent); }
+  .hover\:border-nc-cyan\/15:hover { border-color: color-mix(in srgb, var(--aurora-cyan) 15%, transparent); }
+  .hover\:border-nc-cyan\/20:hover { border-color: color-mix(in srgb, var(--aurora-cyan) 20%, transparent); }
+  .hover\:border-nc-cyan\/30:hover { border-color: color-mix(in srgb, var(--aurora-cyan) 30%, transparent); }
+  .hover\:border-nc-gold\/30:hover { border-color: color-mix(in srgb, var(--aurora-gold) 30%, transparent); }
+  .hover\:border-nc-rose\/20:hover { border-color: color-mix(in srgb, var(--aurora-pink) 20%, transparent); }
+  .hover\:border-nc-violet\/15:hover { border-color: color-mix(in srgb, var(--aurora-violet) 15%, transparent); }
+  .hover\:border-nc-violet\/20:hover { border-color: color-mix(in srgb, var(--aurora-violet) 20%, transparent); }
+  .hover\:border-nc-violet\/25:hover { border-color: color-mix(in srgb, var(--aurora-violet) 25%, transparent); }
+  .hover\:border-nc-violet\/30:hover { border-color: color-mix(in srgb, var(--aurora-violet) 30%, transparent); }
+  .hover\:border-nc-violet\/40:hover { border-color: color-mix(in srgb, var(--aurora-violet) 40%, transparent); }
+  .hover\:text-nc-cyan:hover { color: var(--aurora-cyan); }
+  .hover\:text-nc-gold:hover { color: var(--aurora-gold); }
+  .hover\:text-nc-text:hover { color: var(--aurora-text); }
+  .focus\:border-nc-cyan\/50:focus { border-color: color-mix(in srgb, var(--aurora-cyan) 50%, transparent); }
+  .focus\:border-nc-violet\/50:focus { border-color: color-mix(in srgb, var(--aurora-violet) 50%, transparent); }
+  .placeholder\:text-nc-text-muted::placeholder { color: var(--aurora-text-muted); }
+  .placeholder\:text-nc-text-muted\/40::placeholder { color: color-mix(in srgb, var(--aurora-text-muted) 40%, transparent); }
+  .odd\:bg-nc-cyan\/70:nth-child(odd) { background-color: color-mix(in srgb, var(--aurora-cyan) 70%, transparent); }
+  .selection\:bg-nc-violet\/30::selection { background-color: color-mix(in srgb, var(--aurora-violet) 30%, transparent); }
+  .selection\:text-nc-text::selection { color: var(--aurora-text); }
+  .group:hover .group-hover\:text-nc-cyan { color: var(--aurora-cyan); }
+  .group:hover .group-hover\:text-nc-text { color: var(--aurora-text); }
 }
 
 /* Image loading skeleton shimmer + pulse */

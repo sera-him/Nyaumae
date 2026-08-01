@@ -1,6 +1,9 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
+import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import { Routes, Route, Navigate, useParams, Link, useLocation } from 'react-router';
 import { resolveAlias, isKnownWorldSection, isKnownMiiaSection, isKnownMathSection, isKnownCharacterFilter } from '@/lib/routeManifest';
+import './pages/routes-polish.css';
 
 const Portal = lazy(() => import('@/pages/Portal'));
 const CharactersPage = lazy(() => import('@/pages/CharactersPage'));
@@ -14,14 +17,24 @@ const WorldPage = lazy(() => import('@/pages/WorldPage'));
 const ApiDocs = lazy(() => import('@/pages/ApiDocs'));
 const ChatSkin = lazy(() => import('@/pages/ChatSkin'));
 const SweetDreamChat = lazy(() => import('@/pages/SweetDreamChat'));
+const AuroraChat = lazy(() => import('@/pages/AuroraChat'));
+const ChatSelect = lazy(() => import('@/pages/ChatSelect'));
 const AISettingsPage = lazy(() => import('@/pages/AISettingsPage'));
 const ConversationWorkbench = lazy(() => import('@/pages/ConversationWorkbench'));
 const CatMouseGame = lazy(() => import('@/pages/CatMouseGame'));
 
 function PageLoader() {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-nc-violet/30 border-t-nc-violet rounded-full animate-spin" />
+    <div className="aurora-loader" role="status" aria-label="页面加载中">
+      <div className="aurora-loader-inner">
+        <div className="aurora-loader-mark" aria-hidden="true">
+          <Sparkles size={26} strokeWidth={1.8} />
+        </div>
+        <p className="aurora-loader-word">NEURAL CONNECTION</p>
+        <div className="aurora-loader-track" aria-hidden="true">
+          <div className="aurora-loader-bar" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -30,29 +43,32 @@ function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageLoader />}>{children}</Suspense>;
 }
 
-function useCanonicalRedirect(): void {
-  const location = useLocation();
-  useEffect(() => {
-    const alias = resolveAlias(location.pathname);
-    if (alias && location.pathname !== alias) {
-      window.history.replaceState(null, '', `#${alias}`);
-    }
-  }, [location.pathname]);
-}
-
 function NotFoundPage({ domain, message }: { domain?: string; message?: string }) {
+  const canGoBack = typeof window !== 'undefined' && window.history.length > 1;
   return (
-    <div className="min-h-screen flex items-center justify-center text-nc-text-muted px-4">
-      <div className="text-center max-w-md">
-        <p className="text-6xl font-bold text-nc-violet/30 mb-4">404</p>
+    <div className="not-found-page min-h-screen flex items-center justify-center text-nc-text-muted px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.52, ease: [0.22, 1, 0.36, 1] }}
+        className="not-found-panel text-center max-w-md"
+      >
+        <p className="not-found-code text-6xl font-bold text-nc-violet/30 mb-4" aria-label="404">404</p>
+        <p className="not-found-subtitle">信号中断，这条神经通路不存在</p>
         <p className="text-lg mb-2">{message || '页面未找到'}</p>
         {domain && <p className="text-sm text-nc-text-muted/60 mb-6">{domain} 领域未找到该页面</p>}
         <div className="flex gap-3 justify-center">
-          <Link to="/" className="px-4 py-2 rounded-xl bg-nc-violet/15 text-nc-violet hover:bg-nc-violet/25 transition-colors text-sm">
+          {canGoBack && (
+            <button onClick={() => window.history.back()} className="not-found-home not-found-back px-4 py-2 rounded-xl text-sm">
+              返回上一页
+            </button>
+          )}
+          <Link to="/" className="not-found-home px-4 py-2 rounded-xl bg-nc-violet/15 text-nc-violet hover:bg-nc-violet/25 transition-colors text-sm">
             返回首页
           </Link>
         </div>
-      </div>
+        <p className="not-found-hint">按 Ctrl+K 打开全站搜索</p>
+      </motion.div>
     </div>
   );
 }
@@ -90,27 +106,26 @@ function CharacterGuard() {
 function StoriesGuard() {
   const { storyId, chapterId, partId } = useParams<{ storyId?: string; chapterId?: string; partId?: string }>();
 
-  useEffect(() => {
-    if (storyId && !chapterId && !partId) {
-      window.history.replaceState(null, '', `#/stories/${storyId}/chapters/1`);
-    }
-  }, [storyId, chapterId, partId]);
+  if (storyId && !chapterId && !partId) {
+    return <Navigate to={`/stories/${storyId}/chapters/1`} replace />;
+  }
 
-  useEffect(() => {
-    if (partId && !chapterId) {
-      window.history.replaceState(null, '', `#/stories/${storyId}/parts/${partId}/chapters/1`);
-    }
-  }, [storyId, partId, chapterId]);
+  if (storyId && partId && !chapterId) {
+    return <Navigate to={`/stories/${storyId}/parts/${partId}/chapters/1`} replace />;
+  }
 
   return <SuspenseWrapper><StoryReader /></SuspenseWrapper>;
 }
 
 export default function AppRoutes() {
-  useCanonicalRedirect();
+  const location = useLocation();
+  const alias = resolveAlias(location.pathname);
 
   return (
     <SuspenseWrapper>
-      <Routes>
+      {alias && location.pathname !== alias ? (
+        <Navigate to={alias} replace />
+      ) : <Routes>
         <Route path="/" element={<SuspenseWrapper><Portal /></SuspenseWrapper>} />
 
         <Route path="/world" element={<Navigate to="/world/overview" replace />} />
@@ -121,6 +136,7 @@ export default function AppRoutes() {
 
         <Route path="/stories" element={<SuspenseWrapper><StoriesPage /></SuspenseWrapper>} />
         <Route path="/stories/:storyId" element={<StoriesGuard />} />
+        <Route path="/stories/:storyId/parts/:partId" element={<StoriesGuard />} />
         <Route path="/stories/:storyId/chapters/:chapterId" element={<SuspenseWrapper><StoryReader /></SuspenseWrapper>} />
         <Route path="/stories/:storyId/parts/:partId/chapters/:chapterId" element={<SuspenseWrapper><StoryReader /></SuspenseWrapper>} />
 
@@ -141,14 +157,16 @@ export default function AppRoutes() {
         <Route path="/api/:provider" element={<SuspenseWrapper><ApiDocs /></SuspenseWrapper>} />
         <Route path="/settings" element={<Navigate to="/settings/ai" replace />} />
         <Route path="/settings/ai" element={<SuspenseWrapper><AISettingsPage /></SuspenseWrapper>} />
-        <Route path="/chat" element={<SuspenseWrapper><ChatSkin /></SuspenseWrapper>} />
+        <Route path="/chat" element={<SuspenseWrapper><ChatSelect /></SuspenseWrapper>} />
+        <Route path="/chat/ocean" element={<SuspenseWrapper><ChatSkin /></SuspenseWrapper>} />
+        <Route path="/chat/aurora" element={<SuspenseWrapper><AuroraChat /></SuspenseWrapper>} />
         <Route path="/chat/system" element={<SuspenseWrapper><ConversationWorkbench /></SuspenseWrapper>} />
         <Route path="/chat/legacy" element={<Navigate to="/chat" replace />} />
         <Route path="/sweetdream" element={<SuspenseWrapper><SweetDreamChat /></SuspenseWrapper>} />
         <Route path="/neural-clash" element={<Navigate to="/playground/games/neural-clash" replace />} />
 
         <Route path="*" element={<NotFoundPage message="页面未找到" />} />
-      </Routes>
+      </Routes>}
     </SuspenseWrapper>
   );
 }

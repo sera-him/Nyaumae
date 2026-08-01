@@ -332,19 +332,20 @@ export default function ApiDocs() {
                 >
                   <Link
                     to={`/api/${p.id}`}
-                    className="api-aurora-card block rounded-xl p-5 transition-all group"
+                    className="api-aurora-card api-provider-motion motion-signal-card block rounded-xl p-5 transition-all group"
+                    data-motion-interactive="true"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
+                          className="api-provider-mark w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
                           style={{ backgroundColor: p.color + '20', color: p.color }}
                         >
                           {p.name[0]}
                         </div>
                         <h3 className="font-semibold text-sm">{p.name}</h3>
                       </div>
-                      <Key className="w-4 h-4 text-nc-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <Key className="api-provider-key w-4 h-4 text-nc-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="flex items-center gap-2 mb-2">
                       <Shield className="w-3 h-3 text-nc-text-muted shrink-0" />

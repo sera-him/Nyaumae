@@ -207,7 +207,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60] flex items-start justify-center pt-[15vh] px-4 bg-nc-bg/80 backdrop-blur-xl"
+          className="site-search-overlay fixed inset-0 z-[60] flex items-start justify-center pt-[15vh] px-4 bg-nc-bg/80 backdrop-blur-xl"
           onClick={onClose}
           role="dialog" aria-modal="true" aria-label="搜索"
         >
@@ -217,10 +217,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-[calc(100%-1.5rem)] sm:w-full sm:max-w-xl mx-3 sm:mx-0 bg-nc-bg-secondary border border-nc-violet/20 rounded-xl shadow-2xl shadow-black/50 overflow-hidden"
+            className="site-search-panel w-[calc(100%-1.5rem)] sm:w-full sm:max-w-xl mx-3 sm:mx-0 bg-nc-bg-secondary border border-nc-violet/20 rounded-xl shadow-2xl shadow-black/50 overflow-hidden"
           >
             <div className="flex items-center gap-3 px-4 py-3 border-b border-nc-violet/10">
-              <Search className="w-5 h-5 text-nc-text-muted shrink-0" />
+              <Search className="site-search-input-icon w-5 h-5 text-nc-text-muted shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
@@ -232,7 +232,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[11px] font-mono bg-nc-bg-tertiary border border-nc-violet/20 rounded text-nc-text-muted">
                 ESC
               </kbd>
-              <button onClick={onClose} className="p-1 hover:text-nc-text text-nc-text-muted">
+              <button onClick={onClose} className="site-search-close p-1 hover:text-nc-text text-nc-text-muted" aria-label="关闭搜索">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -257,7 +257,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             <button
                               key={rw.word}
                               onClick={() => setQuery(rw.word)}
-                              className="px-1.5 py-0.5 rounded bg-nc-bg-tertiary/50 text-nc-text-secondary hover:text-nc-text hover:bg-nc-bg-tertiary transition-colors"
+                              className="site-search-chip px-1.5 py-0.5 rounded bg-nc-bg-tertiary/50 text-nc-text-secondary hover:text-nc-text hover:bg-nc-bg-tertiary transition-colors"
                             >
                               {rw.word}({rw.count})
                             </button>
@@ -276,7 +276,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       <button
                         key={item.id + idx}
                         onClick={() => handleClick(item)}
-                        className="w-full text-left px-4 py-2.5 hover:bg-nc-bg-tertiary/50 transition-colors flex items-start gap-3 group"
+                        className="site-search-result w-full text-left px-4 py-2.5 hover:bg-nc-bg-tertiary/50 transition-colors flex items-start gap-3 group"
                       >
                         <span className={`mt-0.5 px-1.5 py-0.5 rounded text-[11px] font-medium shrink-0 ${categoryColors[item.category] || 'bg-nc-bg-tertiary text-nc-text-muted'}`}>
                           {item.category}
@@ -314,7 +314,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         key={tag}
                         onClick={() => setQuery(tag)}
                         title={`全站出现 ${count} 次`}
-                        className="px-2 py-1 rounded-md bg-nc-bg-tertiary border border-nc-violet/10 text-xs text-nc-text-secondary hover:text-nc-text hover:border-nc-violet/30 transition-colors"
+                        className="site-search-chip px-2 py-1 rounded-md bg-nc-bg-tertiary border border-nc-violet/10 text-xs text-nc-text-secondary hover:text-nc-text hover:border-nc-violet/30 transition-colors"
                       >
                         {tag}
                       </button>

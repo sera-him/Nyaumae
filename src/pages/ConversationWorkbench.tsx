@@ -428,7 +428,7 @@ export default function ConversationWorkbench() {
   };
 
   return (
-    <div className="dialogue-os">
+    <div className="dialogue-os aurora-ui" data-motion-loop>
       <div className="dialogue-ambient dialogue-ambient-one" aria-hidden="true" />
       <div className="dialogue-ambient dialogue-ambient-two" aria-hidden="true" />
 

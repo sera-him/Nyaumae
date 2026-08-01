@@ -46,7 +46,7 @@ export default function PacificIslands() {
   const { ref, isVisible } = useScrollReveal();
 
   return (
-    <section className="py-24 px-4 sm:px-6 relative">
+    <section className="pacific-motion py-24 px-4 sm:px-6 relative">
       <div ref={ref} className="max-w-[1100px] mx-auto">
         {/* Header */}
         <motion.div
@@ -75,10 +75,10 @@ export default function PacificIslands() {
               initial={{ opacity: 0, y: 20 }}
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.3 + i * 0.05 }}
-              className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-4 hover:border-nc-cyan/30 transition-all duration-300 group"
+              className="pacific-nation-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-4 hover:border-nc-cyan/30 transition-all duration-300 group"
             >
               <div className="flex items-start gap-3">
-                <MapPin className={`w-4 h-4 mt-1 shrink-0 ${n.color}`} />
+                <MapPin className={`pacific-nation-mark w-4 h-4 mt-1 shrink-0 ${n.color}`} />
                 <div>
                   <h3 className={`font-semibold text-sm text-nc-text mb-1 ${n.color}`}>{n.name}</h3>
                   <p className="text-xs text-nc-text-muted leading-relaxed">{n.desc}</p>
@@ -93,7 +93,7 @@ export default function PacificIslands() {
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-5 mb-16 hover:border-nc-cyan/30 transition-all duration-300"
+          className="pacific-relation-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-5 mb-16 hover:border-nc-cyan/30 transition-all duration-300"
         >
           <div className="flex items-center gap-2 mb-4">
             <Globe className="w-5 h-5 text-nc-cyan" />
@@ -101,7 +101,7 @@ export default function PacificIslands() {
           </div>
           <div className="space-y-2 mb-4">
             {travelInfo.map((info, i) => (
-              <p key={i} className="text-sm text-nc-text-muted pl-7 relative">
+              <p key={i} className="pacific-travel-item text-sm text-nc-text-muted pl-7 relative">
                 <span className="absolute left-0 top-1.5 w-1.5 h-1.5 rounded-full bg-nc-cyan/50" />
                 {info}
               </p>
@@ -109,7 +109,7 @@ export default function PacificIslands() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4">
             {chinaPolicy.map((p) => (
-              <div key={p.label} className="bg-nc-bg/50 rounded-lg px-3 py-2 border border-nc-violet/5">
+              <div key={p.label} className="pacific-policy-card bg-nc-bg/50 rounded-lg px-3 py-2 border border-nc-violet/5">
                 <div className="text-xs text-nc-text-muted">{p.label}</div>
                 <div className="text-sm font-medium text-nc-text">{p.detail}</div>
               </div>
@@ -141,7 +141,7 @@ export default function PacificIslands() {
               { label: '居民', value: '不到二十万' },
               { label: '独立日', value: '2042.4.2' },
             ].map((s) => (
-              <div key={s.label} className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-4 text-center">
+              <div key={s.label} className="pacific-stat-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-4 text-center">
                 <div className="font-mono text-lg font-bold text-nc-cyan">{s.value}</div>
                 <div className="text-xs text-nc-text-muted mt-1">{s.label}</div>
               </div>
@@ -149,8 +149,8 @@ export default function PacificIslands() {
           </div>
 
           {/* Timeline */}
-          <div className="relative mb-10">
-            <div className="absolute left-[11px] top-2 bottom-2 w-px bg-nc-violet/20" />
+          <div className="pacific-timeline relative mb-10" data-motion-reveal>
+            <div className="pacific-timeline-rail absolute left-[11px] top-2 bottom-2 w-px bg-nc-violet/20" />
             <div className="space-y-6">
               {timeline.map((t, i) => (
                 <motion.div
@@ -158,14 +158,14 @@ export default function PacificIslands() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={isVisible ? { opacity: 1, x: 0 } : {}}
                   transition={{ duration: 0.5, delay: 0.8 + i * 0.08 }}
-                  className="flex gap-4 pl-0"
+                  className="pacific-timeline-event flex gap-4 pl-0"
                 >
                   <div className="flex flex-col items-center shrink-0">
-                    <div className="w-6 h-6 rounded-full bg-nc-bg-secondary border-2 border-nc-cyan/40 flex items-center justify-center">
+                    <div className="pacific-timeline-node w-6 h-6 rounded-full bg-nc-bg-secondary border-2 border-nc-cyan/40 flex items-center justify-center">
                       <div className="w-2 h-2 rounded-full bg-nc-cyan" />
                     </div>
                   </div>
-                  <div className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-4 flex-1 hover:border-nc-cyan/30 transition-all duration-300">
+                  <div className="pacific-timeline-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-4 flex-1 hover:border-nc-cyan/30 transition-all duration-300">
                     <div className="flex items-baseline gap-3 mb-1">
                       <span className="font-mono text-xs text-nc-cyan shrink-0">{t.time}</span>
                       <h4 className="font-semibold text-sm text-nc-text">{t.title}</h4>
@@ -182,7 +182,7 @@ export default function PacificIslands() {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={isVisible ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.6, delay: 1.4 }}
-            className="bg-nc-bg-secondary/60 border border-nc-rose/20 rounded-xl p-6 mb-8 relative overflow-hidden"
+            className="pacific-quote-card bg-nc-bg-secondary/60 border border-nc-rose/20 rounded-xl p-6 mb-8 relative overflow-hidden"
           >
             <Quote className="absolute top-3 left-3 w-8 h-8 text-nc-rose/10" />
             <div className="pl-6">
@@ -198,7 +198,7 @@ export default function PacificIslands() {
             initial={{ opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 1.5 }}
-            className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-5"
+            className="pacific-aftermath-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-5"
           >
             <div className="flex items-center gap-2 mb-3">
               <Waves className="w-4 h-4 text-nc-cyan" />

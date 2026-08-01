@@ -350,7 +350,7 @@ export default function HeightWeightChart() {
       initial={{ opacity: 0, y: 30 }}
       animate={isVisible ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: 0.4 }}
-      className="bg-nc-bg border border-nc-violet/10 rounded-xl overflow-hidden"
+      className="height-weight-motion bg-nc-bg border border-nc-violet/10 rounded-xl overflow-hidden"
       ref={ref}
     >
       <div className="px-6 py-4 border-b border-nc-violet/10 flex items-center justify-between">
@@ -363,7 +363,7 @@ export default function HeightWeightChart() {
         </div>
         <button
           onClick={() => setShowRangePanel(!showRangePanel)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-all ${
+          className={`height-weight-settings flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-all ${
             showRangePanel
               ? 'bg-nc-bg-tertiary text-nc-cyan border border-nc-cyan/30'
               : 'text-nc-text-secondary hover:text-nc-text hover:bg-nc-bg-tertiary border border-transparent'
@@ -380,7 +380,7 @@ export default function HeightWeightChart() {
           <button
             key={m.name}
             onClick={() => toggleModel(i)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono transition-all ${
+            className={`height-weight-series flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono transition-all ${
               activeModels.has(i)
                 ? 'bg-nc-bg-tertiary'
                 : 'bg-nc-bg opacity-40 hover:opacity-70'
@@ -454,7 +454,7 @@ export default function HeightWeightChart() {
       <div ref={containerRef} className="w-full px-2 py-4 relative">
         <canvas
           ref={canvasRef}
-          className="w-full rounded-lg cursor-crosshair"
+          className="height-weight-canvas w-full rounded-lg cursor-crosshair"
           onClick={handleCanvasClick}
           onMouseMove={handleCanvasMove}
           onMouseLeave={handleCanvasLeave}

@@ -74,20 +74,27 @@ type CloudPreset = {
 };
 
 const CLOUD_PROVIDERS: CloudPreset[] = [
-  { id: 'openai', name: 'OpenAI', description: 'GPT-5 系列 API', providerLabel: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-5.4', models: ['gpt-5.4', 'gpt-5.4-mini', 'gpt-5.3-codex', 'gpt-5-pro', 'gpt-5-mini'], icon: Sparkles },
-  { id: 'anthropic', name: 'Anthropic', description: 'Claude 5 系列 API', providerLabel: 'Anthropic', baseUrl: 'https://api.anthropic.com/v1', model: 'claude-opus-5', models: ['claude-opus-5', 'claude-sonnet-5', 'claude-haiku-5', 'claude-opus-4-1'], icon: Bot },
-  { id: 'google', name: 'Google AI', description: 'Gemini 3 系列 API', providerLabel: 'Google AI', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-3.0-pro', models: ['gemini-3.0-pro', 'gemini-3.0-flash', 'gemini-3.0-ultra', 'gemini-2.5-pro'], icon: Globe2 },
-  { id: 'deepseek', name: 'DeepSeek', description: 'V4 新一代推理模型', providerLabel: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-v4-pro', models: ['deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-v3.2', 'deepseek-r1', 'deepseek-chat'], icon: Zap },
-  { id: 'moonshot', name: 'Kimi / Moonshot AI', description: 'Kimi 新一代模型 API', providerLabel: 'Kimi / Moonshot AI', baseUrl: 'https://api.moonshot.cn/v1', model: 'kimi-k3', models: ['kimi-k3', 'kimi-k2.6', 'kimi-k2.5', 'kimi-k2', 'moonshot-v1-128k'], icon: Bot },
-  { id: 'zai', name: 'Z.ai', description: 'GLM 新一代 API', providerLabel: 'Z.ai', baseUrl: 'https://api.z.ai/api/paas/v4', model: 'glm-7', models: ['glm-7', 'glm-7-flash', 'glm-7-vision', 'glm-6'], icon: Sparkles },
-  { id: 'qwen', name: 'Qwen / 通义千问', description: 'Qwen 6 系列兼容接口', providerLabel: 'Qwen / 通义千问', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen6-max', models: ['qwen6-max', 'qwen6-plus', 'qwen6-turbo', 'qwen6-vl', 'qwen6-coder', 'qwen6-math', 'qwen6-omni'], icon: Cpu },
-  { id: 'minimax', name: 'MiniMax', description: 'MiniMax API', providerLabel: 'MiniMax', baseUrl: 'https://api.minimax.io/v1', model: 'MiniMax-M2.5', models: ['MiniMax-M2.5', 'MiniMax-M2', 'MiniMax-01'], icon: Server },
-  { id: 'mistral', name: 'Mistral AI', description: 'Mistral 新一代 API', providerLabel: 'Mistral AI', baseUrl: 'https://api.mistral.ai/v1', model: 'mistral-large-latest', models: ['mistral-large-latest', 'magistral-medium-latest', 'codestral-latest', 'devstral-latest'], icon: Cloud },
-  { id: 'xai', name: 'xAI', description: 'Grok API', providerLabel: 'xAI', baseUrl: 'https://api.x.ai/v1', model: 'grok-4', models: ['grok-4', 'grok-4-fast', 'grok-3-mini'], icon: Zap },
-  { id: 'siliconflow', name: '硅基流动', description: '多种新一代开源模型', providerLabel: '硅基流动', baseUrl: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V4-Pro', models: ['deepseek-ai/DeepSeek-V4-Pro', 'deepseek-ai/DeepSeek-V4-Flash', 'deepseek-ai/DeepSeek-V3.2', 'deepseek-ai/DeepSeek-R1', 'Qwen/Qwen3-235B-A22B', 'moonshotai/Kimi-K2.5'], icon: Server },
-  { id: 'openrouter', name: 'OpenRouter', description: '统一聚合最新模型', providerLabel: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', model: 'deepseek/deepseek-v4-pro', models: ['deepseek/deepseek-v4-pro', 'openai/gpt-5.4', 'anthropic/claude-opus-5', 'google/gemini-3.0-pro', 'moonshotai/kimi-k2.5', 'z-ai/glm-7'], icon: Cloud },
+  { id: 'openai', name: 'OpenAI', description: 'GPT-5.6 系列 API', providerLabel: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-5.6-sol', models: ['gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna', 'gpt-5.5', 'gpt-5.4', 'gpt-5.4-mini', 'gpt-5.4-nano'], icon: Sparkles },
+  { id: 'anthropic', name: 'Anthropic', description: 'Claude 5 系列 API', providerLabel: 'Anthropic', baseUrl: 'https://api.anthropic.com/v1', model: 'claude-opus-5', models: ['claude-opus-5', 'claude-sonnet-5', 'claude-haiku-4-5', 'claude-fable-5', 'claude-opus-4-8', 'claude-sonnet-4-6'], icon: Bot },
+  { id: 'google', name: 'Google AI', description: 'Gemini 3.1 系列 API', providerLabel: 'Google AI', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-3.1-pro', models: ['gemini-3.1-pro', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash'], icon: Globe2 },
+  { id: 'deepseek', name: 'DeepSeek', description: 'V4 新一代推理模型', providerLabel: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-v4-pro', models: ['deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-v3.2', 'deepseek-r1'], icon: Zap },
+  { id: 'moonshot', name: 'Kimi / Moonshot AI', description: 'Kimi K3 云端 API（不下载本地权重）', providerLabel: 'Kimi / Moonshot AI', baseUrl: 'https://api.moonshot.cn/v1', model: 'kimi-k3', models: ['kimi-k3', 'kimi-k2.7-code', 'kimi-k2.6'], icon: Bot },
+  { id: 'zai', name: 'Z.ai', description: 'GLM-5 新一代 API', providerLabel: 'Z.ai', baseUrl: 'https://api.z.ai/api/paas/v4', model: 'glm-5.2', models: ['glm-5.2', 'glm-5.1', 'glm-5', 'glm-4.7'], icon: Sparkles },
+  { id: 'qwen', name: 'Qwen / 通义千问', description: 'Qwen 3.7 系列兼容接口', providerLabel: 'Qwen / 通义千问', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen3.7-max', models: ['qwen3.7-max', 'qwen3.7-plus', 'qwen3.7-flash', 'qwen3.5-plus', 'qwen3.5-flash', 'qwen-max', 'qwen-plus', 'qwen-flash'], icon: Cpu },
+  { id: 'minimax', name: 'MiniMax', description: 'MiniMax M3 系列 API', providerLabel: 'MiniMax', baseUrl: 'https://api.minimax.io/v1', model: 'MiniMax-M3', models: ['MiniMax-M3', 'MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'MiniMax-M2.5', 'MiniMax-M2.5-highspeed', 'MiniMax-M2.1', 'MiniMax-M2'], icon: Server },
+  { id: 'mistral', name: 'Mistral AI', description: 'Mistral 新一代 API', providerLabel: 'Mistral AI', baseUrl: 'https://api.mistral.ai/v1', model: 'mistral-large-latest', models: ['mistral-large-latest', 'mistral-medium-latest', 'mistral-small-latest', 'codestral-latest'], icon: Cloud },
+  { id: 'xai', name: 'xAI', description: 'Grok API', providerLabel: 'xAI', baseUrl: 'https://api.x.ai/v1', model: 'grok-4.5', models: ['grok-4.5', 'grok-4.3', 'grok-4.20-0309-reasoning', 'grok-4.20-0309-non-reasoning'], icon: Zap },
+  { id: 'siliconflow', name: '硅基流动', description: '多种新一代开源模型', providerLabel: '硅基流动', baseUrl: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V4-Pro', models: ['deepseek-ai/DeepSeek-V4-Pro', 'deepseek-ai/DeepSeek-V4-Flash', 'deepseek-ai/DeepSeek-V3.2', 'deepseek-ai/DeepSeek-R1', 'zai-org/GLM-5.1', 'zai-org/GLM-5', 'moonshotai/Kimi-K2.7-Code', 'moonshotai/Kimi-K2.6', 'MiniMaxAI/MiniMax-M2.5', 'Qwen/Qwen3.6-35B-A3B', 'Qwen/Qwen3.5-397B-A17B'], icon: Server },
+  { id: 'openrouter', name: 'OpenRouter', description: '统一聚合最新模型', providerLabel: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', model: 'deepseek/deepseek-v4-pro', models: ['deepseek/deepseek-v4-pro', 'deepseek/deepseek-v4-flash', 'anthropic/claude-opus-5', 'anthropic/claude-sonnet-5', 'openai/gpt-5.6-sol', 'google/gemini-3.6-flash', 'moonshotai/kimi-k3', 'z-ai/glm-5.1'], icon: Cloud },
   { id: 'custom', name: '自定义连接', description: '手动填写服务与模型', providerLabel: 'OpenAI-compatible', baseUrl: '', model: '', models: [], icon: SlidersHorizontal },
 ]; 
+
+const CLOUD_ONLY_MODEL_NOTICES: Record<string, string> = {
+  'kimi-k3': '这里的 kimi-k3 是云端 API 模型名，不会把 Kimi K3 权重下载到本机。要下载真实权重，请切换到“电脑本地”，选择 2.8T，然后使用 Hugging Face 官方命令。',
+  'moonshotai/kimi-k3': '这里的 moonshotai/kimi-k3 是聚合服务中的云端模型名，不会把 Kimi K3 权重下载到本机。真实权重下载请使用“电脑本地”模式中的 Hugging Face 官方命令。',
+  'kimi-k2.6': '这里的 kimi-k2.6 是云端 API 模型名，不会把 Kimi K2.6 权重下载到本机。真实权重下载请切换到“电脑本地”，选择 1T，然后使用 Hugging Face 官方命令。',
+  'moonshotai/Kimi-K2.6': '这里的 moonshotai/Kimi-K2.6 是聚合服务中的云端模型名，不会把 Kimi K2.6 权重下载到本机。真实权重下载请使用“电脑本地”模式中的 Hugging Face 官方命令。',
+};
 
 const TONES: Array<{ id: ToneId; name: string; description: string; temperature: number }> = [
   { id: 'precise', name: '严谨', description: '回答稳定直接', temperature: 0.25 },
@@ -152,6 +159,11 @@ export default function AISettingsPage() {
   const webGpuReady = useMemo(() => browserSupportsLocalAI(), []);
   const hasUsableKey = mode !== 'cloud' || Boolean(apiKeyDraft.trim() || config.apiKey);
   const isCustomCloudModel = cloudPreset.models.length === 0 || !cloudPreset.models.includes(config.model);
+  const cloudModelNotice = CLOUD_ONLY_MODEL_NOTICES[config.model.trim()];
+  const ollamaModelSelectionNeedsAttention = mode === 'device'
+    && runtime === 'ollama'
+    && selectedTier.download.kind === 'huggingface'
+    && config.model === selectedTier.deviceModel;
 
   const update = <K extends keyof AiConfig>(key: K, value: AiConfig[K]) => {
     setConfig((current) => ({ ...current, [key]: value }));
@@ -276,6 +288,10 @@ export default function AISettingsPage() {
       setNotice({ kind: 'error', text: '当前选择的尺寸没有可供浏览器加载的内置权重，请切换到“电脑本地”模式后再保存并测试。' });
       return;
     }
+    if (ollamaModelSelectionNeedsAttention) {
+      setNotice({ kind: 'error', text: '当前模型没有 Ollama 官方本地包。请切换到支持官方权重的运行器并填写其模型名称，或选择 Ollama 可用的模型后再测试。' });
+      return;
+    }
     setTesting(true);
     setNotice({ kind: 'info', text: mode === 'browser' ? '正在准备浏览器本地模型…' : '正在连接模型…' });
     try {
@@ -300,9 +316,8 @@ export default function AISettingsPage() {
   };
 
   const copyCommand = async () => {
-    const model = selectedTier.ollamaModel ?? config.model;
-    await navigator.clipboard?.writeText(`ollama pull ${model}`);
-    setNotice({ kind: 'success', text: '安装命令已复制。' });
+    await navigator.clipboard?.writeText(selectedTier.download.command);
+    setNotice({ kind: 'success', text: selectedTier.download.kind === 'ollama' ? 'Ollama 本地模型命令已复制。' : '官方权重下载命令已复制。' });
   };
 
   const clear = () => {
@@ -350,7 +365,7 @@ export default function AISettingsPage() {
             <p className="aurora-lead">云端、电脑本地或浏览器内运行，一步一步完成。</p>
           </div>
           {config.enabled && (
-            <div className="ai-current-status">
+            <div className="ai-current-status" data-motion-reveal>
               <span><CheckCircle2 />已启用</span>
               <strong>{config.providerLabel || 'AI 服务'}</strong>
               <small>{config.model}</small>
@@ -358,14 +373,14 @@ export default function AISettingsPage() {
           )}
         </header>
 
-        <section className="ai-setup-card">
+        <section className="ai-setup-card" data-motion-reveal>
           <div className="ai-step-heading"><span>1</span><div><h2>AI 放在哪里运行？</h2><p>本地模式不会把对话发送给云端模型服务商。</p></div></div>
           <div className="ai-placement-grid">
             <button type="button" className={`ai-placement-card${mode === 'cloud' ? ' is-selected' : ''}`} onClick={() => selectMode('cloud')} aria-pressed={mode === 'cloud'}>
               <Cloud /><span><strong>云端 API</strong><small>最省设备空间，需 API Key</small></span><Check />
             </button>
             <button type="button" className={`ai-placement-card${mode === 'device' ? ' is-selected' : ''}`} onClick={() => selectMode('device')} aria-pressed={mode === 'device'}>
-              <HardDrive /><span><strong>放在电脑本地</strong><small>Ollama / LM Studio，支持 1M—2.8T</small></span><Check />
+              <HardDrive /><span><strong>放在电脑本地</strong><small>Ollama 或官方权重下载，支持 1M—2.8T</small></span><Check />
             </button>
             <button type="button" className={`ai-placement-card${mode === 'browser' ? ' is-selected' : ''}`} onClick={() => selectMode('browser')} aria-pressed={mode === 'browser'}>
               <Globe2 /><span><strong>放在浏览器</strong><small>无需安装，模型保存在浏览器缓存</small></span><Check />
@@ -374,7 +389,7 @@ export default function AISettingsPage() {
         </section>
 
         {mode === 'cloud' ? (
-          <section className="ai-setup-card">
+          <section className="ai-setup-card" data-motion-reveal>
             <div className="ai-step-heading"><span>2</span><div><h2>选择云端服务</h2><p>选择后只需填写密钥。</p></div></div>
             <div className="ai-provider-grid">
               {CLOUD_PROVIDERS.map((item) => {
@@ -411,10 +426,11 @@ export default function AISettingsPage() {
               </label>
             </div>
             {cloudPresetId === 'custom' && <div className="ai-custom-fields"><label className="ai-field"><span>服务名称</span><input value={config.providerLabel} onChange={(event) => update('providerLabel', event.target.value)} /></label><label className="ai-field"><span>API 地址</span><input value={config.baseUrl} onChange={(event) => update('baseUrl', event.target.value)} placeholder="https://api.example.com/v1" /></label></div>}
+            {cloudModelNotice && <div className="ai-capability-note is-warning ai-cloud-model-note"><CircleAlert /><span><strong>这是云端模型标识。</strong> {cloudModelNotice}</span></div>}
           </section>
         ) : (
           <>
-            <section className="ai-setup-card">
+            <section className="ai-setup-card" data-motion-reveal>
               <div className="ai-step-heading">
                 <span>2</span>
                 <div><h2>选择模型尺寸</h2><p>完整覆盖 1M 到 2.8T；默认已按这台设备推荐。</p></div>
@@ -448,7 +464,7 @@ export default function AISettingsPage() {
               {mode === 'device' && selectedTier.parameters >= 7e10 && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>这不是普通电脑能轻松运行的尺寸。</strong> 页面允许配置到 2.8T，但 70B 以上通常需要专业工作站、多 GPU 或分布式集群。</span></div>}
             </section>
 
-            <section className="ai-setup-card">
+            <section className="ai-setup-card" data-motion-reveal>
               <div className="ai-step-heading"><span>3</span><div><h2>{mode === 'browser' ? '下载到浏览器' : '连接电脑上的 AI'}</h2><p>{mode === 'browser' ? '首次下载后，模型权重会留在当前浏览器。' : '按照下面三步即可完成本地部署。'}</p></div></div>
               {mode === 'device' ? (
                 <>
@@ -459,7 +475,22 @@ export default function AISettingsPage() {
                   </div>
                   <ol className="ai-deploy-steps">
                     <li><span>1</span><div><strong>安装运行器</strong><p>{runtime === 'ollama' ? '下载安装 Ollama。' : runtime === 'lmstudio' ? '下载安装 LM Studio，并在 Local Server 中启动服务。' : '启动你的本地推理服务并打开 OpenAI 兼容接口。'}</p>{runtime !== 'custom' && <a href={runtime === 'ollama' ? 'https://ollama.com/download' : 'https://lmstudio.ai/'} target="_blank" rel="noreferrer">打开官方下载页 <ExternalLink /></a>}</div></li>
-                    <li><span>2</span><div><strong>{runtime === 'ollama' ? '下载模型' : '加载模型'}</strong>{runtime === 'ollama' && selectedTier.ollamaModel ? <button type="button" className="ai-command" onClick={() => void copyCommand()}><code>ollama pull {selectedTier.ollamaModel}</code><Copy /></button> : <p>{runtime === 'ollama' ? '这个尺寸没有预设模型，请在下方填写可用的 Ollama 模型名称。' : '在运行器里下载并加载对应尺寸的模型，然后填写它显示的模型名称。'}</p>}</div></li>
+                    <li>
+                      <span>2</span>
+                      <div>
+                        <strong>{runtime === 'ollama' ? '下载模型' : '加载模型'}</strong>
+                        <div className={`ai-model-download is-${selectedTier.download.kind}`}>
+                          <div className="ai-model-download-heading">
+                            <span className="ai-model-download-kind">{selectedTier.download.kind === 'ollama' ? 'Ollama 本地包' : 'Hugging Face 官方权重'}</span>
+                            <a href={selectedTier.download.sourceUrl} target="_blank" rel="noreferrer">官方来源 <ExternalLink /></a>
+                          </div>
+                          {(runtime === 'ollama' || selectedTier.download.kind === 'huggingface') && <button type="button" className="ai-command" onClick={() => void copyCommand()}><code>{selectedTier.download.command}</code><Copy /></button>}
+                          {runtime === 'ollama' && selectedTier.download.kind === 'huggingface' && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>Ollama 没有这个本地模型包。</strong> 不要对这个模型名使用 Ollama 命令；上面只下载真实原始权重，下载后需要支持它的推理工具。</span></div>}
+                          {runtime !== 'ollama' && selectedTier.download.kind === 'ollama' && <p>当前运行器不是 Ollama，请在它的模型管理界面中加载对应模型；Ollama 命令只适用于 Ollama。</p>}
+                          <p>{selectedTier.download.note}</p>
+                        </div>
+                      </div>
+                    </li>
                     <li><span>3</span><div><strong>测试连接</strong><p>保持本地服务运行，再点击页面底部的“保存并测试”。</p></div></li>
                   </ol>
                   <div className="ai-primary-fields">
@@ -479,7 +510,7 @@ export default function AISettingsPage() {
           </>
         )}
 
-        <details className="ai-setup-card ai-advanced">
+        <details className="ai-setup-card ai-advanced" data-motion-reveal>
           <summary><SlidersHorizontal />高级生成设置 <small>大多数人不需要修改</small><ChevronDown /></summary>
           <div className="ai-advanced-body">
             <div className="ai-tone-field"><span>回答风格</span><div className="ai-tone-options">{TONES.map((tone) => <button type="button" className={findTone(config.temperature) === tone.id ? 'is-selected' : ''} onClick={() => update('temperature', tone.temperature)} key={tone.id}><strong>{tone.name}</strong><small>{tone.description}</small></button>)}</div></div>
@@ -491,11 +522,11 @@ export default function AISettingsPage() {
           </div>
         </details>
 
-        {notice && <div className={`ai-inline-notice is-${notice.kind}`} role="status" aria-live="polite">{testing ? <LoaderCircle className="is-spinning" /> : notice.kind === 'success' ? <CheckCircle2 /> : <ShieldCheck />}<span>{notice.text}</span></div>}
+        {notice && <div className={`ai-inline-notice is-${notice.kind}`} role="status" aria-live="polite">{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : notice.kind === 'success' ? <CheckCircle2 /> : <ShieldCheck />}<span>{notice.text}</span></div>}
 
         <div className="ai-main-actions">
           <button type="button" className="ai-button ai-button-secondary" onClick={saveOnly} disabled={testing || !hasUsableKey}><Save />仅保存</button>
-          <button type="button" className="ai-button ai-button-primary" onClick={() => void saveAndTest()} disabled={testing || !hasUsableKey || (mode === 'browser' && !webGpuReady)}>{testing ? <LoaderCircle className="is-spinning" /> : mode === 'browser' ? <Download /> : <Zap />}{testing ? (mode === 'browser' ? '正在下载并加载…' : '正在连接…') : mode === 'browser' ? '下载模型并启用' : '保存并测试连接'}</button>
+          <button type="button" className="ai-button ai-button-primary" onClick={() => void saveAndTest()} disabled={testing || !hasUsableKey || (mode === 'browser' && !webGpuReady) || ollamaModelSelectionNeedsAttention}>{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : mode === 'browser' ? <Download /> : <Zap />}{testing ? (mode === 'browser' ? '正在下载并加载…' : '正在连接…') : mode === 'browser' ? '下载模型并启用' : '保存并测试连接'}</button>
         </div>
 
         <div className="ai-privacy-note"><ShieldCheck /><span><strong>{mode === 'cloud' ? '密钥仅存储在这台设备上' : '本地模式不会把对话发送给云端模型服务商'}</strong>，配置导出中也不会包含密钥。</span><Link to="/chat">前往 AI 对话 <ExternalLink /></Link></div>

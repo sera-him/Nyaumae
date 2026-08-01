@@ -386,14 +386,14 @@ class Super24Game {
       const relErr = Math.abs((pNum - tNum) / tNum), score = Math.min(100, 100 * Math.exp(-5 * relErr));
       const rounded = Math.round(score * 1000) / 1000;
       if (rounded >= 100) return { score: 100, info: '🎉 完美！极其接近目标！100分！', perfect: true };
-      let grade = score >= 90 ? '🌟 极接近！' : score >= 70 ? '✨ 很接近！' : score >= 50 ? '👍 还不错' : score >= 20 ? '😐 有点远' : '💔 差太远了';
+      const grade = score >= 90 ? '🌟 极接近！' : score >= 70 ? '✨ 很接近！' : score >= 50 ? '👍 还不错' : score >= 20 ? '😐 有点远' : '💔 差太远了';
       return { score: rounded, info: `${grade} | 目标: ${target.display()} | 你的结果: ${player.display()} | 相对误差: ${(relErr * 100).toPrecision(3)}% | 得分: ${rounded.toFixed(3)}` };
     }
     const log10T = Math.log10(target.mantissa) + Number(target.exponent), log10P = Math.log10(player.mantissa) + Number(player.exponent);
     if (!isFinite(log10T) || !isFinite(log10P)) return { score: 0, info: '❌ 数值过大，无法比较' };
     const logDiff = Math.abs(log10T - log10P), score = Math.min(100, 100 * Math.exp(-0.5 * logDiff));
     const rounded = Math.round(score * 1000) / 1000;
-    let grade = score >= 90 ? '🌟 极接近（对数尺度）！' : score >= 70 ? '✨ 很接近（对数尺度）！' : score >= 50 ? '👍 还不错' : score >= 20 ? '😐 有点远' : '💔 差太远了';
+    const grade = score >= 90 ? '🌟 极接近（对数尺度）！' : score >= 70 ? '✨ 很接近（对数尺度）！' : score >= 50 ? '👍 还不错' : score >= 20 ? '😐 有点远' : '💔 差太远了';
     return { score: rounded, info: `${grade} | 目标: ${target.display()} | 你的结果: ${player.display()} | log10差值: ${logDiff.toPrecision(4)} | 得分: ${rounded.toFixed(3)}` };
   }
   score(playerExpr: string) {
@@ -499,7 +499,12 @@ export default function Super24() {
         </div>
 
         {resultInfo && (
-          <div className={`mt-4 p-3 rounded-xl text-sm border ${resultCls}`}>
+          <div
+            key={resultInfo}
+            className={`super24-result mt-4 p-3 rounded-xl text-sm border ${resultCls}`}
+            data-result={(score ?? 0) >= 90 ? 'correct' : (score ?? 0) > 0 ? 'close' : 'wrong'}
+            role="status"
+          >
             {resultInfo}
           </div>
         )}

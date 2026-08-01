@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useMotionActivity } from '@/hooks/useMotionActivity';
 
 interface Particle {
   x: number;
@@ -16,6 +17,7 @@ interface ParticleFieldProps {
   type: 'symbols' | 'dream' | 'stars' | 'math' | 'rising';
   density?: number;
   className?: string;
+  markLoop?: boolean;
 }
 
 const COLORS: Record<string, string[]> = {
@@ -35,28 +37,14 @@ const SYMBOLS = [
 
 const MATH_SYMBOLS = ['0', '1', '∞', '∑', '∫', 'π', 'e', '√', 'ln', 'dx', 'dy', '∆', '∀', '∃', '∈', '⊂'];
 
-export default function ParticleField({ type, density = 30, className = '' }: ParticleFieldProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+export default function ParticleField({ type, density = 30, className = '', markLoop = true }: ParticleFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const destroyedRef = useRef(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const { ref: containerRef, isMotionActive } = useMotionActivity<HTMLDivElement>();
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!isVisible) {
+    if (!isMotionActive) {
       cancelAnimationFrame(animRef.current);
       return;
     }
@@ -170,10 +158,10 @@ export default function ParticleField({ type, density = 30, className = '' }: Pa
       cancelAnimationFrame(animRef.current);
       ro.disconnect();
     };
-  }, [type, density, isVisible]);
+  }, [type, density, isMotionActive]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full">
+    <div ref={containerRef} className="relative w-full h-full" data-motion-loop={markLoop ? true : undefined}>
       <canvas
         ref={canvasRef}
         className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}

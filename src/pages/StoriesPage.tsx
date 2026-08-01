@@ -73,9 +73,10 @@ export default function StoriesPage() {
               >
                 <Link
                   to={`/stories/${story.id}`}
-                  className={`story-aurora-card group ${getStoryThemeClass(story.id)}`}
+                  className={`story-aurora-card motion-signal-card group ${getStoryThemeClass(story.id)}`}
+                  data-motion-interactive="true"
                 >
-                  <div className="aspect-video relative overflow-hidden bg-nc-bg">
+                  <div className="story-motion-cover aspect-video relative overflow-hidden bg-nc-bg">
                     {covers.length > 1 ? (
                       <div className="absolute inset-0">
                         <RotatingImage
@@ -103,12 +104,12 @@ export default function StoriesPage() {
                       )}
                     </div>
                   </div>
-                  <div className="p-4 flex items-center justify-between">
+                  <div className="story-card-footer p-4 flex items-center justify-between">
                     <span className="flex items-center text-xs text-nc-text-muted">
                       <span className="story-theme-dot" style={{ backgroundColor: getStoryDotColor(story.id) }} />
                       {story.chapterCount ?? story.chapters.length} 章节
                     </span>
-                    <ArrowRight className="w-4 h-4 text-nc-text-muted group-hover:text-nc-cyan group-hover:translate-x-1 transition-all" />
+                    <ArrowRight className="story-card-arrow w-4 h-4 text-nc-text-muted group-hover:text-nc-cyan transition-all" />
                   </div>
                 </Link>
                 </motion.div>

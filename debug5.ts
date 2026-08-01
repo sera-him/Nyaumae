@@ -21,7 +21,7 @@ for (let t = 0; t < 10; t++) {
     console.log(`    holes FAIL`);
     // Check row/col/region totals
     const rows = Array(4).fill(0), cols = Array(4).fill(0), regs = Array(4).fill(0);
-    let tryHoles: {r:number,c:number}[] = [];
+    const tryHoles: {r:number,c:number}[] = [];
     // Try a manual checkerboard
     for (let r = 0; r < 4; r++) {
       for (let c = 0; c < 4; c++) {

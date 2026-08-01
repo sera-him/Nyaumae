@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { stories, type StoryChapter } from '@/data/stories';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ChevronRight, ChevronLeft, BookOpen } from 'lucide-react';
 import { renderStoryContent } from '@/lib/renderStoryContent';
 import TextStoryReader from '@/components/TextStoryReader';
+import ReadingProgress from '@/components/ReadingProgress';
 import { emitRouteReady } from '@/lib/deepLinkCoordinator';
 import { getStoryConfig, type ChapterButtonStyle } from '@/lib/storyThemeConfig';
 
@@ -66,7 +67,8 @@ export default function StoryReader() {
   }, [story, storyId]);
 
   useEffect(() => {
-    topRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    topRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
   }, [chapterId, storyId]);
 
   if (!story) {
@@ -120,6 +122,7 @@ export default function StoryReader() {
 
   return (
     <div ref={topRef} className="aurora-ui aurora-generic-page story-reader-aurora" data-aurora-accent={cfg.theme}>
+      <ReadingProgress resetKey={`${storyId}-${validIndex}`} />
       <div className="aurora-container aurora-generic-inner max-w-[800px]">
         <Link
           to="/stories"
@@ -156,12 +159,18 @@ export default function StoryReader() {
           </motion.div>
         )}
 
-        <div className={tabContainerClass} role="tablist" aria-label="故事章节">
+        <div className={`${tabContainerClass} story-reader-chapter-tabs`} role="tablist" aria-label="故事章节">
           {story.chapters.flatMap((ch, i) => {
             const elements: React.ReactNode[] = [
               <button
                 key={i}
                 onClick={() => goToChapter(i)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    goToChapter(i);
+                  }
+                }}
                 role="tab"
                 aria-selected={validIndex === i}
                 className={tabButtonClass}
@@ -178,33 +187,36 @@ export default function StoryReader() {
           })}
         </div>
 
-        <motion.div
-          key={validIndex}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className={`aurora-reader-paper prose prose-invert max-w-none ${paperClass}`}
-        >
-          <h2 className="text-xl font-semibold text-nc-text mb-6">{chapter.title}</h2>
-          {(chapter.image || chapter.images?.length) && (
-            <div className="mb-6 grid gap-4 md:grid-cols-2">
-              {[chapter.image, ...(chapter.images ?? [])].filter(Boolean).map((image, imageIndex) => (
-                <div key={image} className="rounded-xl overflow-hidden">
-                  <img src={image} alt={`${chapter.title} 图片 ${imageIndex + 1}`} className="w-full object-cover" />
-                </div>
-              ))}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={validIndex}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            className={`aurora-reader-paper prose prose-invert max-w-none ${paperClass}`}
+          >
+            <h2 className="text-xl font-semibold text-nc-text mb-6">{chapter.title}</h2>
+            {(chapter.image || chapter.images?.length) && (
+              <div className="mb-6 grid gap-4 md:grid-cols-2">
+                {[chapter.image, ...(chapter.images ?? [])].filter(Boolean).map((image, imageIndex) => (
+                  <div key={image} className="rounded-xl overflow-hidden">
+                    <img src={image} alt={`${chapter.title} 图片 ${imageIndex + 1}`} className="w-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className={`text-nc-text-secondary leading-[1.9] text-[15px] space-y-4 whitespace-pre-wrap ${titleFontClass}`}>
+              {renderStoryContent(chapter.content)}
             </div>
-          )}
-          <div className={`text-nc-text-secondary leading-[1.9] text-[15px] space-y-4 whitespace-pre-wrap ${titleFontClass}`}>
-            {renderStoryContent(chapter.content)}
-          </div>
-        </motion.div>
+          </motion.div>
+        </AnimatePresence>
 
         <div className="mt-12 flex items-center justify-between">
           {validIndex > 0 ? (
             <button
               onClick={() => goToChapter(validIndex - 1)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
+              className={`story-reader-nav flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
             >
               <ChevronLeft className="w-4 h-4" /> 上一章
             </button>
@@ -213,7 +225,7 @@ export default function StoryReader() {
           {validIndex < story.chapters.length - 1 && (
             <button
               onClick={() => goToChapter(validIndex + 1)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
+              className={`story-reader-nav flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
             >
               下一章 <ChevronRight className="w-4 h-4" />
             </button>

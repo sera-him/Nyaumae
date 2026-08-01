@@ -32,6 +32,7 @@ import {
 import { lFormatCompact } from '@/game/math';
 import { useGameStore } from '@/game/stores/gameStore';
 import type { BattleState, EnemyDef, RunStats, StageCondition, Weapon } from '@/game/types';
+import { useMotionActivity } from '@/hooks/useMotionActivity';
 
 type View = 'menu' | 'stages' | 'loadout' | 'playing' | 'victory' | 'defeat';
 
@@ -67,6 +68,7 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
   const activeBattleRef = useRef(battle);
   const frameRef = useRef(0);
   const endedRef = useRef(false);
+  const { ref: arenaRef, isMotionActive } = useMotionActivity<HTMLDivElement>('240px 0px');
   const [hud, setHud] = useState(() => ({
     hp: battle.player.hp,
     alive: battle.enemies.filter((enemy) => enemy.alive).length,
@@ -82,6 +84,12 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
     if (!canvas) return;
     const { ctx } = initCanvas(canvas);
     const input = inputRef.current;
+
+    if (!isMotionActive) {
+      renderBattle(ctx, battle, input);
+      return;
+    }
+
     let last = performance.now();
     let lastHud = 0;
 
@@ -130,7 +138,7 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
       window.removeEventListener('keydown', togglePause);
       window.removeEventListener('pointerup', stopFiring);
     };
-  }, [battle, onEnd]);
+  }, [battle, onEnd, isMotionActive]);
 
   const pointAt = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -146,7 +154,7 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#06030d] shadow-2xl shadow-violet-950/40">
+    <div ref={arenaRef} className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#06030d] shadow-2xl shadow-violet-950/40">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] bg-black/35 px-4 py-3 font-mono text-xs">
         <div className="flex items-center gap-4">
           <span className="text-cyan-300">STAGE {battle.stageId}</span>

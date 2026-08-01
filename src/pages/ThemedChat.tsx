@@ -19,7 +19,7 @@ import type {
 import { CHAT_STICKERS, parseMessageParts, stickerToken } from '@/conversation/stickers';
 import './ThemedChat.css';
 
-type ChatTheme = 'ocean' | 'sweet';
+type ChatTheme = 'ocean' | 'sweet' | 'aurora';
 
 interface ThemedChatProps {
   theme: ChatTheme;
@@ -41,6 +41,14 @@ const themeCopy = {
     welcome: '今天想聊些什么呢？',
     pet: '泡芙',
     petLine: '把好心情分给你一点～',
+  },
+  aurora: {
+    brand: '极光星语',
+    subtitle: 'AURORA STARLIGHT',
+    assistant: '极光 AI',
+    welcome: '在极光下，想从哪一颗星开始聊？',
+    pet: '泡芙',
+    petLine: '把夜空里最亮的极光分你一半～',
   },
 } as const;
 
@@ -511,7 +519,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
       : '清空当前上下文？';
 
   return (
-    <div className={`${p}-chat`} data-sidebar={sidebarOpen ? 'open' : 'closed'}>
+    <div className={`${p}-chat`} data-sidebar={sidebarOpen ? 'open' : 'closed'} data-chat-theme={theme} data-motion-loop>
       <div className={`${p}-chat-sky`} aria-hidden="true">
         <i /><i /><i /><i /><i /><i /><i /><i />
         <span className={`${p}-planet ${p}-planet-one`} />
@@ -521,6 +529,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
         <span className={`${p}-cloud ${p}-cloud-one`} />
         <span className={`${p}-cloud ${p}-cloud-two`} />
         {theme === 'sweet' && <><span className="sweet-cloud sweet-cloud-three" /><span className="sweet-waves" /></>}
+        {theme === 'aurora' && <><span className="aurora-nebula" /><span className="aurora-curtain aurora-curtain-one" /><span className="aurora-curtain aurora-curtain-two" /></>}
       </div>
 
       {sidebarOpen && <button type="button" className="original-chat-sidebar-backdrop" onClick={() => setSidebarOpen(false)} aria-label="关闭对话列表" />}
@@ -678,6 +687,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
           <button type="button" className={`${p}-pet`} onClick={petPoffy} aria-label={`摸摸泡芙，当前亲密度 ${affection}%`}>
             <span className={`${p}-pet-halo`} /><img src="/pets/poffy.png" alt="泡芙" /><i>♥</i>
             {theme === 'sweet' && <span className="sweet-pet-toppings"><b className="sweet-topping" /><b className="sweet-topping" /><b className="sweet-topping" /><b className="sweet-topping" /><b className="sweet-topping" /></span>}
+            {theme === 'aurora' && <span className="aurora-pet-glow" />}
           </button>
           <div className={`${p}-pet-card`}><div><span>亲密度</span><strong>{affection}%</strong></div><div className={`${p}-affection`}><span style={{ width: `${affection}%` }} /></div><small>点击摸摸泡芙</small></div>
         </aside>

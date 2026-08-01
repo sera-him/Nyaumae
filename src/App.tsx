@@ -6,6 +6,8 @@ import Footer from '@/sections/Footer';
 import { MusicProvider } from '@/contexts/MusicContext';
 import { OverloadProvider } from '@/contexts/OverloadContext';
 import SearchModal from '@/components/SearchModal';
+import SiteMotionController from '@/components/SiteMotionController';
+import RouteMetadata from '@/components/RouteMetadata';
 import AppRoutes from '@/routes';
 import { resolveSiteTheme } from '@/lib/visualTheme';
 
@@ -143,6 +145,8 @@ function App() {
 
   return (
     <MotionConfig reducedMotion="user">
+      <SiteMotionController />
+      <RouteMetadata />
       <MusicProvider>
         <OverloadProvider>
           <div

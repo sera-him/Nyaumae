@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { ArrowLeft, ChevronRight, LoaderCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { renderStoryContent } from '@/lib/renderStoryContent';
+import ReadingProgress from '@/components/ReadingProgress';
 import { emitRouteReady } from '@/lib/deepLinkCoordinator';
 import { getStoryConfig } from '@/lib/storyThemeConfig';
 import type { Story, StoryChapter } from '@/data/stories';
@@ -213,6 +214,7 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
 
   return (
     <div className="aurora-ui aurora-generic-page story-reader-aurora" data-aurora-accent={config.theme}>
+      <ReadingProgress resetKey={`${story.id}-${validPartIndex}-${validChapterIndex}`} />
       <div className="aurora-container aurora-generic-inner max-w-[900px]">
         <Link
           to="/stories"
@@ -254,13 +256,21 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
         <>
           <div className="mb-4">
             <p className="text-xs font-mono uppercase tracking-widest text-nc-text-muted mb-2">篇目</p>
-            <div className="aurora-tabs" role="tablist" aria-label="故事篇目">
+            <div className="aurora-tabs story-reader-chapter-tabs" role="tablist" aria-label="故事篇目">
               {parts.map((partItem, index) => (
                 <button
                   key={partItem.title}
                   onClick={() => {
                     if (index !== validPartIndex) {
                       goToChapter(index, 0);
+                    }
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      if (index !== validPartIndex) {
+                        goToChapter(index, 0);
+                      }
                     }
                   }}
                   role="tab"
@@ -276,13 +286,21 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
           {part && (
             <div className="mb-8">
               <p className="text-xs font-mono uppercase tracking-widest text-nc-text-muted mb-2">章节</p>
-              <div className="aurora-tabs" role="tablist" aria-label="故事章节">
+              <div className="aurora-tabs story-reader-chapter-tabs" role="tablist" aria-label="故事章节">
                 {part.chapters.map((chapterItem, index) => (
                   <button
                     key={chapterItem.title}
                     onClick={() => {
-                      if (index !== validChapterIndex || validPartIndex !== validPartIndex) {
+                      if (index !== validChapterIndex) {
                         goToChapter(validPartIndex, index);
+                      }
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        if (index !== validChapterIndex) {
+                          goToChapter(validPartIndex, index);
+                        }
                       }
                     }}
                     role="tab"
@@ -296,34 +314,37 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
             </div>
           )}
 
-          {chapter && (
-            <motion.div
-              key={`${validPartIndex}-${validChapterIndex}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4 }}
-              className={`aurora-reader-paper prose prose-invert max-w-none ${paperClass}`}
-            >
-              {partImage && (
-                <img
-                  src={partImage}
-                  alt={`${part.title}插图`}
-                  className="w-full aspect-video object-cover rounded-2xl border border-white/[0.08] mb-8 shadow-2xl shadow-black/20"
-                />
-              )}
-              <p className="text-sm text-nc-text-muted mb-2">{part.title}</p>
-              <h2 className="text-xl font-semibold text-nc-text mb-6">{chapter.title}</h2>
-              <div className="font-serif-cn text-nc-text-secondary leading-[1.9] text-[15px] space-y-4 whitespace-pre-wrap">
-                {renderStoryContent(chapter.content)}
-              </div>
-            </motion.div>
-          )}
+          <AnimatePresence mode="wait" initial={false}>
+            {chapter && (
+              <motion.div
+                key={`${validPartIndex}-${validChapterIndex}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                className={`aurora-reader-paper prose prose-invert max-w-none ${paperClass}`}
+              >
+                {partImage && (
+                  <img
+                    src={partImage}
+                    alt={`${part.title}插图`}
+                    className="w-full aspect-video object-cover rounded-2xl border border-white/[0.08] mb-8 shadow-2xl shadow-black/20"
+                  />
+                )}
+                <p className="text-sm text-nc-text-muted mb-2">{part.title}</p>
+                <h2 className="text-xl font-semibold text-nc-text mb-6">{chapter.title}</h2>
+                <div className="font-serif-cn text-nc-text-secondary leading-[1.9] text-[15px] space-y-4 whitespace-pre-wrap">
+                  {renderStoryContent(chapter.content)}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="mt-12 flex items-center justify-between">
             {hasPrevChapter ? (
               <button
                 onClick={prevChapter}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
+                className={`story-reader-nav flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
               >
                 <ArrowLeft className="w-4 h-4" /> 上一章
               </button>
@@ -332,7 +353,7 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
             {hasNextChapter && (
               <button
                 onClick={nextChapter}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
+                className={`story-reader-nav flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
               >
                 下一章 <ChevronRight className="w-4 h-4" />
               </button>

@@ -95,7 +95,7 @@ export default function Dictionary() {
                 <div
                   key={entry.word}
                   id={`dict-${entry.word}`}
-                  className="bg-[#100A1A] border border-[#8B5CF6]/10 rounded-lg p-4 hover:border-[#00E5CC]/25 hover:-translate-y-0.5 transition-all duration-200 scroll-mt-[100px]"
+                  className="dictionary-entry-motion bg-[#100A1A] border border-[#8B5CF6]/10 rounded-lg p-4 hover:border-[#00E5CC]/25 hover:-translate-y-0.5 transition-all duration-200 scroll-mt-[100px]"
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-mono text-base font-bold text-[#00E5CC]">{entry.word}</span>

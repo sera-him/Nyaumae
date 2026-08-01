@@ -40,7 +40,7 @@ export default function MiiaSpace() {
                 to={`/miia/${t.key}`}
                 role="tab"
                 aria-current={activeTab === t.key ? 'page' : undefined}
-                className={({ isActive }) => `aurora-tab inline-flex items-center gap-2 ${isActive ? 'aurora-tab-active' : ''}`}
+                className={({ isActive }) => `aurora-tab miia-space-tab inline-flex items-center gap-2 ${isActive ? 'aurora-tab-active' : ''}`}
               >
                 <Icon className="w-4 h-4" />
                 {t.label}
@@ -56,6 +56,7 @@ export default function MiiaSpace() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
+            data-motion-loop
           >
             <Component />
           </motion.div>

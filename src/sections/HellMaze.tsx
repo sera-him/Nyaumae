@@ -276,15 +276,15 @@ export default function HellMaze() {
       </div>
 
       <div className="grid grid-cols-3 gap-4 w-full max-w-xs">
-        <div className={`rounded-xl p-4 text-center border ${b1 ? 'bg-emerald-900/40 border-emerald-500/40' : 'bg-red-900/40 border-red-500/40'}`}>
+        <div className={`maze-feedback rounded-xl p-4 text-center border ${b1 ? 'bg-emerald-900/40 border-emerald-500/40' : 'bg-red-900/40 border-red-500/40'}`} data-status={b1 ? 'success' : 'blocked'}>
           <div className="text-xs text-nc-text-muted mb-1">前进成功</div>
           <div className="text-2xl">{b1 ? '✓' : '✗'}</div>
         </div>
-        <div className={`rounded-xl p-4 text-center border ${b2 ? 'bg-amber-900/40 border-amber-500/40' : 'bg-nc-bg-secondary border-white/10'}`}>
+        <div className={`maze-feedback rounded-xl p-4 text-center border ${b2 ? 'bg-amber-900/40 border-amber-500/40' : 'bg-nc-bg-secondary border-white/10'}`} data-status={b2 ? 'target' : 'idle'}>
           <div className="text-xs text-nc-text-muted mb-1">目标点</div>
           <div className="text-2xl">{b2 ? '●' : '○'}</div>
         </div>
-        <div className={`rounded-xl p-4 text-center border ${b3 ? 'bg-cyan-900/40 border-cyan-500/40' : 'bg-nc-bg-secondary border-white/10'}`}>
+        <div className={`maze-feedback rounded-xl p-4 text-center border ${b3 ? 'bg-cyan-900/40 border-cyan-500/40' : 'bg-nc-bg-secondary border-white/10'}`} data-status={b3 ? 'finish' : 'idle'}>
           <div className="text-xs text-nc-text-muted mb-1">终点</div>
           <div className="text-2xl">{b3 ? '★' : '☆'}</div>
         </div>
@@ -293,15 +293,15 @@ export default function HellMaze() {
       <div className="flex gap-4 items-center">
         <button
           onClick={() => { turnLeft(state); setState({ ...state }); }}
-          className="w-16 h-16 rounded-full bg-nc-bg-secondary border border-white/10 text-2xl hover:bg-white/5 active:scale-95 transition-all"
+          className="maze-control w-16 h-16 rounded-full bg-nc-bg-secondary border border-white/10 text-2xl hover:bg-white/5 active:scale-95 transition-all"
         >↺</button>
         <button
           onClick={() => { moveForward(state); setState({ ...state }); }}
-          className="w-20 h-20 rounded-full bg-gradient-to-b from-amber-600/80 to-amber-800/80 text-3xl border border-amber-500/30 hover:from-amber-500/80 active:scale-95 transition-all"
+          className="maze-control is-primary w-20 h-20 rounded-full bg-gradient-to-b from-amber-600/80 to-amber-800/80 text-3xl border border-amber-500/30 hover:from-amber-500/80 active:scale-95 transition-all"
         >↑</button>
         <button
           onClick={() => { turnRight(state); setState({ ...state }); }}
-          className="w-16 h-16 rounded-full bg-nc-bg-secondary border border-white/10 text-2xl hover:bg-white/5 active:scale-95 transition-all"
+          className="maze-control w-16 h-16 rounded-full bg-nc-bg-secondary border border-white/10 text-2xl hover:bg-white/5 active:scale-95 transition-all"
         >↻</button>
       </div>
 

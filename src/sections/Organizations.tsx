@@ -88,9 +88,9 @@ export default function Organizations() {
               initial={{ opacity: 0, y: 30 }}
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 + i * 0.1 }}
-              className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl overflow-hidden hover:border-nc-cyan/20 transition-all duration-300"
+              className="organization-motion-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl overflow-hidden hover:border-nc-cyan/20 transition-all duration-300"
             >
-              <div className="h-32 relative overflow-hidden">
+              <div className="organization-motion-cover h-32 relative overflow-hidden">
                 <SmartImage
                   localSrc={org.image}
                   alt={org.name}
@@ -99,7 +99,7 @@ export default function Organizations() {
                 />
                 <div className={`absolute inset-0 bg-gradient-to-br ${org.color} opacity-40`} />
                 {/* Org Icon Badge */}
-                <div className="absolute top-3 right-3 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg shadow-black/30 bg-nc-bg/50 backdrop-blur-sm">
+                <div className="organization-motion-mark absolute top-3 right-3 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg shadow-black/30 bg-nc-bg/50 backdrop-blur-sm">
                   <SmartImage
                     localSrc={org.icon}
                     alt={org.shortName || org.name}
@@ -150,7 +150,7 @@ export default function Organizations() {
                   <div className="mt-4 pt-4 border-t border-nc-violet/10">
                     <button
                       onClick={() => setZhihuaExpanded((v) => !v)}
-                      className="text-sm text-nc-violet hover:text-nc-cyan transition-colors flex items-center gap-1"
+                      className="organization-expand-button text-sm text-nc-violet hover:text-nc-cyan transition-colors flex items-center gap-1"
                     >
                       {zhihuaExpanded ? '收起' : '查看班级结构'}
                       <span className={`transition-transform ${zhihuaExpanded ? 'rotate-180' : ''}`}>▼</span>

@@ -189,7 +189,7 @@ const displayGameDescription = (game: GameEntry) => game.id === 'fractal-echo'
 function GameIcon({ icon, color }: { icon: string; color: string }) {
   return (
     <div
-      className="w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold shrink-0"
+      className="playground-game-icon w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold shrink-0"
       style={{ background: `linear-gradient(135deg, ${color}33, ${color}88)`, color }}
     >{icon}</div>
   );
@@ -199,7 +199,13 @@ function GameIcon({ icon, color }: { icon: string; color: string }) {
 
 function GameCard({ game, onClick }: { game: GameEntry; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="playground-aurora-card flex items-center gap-3 px-4 py-3 text-left w-full text-nc-text-secondary hover:text-nc-text">
+    <button
+      onClick={onClick}
+      className="playground-aurora-card playground-game-card motion-signal-card flex items-center gap-3 px-4 py-3 text-left w-full text-nc-text-secondary hover:text-nc-text"
+      style={{ '--game-accent': game.color } as React.CSSProperties}
+      data-game={game.id}
+      data-motion-interactive="true"
+    >
       <GameIcon icon={game.icon} color={game.color} />
       <div className="min-w-0">
         <div className="text-sm font-medium truncate">{displayGameName(game)}</div>
@@ -213,7 +219,12 @@ function GameCard({ game, onClick }: { game: GameEntry; onClick: () => void }) {
 
 function ScratchDetail({ game, onBack }: { game: GameEntry; onBack: () => void }) {
   return (
-    <div className="rounded-2xl overflow-hidden border border-white/[0.06] pg-lab-frame">
+    <div
+      className="rounded-2xl overflow-hidden border border-white/[0.06] pg-lab-frame"
+      data-game={game.id}
+      data-motion-loop
+      style={{ '--game-accent': game.color } as React.CSSProperties}
+    >
       <div className="pg-experiment-bar">
         <span className="pg-status-dot" style={{ backgroundColor: game.color }} />
         <span className="text-xs font-mono font-semibold" style={{ color: game.color }}>{game.name}</span>
@@ -249,7 +260,12 @@ function ScratchDetail({ game, onBack }: { game: GameEntry; onBack: () => void }
 function PlayableGame({ game, onBack }: { game: GameEntry; onBack: () => void }) {
   if (game.component) {
     return (
-      <div className="relative pg-lab-frame">
+      <div
+        className="relative pg-lab-frame"
+        data-game={game.id}
+        data-motion-loop
+        style={{ '--game-accent': game.color } as React.CSSProperties}
+      >
         <div className="pg-experiment-bar">
           <span className="pg-status-dot" style={{ backgroundColor: game.color }} />
           <span className="text-xs font-mono font-semibold" style={{ color: game.color }}>{displayGameName(game)}</span>
@@ -279,7 +295,8 @@ function LandingPage({ onCategory }: { onCategory: (cat: GameEntry['category']) 
         <button
           key={c.key}
           onClick={() => onCategory(c.key)}
-          className="playground-aurora-card flex items-center justify-center px-4 py-8 text-nc-text-secondary hover:text-nc-text"
+          className="playground-aurora-card motion-signal-card flex items-center justify-center px-4 py-8 text-nc-text-secondary hover:text-nc-text"
+          data-motion-interactive="true"
         >
           <span className="text-lg font-medium">{c.label}</span>
         </button>

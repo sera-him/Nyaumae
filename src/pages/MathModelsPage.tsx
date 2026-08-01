@@ -188,7 +188,8 @@ function FsiiiTab() {
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.25 }}
-          className="liquid-glass-subtle border border-white/[0.06] rounded-2xl overflow-hidden glass-highlight glass-shine relative math-terminal-panel"
+          className="fsiii-ranking-panel liquid-glass-subtle border border-white/[0.06] rounded-2xl overflow-hidden glass-highlight glass-shine relative math-terminal-panel"
+          data-motion-loop
         >
           <div className="px-6 py-4 border-b border-nc-violet/10 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-nc-text-secondary" />
@@ -242,12 +243,12 @@ function FsiiiTab() {
                   const hasGlow = anim.glow;
 
                   return (
-                    <div key={item.id} className="flex items-center h-8">
+                    <div key={item.id} className="fsiii-rank-row flex items-center h-8">
                       <div className="w-[120px] shrink-0 text-right pr-3 flex items-center justify-end gap-2">
                         <span className="text-[10px] font-mono text-nc-text-muted w-4">{i + 1}</span>
                         <Link
                           to={`/characters/${item.id}`}
-                          className="text-sm text-nc-text hover:text-nc-cyan transition-colors truncate"
+                          className="fsiii-character-link text-sm text-nc-text hover:text-nc-cyan transition-colors truncate"
                         >
                           {semanticHighlight(item.name)}
                         </Link>
@@ -258,7 +259,7 @@ function FsiiiTab() {
                         <div className="absolute top-0 bottom-0 w-px bg-slate-500/20" style={{ right: '5%' }} />
 
                         <div
-                          className="absolute left-0 top-1/2 h-2.5 rounded-r-full"
+                          className="fsiii-score-bar absolute left-0 top-1/2 h-2.5 rounded-r-full"
                           style={{
                             width: `${barRight}%`,
                             transform: 'translateY(-50%)',
@@ -349,6 +350,12 @@ export default function MathModelsPage() {
                 <button
                   key={tab.key}
                   onClick={() => navigate(`/math/${tab.key}`, { replace: true })}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      navigate(`/math/${tab.key}`, { replace: true });
+                    }
+                  }}
                   role="tab" aria-selected={isActive} className="aurora-tab inline-flex items-center gap-1.5"
                 >
                   <Icon className="w-4 h-4" />

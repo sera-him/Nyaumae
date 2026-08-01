@@ -167,6 +167,23 @@ test('local model catalog covers 1M through 2.8T and browser mode imports safely
   assert.equal(browserConfig.provider, 'browser');
 });
 
+test('local model downloads distinguish verified Ollama packages from official weights', () => {
+  const ollamaTiers = LOCAL_MODEL_TIERS.filter((tier) => tier.download.kind === 'ollama');
+  const weightTiers = LOCAL_MODEL_TIERS.filter((tier) => tier.download.kind === 'huggingface');
+  assert.ok(ollamaTiers.length > 0);
+  assert.ok(ollamaTiers.every((tier) => tier.ollamaModel && tier.download.command === `ollama pull ${tier.ollamaModel}`));
+  assert.ok(weightTiers.length > 0);
+  assert.ok(weightTiers.every((tier) => !tier.ollamaModel && tier.download.command.startsWith('hf download ')));
+
+  const kimiK3 = LOCAL_MODEL_TIERS.find((tier) => tier.id === '2_8t');
+  assert.equal(kimiK3?.ollamaModel, undefined);
+  assert.equal(kimiK3?.download.kind, 'huggingface');
+  assert.equal(kimiK3?.download.command, 'hf download moonshotai/Kimi-K3 --local-dir "./models/Kimi-K3"');
+  assert.match(kimiK3?.download.note ?? '', /不能直接通过 Ollama/);
+  assert.equal(LOCAL_MODEL_TIERS.some((tier) => tier.ollamaModel === 'kimi-k3'), false);
+  assert.equal(LOCAL_MODEL_TIERS.some((tier) => tier.deviceModel === 'EleutherAI/pythia-35m'), false);
+});
+
 test('website knowledge citations navigate to verified routes and character search stays isolated', () => {
   const items = [
     { id: 'char_mia', title: 'Mia', content: 'Mia character record.', category: 'character', href: '#characters' },
