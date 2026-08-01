@@ -10,7 +10,7 @@ import {
   startOfTurn,
   placePiece,
   endTurn,
-  useSkill,
+  applySkill,
   buyProfession,
   forgetProfession,
   matthewShift,
@@ -162,7 +162,7 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
     }
 
     // 正常落子
-    const physicalPos = parseMoveInput(gameState, logicalPos, player);
+    const physicalPos = parseMoveInput(logicalPos);
     if (physicalPos < 0 || physicalPos > 8) return;
     if (gameState.board[physicalPos] !== 0) return;
     if (gameState.spatialSealPos === physicalPos) return;
@@ -190,7 +190,7 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
     if (gameState.phase !== 'playing') return;
 
     const player = gameState.currentPlayer;
-    const result = useSkill(gameState, skill, player, params);
+    const result = applySkill(gameState, skill, player, params);
 
     if (!result.success) {
       set({ gameState: result.state });
@@ -267,7 +267,7 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
     }
 
     // 尝试使用 Skip Protocol
-    const result = useSkill(gameState, SkillEnum.SKIP_PROTOCOL, player);
+    const result = applySkill(gameState, SkillEnum.SKIP_PROTOCOL, player);
     const afterTurn = endTurn(result.state);
     set({ gameState: afterTurn });
   },
