@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Clock, ArrowUpRight } from 'lucide-react';
 
@@ -8,6 +8,55 @@ interface FeedbackModalProps {
 }
 
 export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    triggerRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const focusableSelector = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      const focusable = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(focusableSelector) ?? []);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (isOpen) return;
+    const trigger = triggerRef.current;
+    if (trigger?.isConnected) {
+      window.requestAnimationFrame(() => trigger.focus());
+    }
+    triggerRef.current = null;
+  }, [isOpen]);
+
   // Auto-detect system time and determine target email
   const targetEmail = useMemo(() => {
     const now = new Date();
@@ -29,6 +78,11 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
           onClick={onClose}
         >
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="feedback-dialog-title"
+            aria-describedby="feedback-dialog-description"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -38,12 +92,15 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-nc-violet/10">
-              <div className="flex items-center gap-2">
+              <div id="feedback-dialog-title" className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-nc-cyan" />
                 <h3 className="text-sm font-medium text-nc-text">反馈</h3>
               </div>
               <button
+                ref={closeButtonRef}
+                type="button"
                 onClick={onClose}
+                aria-label="关闭反馈窗口"
                 className="p-1.5 rounded-md hover:bg-nc-violet/10 text-nc-text-muted hover:text-nc-text transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -51,7 +108,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
             </div>
 
             {/* Body */}
-            <div className="px-5 py-6 space-y-5">
+            <div id="feedback-dialog-description" className="px-5 py-6 space-y-5">
               {/* Email display */}
               <div className="text-center space-y-3">
                 <p className="text-xs text-nc-text-muted">
@@ -97,6 +154,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 Neural Connection Feedback
               </span>
               <button
+                type="button"
                 onClick={onClose}
                 className="px-3 py-1.5 rounded-lg bg-nc-violet/10 border border-nc-violet/15 text-xs text-nc-text-secondary hover:text-nc-text hover:bg-nc-violet/15 transition-colors"
               >

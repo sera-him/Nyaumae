@@ -13,6 +13,14 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+function randomUnit(): number {
+  return Math.random();
+}
+
+function pickRandom<T>(items: T[]): T | undefined {
+  return items.length > 0 ? items[Math.floor(randomUnit() * items.length)] : undefined;
+}
+
 function fmt(v: number) {
   return '$' + v.toLocaleString('en-US', { minimumFractionDigits: v < 1 && v > 0 ? 2 : 0, maximumFractionDigits: 2 });
 }
@@ -92,35 +100,8 @@ export default function BoxDuel() {
     setHint(`${conName}（参赛者）请选择你的幸运箱子`);
     addLog(`第 ${round} 轮开始！${conName} 是参赛者，${capName} 是资本家。`);
 
-    if (p1Con) {
-      if (playerTypes[0] === 'ai') {
-        setTimeout(() => aiSelectCase(newCases), 1000);
-        setPhase('select');
-      } else {
-        setPhase('select');
-      }
-    } else {
-      if (playerTypes[1] === 'ai') {
-        setTimeout(() => aiSelectCase(newCases), 1000);
-        setPhase('select');
-      } else {
-        setPhase('select');
-      }
-    }
-  }, [round, playerTypes, conName, capName, addLog]);
-
-  useEffect(() => {
-    if (phase === 'select' && isConAI && !blockRef.current) {
-      blockRef.current = true;
-      setTimeout(() => { aiSelectCase(cases); }, 800);
-    }
-  }, [phase, isConAI]);
-
-  function aiSelectCase(cs: Case[]) {
-    const avail = cs.filter(c => !c.isPlayer);
-    const picked = avail[Math.floor(Math.random() * avail.length)];
-    selectCase(picked.id);
-  }
+    setPhase('select');
+  }, [round, conName, capName, addLog]);
 
   function selectCase(id: number) {
     if (blockRef.current) return;
@@ -132,16 +113,39 @@ export default function BoxDuel() {
     setPhase('opening');
     if (isConAI) {
       blockRef.current = true;
-      setTimeout(() => aiOpenCase(), 800);
+      setTimeout(() => {
+        blockRef.current = false;
+        aiOpenCase();
+      }, 800);
     }
   }
+
+  function aiSelectCase(cs: Case[]) {
+    const avail = cs.filter(c => !c.isPlayer);
+    const picked = pickRandom(avail);
+    if (picked) selectCase(picked.id);
+  }
+
+  useEffect(() => {
+    if (phase === 'select' && isConAI && !blockRef.current) {
+      blockRef.current = true;
+      const timer = window.setTimeout(() => {
+        blockRef.current = false;
+        aiSelectCase(cases);
+      }, 800);
+      return () => window.clearTimeout(timer);
+    }
+    return undefined;
+    // The delayed AI action intentionally uses the current case snapshot.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, isConAI, cases]);
 
   function aiOpenCase() {
     if (blockRef.current) return;
     const avail = cases.filter(c => !c.opened && !c.isPlayer);
     if (avail.length === 0) return;
-    const picked = avail[Math.floor(Math.random() * avail.length)];
-    openCase(picked.id);
+    const picked = pickRandom(avail);
+    if (picked) openCase(picked.id);
   }
 
   function openCase(id: number) {
@@ -182,7 +186,7 @@ export default function BoxDuel() {
     if (isCapAI) {
       const idx = OFFER_NODES.indexOf(oc);
       const risk = 0.55 + (idx / OFFER_NODES.length) * 0.35;
-      const jitter = 0.9 + Math.random() * 0.2;
+      const jitter = 0.9 + randomUnit() * 0.2;
       let o = expected * risk * jitter;
       o = Math.round(o / 100) * 100;
       if (o < 100) o = Math.round(o);
@@ -285,7 +289,7 @@ export default function BoxDuel() {
     if (o > expected * 1.25) action = 'accept';
     else if (o > expected * 0.95 && lowCount > highCount * 1.5) action = 'accept';
 
-    if (action === 'reject' && energy > 0 && o < expected * 1.1 && Math.random() < 0.35) action = 'negotiate';
+    if (action === 'reject' && energy > 0 && o < expected * 1.1 && randomUnit() < 0.35) action = 'negotiate';
     if (openedCount >= 24 && o > expected * 0.75) action = 'accept';
 
     if (action === 'accept') {
@@ -306,7 +310,7 @@ export default function BoxDuel() {
     const probHigh = remaining.filter(c => c.amount > newOffer).length / remaining.length;
 
     let accept = newOffer < expected * 1.1 && probHigh > 0.4;
-    if (Math.random() > 0.75) accept = !accept;
+    if (randomUnit() > 0.75) accept = !accept;
     if (newOffer > expected * 1.3) accept = false;
     if (newOffer < expected * 0.8) accept = true;
 
@@ -394,9 +398,12 @@ export default function BoxDuel() {
   useEffect(() => { if (phase !== 'end') return; }, [phase]);
 
   useEffect(() => {
-    if (phase === 'setup') return;
-    startRound();
-  }, [round]);
+    const isInitialStart = phase === 'select' && cases.length === 0;
+    const isNextRound = phase === 'end' && round > 1;
+    if (!isInitialStart && !isNextRound) return;
+    const timer = window.setTimeout(() => startRound(), 0);
+    return () => window.clearTimeout(timer);
+  }, [cases.length, phase, round, startRound]);
 
   if (phase === 'setup') return (
     <div className="max-w-3xl mx-auto px-4 py-8">
