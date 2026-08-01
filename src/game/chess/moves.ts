@@ -426,7 +426,7 @@ function skeletonMovesSep(board: Board, pos: Position, player: Player): Separate
 }
 
 /** IW — 反女巫：8方向1格，不可吃子 */
-function antiWitchMovesSep(board: Board, pos: Position, player: Player): SeparatedMoves {
+function antiWitchMovesSep(board: Board, pos: Position): SeparatedMoves {
   return witchMovesSep(board, pos);
 }
 
@@ -740,7 +740,7 @@ export function getRawMoves(
     case 'C': sep = cannonMovesSep(board, pos, player); break;
     case 'W': sep = witchMovesSep(board, pos); break;
     case 'Z': sep = skeletonMovesSep(board, pos, player); break;
-    case 'IW': sep = antiWitchMovesSep(board, pos, player); break;
+    case 'IW': sep = antiWitchMovesSep(board, pos); break;
     case 'IZ': sep = antiSkeletonMovesSep(board, pos, player); break;
     case 'J': sep = paladinMovesSep(board, pos, player); break;
     case 'H': sep = whaleMovesSep(board, pos, player); break;
@@ -781,7 +781,7 @@ export function getMoves(
     case 'C': return cannonMovesSep(board, pos, player).moves;
     case 'W': return witchMovesSep(board, pos).moves;
     case 'Z': return skeletonMovesSep(board, pos, player).moves;
-    case 'IW': return antiWitchMovesSep(board, pos, player).moves;
+    case 'IW': return antiWitchMovesSep(board, pos).moves;
     case 'IZ': return antiSkeletonMovesSep(board, pos, player).moves;
     case 'J': return paladinMovesSep(board, pos, player).moves;
     case 'H': return whaleMovesSep(board, pos, player).moves;
