@@ -117,7 +117,10 @@ async function main() {
   console.log(`Site smoke: ${baseUrl.origin}`);
   console.log('检查应用壳、主要 HashRouter 路由和客户端 404 路由的 HTTP 200 响应。');
 
-  const results = await Promise.all(ROUTES.map((route) => checkRoute(baseUrl, route)));
+  const results = [];
+  for (const route of ROUTES) {
+    results.push(await checkRoute(baseUrl, route));
+  }
   let passed = 0;
 
   for (const result of results) {

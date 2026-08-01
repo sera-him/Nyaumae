@@ -431,6 +431,7 @@
   }
   .portal-actions a.portal-tertiary:not(.portal-primary){
     flex:0 1 auto;
-    min-width:132px
+    min-width:132px;
+    align-self:flex-start
   }
 }

@@ -1,5 +1,6 @@
 .chat-select-page {
   position: relative;
+  isolation: isolate;
   min-height: 100vh;
   padding: 7.5rem 0 4rem;
   overflow: hidden;
@@ -14,16 +15,32 @@
     radial-gradient(circle at 20% 10%, rgba(102, 233, 218, .07), transparent 34%),
     radial-gradient(circle at 82% 22%, rgba(166, 133, 255, .1), transparent 40%),
     radial-gradient(circle at 55% 90%, rgba(255, 143, 199, .06), transparent 42%);
+  z-index: 0;
 }
 
-.chat-select-inner { position: relative; }
+.chat-select-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(180deg, rgba(7, 10, 28, .86), rgba(7, 10, 28, .94)),
+    url('/chat-themes/aurora-night.png');
+  background-position: center, center 22%;
+  background-size: cover;
+  opacity: .18;
+  filter: saturate(.8) blur(1px);
+  mix-blend-mode: screen;
+}
+
+.chat-select-inner { position: relative; z-index: 1; }
 
 .chat-select-hero { text-align: center; margin-bottom: 2.6rem; }
 .chat-select-hero h1 { margin-bottom: .6rem; }
 
 .chat-select-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 1.1rem;
   max-width: 1080px;
   margin: 0 auto;
@@ -47,48 +64,45 @@
 
 .chat-select-preview {
   position: relative;
-  height: 168px;
+  aspect-ratio: 2 / 1;
   overflow: hidden;
 }
 .chat-select-preview::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 55%, rgba(5, 4, 10, .5));
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(6, 8, 22, .02) 25%, rgba(6, 8, 22, .75) 100%),
+    linear-gradient(90deg, rgba(6, 8, 22, .16), transparent 62%);
   pointer-events: none;
 }
-.chat-select-preview-planet {
-  position: absolute;
-  right: 16%;
-  top: 18%;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  box-shadow: inset -10px -8px 18px rgba(5, 4, 10, .25), 0 14px 30px rgba(5, 4, 10, .18);
-  opacity: .92;
+.chat-select-preview-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .65s var(--aurora-ease), filter .65s var(--aurora-ease);
 }
-.chat-select-preview-ring {
-  position: absolute;
-  right: 8%;
-  top: 24%;
-  width: 116px;
-  height: 116px;
-  border: 6px solid;
-  border-radius: 50%;
-  transform: rotate(-16deg) scaleX(.62);
+.chat-select-card:hover .chat-select-preview-image {
+  transform: scale(1.045);
+  filter: saturate(1.08) contrast(1.03);
 }
-.chat-select-preview-star {
+.chat-select-preview-label {
   position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .95);
-  box-shadow: 0 0 8px rgba(255, 255, 255, .85);
+  left: .85rem;
+  bottom: .75rem;
+  z-index: 2;
+  padding: .3rem .5rem;
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 999px;
+  background: rgba(7, 10, 28, .32);
+  color: rgba(255, 255, 255, .84);
+  font-size: 9px;
+  letter-spacing: .18em;
+  font-family: "JetBrains Mono", monospace, ui-monospace;
+  backdrop-filter: blur(8px);
 }
-.chat-select-preview-star:nth-of-type(1) { left: 18%; top: 22%; }
-.chat-select-preview-star:nth-of-type(2) { left: 42%; top: 14%; width: 4px; height: 4px; }
-.chat-select-preview-star:nth-of-type(3) { left: 70%; top: 62%; }
-.chat-select-card[data-theme="aurora"] .chat-select-preview-star { background: #cfd8ff; box-shadow: 0 0 10px #a685ff; }
 
 .chat-select-body {
   display: flex;
@@ -183,7 +197,7 @@
 .chat-select-foot svg { width: 14px; color: var(--aurora-accent); }
 
 @media (max-width: 900px) {
-  .chat-select-grid { grid-template-columns: 1fr; max-width: 560px; }
-  .chat-select-preview { height: 150px; }
+  .chat-select-grid { max-width: 560px; }
+  .chat-select-preview { aspect-ratio: 16 / 9; }
   .chat-select-foot { flex-wrap: wrap; gap: .35rem 1rem; }
 }
