@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   BookOpen, Brain, ExternalLink, Gamepad2, Globe2, Menu, Music2,
   MessageCircleMore, Search, Settings2, Sigma, Sparkles, Users, VolumeX, X,
@@ -109,9 +109,12 @@ function routeIsActive(pathname: string, to: string) {
 export default function Navigation({ onSearchClick }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const { isPlaying, isMuted, toggleMusic } = useMusic();
   const musicOn = isPlaying && !isMuted;
+  const prefersReducedMotion = useReducedMotion();
   const activeArea = useMemo(() => primaryItems.find((item) => routeIsActive(location.pathname, item.to))?.label ?? '主页', [location.pathname]);
 
   useEffect(() => {
@@ -121,7 +124,51 @@ export default function Navigation({ onSearchClick }: NavigationProps) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => { setMenuOpen(false); }, [location.pathname, location.search]);
+  const closeMenu = () => {
+    setMenuOpen(false);
+    window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+  };
+
+  useEffect(() => {
+    if (menuOpen) closeMenu();
+    // The route effect intentionally only reacts to navigation changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const panel = menuPanelRef.current;
+    const focusableSelector = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusable = () => Array.from(panel?.querySelectorAll<HTMLElement>(focusableSelector) ?? []);
+    const focusFrame = window.requestAnimationFrame(() => focusable()[0]?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const items = focusable();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+    // closeMenu is intentionally stable enough for this open-state effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuOpen]);
+
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -131,7 +178,7 @@ export default function Navigation({ onSearchClick }: NavigationProps) {
     <>
       <motion.nav
         initial={{ y: -80, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: .55, ease: [0.22, 1, 0.36, 1] }}
+        transition={prefersReducedMotion ? { duration: 0 } : { duration: .55, ease: [0.22, 1, 0.36, 1] }}
         className={`aurora-nav aurora-site-navigation ${scrolled || menuOpen ? 'aurora-nav-scrolled' : ''} ${menuOpen ? 'aurora-nav-open' : ''}`}
         aria-label="全站导航"
         data-active-area={activeArea}
@@ -168,7 +215,7 @@ export default function Navigation({ onSearchClick }: NavigationProps) {
             <button type="button" onClick={toggleMusic} className={`aurora-icon-button ${musicOn ? 'is-active' : ''}`} aria-label={musicOn ? '关闭音乐' : '开启音乐'} title={musicOn ? '关闭音乐' : '开启音乐'}>
               {musicOn ? <Music2 /> : <VolumeX />}
             </button>
-            <button type="button" onClick={() => setMenuOpen((open) => !open)} className={`aurora-menu-button ${menuOpen ? 'is-active' : ''}`} aria-label={menuOpen ? '关闭导航菜单' : '打开全部导航'} aria-expanded={menuOpen} aria-controls="aurora-navigation-panel">
+            <button ref={menuButtonRef} type="button" onClick={() => setMenuOpen((open) => !open)} className={`aurora-menu-button ${menuOpen ? 'is-active' : ''}`} aria-label={menuOpen ? '关闭导航菜单' : '打开全部导航'} aria-expanded={menuOpen} aria-controls="aurora-navigation-panel" aria-haspopup="dialog">
               <span>{menuOpen ? '关闭' : '全部'}</span>{menuOpen ? <X /> : <Menu />}
             </button>
           </div>
@@ -177,8 +224,8 @@ export default function Navigation({ onSearchClick }: NavigationProps) {
 
       <AnimatePresence>
         {menuOpen && (
-          <motion.div id="aurora-navigation-panel" className="aurora-menu-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .18 }}>
-            <motion.div className="aurora-menu-shell" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: .28, ease: [0.22, 1, 0.36, 1] }}>
+          <motion.div id="aurora-navigation-panel" className="aurora-menu-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .18 }} onClick={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
+            <motion.div ref={menuPanelRef} role="dialog" aria-modal="true" aria-label="All navigation" className="aurora-menu-shell" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .28, ease: [0.22, 1, 0.36, 1] }}>
               <div className="aurora-menu-heading">
                 <div><span>NEURAL DIRECTORY / {directoryEntryCount} ENTRIES</span><h2>选择一条<span>神经路径</span></h2></div>
                 <p>导航层级 = URL 层级。每一层都对应唯一的 URL 路径。</p>

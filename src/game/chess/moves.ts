@@ -212,7 +212,7 @@ function tigerMovesSep(board: Board, pos: Position, player: Player): SeparatedMo
 }
 
 /** Y — 缅因猫：5×5 范围任意走，不可吃子 */
-function maineCoonMovesSep(board: Board, pos: Position, _player: Player): SeparatedMoves {
+function maineCoonMovesSep(board: Board, pos: Position): SeparatedMoves {
   const moves: Position[] = [];
   for (let dr = -2; dr <= 2; dr++) {
     for (let dc = -2; dc <= 2; dc++) {
@@ -395,7 +395,7 @@ function cannonMovesSep(board: Board, pos: Position, player: Player): SeparatedM
 }
 
 /** W — 女巫：8方向1格，不可吃子 */
-function witchMovesSep(board: Board, pos: Position, _player: Player): SeparatedMoves {
+function witchMovesSep(board: Board, pos: Position): SeparatedMoves {
   const moves: Position[] = [];
   for (const [dr, dc] of ALL_8_DIRS) {
     const to = { row: pos.row + dr, col: pos.col + dc };
@@ -427,7 +427,7 @@ function skeletonMovesSep(board: Board, pos: Position, player: Player): Separate
 
 /** IW — 反女巫：8方向1格，不可吃子 */
 function antiWitchMovesSep(board: Board, pos: Position, player: Player): SeparatedMoves {
-  return witchMovesSep(board, pos, player);
+  return witchMovesSep(board, pos);
 }
 
 /** IZ — 反骷髅兵：下/左/右各1格 */
@@ -519,12 +519,12 @@ function whaleMovesSep(board: Board, pos: Position, player: Player): SeparatedMo
 }
 
 /** X — 火箭：不可主动移动 */
-function rocketMovesSep(_board: Board, _pos: Position, _player: Player): SeparatedMoves {
+function rocketMovesSep(): SeparatedMoves {
   return { moves: [], captures: [] };
 }
 
 /** U — 太空人：9×9范围任意走（切比雪夫距离≤4），不可吃子 */
-function spacemanMovesSep(board: Board, pos: Position, _player: Player): SeparatedMoves {
+function spacemanMovesSep(board: Board, pos: Position): SeparatedMoves {
   const moves: Position[] = [];
   for (let dr = -4; dr <= 4; dr++) {
     for (let dc = -4; dc <= 4; dc++) {
@@ -562,7 +562,7 @@ function starshipMovesSep(board: Board, pos: Position, player: Player): Separate
 }
 
 /** O — 鸵鸟：直线/斜线任意格，不可吃子，不可入敌方攻击范围 */
-function ostrichMovesSep(board: Board, pos: Position, _player: Player): SeparatedMoves {
+function ostrichMovesSep(board: Board, pos: Position): SeparatedMoves {
   const moves: Position[] = [];
   for (const [dr, dc] of ALL_8_DIRS) {
     for (let i = 1; i < BOARD_SIZE; i++) {
@@ -732,22 +732,22 @@ export function getRawMoves(
     case 'N': sep = knightMovesSep(board, pos, player); break;
     case 'P': sep = pawnMovesSep(board, pos, player); break;
     case 'T': sep = tigerMovesSep(board, pos, player); break;
-    case 'Y': sep = maineCoonMovesSep(board, pos, player); break;
+    case 'Y': sep = maineCoonMovesSep(board, pos); break;
     case 'M': sep = mouseMovesSep(board, pos, player, poisonCount); break;
     case 'E': sep = elephantMovesSep(board, pos, player); break;
     case 'L': sep = englishMovesSep(board, pos, player); break;
     case 'A': sep = antennaMovesSep(board, pos, player); break;
     case 'C': sep = cannonMovesSep(board, pos, player); break;
-    case 'W': sep = witchMovesSep(board, pos, player); break;
+    case 'W': sep = witchMovesSep(board, pos); break;
     case 'Z': sep = skeletonMovesSep(board, pos, player); break;
     case 'IW': sep = antiWitchMovesSep(board, pos, player); break;
     case 'IZ': sep = antiSkeletonMovesSep(board, pos, player); break;
     case 'J': sep = paladinMovesSep(board, pos, player); break;
     case 'H': sep = whaleMovesSep(board, pos, player); break;
-    case 'X': sep = rocketMovesSep(board, pos, player); break;
-    case 'U': sep = spacemanMovesSep(board, pos, player); break;
+    case 'X': sep = rocketMovesSep(); break;
+    case 'U': sep = spacemanMovesSep(board, pos); break;
     case 'S': sep = starshipMovesSep(board, pos, player); break;
-    case 'O': sep = ostrichMovesSep(board, pos, player); break;
+    case 'O': sep = ostrichMovesSep(board, pos); break;
     case 'G': sep = catgirlMovesSep(board, pos, player); break;
   }
 
@@ -773,22 +773,22 @@ export function getMoves(
     case 'N': return knightMovesSep(board, pos, player).moves;
     case 'P': return pawnMovesSep(board, pos, player).moves;
     case 'T': return tigerMovesSep(board, pos, player).moves;
-    case 'Y': return maineCoonMovesSep(board, pos, player).moves;
+    case 'Y': return maineCoonMovesSep(board, pos).moves;
     case 'M': return mouseMovesSep(board, pos, player, poisonCount).moves;
     case 'E': return elephantMovesSep(board, pos, player).moves;
     case 'L': return englishMovesSep(board, pos, player).moves;
     case 'A': return antennaMovesSep(board, pos, player).moves;
     case 'C': return cannonMovesSep(board, pos, player).moves;
-    case 'W': return witchMovesSep(board, pos, player).moves;
+    case 'W': return witchMovesSep(board, pos).moves;
     case 'Z': return skeletonMovesSep(board, pos, player).moves;
     case 'IW': return antiWitchMovesSep(board, pos, player).moves;
     case 'IZ': return antiSkeletonMovesSep(board, pos, player).moves;
     case 'J': return paladinMovesSep(board, pos, player).moves;
     case 'H': return whaleMovesSep(board, pos, player).moves;
     case 'X': return [];
-    case 'U': return spacemanMovesSep(board, pos, player).moves;
+    case 'U': return spacemanMovesSep(board, pos).moves;
     case 'S': return starshipMovesSep(board, pos, player).moves;
-    case 'O': return ostrichMovesSep(board, pos, player).moves;
+    case 'O': return ostrichMovesSep(board, pos).moves;
     case 'G': return catgirlMovesSep(board, pos, player).moves;
   }
   return [];

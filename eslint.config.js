@@ -20,4 +20,24 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: [
+      'src/components/AnimatedStats.tsx',
+      'src/components/aurora/AuroraUI.tsx',
+      'src/components/ui/badge.tsx',
+      'src/components/ui/button-group.tsx',
+      'src/components/ui/button.tsx',
+      'src/components/ui/form.tsx',
+      'src/components/ui/navigation-menu.tsx',
+      'src/components/ui/toggle.tsx',
+      'src/contexts/MusicContext.tsx',
+      'src/contexts/OverloadContext.tsx',
+      'src/lib/semanticHighlight.tsx',
+    ],
+    rules: {
+      // These shared modules intentionally export components alongside their
+      // hooks, context helpers, or styling variants.
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])

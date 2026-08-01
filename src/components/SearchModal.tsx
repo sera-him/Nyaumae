@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, User, BookOpen, Sparkles, Settings, Swords, BookMarked, BarChart3 } from 'lucide-react';
+import { Search, X, User, BookOpen, Sparkles, Settings, Swords, BookMarked, BarChart3, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { getPopularWords, getRelatedWords, loadWordFrequency, type WordFreq } from '@/data/wordFrequency';
 
@@ -128,13 +128,24 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<{ item: FullSearchItem; score: number }[]>([]);
   const [popularWords, setPopularWords] = useState<WordFreq[]>([]);
+  const [isIndexReady, setIsIndexReady] = useState(false);
+  const [searchedQuery, setSearchedQuery] = useState('');
+  const [searchLoadError, setSearchLoadError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const trimmedQuery = query.trim();
+  const isIndexLoading = isOpen && !isIndexReady && !searchLoadError;
+  const isSearchLoading = Boolean(trimmedQuery && trimmedQuery !== searchedQuery);
 
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
-      setTimeout(() => { setQuery(''); setResults([]); }, 0);
+      setTimeout(() => {
+        setQuery('');
+        setResults([]);
+        setSearchedQuery('');
+        setSearchLoadError(false);
+      }, 0);
     }
   }, [isOpen]);
 
@@ -142,9 +153,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     if (!isOpen) return;
     let cancelled = false;
     void loadWordFrequency().then(() => {
-      if (!cancelled) setPopularWords(getPopularWords(18));
+      if (!cancelled) {
+        setPopularWords(getPopularWords(18));
+        setIsIndexReady(true);
+      }
     }).catch(() => {
-      if (!cancelled) setPopularWords([]);
+      if (!cancelled) {
+        setPopularWords([]);
+        setSearchLoadError(true);
+      }
     });
     return () => { cancelled = true; };
   }, [isOpen]);
@@ -152,23 +169,42 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   useEffect(() => {
     let cancelled = false;
     const timer = setTimeout(async () => {
-      if (!query.trim()) {
+      if (!isOpen) {
+        if (!cancelled) {
+          setResults([]);
+          setSearchedQuery('');
+        }
+        return;
+      }
+      if (!trimmedQuery) {
         setResults([]);
+        setSearchedQuery('');
+        setSearchLoadError(false);
         return;
       }
       const searchQuery = query.toLowerCase().trim() === 'sera-him' ? query + ' Nyaumæ' : query;
-      const [{ fullTextSearch }] = await Promise.all([
-        import('@/data/fullSearchIndex'),
-        loadWordFrequency(),
-      ]);
-      if (!cancelled) {
-        setPopularWords(getPopularWords(18));
-        const r = fullTextSearch(searchQuery);
-        setResults(r);
+      try {
+        const [{ fullTextSearch }] = await Promise.all([
+          import('@/data/fullSearchIndex'),
+          loadWordFrequency(),
+        ]);
+        if (!cancelled) {
+          setPopularWords(getPopularWords(18));
+          const r = fullTextSearch(searchQuery);
+          setResults(r);
+          setSearchedQuery(trimmedQuery);
+          setSearchLoadError(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setResults([]);
+          setSearchedQuery(trimmedQuery);
+          setSearchLoadError(true);
+        }
       }
-    }, 80);
+    }, trimmedQuery ? 80 : 0);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [query]);
+  }, [isOpen, query]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -238,7 +274,17 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
 
             <div className="max-h-[60vh] overflow-y-auto">
-              {results.length > 0 ? (
+              {isIndexLoading || isSearchLoading ? (
+                <div className="py-8 text-center" role="status" aria-live="polite">
+                  <Loader2 className="w-8 h-8 text-nc-cyan mx-auto mb-2 animate-spin" />
+                  <p className="text-sm text-nc-text-muted">搜索内容加载中...</p>
+                </div>
+              ) : searchLoadError ? (
+                <div className="py-8 text-center" role="alert">
+                  <Search className="w-8 h-8 text-nc-rose mx-auto mb-2 opacity-60" />
+                  <p className="text-sm text-nc-text-muted">搜索内容加载失败，请稍后重试</p>
+                </div>
+              ) : results.length > 0 ? (
                 <div className="py-2">
                   {query.toLowerCase().trim() === 'sera-him' && (
                     <div className="mx-4 mb-2 px-3 py-2 rounded-lg bg-nc-rose/10 border border-nc-rose/20 text-xs">

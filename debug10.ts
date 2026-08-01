@@ -1,13 +1,5 @@
 // Direct test of constructHoles and buildRegionsFromHoles
 // by copy-pasting the functions
-function shuffle<T>(arr: T[]): T[] {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
 function constructHoles(n: number, k: number): {row:number,col:number}[] | null {
   if (k * 2 > n) return null;
   let step = 2 * k + 1;

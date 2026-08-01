@@ -550,7 +550,7 @@ export function executeMove(state: GameState, move: Move): GameState {
   if (finalPiece && finalPiece.type === 'M') {
     const beforeCell = board[to.row][to.col];
     if (typeof beforeCell === 'string' && beforeCell.startsWith('C')) {
-      newState = applyCheese(newState, to, beforeCell as any, player, finalPiece);
+      newState = applyCheese(newState, to, beforeCell as 'CY' | 'CO' | 'CB' | 'CP' | 'CK', player, finalPiece);
     }
   }
 

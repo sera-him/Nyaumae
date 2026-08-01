@@ -1,4 +1,3 @@
-import { generateHoles, buildEmptyRegions } from '@/game/threeHoles/puzzleGen';
 import { DIFFICULTIES, createPuzzleState } from '@/game/threeHoles/puzzleGen';
 
 // Test each difficulty briefly with debug output

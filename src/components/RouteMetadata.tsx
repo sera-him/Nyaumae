@@ -229,7 +229,6 @@ function upsertCanonical(href: string): void {
 }
 
 function getCanonicalUrl(pathname: string): string {
-  const currentUrl = new URL(window.location.href);
   const appBasePath = window.location.hash.startsWith('#/')
     ? window.location.pathname.replace(/\/index\.html$/, '').replace(/\/$/, '')
     : '';

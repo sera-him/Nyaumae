@@ -43,5 +43,6 @@ for (let t = 0; t < 5; t++) {
   const st = Date.now();
   const h = generateHoles(reg, 1, 5000);
   const et = Date.now() - st;
-  console.log(`trial ${t}: sizes=${s.join(',')}  ${h.length > 0 ? `OK ${et}ms` : `FAIL ${et}ms`} dfsCalls=${(global as any).lastDfsCalls ?? '?'}`);
+  const debugState = globalThis as typeof globalThis & { lastDfsCalls?: number };
+  console.log(`trial ${t}: sizes=${s.join(',')}  ${h.length > 0 ? `OK ${et}ms` : `FAIL ${et}ms`} dfsCalls=${debugState.lastDfsCalls ?? '?'}`);
 }

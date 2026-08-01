@@ -453,7 +453,7 @@ export function canUseSkill(state: TTT3GameState, skill: Skill, player: TTT3Play
 }
 
 /** 使用技能 */
-export function useSkill(
+export function applySkill(
   state: TTT3GameState,
   skill: Skill,
   player: TTT3Player,
@@ -528,7 +528,7 @@ export function useSkill(
       newState.overdraft[player]--;
       return { state: newState, success: true, log: `偿还债务！剩余透支 ${newState.overdraft[player]} 层` };
 
-    case SkillEnum.INFO_OVERLOAD:
+    case SkillEnum.INFO_OVERLOAD: {
       newState.infoOverloadUses[player]++;
       newState.infoOverload[opp] = true;
       const rate = getOverloadRate(newState.infoOverloadUses[player]);
@@ -537,6 +537,7 @@ export function useSkill(
         success: true,
         log: `信息过载 #${newState.infoOverloadUses[player]}！对手 UI 被 ${Math.round(rate * 100)}% 扰动`,
       };
+    }
 
     case SkillEnum.SP_SIPHON: {
       let drained = 0;
@@ -1331,7 +1332,7 @@ export function deepCloneState(state: TTT3GameState): TTT3GameState {
 // 解析输入（Grid Rewrite 映射）
 // ============================================================
 
-export function parseMoveInput(_state: TTT3GameState, logical: number, _player: TTT3Player): number {
+export function parseMoveInput(logical: number): number {
   // logical 是 0-8 的物理位置（Grid Rewrite 期间由 makeMove 直接处理键盘输入）
   if (logical < 0 || logical > 8) return -1;
   return logical;

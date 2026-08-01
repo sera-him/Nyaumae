@@ -305,14 +305,20 @@ export function previewNode(state: GameState, target: number, includeTemporary =
   let red = normalVotes(state, target, 'red');
   const shock = includeTemporary ? state.shocks.find((item) => item.target === target) : undefined;
   if (includeTemporary) {
-    state.discharges.forEach((item) => { if (item.target === target) item.side === 'blue' ? blue += 1 : red += 1; });
+    state.discharges.forEach((item) => {
+      if (item.target !== target) return;
+      if (item.side === 'blue') blue += 1;
+      else red += 1;
+    });
     if (inReverseRange(state, 'blue', target)) blue += 2;
     if (inReverseRange(state, 'red', target)) red += 2;
     if (shock) {
-      shock.attacker === 'blue' ? blue += 2 : red += 2;
+      if (shock.attacker === 'blue') blue += 2;
+      else red += 2;
       const defender = opposite(shock.attacker);
       const stability = node.core ? 2 : 1;
-      defender === 'blue' ? blue += stability : red += stability;
+      if (defender === 'blue') blue += stability;
+      else red += stability;
     }
   }
   let outcome = node.owner;

@@ -14,6 +14,7 @@ const CHAT_THEMES = [
     to: '/chat/ocean',
     icon: Waves,
     preview: 'linear-gradient(145deg, #fff1f8 0%, #e9faff 55%, #f8efff 100%)',
+    image: '/chat-themes/ocean-dream.png',
     accent: '#8ce9ed',
   },
   {
@@ -24,6 +25,7 @@ const CHAT_THEMES = [
     to: '/sweetdream',
     icon: Flower2,
     preview: 'linear-gradient(145deg, #ffe4f1 0%, #fff6e9 55%, #ffe3f0 100%)',
+    image: '/chat-themes/sweet-dream.png',
     accent: '#ff9ec8',
   },
   {
@@ -34,6 +36,7 @@ const CHAT_THEMES = [
     to: '/chat/aurora',
     icon: Sparkles,
     preview: 'linear-gradient(160deg, #070a1c 0%, #0c0e2c 55%, #1a1030 100%)',
+    image: '/chat-themes/aurora-night.png',
     accent: '#a685ff',
   },
 ] as const;
@@ -41,6 +44,7 @@ const CHAT_THEMES = [
 export default function ChatSelect() {
   return (
     <main className="chat-select-page aurora-ui">
+      <div className="chat-select-atmosphere" aria-hidden="true" />
       <div className="aurora-container chat-select-inner">
         <header className="chat-select-hero">
           <p className="aurora-eyebrow">CHAT CONSOLE / 主题选择</p>
@@ -61,11 +65,14 @@ export default function ChatSelect() {
                 transition={{ duration: .5, delay: .08 * index, ease: [0.22, 1, 0.36, 1] }}
               >
                 <div className="chat-select-preview" style={{ background: theme.preview }}>
-                  <span className="chat-select-preview-planet" style={{ background: theme.accent }} />
-                  <span className="chat-select-preview-ring" style={{ borderColor: `${theme.accent}66` }} />
-                  <span className="chat-select-preview-star" />
-                  <span className="chat-select-preview-star" />
-                  <span className="chat-select-preview-star" />
+                  <img
+                    className="chat-select-preview-image"
+                    src={theme.image}
+                    alt=""
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  />
+                  <span className="chat-select-preview-label">THEME PREVIEW</span>
                 </div>
                 <div className="chat-select-body">
                   <span className="chat-select-code">{theme.code}</span>

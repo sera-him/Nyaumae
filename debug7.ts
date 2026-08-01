@@ -2,13 +2,12 @@ import { generateHoles } from '@/game/threeHoles/puzzleGen';
 
 // Perfectly balanced: each column = region
 function uniformRegions(n: number): number[][] {
-  return Array.from({length:n}, (_,r) => Array.from({length:n}, (_,c) => c));
+  return Array.from({length:n}, () => Array.from({length:n}, (_,c) => c));
 }
 
 console.log('=== Uniform regions (each col = region) ===');
 for (const [n, k] of [[4,1],[6,1],[8,1],[10,1],[12,2],[14,2],[14,3]]) {
   const reg = uniformRegions(n);
-  const sizes = Array(n).fill(n);
   const start = Date.now();
   const holes = generateHoles(reg, k, 10000);
   const elapsed = Date.now() - start;

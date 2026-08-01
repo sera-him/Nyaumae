@@ -151,8 +151,8 @@ export default function Portal() {
             <h1><span>NEURAL</span><span>CONNECTION</span></h1>
             <p className="portal-lead">一个由意识编织的<br />数字宇宙</p>
             <div className="portal-actions">
-              <Link className="portal-primary" to="/characters">探索角色 <span>↗</span></Link>
-              <Link to="/stories">阅读故事 →</Link><Link to="/playground">进入游戏 →</Link>
+              <Link className="portal-secondary" to="/characters">探索角色 <span>↗</span></Link>
+              <Link className="portal-primary" to="/stories">阅读故事 →</Link><Link className="portal-tertiary" to="/playground">进入游戏 →</Link>
             </div>
           </div>
           <aside className="portal-miia">

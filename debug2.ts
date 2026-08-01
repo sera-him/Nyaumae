@@ -10,7 +10,7 @@ function regionStats(regions: number[][]): void {
 }
 
 console.log('=== Uniform regions (each col = region) ===');
-const uni: number[][] = Array.from({length:6}, (_,r) => Array.from({length:6}, (_,c) => c));
+const uni: number[][] = Array.from({length:6}, () => Array.from({length:6}, (_,c) => c));
 regionStats(uni);
 for (let k = 1; k <= 3; k++) {
   const start = Date.now();
