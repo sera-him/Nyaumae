@@ -286,7 +286,8 @@ class TargetGenerator {
     const split = Math.floor(Math.random() * (nums.length - 1)) + 1;
     const left = this.buildExpr(nums.slice(0, split)), right = this.buildExpr(nums.slice(split));
     const ops = ['+', '-', '*', '/', '^'], weights = [25, 25, 20, 15, 15];
-    const total = weights.reduce((a, b) => a + b, 0), rnd = Math.random() * total;
+    const total = weights.reduce((a, b) => a + b, 0);
+    let rnd = Math.random() * total;
     let op = ops[0];
     for (let i = 0; i < ops.length; i++) { rnd -= weights[i]; if (rnd <= 0) { op = ops[i]; break; } }
     if (op === '/' && this.isZeroExpr(right)) op = '+';
