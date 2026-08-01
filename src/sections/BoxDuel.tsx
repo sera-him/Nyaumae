@@ -111,13 +111,6 @@ export default function BoxDuel() {
     setHint(`开始打开箱子！还需打开 ${need.target - openedCount} 个箱子进入 ${need.roman} 阶段`);
     addLog(`${conName} 选择了 ${id} 号箱子作为幸运箱。`);
     setPhase('opening');
-    if (isConAI) {
-      blockRef.current = true;
-      setTimeout(() => {
-        blockRef.current = false;
-        aiOpenCase();
-      }, 800);
-    }
   }
 
   function aiSelectCase(cs: Case[]) {
@@ -147,6 +140,18 @@ export default function BoxDuel() {
     const picked = pickRandom(avail);
     if (picked) openCase(picked.id);
   }
+
+  useEffect(() => {
+    if (phase !== 'opening' || !isConAI || blockRef.current) return;
+    blockRef.current = true;
+    const timer = window.setTimeout(() => {
+      blockRef.current = false;
+      aiOpenCase();
+    }, 800);
+    return () => window.clearTimeout(timer);
+    // The delayed AI action intentionally uses the current case snapshot.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, isConAI, cases]);
 
   function openCase(id: number) {
     if (blockRef.current) return;
