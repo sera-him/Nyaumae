@@ -369,3 +369,68 @@
   .portal-arrow,
   .portal-thumbs button{transition:none}
 }
+
+/* First-visit hierarchy: story is the primary route, characters the secondary
+   route, and games remain visible without competing with the first two. */
+.portal-actions .portal-primary{
+  order:1;
+  min-width:220px;
+  min-height:54px;
+  padding:17px 25px;
+  font-size:16px;
+  letter-spacing:.02em
+}
+.portal-actions .portal-secondary,
+.portal-actions .portal-tertiary{
+  display:inline-flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  background:rgba(255,255,255,.035);
+  color:#e7e0f2;
+  font-weight:600
+}
+.portal-actions .portal-secondary{
+  order:2;
+  min-width:160px;
+  min-height:46px;
+  padding:13px 18px;
+  font-size:14px;
+  border-color:rgba(166,133,255,.42);
+  background:rgba(166,133,255,.1)
+}
+.portal-actions .portal-tertiary{
+  order:3;
+  min-width:132px;
+  min-height:42px;
+  padding:11px 16px;
+  font-size:12px;
+  color:#c8bfd5;
+  border-color:rgba(121,169,255,.34);
+  background:rgba(121,169,255,.07)
+}
+.portal-actions .portal-secondary:hover,
+.portal-actions .portal-tertiary:hover{
+  color:#fff;
+  border-color:#fff;
+  background:rgba(255,255,255,.1)
+}
+@media(max-width:620px){
+  .portal-actions{align-items:stretch}
+  .portal-actions .portal-primary{
+    width:100%;
+    min-width:0;
+    flex:1 1 100%;
+    justify-content:center
+  }
+  .portal-actions .portal-secondary{
+    min-width:0;
+    flex:1 1 0
+  }
+  .portal-actions a.portal-tertiary:not(.portal-primary){
+    flex:0 1 auto;
+    min-width:132px
+  }
+}

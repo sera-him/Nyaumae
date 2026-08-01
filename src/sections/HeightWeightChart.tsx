@@ -35,6 +35,7 @@ interface RangeState {
 interface TooltipData {
   x: number;      // canvas px
   y: number;      // canvas px
+  popupLeft: number;
   heightM: number;
   modelValues: { name: string; color: string; weight: number }[];
 }
@@ -292,7 +293,9 @@ export default function HeightWeightChart() {
 
     if (modelValues.length === 0) return null;
 
-    return { x: canvasX, y: 0, heightM, modelValues };
+    const maxLeft = Math.max(10, rect.width - 200);
+    const popupLeft = Math.max(10, Math.min(maxLeft, canvasX));
+    return { x: canvasX, y: 0, popupLeft, heightM, modelValues };
   }, [range, activeModels]);
 
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -328,22 +331,7 @@ export default function HeightWeightChart() {
   }, []);
 
   // Tooltip popup position (CSS pixels relative to container)
-  const tooltipPopupPos = (() => {
-    if (!tooltip) return null;
-    const canvas = canvasRef.current;
-    if (!canvas) return null;
-    const rect = canvas.getBoundingClientRect();
-    const containerRect = containerRef.current?.getBoundingClientRect();
-    if (!containerRect) return null;
-
-    let left = tooltip.x;
-    // Clamp so tooltip doesn't go off right edge
-    const maxLeft = rect.width - 200;
-    if (left > maxLeft) left = maxLeft;
-    if (left < 10) left = 10;
-
-    return { left, top: 20 };
-  })();
+  const tooltipPopupPos = tooltip ? { left: tooltip.popupLeft, top: 20 } : null;
 
   return (
     <motion.div
