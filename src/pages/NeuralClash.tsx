@@ -84,7 +84,8 @@ function NeuralCanvas({ game, onNodeClick }: { game: GameState; onNodeClick: (id
         ctx.beginPath();
         for (let p = 0; p < 6; p += 1) {
           const angle = Math.PI / 6 + p * Math.PI / 3, nx = x + Math.cos(angle) * radius, ny = y + Math.sin(angle) * radius;
-          p === 0 ? ctx.moveTo(nx, ny) : ctx.lineTo(nx, ny);
+          if (p === 0) ctx.moveTo(nx, ny);
+          else ctx.lineTo(nx, ny);
         }
         ctx.closePath();
       } else { ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); }

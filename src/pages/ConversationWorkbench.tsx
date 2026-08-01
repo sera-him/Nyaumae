@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
   AlertTriangle,
@@ -172,6 +172,7 @@ export default function ConversationWorkbench() {
   const selectedConversation = conversations.find((conversation) => conversation.id === selectedId);
   const activeMode = selectedConversation?.mode ?? 'character';
   const selectedCharacter = resolveCharacter(selectedConversation?.characterId);
+  const selectedCharacterId = selectedCharacter.id;
   const portrait = getCharacterCardImageLocal(selectedCharacter.id);
   const aiConfig = conversationRepository.getAiConfig();
   const featuredCharacters = useMemo(
@@ -205,14 +206,14 @@ export default function ConversationWorkbench() {
   const latestAssistant = [...messages].reverse().find((message) => message.role === 'assistant');
   const latestCitations: Citation[] = latestAssistant?.citations ?? lastContext?.citations ?? [];
 
-  const refreshMemories = (characterId = selectedCharacter.id) => {
+  const refreshMemories = useCallback((characterId = selectedCharacterId) => {
     setMemories(memoryManager.query({
       characterId,
       includeDraft: true,
       includeInferred: true,
       limit: 60,
     }));
-  };
+  }, [selectedCharacterId]);
 
   const refresh = (preferredId?: string) => {
     const next = conversationEngine.listConversations();
@@ -252,7 +253,7 @@ export default function ConversationWorkbench() {
       setMessages([]);
       refreshMemories('xiaoman');
     });
-  }, []);
+  }, [refreshMemories]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });

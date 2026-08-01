@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 /* ─── SuperNumber (arbitrary precision) ─── */
 
@@ -286,7 +286,7 @@ class TargetGenerator {
     const split = Math.floor(Math.random() * (nums.length - 1)) + 1;
     const left = this.buildExpr(nums.slice(0, split)), right = this.buildExpr(nums.slice(split));
     const ops = ['+', '-', '*', '/', '^'], weights = [25, 25, 20, 15, 15];
-    let total = weights.reduce((a, b) => a + b, 0), rnd = Math.random() * total;
+    const total = weights.reduce((a, b) => a + b, 0), rnd = Math.random() * total;
     let op = ops[0];
     for (let i = 0; i < ops.length; i++) { rnd -= weights[i]; if (rnd <= 0) { op = ops[i]; break; } }
     if (op === '/' && this.isZeroExpr(right)) op = '+';
@@ -310,7 +310,9 @@ class TargetGenerator {
           const expNum = Number(result.exponent);
           if (result.type === 'ZERO' || (isFinite(expNum) && Math.abs(expNum) < 100)) return { numbers, expr, target: result };
         }
-      } catch {}
+      } catch {
+        // Try the next generated expression.
+      }
     }
     const numbers = this.generateNumbers(numCount);
     const expr = numbers.join('+');
@@ -364,7 +366,10 @@ class Super24Game {
     const validation = this.validateNumbers(playerExpr);
     if (!validation.valid) return { result: SuperNumber.invalid(validation.msg!), error: validation.msg! };
     try { const parser = new ExpressionParser(playerExpr); return { result: parser.parse(), error: '' }; }
-    catch (e: any) { return { result: SuperNumber.invalid(e.message), error: e.message }; }
+    catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { result: SuperNumber.invalid(message), error: message };
+    }
   }
   compare(player: SuperNumber, target: SuperNumber) {
     if (target.type === 'ZERO') {
@@ -408,7 +413,11 @@ class Super24Game {
 }
 
 export default function Super24() {
-  const [game] = useState(() => new Super24Game());
+  const [game] = useState(() => {
+    const nextGame = new Super24Game();
+    nextGame.newGame(8);
+    return nextGame;
+  });
   const [, forceUpdate] = useState(0);
   const [difficulty, setDifficulty] = useState(8);
   const [input, setInput] = useState('');
@@ -433,8 +442,6 @@ export default function Super24() {
     rerender();
     setTimeout(() => inputRef.current?.focus(), 100);
   }, [game, difficulty, rerender]);
-
-  useEffect(() => { newGame(); }, []);
 
   function submitExpr() {
     const expr = input.trim();

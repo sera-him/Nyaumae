@@ -204,7 +204,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       }
     }, trimmedQuery ? 80 : 0);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [isOpen, query]);
+  }, [isOpen, query, trimmedQuery]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {

@@ -242,7 +242,7 @@ export default function NeuralEcho() {
         ))}
       </div>
 
-      {showRules && <div className="fractal-rules"><p><b>当前阶段 · {phase.name}</b>　{phase.note}</p><p>每次点击一个己方生长点，生成三根计分子枝；第17轮起最多保留一根新生长枝。新枝端点距对手枝条不足6px时剪去该枝及后代。</p><p>每人最多16个有效生长点。回声在第9、17、25轮补充1次，最多储存2次；它会复刻对手最近一次的保留节奏。</p></div>}
+      {showRules && <div className="fractal-rules"><p><b>当前阶段 · {phase.name}</b> {phase.note}</p><p>每次点击一个己方生长点，生成三根计分子枝；第17轮起最多保留一根新生长枝。新枝端点距对手枝条不足6px时剪去该枝及后代。</p><p>每人最多16个有效生长点。回声在第9、17、25轮补充1次，最多储存2次；它会复刻对手最近一次的保留节奏。</p></div>}
 
       <div className="fractal-board-shell">
         <svg className="fractal-board" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label="神经回响游戏棋盘">

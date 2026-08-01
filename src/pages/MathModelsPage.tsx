@@ -88,8 +88,9 @@ function ParticleStrip({ count, color }: { count: number; color: string }) {
   if (count === 0) return null;
   const particles = Array.from({ length: count }, (_, i) => ({
     left: `${10 + (i * (80 / Math.max(count - 1, 1)))}%`,
-    delay: `${i * 0.4 + Math.random() * 0.3}s`,
-    size: `${2 + Math.random() * 2}px`,
+    delay: `${i * 0.4 + ((i * 17 + count * 7) % 30) / 100}s`,
+    size: `${2 + ((i * 13 + count * 5) % 20) / 10}px`,
+    duration: `${2 + ((i * 19 + count * 3) % 10) / 10}s`,
   }));
   return (
     <>
@@ -101,7 +102,7 @@ function ParticleStrip({ count, color }: { count: number; color: string }) {
             left: p.left, width: p.size, height: p.size,
             background: color,
             boxShadow: `0 0 ${parseInt(p.size) * 2}px ${color}`,
-            animation: `float-up ${2 + Math.random()}s ease-out ${p.delay} infinite`,
+            animation: `float-up ${p.duration} ease-out ${p.delay} infinite`,
             transform: 'translateY(-50%)',
           }}
         />
