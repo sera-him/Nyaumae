@@ -19,11 +19,13 @@ export function GlitchText({ text, className = '' }: GlitchTextProps) {
 
   useEffect(() => {
     if (!active || !isMotionActive) {
-      setDisplay(text);
-      setColorClass('');
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (colorIntervalRef.current) clearInterval(colorIntervalRef.current);
-      return;
+      const resetTimer = window.setTimeout(() => {
+        setDisplay(text);
+        setColorClass('');
+      }, 0);
+      return () => window.clearTimeout(resetTimer);
     }
 
     // Random color cycling every 300ms

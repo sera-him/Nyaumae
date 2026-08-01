@@ -1,10 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ImageOff } from 'lucide-react';
 
 interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   aspectRatio?: string;
   skeletonClassName?: string;
   containerClassName?: string;
+}
+
+interface ImageStatus {
+  src: string | undefined;
+  loaded: boolean;
+  error: boolean;
 }
 
 export default function LazyImage({
@@ -19,13 +25,9 @@ export default function LazyImage({
   loading = 'lazy',
   ...imgProps
 }: LazyImageProps) {
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    setLoaded(false);
-    setError(false);
-  }, [src]);
+  const [imageStatus, setImageStatus] = useState<ImageStatus>(() => ({ src, loaded: false, error: false }));
+  const status = imageStatus.src === src ? imageStatus : { src, loaded: false, error: false };
+  const { loaded, error } = status;
 
   return (
     <div
@@ -49,13 +51,11 @@ export default function LazyImage({
         loading={loading}
         className={`w-full h-full transition-opacity duration-500 ${loaded && !error ? 'opacity-100' : 'opacity-0'} ${imgClassName}`}
         onLoad={(e) => {
-          setLoaded(true);
-          setError(false);
+          setImageStatus({ src, loaded: true, error: false });
           onLoad?.(e);
         }}
         onError={(e) => {
-          setLoaded(true);
-          setError(true);
+          setImageStatus({ src, loaded: true, error: true });
           onError?.(e);
         }}
       />

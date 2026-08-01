@@ -24,17 +24,16 @@ export default function SmartImage({
   loading = 'lazy',
   ...imgProps
 }: SmartImageProps) {
-  const [state, setState] = useState<'loading' | 'loaded' | 'error'>('loading');
-  const [useFallback, setUseFallback] = useState(fallbackCache.has(localSrc));
+  const [imageState, setImageState] = useState<{ src: string; status: 'loading' | 'loaded' | 'error' }>(() => ({
+    src: localSrc,
+    status: 'loading',
+  }));
   const mountedRef = useRef(true);
 
   const remoteUrl = imageHostMap[localSrc] ?? null;
+  const state = imageState.src === localSrc ? imageState.status : 'loading';
+  const useFallback = fallbackCache.has(localSrc);
   const src = (!useFallback && remoteUrl) ? remoteUrl : p(localSrc);
-
-  useEffect(() => {
-    setUseFallback(fallbackCache.has(localSrc));
-    setState('loading');
-  }, [localSrc]);
 
   useEffect(() => {
     return () => { mountedRef.current = false; };
@@ -42,7 +41,7 @@ export default function SmartImage({
 
   const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (!mountedRef.current) return;
-    setState('loaded');
+    setImageState({ src: localSrc, status: 'loaded' });
     onLoad?.(e);
   };
 
@@ -50,10 +49,9 @@ export default function SmartImage({
     if (!mountedRef.current) return;
     if (!useFallback && remoteUrl) {
       fallbackCache.add(localSrc);
-      setUseFallback(true);
-      setState('loading');
+      setImageState({ src: localSrc, status: 'loading' });
     } else {
-      setState('error');
+      setImageState({ src: localSrc, status: 'error' });
       onError?.(e);
     }
   };

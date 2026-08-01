@@ -11,8 +11,10 @@ export function useAnimatedCounter(target: number, durationMs: number, active = 
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (!active) {
-      setValue(reducedMotion.matches ? target : 0);
-      return;
+      const resetTimer = window.setTimeout(() => {
+        setValue(reducedMotion.matches ? target : 0);
+      }, 0);
+      return () => window.clearTimeout(resetTimer);
     }
 
     let elapsed = 0;

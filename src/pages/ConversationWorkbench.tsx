@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
   AlertTriangle,
@@ -137,6 +137,15 @@ function resolveCharacter(id?: string): Character {
     ?? characters[0];
 }
 
+function queryMemories(characterId: string): MemoryRecord[] {
+  return memoryManager.query({
+    characterId,
+    includeDraft: true,
+    includeInferred: true,
+    limit: 60,
+  });
+}
+
 function statusText(message: Message): string {
   if (message.status === 'streaming') return '正在回应';
   if (message.status === 'failed') return '发送失败';
@@ -206,14 +215,9 @@ export default function ConversationWorkbench() {
   const latestAssistant = [...messages].reverse().find((message) => message.role === 'assistant');
   const latestCitations: Citation[] = latestAssistant?.citations ?? lastContext?.citations ?? [];
 
-  const refreshMemories = useCallback((characterId = selectedCharacterId) => {
-    setMemories(memoryManager.query({
-      characterId,
-      includeDraft: true,
-      includeInferred: true,
-      limit: 60,
-    }));
-  }, [selectedCharacterId]);
+  const refreshMemories = (characterId = selectedCharacterId) => {
+    setMemories(queryMemories(characterId));
+  };
 
   const refresh = (preferredId?: string) => {
     const next = conversationEngine.listConversations();
@@ -238,7 +242,7 @@ export default function ConversationWorkbench() {
         setConversations(existing);
         setSelectedId(preferred.id);
         setMessages(conversationEngine.getMessages(preferred.id));
-        refreshMemories(resolveCharacter(preferred.characterId).id);
+        setMemories(queryMemories(resolveCharacter(preferred.characterId).id));
         return;
       }
       const created = conversationEngine.createConversation({
@@ -251,9 +255,9 @@ export default function ConversationWorkbench() {
       setConversations([created]);
       setSelectedId(created.id);
       setMessages([]);
-      refreshMemories('xiaoman');
+      setMemories(queryMemories('xiaoman'));
     });
-  }, [refreshMemories]);
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });

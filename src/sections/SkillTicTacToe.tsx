@@ -800,7 +800,8 @@ function SkillParamModal({
   const [selectedCells, setSelectedCells] = useState<number[]>([]);
 
   useEffect(() => {
-    setSelectedCells([]);
+    const resetFrame = window.requestAnimationFrame(() => setSelectedCells([]));
+    return () => window.cancelAnimationFrame(resetFrame);
   }, [skill]);
 
   // Buy Rod

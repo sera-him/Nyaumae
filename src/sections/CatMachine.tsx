@@ -557,12 +557,16 @@ export default function CatMachine() {
       streak,
       moduleIds: modules.map((module) => module.id),
     };
+    let saved = false;
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(progress));
-      setHasSavedProgress(true);
+      saved = true;
     } catch {
       // A private browsing context may reject storage.
     }
+    if (!saved) return;
+    const savedTimer = window.setTimeout(() => setHasSavedProgress(true), 0);
+    return () => window.clearTimeout(savedTimer);
   }, [cats, energy, fish, modules, phase, round, score, stations, streak]);
 
   const changeStation = (row: number, need: Need) => {

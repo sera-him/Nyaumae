@@ -229,13 +229,13 @@ function upsertCanonical(href: string): void {
 }
 
 function getCanonicalUrl(pathname: string): string {
-  const appBasePath = window.location.hash.startsWith('#/')
-    ? window.location.pathname.replace(/\/index\.html$/, '').replace(/\/$/, '')
-    : '';
+  // This app intentionally uses HashRouter. Keep the route in the canonical
+  // URL's hash so metadata never advertises a clean path that the server would
+  // serve as the homepage instead of the requested client-side route.
   const routePath = pathname === '/' ? '/' : pathname;
-  const url = new URL(`${appBasePath}${routePath}`, window.location.origin);
+  const url = new URL(window.location.href);
   url.search = '';
-  url.hash = '';
+  url.hash = `#${routePath}`;
   return url.toString();
 }
 

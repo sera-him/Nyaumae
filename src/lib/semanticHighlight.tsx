@@ -420,7 +420,7 @@ let ALL_KEYS = Object.keys(COLOR_MAP).sort((a, b) => b.length - a.length);
 
 function isDelimiter(ch: string): boolean {
   if (!ch) return true;
-  return /[\s\n\r\t，。！？、；：""''（）【】《》\-_\+\=\*\/\&\%\$\#\@\!\~\`\|\{\}\[\]\;\:\,\.\?\!\<\>\^\'\"]/.test(ch) || /^\d$/.test(ch);
+  return /[\s\p{P}\p{S}\d]/u.test(ch);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -706,9 +706,11 @@ export function cowCatHighlight(text: string): React.ReactNode[] {
     if (matched) continue;
 
     // Emoji 保留
-    if (/[🐮🐱🐴🐄🐃]/.test(text[i])) {
-      parts.push(<span key={key++}>{text[i]}</span>);
-      i++;
+    const codePoint = text.codePointAt(i);
+    const character = codePoint === undefined ? text[i] : String.fromCodePoint(codePoint);
+    if (/[\u{1F42E}\u{1F431}\u{1F434}\u{1F404}\u{1F403}]/u.test(character)) {
+      parts.push(<span key={key++}>{character}</span>);
+      i += character.length;
       continue;
     }
 

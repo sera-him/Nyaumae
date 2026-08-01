@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface LazyCollapsibleSectionProps {
@@ -41,12 +41,7 @@ export default function LazyCollapsibleSection({
   expandMatchIds,
 }: LazyCollapsibleSectionProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const hasBeenExpanded = useRef(defaultExpanded);
-
-  // Mark as expanded on first click
-  if (expanded) {
-    hasBeenExpanded.current = true;
-  }
+  const [hasBeenExpanded, setHasBeenExpanded] = useState(defaultExpanded);
 
   // Listen for navigation expand events
   useEffect(() => {
@@ -58,6 +53,7 @@ export default function LazyCollapsibleSection({
       const matchIds = [id, ...(expandMatchIds ?? [])];
       if (matchIds.includes(targetId)) {
         setExpanded(true);
+        setHasBeenExpanded(true);
       }
     };
 
@@ -72,7 +68,11 @@ export default function LazyCollapsibleSection({
     >
       {/* Clickable header — always visible */}
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={() => {
+          const nextExpanded = !expanded;
+          setExpanded(nextExpanded);
+          if (nextExpanded) setHasBeenExpanded(true);
+        }}
         className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-[#1A1025]/50 transition-colors group"
         aria-expanded={expanded}
       >
@@ -93,7 +93,7 @@ export default function LazyCollapsibleSection({
       </button>
 
       {/* Expandable content area — once expanded, keep mounted */}
-      {hasBeenExpanded.current && (
+      {hasBeenExpanded && (
         <div
           className="border-t border-[#8B5CF6]/10"
           style={{ display: expanded ? '' : 'none' }}

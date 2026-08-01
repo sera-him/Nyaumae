@@ -151,8 +151,9 @@ export default function Portal() {
             <h1><span>NEURAL</span><span>CONNECTION</span></h1>
             <p className="portal-lead">一个由意识编织的<br />数字宇宙</p>
             <div className="portal-actions">
-              <Link className="portal-secondary" to="/characters">探索角色 <span>↗</span></Link>
-              <Link className="portal-primary" to="/stories">阅读故事 →</Link><Link className="portal-tertiary" to="/playground">进入游戏 →</Link>
+              <Link className="portal-primary" to="/stories">阅读故事 <span aria-hidden="true">→</span></Link>
+              <Link className="portal-secondary" to="/characters">探索角色 <span aria-hidden="true">↗</span></Link>
+              <Link className="portal-tertiary" to="/playground">进入游戏 <span aria-hidden="true">→</span></Link>
             </div>
           </div>
           <aside className="portal-miia">
@@ -198,7 +199,7 @@ export default function Portal() {
             aria-roledescription="幻灯片"
             aria-label={`第 ${slide + 1} 张，共 ${slides.length} 张：${slides[slide].title}`}
           >
-            <img key={slides[slide].src} src={slides[slide].src} alt={slides[slide].alt} />
+            <img key={slides[slide].src} src={slides[slide].src} alt={slides[slide].alt} loading="lazy" decoding="async" />
             <div className="portal-carousel-shade" />
             <div className="portal-caption" aria-live="polite"><p>VISUAL ARCHIVE {String(slide + 1).padStart(2, '0')}</p><h3>{slides[slide].title}</h3><div className="portal-slide-meta"><span>{slideMetadata[slide].location}</span><span>{slideMetadata[slide].time}</span><span>{slideMetadata[slide].region}</span></div></div>
             <div className="portal-count"><strong>{String(slide + 1).padStart(2, '0')}</strong><span>/ 06</span></div>

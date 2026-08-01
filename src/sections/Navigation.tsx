@@ -130,7 +130,10 @@ export default function Navigation({ onSearchClick }: NavigationProps) {
   };
 
   useEffect(() => {
-    if (menuOpen) closeMenu();
+    const closeFrame = window.requestAnimationFrame(() => {
+      if (menuOpen) closeMenu();
+    });
+    return () => window.cancelAnimationFrame(closeFrame);
     // The route effect intentionally only reacts to navigation changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname, location.search]);
@@ -225,7 +228,7 @@ export default function Navigation({ onSearchClick }: NavigationProps) {
       <AnimatePresence>
         {menuOpen && (
           <motion.div id="aurora-navigation-panel" className="aurora-menu-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .18 }} onClick={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
-            <motion.div ref={menuPanelRef} role="dialog" aria-modal="true" aria-label="All navigation" className="aurora-menu-shell" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .28, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.div ref={menuPanelRef} role="dialog" aria-modal="true" aria-label="全站目录" className="aurora-menu-shell" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .28, ease: [0.22, 1, 0.36, 1] }}>
               <div className="aurora-menu-heading">
                 <div><span>NEURAL DIRECTORY / {directoryEntryCount} ENTRIES</span><h2>选择一条<span>神经路径</span></h2></div>
                 <p>导航层级 = URL 层级。每一层都对应唯一的 URL 路径。</p>
