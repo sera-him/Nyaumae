@@ -65,16 +65,14 @@ export function useAnimatedCounter(target: number, durationMs: number, active = 
       }
     };
 
-    if (reducedMotion.matches) {
-      setValue(target);
-    } else {
-      setValue(0);
-      start();
-    }
+    const initialValue = reducedMotion.matches ? target : 0;
+    const initialTimer = window.setTimeout(() => setValue(initialValue), 0);
+    if (!reducedMotion.matches) start();
     document.addEventListener('visibilitychange', handleVisibility);
     reducedMotion.addEventListener('change', handleMotionPreference);
 
     return () => {
+      window.clearTimeout(initialTimer);
       cancelAnimationFrame(rafRef.current);
       document.removeEventListener('visibilitychange', handleVisibility);
       reducedMotion.removeEventListener('change', handleMotionPreference);

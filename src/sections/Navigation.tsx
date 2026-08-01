@@ -168,8 +168,6 @@ export default function Navigation({ onSearchClick }: NavigationProps) {
       window.cancelAnimationFrame(focusFrame);
       document.removeEventListener('keydown', onKeyDown);
     };
-    // closeMenu is intentionally stable enough for this open-state effect.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [menuOpen]);
 
   useEffect(() => {
