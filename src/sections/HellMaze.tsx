@@ -189,11 +189,11 @@ export default function HellMaze() {
     }
     const id = setInterval(() => setElapsed(Date.now() - startTimeRef.current), 200);
     return () => clearInterval(id);
-  }, [state?.won, state?.surrendered]);
+  }, [state, state?.won, state?.surrendered]);
 
   const surrender = useCallback(() => {
-    if (state) { state.surrendered = true; setState({ ...state }); }
-  }, [state]);
+    setState((current) => current ? { ...current, surrendered: true } : current);
+  }, []);
 
   if (!state) {
     return (
