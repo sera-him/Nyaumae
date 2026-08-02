@@ -219,6 +219,7 @@
   background:rgba(8,7,16,.74);
   box-shadow:0 0 28px rgba(102,233,218,.13)
 }
+.portal-arrow:active{transform:translateY(-50%)}
 .portal-carousel-status{
   position:absolute!important;
   width:1px!important;
