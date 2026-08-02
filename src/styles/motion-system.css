@@ -108,6 +108,44 @@ html[data-motion-page='hidden'] *::after,
   transition-duration: var(--motion-duration-instant);
 }
 
+/* Click feedback is rendered in a fixed layer so it never replaces a
+   component's own transform, shadow, or state animation. */
+.motion-click-ripple {
+  position: fixed;
+  z-index: 2147483646;
+  pointer-events: none;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: radial-gradient(circle, currentColor 0 8%, transparent 68%);
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0) scale(0.22);
+  animation: motion-click-ripple var(--motion-duration-scene) var(--motion-ease-enter) both;
+  will-change: transform, opacity;
+}
+
+@keyframes motion-click-ripple {
+  0% {
+    opacity: 0.3;
+    transform: translate3d(-50%, -50%, 0) scale(0.22);
+  }
+
+  54% {
+    opacity: 0.16;
+    transform: translate3d(-50%, -50%, 0) scale(0.92);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(-50%, -50%, 0) scale(1.55);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-click-ripple {
+    display: none;
+  }
+}
+
 .motion-signal-card::before {
   content: '';
   position: absolute;
@@ -959,7 +997,6 @@ html[data-motion-page='hidden'] *::after,
 .portal-miia,
 .portal-overview,
 .portal-actions a,
-.portal-arrow,
 .portal-thumbs button,
 .portal-entry-title > svg,
 .portal-entry-link > span:last-child {
@@ -986,17 +1023,37 @@ html[data-motion-page='hidden'] *::after,
 }
 
 .portal-actions a:hover,
-.portal-actions a:focus-visible,
-.portal-arrow:hover,
-.portal-arrow:focus-visible {
+.portal-actions a:focus-visible {
   transform: translate3d(0, -2px, 0);
 }
 
 .portal-actions a:active,
-.portal-arrow:active,
 .portal-thumbs button:active,
 .portal-entry:active {
   transform: scale(var(--motion-press-scale));
+}
+
+/* Keep the carousel control's circle fixed in place; only its arrow responds. */
+.portal-arrow > svg {
+  transition: transform var(--motion-duration-base) var(--motion-ease-enter);
+}
+
+.portal-prev:hover > svg,
+.portal-prev:focus-visible > svg {
+  transform: translate3d(-3px, 0, 0);
+}
+
+.portal-next:hover > svg,
+.portal-next:focus-visible > svg {
+  transform: translate3d(3px, 0, 0);
+}
+
+.portal-prev:active > svg {
+  transform: translate3d(-3px, 0, 0) scale(0.9);
+}
+
+.portal-next:active > svg {
+  transform: translate3d(3px, 0, 0) scale(0.9);
 }
 
 .portal-entry:hover .portal-entry-title > svg,
@@ -1545,7 +1602,6 @@ html[data-motion-page='hidden'] *::after,
 @media (hover: none), (pointer: coarse) {
   .portal-miia:hover,
   .portal-actions a:hover,
-  .portal-arrow:hover,
   .portal-entry:hover .portal-entry-title > svg,
   .future-rate-chip:hover,
   .future-method-item:hover,
@@ -1565,6 +1621,11 @@ html[data-motion-page='hidden'] *::after,
     transform: none;
   }
 
+  .portal-prev:hover > svg,
+  .portal-next:hover > svg {
+    transform: none;
+  }
+
   .portal-overview:hover > img,
   .future-story-card:hover .future-story-image img,
   .miia-dream-image:hover img {
@@ -1576,8 +1637,12 @@ html[data-motion-page='hidden'] *::after,
   .portal-miia:hover,
   .portal-actions a:hover,
   .portal-actions a:focus-visible,
-  .portal-arrow:hover,
-  .portal-arrow:focus-visible,
+  .portal-prev:hover > svg,
+  .portal-prev:focus-visible > svg,
+  .portal-next:hover > svg,
+  .portal-next:focus-visible > svg,
+  .portal-prev:active > svg,
+  .portal-next:active > svg,
   .portal-entry:hover .portal-entry-title > svg,
   .portal-entry:focus-visible .portal-entry-title > svg,
   .portal-entry:hover .portal-entry-link > span:last-child,
