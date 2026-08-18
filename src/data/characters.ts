@@ -1,9 +1,11 @@
+import { calculateFsiii } from '../lib/fsiii.ts';
+
 export interface Character {
   id: string;
   name: string;
   pinyin?: string;
   alias: string;
-  birthYear: number;
+  birthYear: number | null;
   birthday?: string;
   age: number;
   group: 'mia' | 'zhihua' | 'impact' | 'delan' | 'giant' | 'other';
@@ -16,13 +18,14 @@ export interface Character {
   /** 年龄或出生年由正文线索推定，而非精确设定。 */
   approximateAge?: boolean;
   profile?: Array<{ label: string; value: string }>;
+  fsiq?: number;
   fsiii?: number;
   color: string;
 }
 
 const charactersInSourceOrder: Character[] = [
   {
-    id: 'high-school-student', name: '陈予安', alias: 'high school student', birthYear: 2009, age: 17,
+    id: 'high-school-student', name: '陈予安', alias: 'high school student', birthYear: 2009, age: 17, fsiq: 125, fsiii: calculateFsiii(125),
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '来自现实世界的高中生',
     bio: '来自现实世界的高中生，只是出现在《大人国的小女孩》的故事中，并不来自大人国。谨慎、安静，遇到异常事件时仍会尽力帮助别人。',
     profile: [
@@ -33,35 +36,35 @@ const charactersInSourceOrder: Character[] = [
     color: 'from-slate-400 to-blue-500',
   },
   {
-    id: 'linmo', name: '苏珞', alias: 'linmo', birthYear: 2010, age: 16,
+    id: 'linmo', name: '苏珞', alias: 'linmo', birthYear: 2015, age: 11, fsiq: 112, fsiii: calculateFsiii(112),
     group: 'other', groupLabel: '其他', title: '黑发少年',
     bio: '背着书包的安静少年，观察细致，习惯把复杂的情绪藏在平静的目光之后。',
-    profile: [{ label: '身份', value: '学生' }, { label: '阵营', value: '其他' }],
+    profile: [{ label: '现实年龄', value: '11 岁' }, { label: '身份', value: '学生' }, { label: '阵营', value: '其他' }],
     color: 'from-slate-500 to-zinc-700',
   },
   {
-    id: 'gpt', name: 'GPT', alias: 'gpt', birthYear: 2026, age: 0,
+    id: 'gpt', name: 'GPT', alias: 'gpt', birthYear: 2026, age: 0, fsiq: 140, fsiii: calculateFsiii(140),
     group: 'other', groupLabel: '其他', title: '白发 AI 意识体',
     bio: '以白发少女形象出现的 AI 意识体，擅长整理知识、拆解问题，并把复杂目标转译成可执行的下一步。',
     profile: [{ label: '身份', value: 'AI' }, { label: '阵营', value: '其他' }],
     color: 'from-white to-cyan-400',
   },
   {
-    id: 'wangshu', name: '小芽', alias: 'wangshu', birthYear: 2018, age: 8,
+    id: 'wangshu', name: '小芽', alias: 'wangshu', birthYear: 2018, age: 8, fsiq: 115, fsiii: calculateFsiii(115),
     group: 'other', groupLabel: '其他', title: '二年级小小探索家',
     bio: '喜欢和 AI 一起学习的二年级学生，总把新奇的问题写进自己的小本子里。',
     profile: [{ label: '年级', value: '小学二年级' }, { label: '阵营', value: '其他' }],
     color: 'from-violet-400 to-pink-400',
   },
   {
-    id: 'neon', name: '霓虹', alias: 'neon', birthYear: 2002, age: 24,
+    id: 'neon', name: '霓虹', alias: 'neon', birthYear: null, age: 24, fsiq: 120, fsiii: calculateFsiii(120),
     group: 'other', groupLabel: '其他', title: '赛博朋克游侠',
     bio: '穿行于霓虹都市的赛博朋克游侠，擅长情报追踪与近身防御，行动目标始终保持神秘。',
     profile: [{ label: '身份', value: '赛博朋克游侠' }, { label: '阵营', value: '其他' }],
     color: 'from-red-500 to-fuchsia-500',
   },
   {
-    id: 'changfeng', name: '长风', alias: 'changfeng', birthYear: 1991, giantBirthYear: 134, age: 35,
+    id: 'changfeng', name: '长风', alias: 'changfeng', birthYear: 1991, giantBirthYear: 134, age: 35, fsiq: 110, fsiii: calculateFsiii(110),
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '爸比 · 巨人国居民',
     bio: '小满和小谷的父亲，初夏的丈夫。体型高挑修长，按照统一尺度换算后属于偏瘦但健康的成年男性。',
     profile: [
@@ -75,7 +78,7 @@ const charactersInSourceOrder: Character[] = [
     color: 'from-sky-500 to-indigo-500',
   },
   {
-    id: 'chuxia', name: '初夏', alias: 'chuxia', birthYear: 1993, giantBirthYear: 136, age: 33,
+    id: 'chuxia', name: '初夏', alias: 'chuxia', birthYear: 1993, giantBirthYear: 136, age: 33, fsiq: 110, fsiii: calculateFsiii(110),
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '妈妈 · 巨人国居民',
     bio: '小满和小谷的母亲，长风的妻子。体型纤细；在小满关于家乡的记忆里，她总会准备草莓吐司、热牛奶和切好的苹果。',
     profile: [
@@ -132,7 +135,7 @@ const charactersInSourceOrder: Character[] = [
     color: 'from-amber-300 to-orange-400',
   },
   {
-    id: 'miaowu', name: '喵呜', alias: 'miaowu', birthYear: 2018, giantBirthYear: 161, age: 8, approximateAge: true,
+    id: 'miaowu', name: '喵呜', alias: 'miaowu', birthYear: 2018, giantBirthYear: 161, age: 8, approximateAge: true, fsiq: 112, fsiii: calculateFsiii(112),
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '小满在普通世界遇见的第一个朋友',
     bio: '东海市二年级小学生，身高不到 1.3 米，有神经发育障碍，需要按时服药。说话直接、观察细致，不轻易以“正常”或“异常”评判别人；她接纳小满，也成为小满适应普通世界时最重要的朋友。',
     profile: [
@@ -144,7 +147,7 @@ const charactersInSourceOrder: Character[] = [
     color: 'from-violet-400 to-fuchsia-500',
   },
   {
-    id: 'xiulan', name: '秀兰奶奶', alias: 'xiulan', birthYear: 1969, giantBirthYear: 112, age: 57,
+    id: 'xiulan', name: '秀兰奶奶', alias: 'xiulan', birthYear: 1969, giantBirthYear: 112, age: 57, fsiq: 108, fsiii: calculateFsiii(108),
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '周济的母亲 · 黄豆的主人',
     bio: '住在东海市幸福小区的老人，务实、泼辣又热心。她给小满找来窗帘、床单和夏凉被，又架起大锅做饭；面对儿子周济的破产与自责，她用一盘蛋炒饭和朴素的话把他重新拉回生活。',
     profile: [
@@ -156,7 +159,7 @@ const charactersInSourceOrder: Character[] = [
     color: 'from-orange-400 to-rose-500',
   },
   {
-    id: 'zhouji', name: '周济', alias: 'zhouji', birthYear: 1994, giantBirthYear: 137, age: 32,
+    id: 'zhouji', name: '周济', alias: 'zhouji', birthYear: 1994, giantBirthYear: 137, age: 32, fsiq: 128, fsiii: calculateFsiii(128),
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '绿芯半导体驱动工程师',
     bio: '在绿芯半导体担任了六年显卡底层驱动工程师，参与支撑 AI 对齐基础设施。公司事故令他的积蓄与期权几乎归零，也使他陷入强烈自责；母亲秀兰和小满的经历让他重新尝试面对问题。',
     profile: [
@@ -168,7 +171,7 @@ const charactersInSourceOrder: Character[] = [
     color: 'from-emerald-400 to-cyan-500',
   },
   {
-    id: 'delivery-rider', name: '外卖员', alias: 'delivery rider', birthYear: 1996, giantBirthYear: 139, age: 30, approximateAge: true,
+    id: 'delivery-rider', name: '外卖员', alias: 'delivery rider', birthYear: 1996, giantBirthYear: 139, age: 30, approximateAge: true, fsiq: 108, fsiii: calculateFsiii(108),
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '热心的东海外卖骑手',
     bio: '最初在路口目睹小满出现，随后主动拿出防水布和野餐垫，并多次骑车跑腿采购食材。他以前做过后厨，熟悉灶具、采购和处理食材，是临时互助小队里行动力很强的一员。正文没有公布他的姓名与精确年龄。',
     profile: [

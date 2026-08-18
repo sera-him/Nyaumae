@@ -5,6 +5,9 @@ declare module 'howler' {
       loop?: boolean;
       volume?: number;
       html5?: boolean;
+      onplay?: () => void;
+      onpause?: () => void;
+      onstop?: () => void;
       onend?: () => void;
       onloaderror?: () => void;
     });

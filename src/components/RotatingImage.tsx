@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { cn, p } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { imageHostMap } from '@/lib/imageHostMap';
 import { useMotionActivity } from '@/hooks/useMotionActivity';
+import ResponsiveImage, { CARD_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
 
 interface RotatingImageProps {
   localImages: string[];
@@ -47,21 +48,28 @@ export default function RotatingImage({
 
   if (localImages.length === 0) return null;
 
+  const next = (current + 1) % localImages.length;
+  const visibleIndexes = current === next ? [current] : [current, next];
+
   return (
     <div ref={containerRef} className={cn('relative overflow-hidden', containerClassName)} data-motion-loop>
-      {localImages.map((src, i) => {
-        const imgSrc = !remoteFirst || failedArr.has(i)
-          ? p(src)
-          : (imageHostMap[src] ?? p(src));
+      {visibleIndexes.map((i) => {
+        const src = localImages[i];
+        const fallbackSrc = remoteFirst && !failedArr.has(i) ? imageHostMap[src] : undefined;
         const isVisible = i === current && loaded.has(i);
         return (
-          <img
+          <ResponsiveImage
             key={`${i}-${failedArr.has(i) ? 'local' : 'cdn'}`}
-            src={imgSrc}
+            src={src}
+            fallbackSrc={fallbackSrc}
+            widths={CARD_IMAGE_WIDTHS}
+            sizes="(max-width: 640px) calc(100vw - 32px), 440px"
+            pictureClassName="absolute inset-0"
             alt={i === 0 ? alt : `${alt} (${i + 1})`}
             onLoad={() => handleLoad(i)}
             onError={() => handleError(i)}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+            loading="lazy"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
               isVisible ? 'opacity-100' : 'opacity-0'
             } ${className}`}
           />

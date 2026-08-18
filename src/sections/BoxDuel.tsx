@@ -56,6 +56,9 @@ export default function BoxDuel() {
   const inputRef = useRef<HTMLInputElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const blockRef = useRef(false);
+  const casesRef = useRef<Case[]>([]);
+  const openedCountRef = useRef(0);
+  const startedRoundRef = useRef<number | null>(null);
 
   const conIdx = roles[0] === 'contestant' ? 0 : 1;
   const capIdx = roles[0] === 'capitalist' ? 0 : 1;
@@ -69,52 +72,76 @@ export default function BoxDuel() {
     setLogs(l => [...l, { time, msg }]);
   }, []);
 
+  useEffect(() => {
+    casesRef.current = cases;
+    openedCountRef.current = openedCount;
+  }, [cases, openedCount]);
+
   useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' }); }, [logs]);
 
-  const getExpected = useCallback(() => {
-    const remaining = cases.filter(c => !c.opened);
-    return remaining.length ? remaining.reduce((s, c) => s + c.amount, 0) / remaining.length : 0;
-  }, [cases]);
+  useEffect(() => {
+    if (!modal?.showInput) return undefined;
+    const frame = window.requestAnimationFrame(() => inputRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [modal]);
 
-  const getNextStage = useCallback(() => {
-    for (let i = 0; i < OFFER_NODES.length; i++) if (OFFER_NODES[i] > openedCount) return { target: OFFER_NODES[i], roman: ROMAN[i] };
+  const getExpected = useCallback(() => {
+    const remaining = casesRef.current.filter(c => !c.opened);
+    return remaining.length ? remaining.reduce((s, c) => s + c.amount, 0) / remaining.length : 0;
+  }, []);
+
+  const getNextStage = useCallback((count = openedCount) => {
+    for (let i = 0; i < OFFER_NODES.length; i++) if (OFFER_NODES[i] > count) return { target: OFFER_NODES[i], roman: ROMAN[i] };
     return { target: 25, roman: '终' };
   }, [openedCount]);
 
-  const getStage = useCallback(() => {
-    const idx = OFFER_NODES.indexOf(openedCount);
+  const getStage = useCallback((count = openedCount) => {
+    const idx = OFFER_NODES.indexOf(count);
     return idx >= 0 ? ROMAN[idx] : null;
   }, [openedCount]);
 
   const startRound = useCallback(() => {
+    if (startedRoundRef.current === round) return;
+    startedRoundRef.current = round;
     const p1Con = round % 2 === 1;
-    setRoles(p1Con ? ['contestant', 'capitalist'] : ['capitalist', 'contestant']);
+    const nextRoles: [string, string] = p1Con ? ['contestant', 'capitalist'] : ['capitalist', 'contestant'];
+    const nextConIdx = nextRoles[0] === 'contestant' ? 0 : 1;
+    const nextCapIdx = nextRoles[0] === 'capitalist' ? 0 : 1;
+    const namesByPlayer: [string, string] = conIdx === 0 ? [conName, capName] : [capName, conName];
+    const roundConName = namesByPlayer[nextConIdx];
+    const roundCapName = namesByPlayer[nextCapIdx];
+    setRoles(nextRoles);
     const shuffled = shuffle(AMOUNTS);
     const newCases: Case[] = shuffled.map((amt, i) => ({ id: i + 1, amount: amt, opened: false, isPlayer: false }));
+    casesRef.current = newCases;
+    openedCountRef.current = 0;
     setCases(newCases);
     setPlayerCaseId(null);
     setOpenedCount(0);
     setEnergy(1);
     setOffer(0);
     blockRef.current = false;
-    setHint(`${conName}（参赛者）请选择你的幸运箱子`);
-    addLog(`第 ${round} 轮开始！${conName} 是参赛者，${capName} 是资本家。`);
+    setHint(`${roundConName}（参赛者）请选择你的幸运箱子`);
+    addLog(`第 ${round} 轮开始！${roundConName} 是参赛者，${roundCapName} 是资本家。`);
 
     setPhase('select');
-  }, [round, conName, capName, addLog]);
+  }, [round, conIdx, conName, capName, addLog]);
 
   function selectCase(id: number) {
     if (blockRef.current) return;
-    setCases(c => c.map(x => x.id === id ? { ...x, isPlayer: true } : x));
+    const newCases = casesRef.current.map(x => x.id === id ? { ...x, isPlayer: true } : x);
+    casesRef.current = newCases;
+    setCases(newCases);
     setPlayerCaseId(id);
-    const need = getNextStage();
-    setHint(`开始打开箱子！还需打开 ${need.target - openedCount} 个箱子进入 ${need.roman} 阶段`);
+    const currentOpenedCount = openedCountRef.current;
+    const need = getNextStage(currentOpenedCount);
+    setHint(`开始打开箱子！还需打开 ${need.target - currentOpenedCount} 个箱子进入 ${need.roman} 阶段`);
     addLog(`${conName} 选择了 ${id} 号箱子作为幸运箱。`);
     setPhase('opening');
   }
 
-  function aiSelectCase(cs: Case[]) {
-    const avail = cs.filter(c => !c.isPlayer);
+  function aiSelectCase() {
+    const avail = casesRef.current.filter(c => !c.isPlayer);
     const picked = pickRandom(avail);
     if (picked) selectCase(picked.id);
   }
@@ -124,18 +151,18 @@ export default function BoxDuel() {
       blockRef.current = true;
       const timer = window.setTimeout(() => {
         blockRef.current = false;
-        aiSelectCase(cases);
+        aiSelectCase();
       }, 800);
       return () => window.clearTimeout(timer);
     }
     return undefined;
     // The delayed AI action intentionally uses the current case snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, isConAI, cases]);
+  }, [phase, isConAI]);
 
   function aiOpenCase() {
     if (blockRef.current) return;
-    const avail = cases.filter(c => !c.opened && !c.isPlayer);
+    const avail = casesRef.current.filter(c => !c.opened && !c.isPlayer);
     if (avail.length === 0) return;
     const picked = pickRandom(avail);
     if (picked) openCase(picked.id);
@@ -151,21 +178,25 @@ export default function BoxDuel() {
     return () => window.clearTimeout(timer);
     // The delayed AI action intentionally uses the current case snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, isConAI, cases]);
+  }, [phase, isConAI]);
 
   function openCase(id: number) {
     if (blockRef.current) return;
-    const c = cases.find(x => x.id === id);
+    const currentCases = casesRef.current;
+    const currentOpenedCount = openedCountRef.current;
+    const c = currentCases.find(x => x.id === id);
     if (!c || c.opened || c.isPlayer) return;
 
-    const newCases = cases.map(x => x.id === id ? { ...x, opened: true } : x);
-    const newCount = openedCount + 1;
+    const newCases = currentCases.map(x => x.id === id ? { ...x, opened: true } : x);
+    const newCount = currentOpenedCount + 1;
+    casesRef.current = newCases;
+    openedCountRef.current = newCount;
     setCases(newCases);
     setOpenedCount(newCount);
     addLog(`打开 ${id} 号箱子：${fmt(c.amount)}`);
 
     if (OFFER_NODES.includes(newCount)) {
-      const stage = getStage();
+      const stage = getStage(newCount);
       addLog(`已打开 ${newCount} 个，进入第 ${stage} 阶段！资本家准备出价...`);
       setPhase('offer');
       blockRef.current = true;
@@ -174,7 +205,7 @@ export default function BoxDuel() {
       blockRef.current = true;
       setTimeout(() => resolveKeep(), 1200);
     } else {
-      const need = getNextStage();
+      const need = getNextStage(newCount);
       setHint(`还需打开 ${need.target - newCount} 个箱子进入 ${need.roman} 阶段`);
       if (isConAI) {
         blockRef.current = true;
@@ -286,7 +317,8 @@ export default function BoxDuel() {
 
   function aiDecide(o: number) {
     const expected = getExpected();
-    const remaining = cases.filter(c => !c.opened);
+    const remaining = casesRef.current.filter(c => !c.opened);
+    const currentOpenedCount = openedCountRef.current;
     const highCount = remaining.filter(c => c.amount > o).length;
     const lowCount = remaining.filter(c => c.amount < o).length;
 
@@ -295,7 +327,7 @@ export default function BoxDuel() {
     else if (o > expected * 0.95 && lowCount > highCount * 1.5) action = 'accept';
 
     if (action === 'reject' && energy > 0 && o < expected * 1.1 && randomUnit() < 0.35) action = 'negotiate';
-    if (openedCount >= 24 && o > expected * 0.75) action = 'accept';
+    if (currentOpenedCount >= 24 && o > expected * 0.75) action = 'accept';
 
     if (action === 'accept') {
       resolveDeal(o, 'accept');
@@ -311,8 +343,10 @@ export default function BoxDuel() {
 
   function aiCapDecide(newOffer: number) {
     const expected = getExpected();
-    const remaining = cases.filter(c => !c.opened);
-    const probHigh = remaining.filter(c => c.amount > newOffer).length / remaining.length;
+    const remaining = casesRef.current.filter(c => !c.opened);
+    const probHigh = remaining.length
+      ? remaining.filter(c => c.amount > newOffer).length / remaining.length
+      : 0;
 
     let accept = newOffer < expected * 1.1 && probHigh > 0.4;
     if (randomUnit() > 0.75) accept = !accept;
@@ -333,12 +367,13 @@ export default function BoxDuel() {
   }
 
   function continueOpening() {
-    if (openedCount >= 25) {
+    const currentOpenedCount = openedCountRef.current;
+    if (currentOpenedCount >= 25) {
       resolveKeep();
     } else {
       setPhase('opening');
-      const need = getNextStage();
-      setHint(`继续打开箱子！还需打开 ${need.target - openedCount} 个箱子进入 ${need.roman} 阶段`);
+      const need = getNextStage(currentOpenedCount);
+      setHint(`继续打开箱子！还需打开 ${need.target - currentOpenedCount} 个箱子进入 ${need.roman} 阶段`);
       if (isConAI) {
         blockRef.current = true;
         setTimeout(() => {
@@ -350,7 +385,7 @@ export default function BoxDuel() {
   }
 
   function resolveDeal(price: number, type: string) {
-    const actual = cases.find(c => c.id === playerCaseId)?.amount ?? 0;
+    const actual = casesRef.current.find(c => c.id === playerCaseId)?.amount ?? 0;
     const cGain = price;
     const capGain = actual - price;
     setScores(s => {
@@ -367,7 +402,7 @@ export default function BoxDuel() {
   }
 
   function resolveKeep() {
-    const actual = cases.find(c => c.id === playerCaseId)?.amount ?? 0;
+    const actual = casesRef.current.find(c => c.id === playerCaseId)?.amount ?? 0;
     setScores(s => {
       const ns = [...s] as [number, number];
       ns[conIdx] += actual;
@@ -381,7 +416,9 @@ export default function BoxDuel() {
   function endRound() {
     setPhase('end');
     blockRef.current = true;
-    setCases(c => c.map(x => x.opened || x.isPlayer ? x : { ...x, opened: true }));
+    const finalCases = casesRef.current.map(x => x.opened || x.isPlayer ? x : { ...x, opened: true });
+    casesRef.current = finalCases;
+    setCases(finalCases);
     setTimeout(() => {
       if (round < totalRounds) {
         setTransition(true);
@@ -404,9 +441,11 @@ export default function BoxDuel() {
 
   useEffect(() => {
     const isInitialStart = phase === 'select' && cases.length === 0;
-    const isNextRound = phase === 'end' && round > 1;
+    const isNextRound = phase === 'end' && round > 1 && startedRoundRef.current !== round;
     if (!isInitialStart && !isNextRound) return;
-    const timer = window.setTimeout(() => startRound(), 0);
+    const timer = window.setTimeout(() => {
+      if (startedRoundRef.current !== round) startRound();
+    }, 0);
     return () => window.clearTimeout(timer);
   }, [cases.length, phase, round, startRound]);
 
@@ -448,7 +487,19 @@ export default function BoxDuel() {
         </ul>
       </div>
       <div className="text-center">
-        <button onClick={() => { setPhase('select'); setRound(1); setLogs([]); setHistory([]); setScores([0, 0]); }} className="px-10 py-3 text-base font-bold rounded-xl transition-all" style={{ background: '#e9c46a', color: '#1a1a2e' }}>开始游戏</button>
+        <button onClick={() => {
+          casesRef.current = [];
+          openedCountRef.current = 0;
+          startedRoundRef.current = null;
+          setCases([]);
+          setOpenedCount(0);
+          setPlayerCaseId(null);
+          setPhase('select');
+          setRound(1);
+          setLogs([]);
+          setHistory([]);
+          setScores([0, 0]);
+        }} className="px-10 py-3 text-base font-bold rounded-xl transition-all" style={{ background: '#e9c46a', color: '#1a1a2e' }}>开始游戏</button>
       </div>
     </div>
   );
@@ -471,7 +522,18 @@ export default function BoxDuel() {
             <span>{playerTypes[0] === 'ai' ? 'AI 1' : '玩家 1'}: {fmt(s1)} &nbsp;|&nbsp; {playerTypes[1] === 'ai' ? 'AI 2' : '玩家 2'}: {fmt(s2)}</span>
           </div>
         </div>
-        <button onClick={() => { setPhase('setup'); setLogs([]); setHistory([]); setScores([0, 0]); }} className="mt-6 px-10 py-3 text-base font-bold rounded-xl transition-all" style={{ background: '#e9c46a', color: '#1a1a2e' }}>再来一局</button>
+        <button onClick={() => {
+          casesRef.current = [];
+          openedCountRef.current = 0;
+          startedRoundRef.current = null;
+          setCases([]);
+          setOpenedCount(0);
+          setPlayerCaseId(null);
+          setPhase('setup');
+          setLogs([]);
+          setHistory([]);
+          setScores([0, 0]);
+        }} className="mt-6 px-10 py-3 text-base font-bold rounded-xl transition-all" style={{ background: '#e9c46a', color: '#1a1a2e' }}>再来一局</button>
       </div>
     );
   }
@@ -578,14 +640,15 @@ export default function BoxDuel() {
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(6px)' }}>
-          <div className="rounded-2xl p-8 max-w-md w-[90%] text-center border-2" style={{ borderColor: '#e9c46a', background: 'linear-gradient(145deg, #12122a, #1a1a3e)', animation: 'slideIn 0.35s' }}>
-            <h2 className="text-xl font-bold mb-3" style={{ color: '#e9c46a' }}>{modal.title}</h2>
-            <p className="text-sm text-nc-text-secondary mb-3">{modal.desc}</p>
+          <div role="dialog" aria-modal="true" aria-labelledby="box-duel-modal-title" aria-describedby="box-duel-modal-description" className="rounded-2xl p-8 max-w-md w-[90%] text-center border-2" style={{ borderColor: '#e9c46a', background: 'linear-gradient(145deg, #12122a, #1a1a3e)', animation: 'slideIn 0.35s' }}>
+            <h2 id="box-duel-modal-title" className="text-xl font-bold mb-3" style={{ color: '#e9c46a' }}>{modal.title}</h2>
+            <p id="box-duel-modal-description" className="text-sm text-nc-text-secondary mb-3">{modal.desc}</p>
             {modal.amount && <div className={`text-4xl font-bold my-4 ${modal.amount?.startsWith('-') ? '' : ''}`} style={{ color: modal.amount?.startsWith('-') ? '#e74c3c' : '#2ecc71' }}>{modal.amount}</div>}
             {modal.showInput && (
               <div className="my-4">
-                <input ref={inputRef} type="number" placeholder={modal.inputPlaceholder || '输入金额'} min={0} step={100} className="w-full p-3 text-lg text-center font-bold rounded-xl border-2 bg-black/40 text-white" style={{ borderColor: '#e9c46a' }} />
-                {modal.inputHint && <p className="text-xs text-nc-text-muted mt-2">{modal.inputHint}</p>}
+                <label htmlFor="box-duel-offer-input" className="sr-only">{modal.inputPlaceholder || '输入金额'}</label>
+                <input id="box-duel-offer-input" ref={inputRef} type="number" aria-describedby={modal.inputHint ? 'box-duel-input-hint' : undefined} placeholder={modal.inputPlaceholder || '输入金额'} min={0} step={100} className="w-full p-3 text-lg text-center font-bold rounded-xl border-2 bg-black/40 text-white" style={{ borderColor: '#e9c46a' }} />
+                {modal.inputHint && <p id="box-duel-input-hint" className="text-xs text-nc-text-muted mt-2">{modal.inputHint}</p>}
               </div>
             )}
             {modal.showEnergy && (

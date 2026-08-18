@@ -13,6 +13,7 @@ import { BOARD_SIZE, POISON_IMMUNE } from '@/game/chess/types';
 import { getPiece } from '@/game/chess/board';
 import { canDecrypt, applyPoisonFilter, getNonCriticalVariety } from '@/game/chess/rules';
 import { CLOCK_PRESETS, CATEGORY_ORDER } from '@/game/chess/clockPresets';
+import { confirmAction } from '@/lib/confirmAction';
 
 function formatClock(ms: number): string {
   if (ms <= 0) return '0:00';
@@ -457,6 +458,16 @@ function ChessGameBoard() {
     return p.owner === 'white' ? p.type : p.type.toLowerCase();
   };
 
+  const boardStatusLabel = !gameStarted
+    ? '尚未开始'
+    : phase === 'playing'
+      ? `轮到${currentPlayer === 'white' ? '白方' : '黑方'}走子`
+      : phase === 'white_wins'
+        ? '白方获胜'
+        : phase === 'black_wins'
+          ? '黑方获胜'
+          : '和棋';
+
   const cellSize = 'min(calc((100vw - 48px) / 12), 44px)';
 
   return (
@@ -568,7 +579,9 @@ function ChessGameBoard() {
               撤销
             </button>
             <button
-              onClick={resetGame}
+              onClick={() => {
+                if (confirmAction({ title: '重新开始组合棋对局？', consequence: '当前棋盘、计时、历史步骤和技能状态都会清空。' })) resetGame();
+              }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-nc-bg-tertiary text-nc-text-secondary hover:text-rose-400 border border-nc-violet/10 hover:border-rose-400/20"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -748,6 +761,10 @@ function ChessGameBoard() {
         <div className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-3 sm:p-4 overflow-x-auto flex-shrink-0">
           <div className="flex justify-center">
             <div
+              role="grid"
+              aria-label={`复合象棋棋盘，${boardStatusLabel}`}
+              aria-rowcount={BOARD_SIZE}
+              aria-colcount={BOARD_SIZE}
               className="grid gap-0.5 bg-nc-violet/10 rounded-lg overflow-hidden"
               style={{
                 gridTemplateColumns: `repeat(${BOARD_SIZE}, ${cellSize})`,
@@ -786,11 +803,36 @@ function ChessGameBoard() {
               // 角标颜色：根据该格棋子的归属方
               const pieceOwner = piece?.owner;
               const triangleColor = pieceOwner === 'white' ? '#ffffff' : pieceOwner === 'black' ? '#111' : null;
+              const cellLabel = [
+                `第 ${row + 1} 行，第 ${col + 1} 列`,
+                piece ? `${piece.owner === 'white' ? '白方' : '黑方'} ${getPieceLabel(piece)} 棋子` : null,
+                isPoison ? '毒药' : null,
+                isCheese ? `奶酪 ${cell as string}` : null,
+                isSelected ? '已选中' : null,
+                isCapture ? '可吃子' : isLegal ? '可移动' : null,
+                isPushFrom ? '可推子' : null,
+                isPushTo ? '推子目标' : null,
+                isDeployTarget ? '可部署' : null,
+              ].filter(Boolean).join('，');
 
               return (
                 <div
                   key={key}
                   onClick={() => gameStarted && handleCellClick(row, col)}
+                  onKeyDown={(event) => {
+                    if (!gameStarted || event.repeat) return;
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleCellClick(row, col);
+                    }
+                  }}
+                  role="gridcell"
+                  tabIndex={gameStarted ? 0 : -1}
+                  aria-label={cellLabel}
+                  aria-rowindex={row + 1}
+                  aria-colindex={col + 1}
+                  aria-selected={isSelected}
+                  aria-disabled={!gameStarted || phase !== 'playing'}
                   className={`aspect-square flex items-center justify-center font-mono font-bold cursor-pointer transition-all relative select-none ${
                     isDark ? 'bg-[#1A1025]' : 'bg-[#251836]'
                   } ${

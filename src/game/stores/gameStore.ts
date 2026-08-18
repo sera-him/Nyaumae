@@ -12,6 +12,7 @@ import type {
 import { STARTING_WEAPONS } from "../data";
 import { lAdd, lMulScalar, lGte } from "../math";
 import type { LValue } from "../math";
+import { readJsonStorage, readStorageValue, writeJsonStorage, writeStorageValue } from "@/lib/browserStorage";
 
 // ============================================================
 // Save/Load helpers
@@ -115,7 +116,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
     let key = "";
     for (let i = 0; i < 6; i++) key += chars[Math.floor(Math.random() * chars.length)];
-    localStorage.setItem("nc_stellar_active_key", key);
+    writeStorageValue("nc_stellar_active_key", key);
     set({ saveKey: key });
     return key;
   },
@@ -322,23 +323,28 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     if (!s.saveKey) return;
     const data = packSave(s);
     data.checksum = hash(JSON.stringify(data) + SALT);
-    localStorage.setItem(`nc_save_${s.saveKey}`, JSON.stringify(data));
+    writeJsonStorage(`nc_save_${s.saveKey}`, data);
   },
   loadGame: (key) => {
-    const raw = localStorage.getItem(`nc_save_${key}`);
-    if (!raw) return { success: false, error: "No save found" };
+    const stored = readJsonStorage<GameSaveData | null>(`nc_save_${key}`, null);
+    if (!stored.value) {
+      return {
+        success: false,
+        error: stored.status === 'corrupt' ? "存档数据已损坏，未载入任何进度。" : "未找到这个存档。",
+      };
+    }
 
     try {
-      const data: GameSaveData = JSON.parse(raw);
+      const data = stored.value;
       const now = Date.now();
 
       if (now < data.lastSaveTime) {
-        return { success: false, error: "Time reverse detected. Cannot load." };
+        return { success: false, error: "检测到设备时间早于存档时间，为避免异常收益，本次未载入。" };
       }
 
       const check = hash(JSON.stringify({ ...data, checksum: "" }) + SALT);
       if (check !== data.checksum) {
-        return { success: false, error: "Save data corrupted." };
+        return { success: false, error: "存档校验失败，数据可能已损坏或被修改。" };
       }
 
       const offlineSec = Math.floor((now - data.lastSaveTime) / 1000);
@@ -357,15 +363,15 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         quickBar: data.quickBar,
         runeInventory: data.runeInventory,
       });
-      localStorage.setItem("nc_stellar_active_key", key);
+      writeStorageValue("nc_stellar_active_key", key);
 
       return { success: true, offlineIncome: income.b > 0 ? income : undefined };
     } catch {
-      return { success: false, error: "Invalid save data" };
+      return { success: false, error: "存档格式无效，未载入任何进度。" };
     }
   },
   hasSave: (key) => {
-    return !!localStorage.getItem(`nc_save_${key}`);
+    return readStorageValue(`nc_save_${key}`).value !== null;
   },
   calculateOfflineIncome: (seconds) => {
     const s = get();

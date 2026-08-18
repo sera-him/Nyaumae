@@ -1,8 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, User, BookOpen, Sparkles, Settings, Swords, BookMarked, BarChart3, Loader2 } from 'lucide-react';
+import { Search, X, User, BookOpen, Sparkles, Settings, Swords, BookMarked, BarChart3, ArrowUpRight, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { getPopularWords, getRelatedWords, loadWordFrequency, type WordFreq } from '@/data/wordFrequency';
+import PageState from '@/components/PageState';
+import { getPopularWords, getRelatedWords, type WordFreq } from '@/data/wordFrequency';
+import { loadSearchData } from '@/lib/searchDataLoader';
+import { recordSearch } from '@/lib/analytics';
+import { useSearchSession } from '@/hooks/useSearchSession';
 
 interface FullSearchItem {
   id: string;
@@ -85,7 +89,7 @@ function resolveRoute(item: FullSearchItem): string {
     const target = href.replace('#', '');
     const pageMap: Record<string, string> = {
       'hero': '/', 'footer': '/', 'worldview': '/world/overview',
-      'characters': '/characters/all', 'extra-characters': '/characters', 'character-network': '/characters',
+      'characters': '/characters', 'extra-characters': '/characters?group=other', 'character-network': '/characters',
       'stories': '/stories', 'extra-stories': '/miia/world', 'miia-world': '/miia/world',
       'miia-math-notes': '/miia/math', 'organizations': '/world/organizations',
       'prime-focus': '/world/prime-focus', 'world-settings': '/world/settings',
@@ -101,7 +105,7 @@ function resolveRoute(item: FullSearchItem): string {
   const anchor = href.replace('#', '');
   const anchorMap: Record<string, string> = {
     'hero': '/', 'footer': '/', 'worldview': '/world/overview',
-    'characters': '/characters/all', 'extra-characters': '/characters', 'character-network': '/characters',
+    'characters': '/characters', 'extra-characters': '/characters?group=other', 'character-network': '/characters',
     'stories': '/stories', 'extra-stories': '/miia/world', 'miia-world': '/miia/world',
     'miia-math-notes': '/miia/math', 'organizations': '/world/organizations',
     'prime-focus': '/world/prime-focus', 'world-settings': '/world/settings',
@@ -125,13 +129,15 @@ function resolveRoute(item: FullSearchItem): string {
 }
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
-  const [query, setQuery] = useState('');
+  const { query, setQuery, setSearchState } = useSearchSession();
   const [results, setResults] = useState<{ item: FullSearchItem; score: number }[]>([]);
   const [popularWords, setPopularWords] = useState<WordFreq[]>([]);
   const [isIndexReady, setIsIndexReady] = useState(false);
   const [searchedQuery, setSearchedQuery] = useState('');
   const [searchLoadError, setSearchLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   const navigate = useNavigate();
   const trimmedQuery = query.trim();
   const isIndexLoading = isOpen && !isIndexReady && !searchLoadError;
@@ -139,72 +145,78 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-      setTimeout(() => {
-        setQuery('');
-        setResults([]);
-        setSearchedQuery('');
-        setSearchLoadError(false);
-      }, 0);
+      const activeElement = document.activeElement;
+      returnFocusRef.current = activeElement instanceof HTMLElement && activeElement !== document.body
+        ? activeElement
+        : null;
+      const focusTimer = window.setTimeout(() => inputRef.current?.focus(), 100);
+      return () => {
+        window.clearTimeout(focusTimer);
+      };
     }
+    const trigger = returnFocusRef.current;
+    returnFocusRef.current = null;
+    if (trigger?.isConnected) {
+      const frame = window.requestAnimationFrame(() => trigger.focus());
+      return () => window.cancelAnimationFrame(frame);
+    }
+    return undefined;
   }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
-    void loadWordFrequency().then(() => {
+    void loadSearchData().then(() => {
       if (!cancelled) {
         setPopularWords(getPopularWords(18));
         setIsIndexReady(true);
+        setSearchLoadError(false);
       }
     }).catch(() => {
       if (!cancelled) {
         setPopularWords([]);
         setSearchLoadError(true);
+        setSearchState({ status: 'error', resultCount: null });
       }
     });
     return () => { cancelled = true; };
-  }, [isOpen]);
+  }, [isOpen, loadAttempt, setSearchState]);
 
   useEffect(() => {
     let cancelled = false;
     const timer = setTimeout(async () => {
-      if (!isOpen) {
-        if (!cancelled) {
-          setResults([]);
-          setSearchedQuery('');
-        }
-        return;
-      }
+      if (!isOpen) return;
       if (!trimmedQuery) {
         setResults([]);
         setSearchedQuery('');
         setSearchLoadError(false);
+        setSearchState({ status: 'idle', resultCount: 0 });
         return;
       }
-      const searchQuery = query.toLowerCase().trim() === 'sera-him' ? query + ' Nyaumæ' : query;
+      setSearchState({ status: 'loading', resultCount: null });
+      const searchQuery = query.toLowerCase().trim() === 'sera-him' ? query + ' nyaumæ' : query;
       try {
-        const [{ fullTextSearch }] = await Promise.all([
-          import('@/data/fullSearchIndex'),
-          loadWordFrequency(),
-        ]);
+        const { fullTextSearch } = await loadSearchData();
         if (!cancelled) {
           setPopularWords(getPopularWords(18));
           const r = fullTextSearch(searchQuery);
           setResults(r);
           setSearchedQuery(trimmedQuery);
+          recordSearch(trimmedQuery, r.length);
           setSearchLoadError(false);
+          setSearchState({ status: 'success', resultCount: r.length });
         }
       } catch {
         if (!cancelled) {
           setResults([]);
           setSearchedQuery(trimmedQuery);
           setSearchLoadError(true);
+          setSearchState({ status: 'error', resultCount: null });
         }
       }
     }, trimmedQuery ? 80 : 0);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [isOpen, query, trimmedQuery]);
+  }, [isOpen, query, setSearchState, trimmedQuery]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -223,6 +235,13 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const route = resolveRoute(item);
     navigate(route);
   }, [onClose, navigate]);
+
+  const openFullSearch = useCallback(() => {
+    const params = new URLSearchParams();
+    if (trimmedQuery) params.set('q', query);
+    onClose();
+    navigate({ pathname: '/codex', search: params.toString() ? `?${params.toString()}` : '' });
+  }, [navigate, onClose, query, trimmedQuery]);
 
   const getScoreLabel = (score: number): string => {
     if (score >= 1400) return '完全匹配';
@@ -251,10 +270,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.22 }}
             onClick={(e) => e.stopPropagation()}
             className="site-search-panel w-[calc(100%-1.5rem)] sm:w-full sm:max-w-xl mx-3 sm:mx-0 bg-nc-bg-secondary border border-nc-violet/20 rounded-xl shadow-2xl shadow-black/50 overflow-hidden"
           >
+            <div className="site-search-mode-label"><span>快捷搜索</span><small>快速定位并打开结果</small></div>
             <div className="flex items-center gap-3 px-4 py-3 border-b border-nc-violet/10">
               <Search className="site-search-input-icon w-5 h-5 text-nc-text-muted shrink-0" />
               <input
@@ -268,28 +288,32 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[11px] font-mono bg-nc-bg-tertiary border border-nc-violet/20 rounded text-nc-text-muted">
                 ESC
               </kbd>
-              <button onClick={onClose} className="site-search-close p-1 hover:text-nc-text text-nc-text-muted" aria-label="关闭搜索">
+              <button type="button" data-action="close" onClick={onClose} className="site-search-close p-1 hover:text-nc-text text-nc-text-muted" aria-label="关闭快捷搜索">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="max-h-[60vh] overflow-y-auto">
               {isIndexLoading || isSearchLoading ? (
-                <div className="py-8 text-center" role="status" aria-live="polite">
-                  <Loader2 className="w-8 h-8 text-nc-cyan mx-auto mb-2 animate-spin" />
-                  <p className="text-sm text-nc-text-muted">搜索内容加载中...</p>
-                </div>
+                <PageState kind="loading" title="正在加载搜索内容" description="索引准备好后会自动显示结果。" compact />
               ) : searchLoadError ? (
-                <div className="py-8 text-center" role="alert">
-                  <Search className="w-8 h-8 text-nc-rose mx-auto mb-2 opacity-60" />
-                  <p className="text-sm text-nc-text-muted">搜索内容加载失败，请稍后重试</p>
-                </div>
+                <PageState
+                  kind={typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error'}
+                  title={typeof navigator !== 'undefined' && !navigator.onLine ? '离线时无法加载搜索索引' : '搜索内容加载失败'}
+                  description="请检查网络连接，或稍后重新打开搜索。"
+                  actions={<button type="button" data-action="retry" onClick={() => {
+                    setSearchLoadError(false);
+                    setIsIndexReady(false);
+                    setLoadAttempt((attempt) => attempt + 1);
+                  }}><RotateCcw />重新加载</button>}
+                  compact
+                />
               ) : results.length > 0 ? (
                 <div className="py-2">
                   {query.toLowerCase().trim() === 'sera-him' && (
                     <div className="mx-4 mb-2 px-3 py-2 rounded-lg bg-nc-rose/10 border border-nc-rose/20 text-xs">
                       <span className="text-nc-rose font-medium">发现彩蛋！</span>
-                      <span className="text-nc-text-secondary ml-1">sera-him → Nyaumæ</span>
+                      <span className="text-nc-text-secondary ml-1">sera-him → nyaumæ</span>
                     </div>
                   )}
                   {(() => {
@@ -346,11 +370,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   })}
                 </div>
               ) : query.trim() ? (
-                <div className="py-8 text-center">
-                  <Search className="w-8 h-8 text-nc-text-muted mx-auto mb-2 opacity-30" />
-                  <p className="text-sm text-nc-text-muted">未找到 &quot;{query}&quot; 的相关结果</p>
-                  <p className="text-xs text-nc-text-muted mt-1">尝试简化关键词或使用英文</p>
-                </div>
+                <PageState kind="empty" title={`未找到“${query}”`} description="尝试简化关键词，或换一个名称搜索。" compact />
               ) : (
                 <div className="py-6 px-4">
                   <p className="text-xs text-nc-text-muted mb-3">全站高频词 · 随内容更新</p>
@@ -368,6 +388,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   </div>
                 </div>
               )}
+            </div>
+            <div className="site-search-full-page">
+              <div><strong>完整搜索页面</strong><span>适合筛选、分享，刷新后仍可继续。</span></div>
+              <button type="button" onClick={openFullSearch}>打开完整搜索页<ArrowUpRight /></button>
             </div>
           </motion.div>
         </motion.div>

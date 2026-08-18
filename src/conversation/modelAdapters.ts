@@ -81,6 +81,42 @@ function messageForCode(code: ModelErrorCode, fallback: string): string {
   return messages[code] ?? fallback;
 }
 
+function runWithDeadline<T>(
+  operation: Promise<T>,
+  timeoutMs: number,
+  signal?: AbortSignal,
+  interrupt?: () => void | Promise<void>,
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    let settled = false;
+    const finish = (callback: () => void) => {
+      if (settled) return;
+      settled = true;
+      globalThis.clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
+      callback();
+    };
+    const onAbort = () => {
+      void interrupt?.();
+      finish(() => reject(new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'))));
+    };
+    const timer = globalThis.setTimeout(() => {
+      void interrupt?.();
+      finish(() => reject(new ModelAdapterError('timeout', messageForCode('timeout', 'Request timed out.'))));
+    }, Math.max(1_000, timeoutMs));
+
+    if (signal?.aborted) {
+      onAbort();
+      return;
+    }
+    signal?.addEventListener('abort', onAbort, { once: true });
+    operation.then(
+      (value) => finish(() => resolve(value)),
+      (error) => finish(() => reject(error)),
+    );
+  });
+}
+
 export class OpenAICompatibleAdapter implements ModelAdapter {
   readonly provider: string;
   protected readonly config: AiConfig;
@@ -91,26 +127,39 @@ export class OpenAICompatibleAdapter implements ModelAdapter {
   }
 
   async complete(request: ModelRequest, signal?: AbortSignal): Promise<ModelResult> {
-    const response = await this.fetchWithRetry(request, false, signal);
-    const payload = await this.readJson(response);
-    const content = extractContent(payload);
-    if (!content) throw new ModelAdapterError('invalid-response', messageForCode('invalid-response', 'Invalid response.'));
-    const usage = payload && typeof payload === 'object' && 'usage' in payload
-      ? (payload as { usage?: ModelResult['usage'] }).usage
-      : undefined;
-    return {
-      content,
-      model: request.model,
-      provider: this.provider,
-      finishReason: this.finishReason(payload),
-      usage,
-    };
+    const deadline = await this.fetchWithRetry(request, false, signal);
+    try {
+      const payload = await this.readJson(deadline.response);
+      const content = extractContent(payload);
+      if (!content) throw new ModelAdapterError('invalid-response', messageForCode('invalid-response', 'Invalid response.'));
+      const usage = payload && typeof payload === 'object' && 'usage' in payload
+        ? (payload as { usage?: ModelResult['usage'] }).usage
+        : undefined;
+      return {
+        content,
+        model: request.model,
+        provider: this.provider,
+        finishReason: this.finishReason(payload),
+        usage,
+      };
+    } catch (error) {
+      if (signal?.aborted) throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+      if (deadline.timedOut() || error instanceof DOMException && error.name === 'AbortError') {
+        throw new ModelAdapterError('timeout', messageForCode('timeout', 'Request timed out.'));
+      }
+      throw error;
+    } finally {
+      deadline.cleanup();
+    }
   }
 
   async stream(request: ModelRequest, onToken: (token: string) => void, signal?: AbortSignal): Promise<ModelResult> {
-    const response = await this.fetchWithRetry(request, true, signal);
-    if (!response.body) return this.complete(request, signal);
-    const reader = response.body.getReader();
+    const deadline = await this.fetchWithRetry(request, true, signal);
+    if (!deadline.response.body) {
+      deadline.cleanup();
+      return this.complete(request, signal);
+    }
+    const reader = deadline.response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     let content = '';
@@ -157,15 +206,23 @@ export class OpenAICompatibleAdapter implements ModelAdapter {
       }
     } catch (error) {
       if (signal?.aborted) throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+      if (deadline.timedOut() || error instanceof DOMException && error.name === 'AbortError') {
+        throw new ModelAdapterError('timeout', messageForCode('timeout', 'Request timed out.'));
+      }
       throw error;
     } finally {
+      deadline.cleanup();
       reader.releaseLock();
     }
     if (!content) throw new ModelAdapterError('invalid-response', messageForCode('invalid-response', 'Invalid response.'));
     return { content, model: request.model, provider: this.provider, finishReason, usage };
   }
 
-  private async fetchWithRetry(request: ModelRequest, stream: boolean, signal?: AbortSignal): Promise<Response> {
+  private async fetchWithRetry(request: ModelRequest, stream: boolean, signal?: AbortSignal): Promise<{
+    response: Response;
+    cleanup: () => void;
+    timedOut: () => boolean;
+  }> {
     if (this.config.provider !== 'local' && !this.config.apiKey?.trim()) {
       throw new ModelAdapterError('missing-api-key', messageForCode('missing-api-key', 'Missing API key.'));
     }
@@ -178,9 +235,18 @@ export class OpenAICompatibleAdapter implements ModelAdapter {
     for (let attempt = 0; attempt <= this.config.retry; attempt += 1) {
       try {
         const controller = new AbortController();
-        const timeout = globalThis.setTimeout(() => controller.abort(), Math.max(1000, this.config.timeoutMs));
+        let didTimeout = false;
+        const timeout = globalThis.setTimeout(() => {
+          didTimeout = true;
+          controller.abort('timeout');
+        }, Math.max(1000, this.config.timeoutMs));
         const forwardAbort = () => controller.abort();
         signal?.addEventListener('abort', forwardAbort, { once: true });
+        const cleanup = () => {
+          globalThis.clearTimeout(timeout);
+          signal?.removeEventListener('abort', forwardAbort);
+        };
+        let handedOff = false;
         try {
           const response = await fetch(endpointFor(this.config.baseUrl), {
             method: 'POST',
@@ -193,10 +259,13 @@ export class OpenAICompatibleAdapter implements ModelAdapter {
             const code = errorCodeForStatus(response.status, this.config.provider === 'local');
             throw new ModelAdapterError(code, messageForCode(code, redactSensitiveText(body).slice(0, 240)), response.status);
           }
-          return response;
+          handedOff = true;
+          return { response, cleanup, timedOut: () => didTimeout };
+        } catch (error) {
+          if (didTimeout) throw new ModelAdapterError('timeout', messageForCode('timeout', 'Request timed out.'));
+          throw error;
         } finally {
-          globalThis.clearTimeout(timeout);
-          signal?.removeEventListener('abort', forwardAbort);
+          if (!handedOff) cleanup();
         }
       } catch (error) {
         lastError = error;
@@ -209,7 +278,10 @@ export class OpenAICompatibleAdapter implements ModelAdapter {
     if (lastError instanceof DOMException && lastError.name === 'AbortError') {
       throw new ModelAdapterError('timeout', messageForCode('timeout', 'Request timed out.'));
     }
-    throw new ModelAdapterError('network', messageForCode('network', safeErrorMessage(lastError)));
+    const networkMessage = typeof navigator !== 'undefined' && !navigator.onLine
+      ? '当前处于离线状态，恢复联网后可重试。'
+      : messageForCode('network', safeErrorMessage(lastError));
+    throw new ModelAdapterError('network', networkMessage);
   }
 
   private async readJson(response: Response): Promise<unknown> {
@@ -255,6 +327,7 @@ export function browserSupportsLocalAI(): boolean {
 export async function prepareBrowserModel(
   model: string,
   onProgress?: (progress: number, text: string) => void,
+  signal?: AbortSignal,
 ): Promise<MLCEngine> {
   if (!browserSupportsLocalAI()) {
     throw new ModelAdapterError('local-service-unavailable', '当前浏览器不支持 WebGPU，请更新 Chrome、Edge 或使用电脑本地部署。');
@@ -276,7 +349,13 @@ export async function prepareBrowserModel(
       browserEngine = undefined;
       throw new ModelAdapterError('local-service-unavailable', `浏览器模型加载失败：${safeErrorMessage(error)}`);
     });
-  return browserEnginePromise;
+  if (!signal) return browserEnginePromise;
+  if (signal.aborted) throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+  return new Promise<MLCEngine>((resolve, reject) => {
+    const onAbort = () => reject(new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.')));
+    signal.addEventListener('abort', onAbort, { once: true });
+    browserEnginePromise!.then(resolve, reject).finally(() => signal.removeEventListener('abort', onAbort));
+  });
 }
 
 function toBrowserMessages(messages: ModelMessage[]): ChatCompletionMessageParam[] {
@@ -298,14 +377,14 @@ export class BrowserModelAdapter implements ModelAdapter {
 
   async complete(request: ModelRequest, signal?: AbortSignal): Promise<ModelResult> {
     if (signal?.aborted) throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
-    const engine = await prepareBrowserModel(this.config.model);
-    const response = await engine.chat.completions.create({
+    const engine = await prepareBrowserModel(this.config.model, undefined, signal);
+    const response = await runWithDeadline(engine.chat.completions.create({
       messages: toBrowserMessages(request.messages),
       model: request.model,
       temperature: request.temperature,
       max_tokens: request.maxTokens,
       stream: false,
-    });
+    }), this.config.timeoutMs, signal, () => engine.interruptGenerate());
     const content = response.choices[0]?.message?.content;
     if (typeof content !== 'string' || !content) {
       throw new ModelAdapterError('invalid-response', messageForCode('invalid-response', 'Invalid response.'));
@@ -324,7 +403,7 @@ export class BrowserModelAdapter implements ModelAdapter {
   }
 
   async stream(request: ModelRequest, onToken: (token: string) => void, signal?: AbortSignal): Promise<ModelResult> {
-    const engine = await prepareBrowserModel(this.config.model);
+    const engine = await prepareBrowserModel(this.config.model, undefined, signal);
     const chunks = await engine.chat.completions.create({
       messages: toBrowserMessages(request.messages),
       model: request.model,
@@ -334,17 +413,29 @@ export class BrowserModelAdapter implements ModelAdapter {
     });
     let content = '';
     let finishReason: string | undefined;
-    for await (const chunk of chunks) {
-      if (signal?.aborted) {
-        await engine.interruptGenerate();
-        throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+    let timedOut = false;
+    const timeout = globalThis.setTimeout(() => {
+      timedOut = true;
+      void engine.interruptGenerate();
+    }, Math.max(1_000, this.config.timeoutMs));
+    const onAbort = () => { void engine.interruptGenerate(); };
+    signal?.addEventListener('abort', onAbort, { once: true });
+    try {
+      for await (const chunk of chunks) {
+        if (signal?.aborted) throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+        if (timedOut) throw new ModelAdapterError('timeout', messageForCode('timeout', 'Request timed out.'));
+        const token = chunk.choices[0]?.delta?.content ?? '';
+        if (token) {
+          content += token;
+          onToken(token);
+        }
+        finishReason = chunk.choices[0]?.finish_reason ?? finishReason;
       }
-      const token = chunk.choices[0]?.delta?.content ?? '';
-      if (token) {
-        content += token;
-        onToken(token);
-      }
-      finishReason = chunk.choices[0]?.finish_reason ?? finishReason;
+      if (signal?.aborted) throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+      if (timedOut) throw new ModelAdapterError('timeout', messageForCode('timeout', 'Request timed out.'));
+    } finally {
+      globalThis.clearTimeout(timeout);
+      signal?.removeEventListener('abort', onAbort);
     }
     if (!content) throw new ModelAdapterError('invalid-response', messageForCode('invalid-response', 'Invalid response.'));
     return { content, model: request.model, provider: this.provider, finishReason };

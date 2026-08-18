@@ -42,7 +42,7 @@ const entries = [
   {
     id: 'fsiii',
     label: 'FSIII',
-    desc: '理性骨架——公式与数据的语言。29 个意识体的 FSIII 排名与评分，从 Damocles 的 1314 到林浅的 90，构成一套贯穿世界观的量化认知体系。各省均值、区域分布、层级划分尽在其中。',
+    desc: '理性骨架——公式与数据的语言。40 个意识体的 FSIII 排名与评分，从 Damocles 的 1314 到林浅的 90，构成一套贯穿世界观的量化认知体系。各省均值、区域分布、层级划分尽在其中。',
     icon: Cpu,
     color: 'text-amber-400',
     href: '/math/fsiii',

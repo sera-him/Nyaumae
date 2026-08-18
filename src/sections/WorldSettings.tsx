@@ -14,6 +14,8 @@ import CollapsibleCard from '@/components/CollapsibleCard';
 import { semanticHighlight, cowCatHighlight } from '@/lib/semanticHighlight';
 import { Settings, Cat, Scale, Sparkles, Zap, GraduationCap, HeartPulse, BookMarked } from 'lucide-react';
 import SmartImage from '@/components/SmartImage';
+import { confirmAction } from '@/lib/confirmAction';
+import LandAllocationPolicy from '@/sections/LandAllocationPolicy';
 
 /** 4D Test result color: gradient from top to bottom (index-based), not id-based */
 const RESULT_COLORS = [
@@ -156,6 +158,10 @@ function FourDimensionTestQuiz() {
   };
 
   const reset = () => {
+    if (started && !confirmAction({
+      title: '重置四维测试进度？',
+      consequence: '当前已作答题目、计时和本次结果都会清空。',
+    })) return;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setStarted(false);
     setCurrentQ(0);
@@ -276,6 +282,17 @@ export default function WorldSettings() {
           ))}
           <p className="text-base text-nc-text mt-3 font-medium">{semanticHighlight(hypothesis)}</p>
         </div>
+
+        <CollapsibleCard
+          id="setting-land-allocation"
+          title={semanticHighlight("公平随机土地分配制度（修订稿）")}
+          summary={semanticHighlight("每个人拥有同样的、不可交易的土地竞争权重，可以自主选择土地；多人竞争时按照相对权重公开随机抽签。")}
+          icon={<Scale className="w-5 h-5 text-[#00E5CC]" />}
+          borderColor="border-[#00E5CC]/20"
+          titleColor="text-[#00E5CC]"
+        >
+          <LandAllocationPolicy embedded />
+        </CollapsibleCard>
 
         {/* Miya Circle, MuGuang, Xinyuan — 三张小卡片，简短，保持展开 */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
@@ -454,8 +471,8 @@ export default function WorldSettings() {
         {/* Nyaumaeism Principles */}
         <CollapsibleCard
           id="nyaumaeism"
-          title={"Nyaumæism"}
-          summary={"Nyaumæ 是一名 2 年级学生提出的哲学体系"}
+          title={"nyaumæism"}
+          summary={"nyaumæ 是一名 2 年级学生提出的哲学体系"}
           icon={<BookMarked className="w-4 h-4 text-[#00E5CC]" />}
           borderColor="border-[#00E5CC]/20"
           titleColor="text-[#00E5CC]"
@@ -463,7 +480,7 @@ export default function WorldSettings() {
         >
           <div className="p-6 space-y-4">
             <p className="text-xs text-[#00E5CC] italic border-l-2 border-[#00E5CC]/20 pl-3">
-              Nyaumæ 是一名 2 年级学生。以下是这名学生提出的七条哲学原则。
+              nyaumæ 是一名 2 年级学生。以下是这名学生提出的七条哲学原则。
             </p>
             {nyaumaeismPrinciples.map((p) => (
               <div key={p.id} className="border-l-2 border-[#00E5CC]/20 pl-4">

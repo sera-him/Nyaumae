@@ -41,7 +41,10 @@ export default function ParticleField({ type, density = 30, className = '', mark
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const destroyedRef = useRef(false);
-  const { ref: containerRef, isMotionActive } = useMotionActivity<HTMLDivElement>();
+  const { ref: containerRef, isMotionActive, motionProfile } = useMotionActivity<HTMLDivElement>(
+    '160px 0px',
+    { cost: 'high', priority: 10 },
+  );
 
   useEffect(() => {
     if (!isMotionActive) {
@@ -55,7 +58,7 @@ export default function ParticleField({ type, density = 30, className = '', mark
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const dpr = Math.min(window.devicePixelRatio || 1, motionProfile.pixelRatioCap);
     let cssW = 0;
     let cssH = 0;
 
@@ -78,15 +81,15 @@ export default function ParticleField({ type, density = 30, className = '', mark
     if (canvas.parentElement) ro.observe(canvas.parentElement);
 
     const colors = COLORS[type];
-    const isMobile = cssW < 768;
-    const boost = isMobile ? 1.6 : 1.0;
+    const boost = motionProfile.mobile ? 0.85 : 1;
+    const particleCount = Math.max(6, Math.round(density * motionProfile.particleScale));
 
     const createParticleNow = (isReset = false): Particle => {
       return createParticle(type, cssW, cssH, colors, boost, isReset);
     };
 
     const particles: Particle[] = [];
-    for (let i = 0; i < density; i++) {
+    for (let i = 0; i < particleCount; i++) {
       particles.push(createParticleNow());
     }
 
@@ -158,10 +161,17 @@ export default function ParticleField({ type, density = 30, className = '', mark
       cancelAnimationFrame(animRef.current);
       ro.disconnect();
     };
-  }, [type, density, isMotionActive]);
+  }, [type, density, isMotionActive, motionProfile.mobile, motionProfile.particleScale, motionProfile.pixelRatioCap]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full" data-motion-loop={markLoop ? true : undefined}>
+    <div
+      ref={containerRef}
+      className="motion-atmosphere-surface relative w-full h-full"
+      data-motion-kind="ambient"
+      data-motion-loop={markLoop ? true : undefined}
+      data-motion-running={isMotionActive ? 'true' : 'false'}
+      data-motion-static={motionProfile.quality === 'static' || motionProfile.reducedMotion ? 'true' : 'false'}
+    >
       <canvas
         ref={canvasRef}
         className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}

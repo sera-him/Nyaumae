@@ -14,7 +14,6 @@ import { LevelSystem, levelSystem } from './levelSystem.ts';
 import { isAbortError, estimateTokens, nowIso } from './utils.ts';
 import { safeErrorMessage, validateAiConfig } from './privacy.ts';
 import { memoryManager, MemoryManager } from './memoryManager.ts';
-import { characters } from '../data/characters.ts';
 
 function messageTemplate(input: {
   conversationId: string;
@@ -80,21 +79,13 @@ function summarize(messages: Message[], conversationId: string): ConversationSum
   };
 }
 
-function buildGroundedPreview(
-  conversation: Conversation,
-  characterId: string | undefined,
-  context: ConversationTurnResult['context'],
-): string {
-  const character = characters.find((item) => item.id === characterId);
+function buildGroundedPreview(context: ConversationTurnResult['context']): string {
   const evidence = context.citations.slice(0, 2);
   const evidenceText = evidence.length > 0
     ? evidence.map((citation) => `「${citation.excerpt.replace(/\s+/g, ' ').slice(0, 150)}」`).join('\n')
     : '我在当前可读取的设定中没有找到足够证据。';
-  const roleLead = conversation.mode === 'character' && character
-    ? `我是${character.name}。${character.bio.slice(0, 72)}`
-    : '我已经检查了当前对话可用的站内资料。';
   return [
-    `${roleLead}`,
+    '我已经检查了当前对话可用的站内资料。',
     evidenceText,
     '',
     '这是本地证据预览：检索、记忆隔离与正史护栏已经运行，但还没有调用语言模型。连接模型后会生成更自然、完整的角色回复。',
@@ -206,7 +197,7 @@ export class ConversationEngine {
     const invalidConfig = !config.enabled ? ['AI 总开关已关闭，请先在 AI 设置中开启。'] : validateAiConfig({ ...config, model });
     if (invalidConfig.length > 0) {
       if (!config.enabled) {
-        const preview = buildGroundedPreview(latestConversation, characterId, builtContext);
+        const preview = buildGroundedPreview(builtContext);
         const completed = this.persist.updateMessage(assistant.id, {
           content: preview,
           status: 'completed',

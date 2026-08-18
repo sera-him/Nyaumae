@@ -138,11 +138,30 @@ function Board({
       y: clamp(-(((event.clientY - rect.top) / rect.height * size - (size - pad)) / scale) - 18),
     });
   };
+  const moveKeyboardTarget = (dx: number, dy: number) => {
+    if (!canPick) return;
+    const base = selected ?? activeOrigin;
+    onPick(toward(activeOrigin, { x: clamp(base.x + dx), y: clamp(base.y + dy) }, activeLimit));
+  };
+  const handleBoardKeyboard = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!canPick) return;
+    const moves: Record<string, Point> = {
+      ArrowUp: { x: 0, y: .5 }, ArrowDown: { x: 0, y: -.5 }, ArrowLeft: { x: -.5, y: 0 }, ArrowRight: { x: .5, y: 0 },
+    };
+    const move = moves[event.key];
+    if (move) {
+      event.preventDefault();
+      moveKeyboardTarget(event.shiftKey ? move.x * 2 : move.x, event.shiftKey ? move.y * 2 : move.y);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      onPick(activeOrigin);
+    }
+  };
   const path = (key: 'cat' | 'mouse' | 'bait') => frames.slice(0, replayAt == null ? frames.length : replayAt + 1)
     .map((f, i) => `${i ? 'L' : 'M'}${sx(f[key].x)},${sy(f[key].y)}`).join(' ');
 
   return (
-    <div className="cm-board-wrap">
+    <div className="cm-board-wrap" tabIndex={canPick ? 0 : -1} role="application" aria-label="猫鼠迷逐棋盘目标控制" aria-describedby="cat-mouse-board-help" onKeyDown={handleBoardKeyboard}>
       <svg className={`cm-board ${canPick ? 'is-pickable' : ''}`} viewBox={`0 0 ${size} ${size}`} onClick={click} aria-label="猫鼠迷踪游戏棋盘">
         <defs>
           <pattern id="minorGrid" width={scale} height={scale} patternUnits="userSpaceOnUse">
@@ -178,6 +197,16 @@ function Board({
         {!revealMouse && <g transform={`translate(${sx(m.x)} ${sy(m.y)})`} opacity="0"><circle r="12" /></g>}
         <text x={pad+8} y={pad+19} className="cm-zone-label">阻力区 · 速度减半</text>
       </svg>
+      <span id="cat-mouse-board-help" className="sr-only">可行动时，聚焦棋盘后使用方向键将目标移动半格，按住 Shift 移动一格，按 Home 重置到当前角色的位置。也可使用下方的目标控制按钮；鼠标和触控操作保持可用。</span>
+      {canPick && <div className="cm-replay" role="group" aria-label="棋盘键盘操作">
+        <b>目标控制</b>
+        <button type="button" onClick={() => moveKeyboardTarget(0, .5)} aria-label="目标向上移动半格">↑</button>
+        <button type="button" onClick={() => moveKeyboardTarget(-.5, 0)} aria-label="目标向左移动半格">←</button>
+        <button type="button" onClick={() => moveKeyboardTarget(.5, 0)} aria-label="目标向右移动半格">→</button>
+        <button type="button" onClick={() => moveKeyboardTarget(0, -.5)} aria-label="目标向下移动半格">↓</button>
+        <button type="button" onClick={() => onPick(activeOrigin)} aria-label="将目标重置到当前角色的位置">重置</button>
+        <span className="sr-only" aria-live="polite">{selected ? `当前目标坐标 ${fmt(selected.x)}, ${fmt(selected.y)}。` : '目标位于当前角色的位置。'}</span>
+      </div>}
       <div className="cm-board-legend">
         <span><i className="dot cat" />猫</span>
         {(revealMouse || replayAt != null) && <span><i className="dot mouse" />老鼠</span>}
@@ -396,7 +425,7 @@ export default function CatMouseGame() {
       <header className="cm-header">
         <div>
           <p className="cm-kicker"><Radar size={15} /> 非对称推理追逐</p>
-          <h1>猫鼠<span>迷踪</span></h1>
+          <h2>猫鼠<span>迷踪</span></h2>
         </div>
         <div className="cm-header-actions">
           <button className="cm-ghost" onClick={() => setRulesOpen(true)}><BookOpen size={17} />规则</button>
@@ -405,7 +434,7 @@ export default function CatMouseGame() {
       </header>
 
       {phase === 'setup' ? (
-        <main className="cm-setup">
+        <div className="cm-setup">
           <section className="cm-hero-copy">
             <div className="cm-eyebrow">灵感源自 IMO 2017 · 猎人与兔子</div>
             <h2>你追逐的，<br />是真相还是<span>诱饵？</span></h2>
@@ -439,9 +468,9 @@ export default function CatMouseGame() {
             </label>
             <button className="cm-primary cm-start" onClick={startGame}><Play size={18} fill="currentColor" />开始追逐<ChevronRight size={18} /></button>
           </section>
-        </main>
+        </div>
       ) : (
-        <main className="cm-game">
+        <div className="cm-game">
           <section className="cm-game-main">
             <div className="cm-game-bar">
               <div><span>回合</span><b>{turn}<i>/ {preset.turns}</i></b></div>
@@ -509,7 +538,7 @@ export default function CatMouseGame() {
               ))}
             </div>
           </aside>
-        </main>
+        </div>
       )}
 
       {rulesOpen && (

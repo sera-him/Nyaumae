@@ -148,7 +148,7 @@ document.querySelector('#prototype-root').innerHTML = `
           <div class="hero-meta">
             <div><span>WORLD POPULATION</span><strong>1,207,963,268</strong></div>
             <div><span>AVERAGE LIFESPAN</span><strong>74y 6m 24d</strong></div>
-            <div><span>CREATOR</span><strong>Nyaumæ</strong></div>
+            <div><span>CREATOR</span><strong>nyaumæ</strong></div>
           </div>
         </div>
         <div class="scroll-cue"><span>SCROLL TO DESCEND</span><i></i></div>
@@ -193,7 +193,7 @@ document.querySelector('#prototype-root').innerHTML = `
           <p>NEURAL<br>CONNECTION</p>
         </div>
         <div class="footer-copy">
-          <p>© 2021–2026 <strong>Nyaumæ</strong> · 由意识编织</p>
+          <p>© 2021–2026 <strong>nyaumæ</strong> · 由意识编织</p>
           <a href="https://space.bilibili.com/396073700" target="_blank" rel="noreferrer">bilibili.com/space/396073700 ↗</a>
           <button class="demo-link feedback" type="button" data-label="反馈">反馈</button>
         </div>

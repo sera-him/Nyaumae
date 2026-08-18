@@ -5,13 +5,19 @@ import { loadSlim } from '@tsparticles/slim';
 import { AnimatedWorldStatsHero } from '@/components/AnimatedStats';
 import { Link } from 'react-router';
 import SmartImage from '@/components/SmartImage';
+import { useMotionActivity } from '@/hooks/useMotionActivity';
 
 export default function HeroCompact() {
   const [typedText, setTypedText] = useState('');
   const [particlesLoaded, setParticlesLoaded] = useState(false);
+  const { ref: heroRef, isMotionActive, motionProfile } = useMotionActivity<HTMLElement>(
+    '120px 0px',
+    { cost: 'high', priority: 20 },
+  );
   const fullText = 'NEURAL CONNECTION';
 
   useEffect(() => {
+    if (!isMotionActive) return;
     let i = 0;
     const timer = setInterval(() => {
       if (i <= fullText.length) {
@@ -22,7 +28,7 @@ export default function HeroCompact() {
       }
     }, 60);
     return () => clearInterval(timer);
-  }, []);
+  }, [isMotionActive]);
 
   useEffect(() => {
     initParticlesEngine(async (engine) => {
@@ -33,7 +39,7 @@ export default function HeroCompact() {
   }, []);
 
   return (
-    <section id="hero" className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+    <section ref={heroRef} id="hero" className="relative min-h-[60vh] flex items-center justify-center overflow-hidden" data-motion-loop data-motion-kind="ambient" data-motion-running={isMotionActive ? 'true' : 'false'}>
       <div className="absolute inset-0 z-0">
         <SmartImage
           localSrc="/hero-bg.jpg"
@@ -44,7 +50,7 @@ export default function HeroCompact() {
         <div className="absolute inset-0 bg-gradient-to-b from-nc-bg/60 via-nc-bg/40 to-nc-bg" />
       </div>
 
-      {particlesLoaded && (
+      {particlesLoaded && isMotionActive && (
         <div className="absolute inset-0 z-[1] opacity-60">
           <Particles
             id="hero-particles"
@@ -53,7 +59,7 @@ export default function HeroCompact() {
               background: { color: 'transparent' },
               fpsLimit: 60,
               particles: {
-                number: { value: 50, density: { enable: true, width: 800, height: 800 } },
+                number: { value: Math.max(18, Math.round(50 * motionProfile.particleScale)), density: { enable: true, width: 800, height: 800 } },
                 color: { value: ['#8B5CF6', '#00E5CC', '#F472B6'] },
                 shape: { type: 'circle' },
                 opacity: { value: 0.5 },
@@ -94,7 +100,7 @@ export default function HeroCompact() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
+          transition={{ duration: 0.32 }}
         >
           <h1 className="font-mono text-4xl sm:text-5xl md:text-6xl font-bold tracking-[0.05em] text-nc-text mb-4 min-h-[1.2em]">
             {typedText}
@@ -105,7 +111,7 @@ export default function HeroCompact() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.2 }}
+          transition={{ duration: 0.4, delay: 0.08 }}
           className="mb-8"
         >
           <div className="inline-block liquid-glass border border-white/[0.06] rounded-2xl px-6 sm:px-10 py-5 max-w-2xl mx-auto">
@@ -126,7 +132,7 @@ export default function HeroCompact() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.6 }}
+          transition={{ duration: 0.4, delay: 0.12 }}
           className="font-serif text-lg text-nc-text-secondary/70 mb-6"
         >
           {'一个由意识编织的数字宇宙'}
@@ -138,22 +144,22 @@ export default function HeroCompact() {
           transition={{ duration: 1, delay: 1.8 }}
           className="font-mono text-sm text-nc-text-muted mb-2 tracking-wider"
         >
-          <AnimatedWorldStatsHero />
+          <AnimatedWorldStatsHero active={isMotionActive} />
         </motion.div>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 2 }}
+          transition={{ duration: 0.4, delay: 0.16 }}
           className="text-sm text-nc-text-secondary mb-8"
         >
-          创作者 <span className="font-semibold text-nc-text">Nyaumæ</span>
+          创作者 <span className="font-semibold text-nc-text">nyaumæ</span>
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 2.2 }}
+          transition={{ duration: 0.48, delay: 0.2 }}
           className="flex flex-wrap gap-4 justify-center"
         >
           <Link

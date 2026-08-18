@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Check, Copy, Info, Leaf, RotateCcw, Sparkles } from 'lucide-react';
 import './NeuralEcho.css';
+import { confirmAction } from '@/lib/confirmAction';
 
 type Player = 'A' | 'B';
 
@@ -129,6 +130,10 @@ export default function NeuralEcho() {
     if (finished || branch.owner !== player || !branch.active) return;
     const remainingCapacity = 16 - (activeCounts[player] - 1);
     const allowed = Math.max(0, Math.min(phase.maxTips, remainingCapacity));
+    if (allowed < 1) {
+      setNotice('当前生长点无法保留后代；请选择其他生长点。');
+      return;
+    }
     const opponentPattern = lastPattern[player === 'A' ? 'B' : 'A'];
     const initial = usingEcho ? opponentPattern.slice(0, allowed) : allowed === 2 ? [0, 2] : allowed === 1 ? [1] : [];
     setSelectedTip(branch.id);
@@ -140,7 +145,13 @@ export default function NeuralEcho() {
     if (!tip) return;
     const capacity = Math.max(0, Math.min(phase.maxTips, 16 - (activeCounts[player] - 1)));
     setSelectedChildren((current) => {
-      if (current.includes(index)) return current.filter((item) => item !== index);
+      if (current.includes(index)) {
+        if (current.length === 1) {
+          setNotice('每次生长至少要保留一个子枝，避免没有可行动的生长点。');
+          return current;
+        }
+        return current.filter((item) => item !== index);
+      }
       if (current.length >= capacity) return current;
       return [...current, index].sort();
     });
@@ -156,6 +167,10 @@ export default function NeuralEcho() {
 
   const confirmGrowth = () => {
     if (!tip || candidates.length !== 3) return;
+    if (selectedChildren.length < 1) {
+      setNotice('请至少保留一个子枝后再确认生长。');
+      return;
+    }
     let next = branches.map((branch) => branch.id === tip.id ? { ...branch, active: false } : branch);
     let nextId = Math.max(...branches.map((branch) => branch.id)) + 1;
     let cuts = 0;
@@ -166,8 +181,11 @@ export default function NeuralEcho() {
         : undefined;
       if (target) {
         const removed = descendantsOf(next, target.id);
-        next = next.filter((branch) => !removed.has(branch.id));
-        cuts += removed.size;
+        const leavesOpponentWithTip = next.some((branch) => branch.owner !== player && branch.active && !removed.has(branch.id));
+        if (leavesOpponentWithTip) {
+          next = next.filter((branch) => !removed.has(branch.id));
+          cuts += removed.size;
+        }
       }
       next.push({
         id: nextId++,
@@ -197,6 +215,10 @@ export default function NeuralEcho() {
   };
 
   const reset = () => {
+    if (turnIndex > 0 && turnIndex < 32 && !confirmAction({
+      title: '重新开始神经回响？',
+      consequence: '当前枝条、回合、回响次数和得分都会清空。',
+    })) return;
     setBranches(seedBranches());
     setTurnIndex(0);
     setSelectedTip(null);
@@ -270,11 +292,19 @@ export default function NeuralEcho() {
         {finished && <div className="fractal-result"><Leaf size={28} /><span>32轮生长结束</span><h3>{winner}</h3><p>A {scores.A.toLocaleString()} · {scores.B.toLocaleString()} B</p><button type="button" onClick={reset}><RotateCcw size={15} /> 再生一局</button></div>}
       </div>
 
+      {!finished && <div className="fractal-rules fractal-keyboard-controls" aria-label="键盘生长控制">
+        <p><b>键盘操作</b>：先选择一个当前玩家的生长点，再选择至少一个保留的子枝；所有控件可用 Tab、Enter 或空格操作。</p>
+        <div className="fractal-buttons">
+          {branches.filter((branch) => branch.owner === player && branch.active).map((branch) => <button type="button" key={`tip-control-${branch.id}`} className={selectedTip === branch.id ? 'is-on' : ''} onClick={() => selectTip(branch)} aria-pressed={selectedTip === branch.id}>生长点 {branch.id}</button>)}
+          {tip && candidates.map((_, index) => <button type="button" key={`child-control-${index}`} className={selectedChildren.includes(index) ? 'is-on' : ''} onClick={() => toggleChild(index)} aria-pressed={selectedChildren.includes(index)} aria-label={`保留第 ${index + 1} 个子枝${selectedChildren.includes(index) ? '，已选择' : ''}`}>子枝 {index + 1}</button>)}
+        </div>
+      </div>}
+
       <footer className="fractal-controls">
         <div className="fractal-notice"><span style={{ background: PLAYER_COLOR[player] }} /> {finished ? '点击“再生一局”重新开始。' : notice}</div>
         <div className="fractal-buttons">
           <button type="button" className={`fractal-echo-button ${usingEcho ? 'is-on' : ''}`} onClick={toggleEcho} disabled={finished || echoes[player] <= 0}><Copy size={15} /> 克隆回声 <b>{echoes[player]}</b></button>
-          <button type="button" className="fractal-confirm-button" onClick={confirmGrowth} disabled={!tip || finished}><Check size={16} /> 确认生长</button>
+          <button type="button" className="fractal-confirm-button" onClick={confirmGrowth} disabled={!tip || !selectedChildren.length || finished}><Check size={16} /> 确认生长</button>
         </div>
       </footer>
 

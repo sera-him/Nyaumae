@@ -1,0 +1,1392 @@
+{
+  "/1-generated.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      240,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/1.jpg": {
+    "sourceWidth": 1501,
+    "sourceHeight": 994,
+    "widths": [
+      240,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/2-generated.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      240,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/2-time-nodes.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      240,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/2.jpg": {
+    "sourceWidth": 1766,
+    "sourceHeight": 994,
+    "widths": [
+      240,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/3-generated.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      240,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/3.jpg": {
+    "sourceWidth": 1766,
+    "sourceHeight": 994,
+    "widths": [
+      240,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/4d-test-banner.jpg": {
+    "sourceWidth": 2848,
+    "sourceHeight": 1460,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/cat-machine-og.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/characters/alice-card.jpg": {
+    "sourceWidth": 1086,
+    "sourceHeight": 1086,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/alice-wonderland.jpg": {
+    "sourceWidth": 1448,
+    "sourceHeight": 1086,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/alice.jpg": {
+    "sourceWidth": 832,
+    "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/amiya-generated.png": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/amiya.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/changfeng-generated.jpg": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/chuxia-generated.jpg": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/cola.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/damocles.jpg": {
+    "sourceWidth": 864,
+    "sourceHeight": 1184,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/delivery-rider-generated.jpg": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/dora.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/eirene.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/hamster.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/haruka.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/ifchan.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/lila-generated.png": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/lila.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/linear.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/linkmo.jpg": {
+    "sourceWidth": 832,
+    "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/linqian.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/linshen.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/mao.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/mia-generated.png": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/mia.jpg": {
+    "sourceWidth": 832,
+    "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/miacubic-generated.png": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/miacubic.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/miaowu-generated.jpg": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/miia-generated.png": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/miia.jpeg": {
+    "sourceWidth": 2048,
+    "sourceHeight": 2048,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/miia.jpg": {
+    "sourceWidth": 648,
+    "sourceHeight": 648,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/miku.jpg": {
+    "sourceWidth": 832,
+    "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/mimi.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/miya-generated.png": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/miya.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/mowen.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/mxy.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/nihilib.jpg": {
+    "sourceWidth": 832,
+    "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/nimfa.jpg": {
+    "sourceWidth": 832,
+    "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/qicheng.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/quartus.jpg": {
+    "sourceWidth": 832,
+    "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/xiaogu-generated.jpg": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/xiaohe-generated.jpg": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/xiaoman-generated.jpg": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/xiulan-generated.jpg": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/zero.jpg": {
+    "sourceWidth": 832,
+    "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/zhaozhao.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/zhouji-generated.jpg": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/chat-themes/aurora-night.png": {
+    "sourceWidth": 1774,
+    "sourceHeight": 887,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/chat-themes/ocean-dream.png": {
+    "sourceWidth": 1774,
+    "sourceHeight": 887,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/chat-themes/sweet-dream.png": {
+    "sourceWidth": 1774,
+    "sourceHeight": 887,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fox-penguin-ch01.png": {
+    "sourceWidth": 2848,
+    "sourceHeight": 1600,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fox-penguin-ch02.png": {
+    "sourceWidth": 2848,
+    "sourceHeight": 1600,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fox-penguin-ch03.png": {
+    "sourceWidth": 2848,
+    "sourceHeight": 1600,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fox-penguin-ch04.png": {
+    "sourceWidth": 2730,
+    "sourceHeight": 1535,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fox-penguin-ch05.png": {
+    "sourceWidth": 2848,
+    "sourceHeight": 1600,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fox-penguin-ch06.png": {
+    "sourceWidth": 2848,
+    "sourceHeight": 1600,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fox-penguin-ch07.png": {
+    "sourceWidth": 2732,
+    "sourceHeight": 1534,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fox-penguin-ch08.png": {
+    "sourceWidth": 2848,
+    "sourceHeight": 1600,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fox-penguin-ch09.png": {
+    "sourceWidth": 2848,
+    "sourceHeight": 1600,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/fsiii-banner.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 708,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/hero-bg.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 768,
+    "widths": [
+      240,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/icons/org-delan.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/icons/org-impact.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/icons/org-xinjie.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/icons/org-zhihua.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/org-delan.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/org-impact.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/org-xinjie.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/org-zhihua.jpg": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/pets/poffy.png": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/qet-card.jpg": {
+    "sourceWidth": 2560,
+    "sourceHeight": 1440,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/recursive-echo-rules.png": {
+    "sourceWidth": 1600,
+    "sourceHeight": 1878,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/star-pavilion.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 768,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/stickers/cat-angry.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-annoyed.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-cheer.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-confused.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-cry.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-cute.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-excited.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-goodnight.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-happy.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-hello.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-hug.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-kiss.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-love.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-peek.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-please.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-pocket.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-shy.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-sleepy.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-sparkle-alt.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-sparkle.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-speechless.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-surprised.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-thinking.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/stickers/cat-tired.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
+    ]
+  },
+  "/story-3-people-world.jpg": {
+    "sourceWidth": 2560,
+    "sourceHeight": 1385,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-agi-land.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-agi-pyramid.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-bad-rabbit.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-code-poem.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-damocles-exam.jpg": {
+    "sourceWidth": 2560,
+    "sourceHeight": 1385,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-fill-ocean.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-fox-penguin.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-giant-part-1.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-giant-part-2.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-giant-part-3.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-giant-part-4.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-giant-part-5.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-giant-part-6.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-giant-part-7.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-giant-part-8.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-lila.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-mia-world-1.jpg": {
+    "sourceWidth": 2560,
+    "sourceHeight": 1385,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-mia-world-2.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-mia-world-3.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-miia-dream-generated.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-miia-dream.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-overdose-icu.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-paradigm.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-prime-focus.jpg": {
+    "sourceWidth": 2560,
+    "sourceHeight": 1385,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-sheep-song.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-xishou-nianshou.jpg": {
+    "sourceWidth": 2560,
+    "sourceHeight": 1385,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-conditioning-2.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-conditioning.jpg": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-fire-refining-2.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-fire-refining.jpg": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-inspection-2.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-inspection.jpg": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-mortal-epilogue-2.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-mortal-epilogue.jpg": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-rebirth-2.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-rebirth.jpg": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-refining.png": {
+    "sourceWidth": 2848,
+    "sourceHeight": 1600,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-sealing-transit-2.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-sealing-transit.jpg": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-wash-2.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-zhenhai-wash.jpg": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/timeline-1.png": {
+    "sourceWidth": 1916,
+    "sourceHeight": 821,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/timeline-2.png": {
+    "sourceWidth": 1916,
+    "sourceHeight": 821,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/timeline-3.png": {
+    "sourceWidth": 1916,
+    "sourceHeight": 821,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/timeline-4.png": {
+    "sourceWidth": 1916,
+    "sourceHeight": 821,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/world-overview-1.png": {
+    "sourceWidth": 1916,
+    "sourceHeight": 821,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/world-overview-2.png": {
+    "sourceWidth": 1916,
+    "sourceHeight": 821,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/xinjie-vr-duck-island.png": {
+    "sourceWidth": 2556,
+    "sourceHeight": 1179,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
+  "/xinjie-vr-rainbow-drive.png": {
+    "sourceWidth": 2556,
+    "sourceHeight": 1179,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  }
+}

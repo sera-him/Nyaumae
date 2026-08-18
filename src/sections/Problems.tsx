@@ -22,6 +22,7 @@ export default function Problems() {
   const [refAnswers, setRefAnswers] = useState<string[]>(Array(TOTAL_NONQR_SLOTS).fill(''));
   const [computing, setComputing] = useState(false);
   const [hasResult, setHasResult] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleAnswerChange = useCallback((slotIndex: number, value: string) => {
@@ -31,6 +32,7 @@ export default function Problems() {
       return next;
     });
     setHasResult(false);
+    setValidationMessage('');
   }, []);
 
   const handleRefAnswerChange = useCallback((slotIndex: number, value: string) => {
@@ -40,6 +42,7 @@ export default function Problems() {
       return next;
     });
     setHasResult(false);
+    setValidationMessage('');
   }, []);
 
   const handleRefCheckboxChange = useCallback((slotIdx: number, option: string, checked: boolean) => {
@@ -62,9 +65,28 @@ export default function Problems() {
       return result;
     });
     setHasResult(false);
+    setValidationMessage('');
   }, []);
 
   const handleSubmit = useCallback(async () => {
+    const missingQr = qrAnswers
+      .map((answer, index) => answer.trim() ? -1 : index)
+      .filter((index) => index >= 0);
+    const missingRef = refAnswers
+      .map((answer, index) => answer.trim() ? -1 : index)
+      .filter((index) => index >= 0);
+    const missingCount = missingQr.length + missingRef.length;
+    if (missingCount > 0) {
+      setHasResult(false);
+      setValidationMessage(`还有 ${missingCount} 个答案未填写，请完成后再提交。`);
+      const firstKey = missingQr.length > 0 ? `qr-${missingQr[0]}` : `ref-${missingRef[0]}`;
+      window.requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>(`[data-answer-key="${firstKey}"]`)?.focus();
+      });
+      return;
+    }
+
+    setValidationMessage('');
     setComputing(true);
     try {
       const qrData = await computeQRData(qrAnswers, refAnswers);
@@ -73,9 +95,12 @@ export default function Problems() {
         if (canvasRef.current) {
           drawQRCode(canvasRef.current, qrData);
         }
+      } else {
+        setValidationMessage('答案暂时无法生成结果，请检查填写内容后重试。');
       }
     } catch (e) {
       console.error('QR computation failed:', e);
+      setValidationMessage('生成结果时出现问题，请稍后重试。');
     } finally {
       setComputing(false);
     }
@@ -85,6 +110,7 @@ export default function Problems() {
     setQrAnswers(Array(TOTAL_SLOTS).fill(''));
     setRefAnswers(Array(TOTAL_NONQR_SLOTS).fill(''));
     setHasResult(false);
+    setValidationMessage('');
   }, []);
 
   const renderInput = (slotIdx: number, values: string[], onChange: (idx: number, v: string) => void) => {
@@ -98,6 +124,10 @@ export default function Problems() {
         type="text"
         value={values[slotIdx] || ''}
         onChange={(e) => onChange(slotIdx, e.target.value)}
+        data-answer-key={`qr-${slotIdx}`}
+        aria-label={`答案 ${slot.id}`}
+        aria-invalid={validationMessage !== '' && !(values[slotIdx] || '').trim()}
+        aria-describedby={validationMessage ? 'problems-validation' : undefined}
         placeholder={slot.placeholder || '?'}
         className={`align-middle mx-0.5 px-1.5 py-0.5 text-sm font-mono
           bg-nc-bg-tertiary border-b-2 outline-none transition-colors
@@ -122,7 +152,14 @@ export default function Problems() {
 
     if (slot.options) {
       return (
-        <span key={slot.id} className="inline-flex gap-1.5 align-middle">
+        <span
+          key={slot.id}
+          className="inline-flex gap-1.5 align-middle"
+          role="group"
+          aria-label={`答案 ${slot.id}`}
+          aria-invalid={validationMessage !== '' && !(refAnswers[slotIdx] || '').trim()}
+          aria-describedby={validationMessage ? 'problems-validation' : undefined}
+        >
           {slot.options.map((opt) => {
             const selected = (refAnswers[slotIdx] || '').includes(opt);
             return (
@@ -130,6 +167,7 @@ export default function Problems() {
                 key={opt}
                 type="button"
                 onClick={() => handleRefCheckboxChange(slotIdx, opt, !selected)}
+                data-answer-key={`ref-${slotIdx}`}
                 aria-pressed={selected}
                 className={`w-7 h-7 rounded text-xs font-mono font-bold transition-all
                   ${selected
@@ -151,6 +189,10 @@ export default function Problems() {
         type="text"
         value={refAnswers[slotIdx] || ''}
         onChange={(e) => handleRefAnswerChange(slotIdx, e.target.value)}
+        data-answer-key={`ref-${slotIdx}`}
+        aria-label={`答案 ${slot.id}`}
+        aria-invalid={validationMessage !== '' && !(refAnswers[slotIdx] || '').trim()}
+        aria-describedby={validationMessage ? 'problems-validation' : undefined}
         placeholder={slot.placeholder || '?'}
         size={slot.size || undefined}
         style={{ width: slot.size ? undefined : (slot.width || undefined) }}
@@ -270,7 +312,13 @@ export default function Problems() {
           transition={{ duration: 0.4, delay: 0.3 }}
           className="flex flex-col items-center gap-4 mb-16 select-none"
         >
+          {validationMessage && (
+            <p id="problems-validation" role="alert" className="max-w-xl rounded-lg border border-red-400/25 bg-red-400/10 px-4 py-2 text-center text-sm text-red-200">
+              {validationMessage}
+            </p>
+          )}
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={computing}
             className={`inline-flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-medium transition-all

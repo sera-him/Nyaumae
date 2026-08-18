@@ -1,0 +1,140 @@
+import { definePublicQuestion } from './helpers.ts';
+import type { NctbPublicQuestion } from '../types.ts';
+
+const bankId = 'formal-a-v1' as const;
+
+export const FORMAL_FOUNDATION_V1_QUESTIONS: readonly NctbPublicQuestion[] = [
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-pattern-01', bankId, dimensionId: 'pattern', difficulty: 1, family: 'periodic-overlay',
+    stimulus: '● ○ ● ○\n○ ● ○ ●\n● ○ ● ○',
+    prompt: '三行按同一周期交替。下一行应是什么？',
+    options: ['○ ● ○ ●', '● ● ○ ○', '● ○ ○ ●', '○ ○ ● ●'],
+    profile: { reasoningSteps: 1, workingMemoryLoad: 1, abstraction: 1 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-pattern-02', bankId, dimensionId: 'pattern', difficulty: 3, family: 'recursive-pattern',
+    stimulus: '规则：A → AB；B → A。每一步同时替换所有字母。起点：A。',
+    prompt: '完成三步替换后得到哪一串？',
+    options: ['ABABA', 'AABAB', 'ABAAB', 'ABBAB'],
+    profile: { reasoningSteps: 3, workingMemoryLoad: 3, abstraction: 3 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-memory-01', bankId, dimensionId: 'memory', difficulty: 1, family: 'forward-span', kind: 'memory',
+    stimulus: '雾 · 岩 · 灯 · 桥', revealMs: 3_400,
+    prompt: '哪一项与刚才的顺序完全相同？',
+    options: ['雾 · 灯 · 岩 · 桥', '雾 · 岩 · 灯 · 桥', '桥 · 灯 · 岩 · 雾', '雾 · 岩 · 桥 · 灯'],
+    profile: { reasoningSteps: 0, workingMemoryLoad: 2, distractorSimilarity: 2 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-memory-02', bankId, dimensionId: 'memory', difficulty: 3, family: 'memory-updating', kind: 'memory',
+    stimulus: '初始：3–8–5\n操作 1：首项加 2\n操作 2：交换后两项', revealMs: 4_800,
+    prompt: '两次操作后的序列是什么？',
+    options: ['5–8–5', '8–5–5', '5–5–8', '3–5–8'],
+    profile: { reasoningSteps: 2, workingMemoryLoad: 4, ruleSwitches: 1 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-space-01', bankId, dimensionId: 'space', difficulty: 2, family: 'grid-movement',
+    stimulus: '起点为 (2,2)。先向上 1 格，再向右 2 格，最后向下 1 格。',
+    prompt: '终点坐标是什么？',
+    options: ['(3,2)', '(4,2)', '(4,3)', '(2,4)'],
+    profile: { reasoningSteps: 2, workingMemoryLoad: 2 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-space-02', bankId, dimensionId: 'space', difficulty: 3, family: 'paper-folding',
+    stimulus: '纸条从左到右有 1、2、3、4 四格。沿 2 与 3 之间向右对折，在折后最右格打一个孔。',
+    prompt: '完全展开后，哪些位置有孔？',
+    options: ['2 与 3', '1 与 3', '2 与 4', '1 与 4'],
+    profile: { reasoningSteps: 2, workingMemoryLoad: 3, abstraction: 2 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-quantity-01', bankId, dimensionId: 'quantity', difficulty: 1, family: 'ratio-scaling',
+    prompt: '红珠与蓝珠按 2:3 组成一袋，共有 25 颗。较少的红珠有多少颗？',
+    options: ['5', '8', '10', '15'],
+    profile: { reasoningSteps: 2, workingMemoryLoad: 1 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-quantity-02', bankId, dimensionId: 'quantity', difficulty: 3, family: 'relative-quantity',
+    prompt: 'A 比 B 多 20%；B 比 C 少 25%。A 与 C 相比怎样？',
+    options: ['A 比 C 多 10%', 'A 比 C 少 10%', 'A 与 C 相等', '信息不足'],
+    profile: { reasoningSteps: 3, workingMemoryLoad: 3, distractorSimilarity: 3 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-language-01', bankId, dimensionId: 'language', difficulty: 2, family: 'instruction-comprehension',
+    stimulus: '规则：有圆形的卡片放左盒；若同时有三角形，则后一条规则优先，放右盒。',
+    prompt: '一张同时有圆形和三角形的卡片应放哪里？',
+    options: ['左盒', '两个盒都放', '右盒', '无法判断'],
+    profile: { reasoningSteps: 2, ruleSwitches: 1 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-language-02', bankId, dimensionId: 'language', difficulty: 3, family: 'ambiguity-resolution',
+    prompt: '“小林对小周说，老师会在她完成记录后检查表格。”只根据这句话，“她”一定指谁？',
+    options: ['小林', '小周', '老师', '无法唯一确定'],
+    profile: { reasoningSteps: 2, distractorSimilarity: 4, abstraction: 2 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-attention-01', bankId, dimensionId: 'attention', difficulty: 2, family: 'selective-search',
+    stimulus: '目标规则：只对“空心圆 + 偶数”响应；带 × 的卡片一律抑制。\nA ○4   B ●4   C ○3   D ○6×',
+    prompt: '唯一应该响应的是哪张卡片？',
+    options: ['B', 'A', 'D', 'C'],
+    profile: { reasoningSteps: 1, distractorSimilarity: 3, stimulusComplexity: 2 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-attention-02', bankId, dimensionId: 'attention', difficulty: 3, family: 'response-inhibition',
+    stimulus: '规则：看到 A 按键；但 A 若紧跟 X，则抑制。其他字符停。\n试次：A | X | A | B | A',
+    prompt: '正确的五次反应顺序是什么？',
+    options: ['按–停–按–停–按', '停–停–停–停–按', '按–停–停–停–按', '按–按–停–停–按'],
+    profile: { reasoningSteps: 1, workingMemoryLoad: 2, distractorSimilarity: 4, stimulusComplexity: 3 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-speed-01', bankId, dimensionId: 'speed', difficulty: 1, family: 'rapid-same-different',
+    stimulus: 'M7/M7   Q2/QZ   B8/B8   H4/H4   S5/SS   K1/K1',
+    prompt: '左右完全相同的配对有几组？',
+    options: ['4', '3', '2', '5'],
+    profile: { reasoningSteps: 0, workingMemoryLoad: 1, stimulusComplexity: 2 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-speed-02', bankId, dimensionId: 'speed', difficulty: 3, family: 'visual-code-match',
+    stimulus: '代码：◆=2，●=5，▲=7\n◆●▲/257   ●◆▲/527   ▲●◆/725   ◆▲●/275',
+    prompt: '符号与数字编码完全匹配的有几组？',
+    options: ['2', '3', '4', '1'],
+    profile: { reasoningSteps: 0, workingMemoryLoad: 2, distractorSimilarity: 4, stimulusComplexity: 4 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-causality-01', bankId, dimensionId: 'causality', difficulty: 2, family: 'confound-detection',
+    prompt: '两组幼苗使用不同肥料，但第一组每天浇水、第二组每两天浇水。第一组长得更高。下一步怎样更可靠地比较肥料？',
+    options: ['让两组浇水条件相同，再比较肥料', '只测量第一组更多次', '直接认定第一种肥料更好', '同时改变光照和花盆'],
+    profile: { reasoningSteps: 2, abstraction: 2 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-causality-02', bankId, dimensionId: 'causality', difficulty: 3, family: 'necessary-sufficient',
+    prompt: '警报只有在“传感器正常”且“供电正常”时才会响。现在警报响了。哪项必然成立？',
+    options: ['只有传感器正常', '至少一个条件正常', '两个条件都正常', '两个条件都可能不正常'],
+    profile: { reasoningSteps: 2, abstraction: 3, distractorSimilarity: 3 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-planning-01', bankId, dimensionId: 'planning', difficulty: 2, family: 'dependency-planning',
+    prompt: 'A 与 B 都必须在 C 前完成；A、B 共用一台不能并行的机器。哪种计划有效？',
+    options: ['C→A→B', 'A→B→C（A、B 可互换）', 'A 与 C 并行→B', '先 C，再任选 A 或 B'],
+    profile: { reasoningSteps: 2, workingMemoryLoad: 2, stimulusComplexity: 2 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-planning-02', bankId, dimensionId: 'planning', difficulty: 4, family: 'resource-planning',
+    stimulus: '电量共 6 格：扫描耗 3 格，贴标耗 1 格，上传耗 2 格；上传必须在扫描后。目标是三项都完成。',
+    prompt: '哪种计划满足资源和依赖？',
+    options: ['上传→扫描→贴标', '扫描两次→上传', '贴标→上传→扫描', '贴标→扫描→上传'],
+    profile: { reasoningSteps: 3, workingMemoryLoad: 4, abstraction: 3, stimulusComplexity: 4 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-transfer-01', bankId, dimensionId: 'transfer', difficulty: 2, family: 'strategy-transfer',
+    prompt: '旧任务中，“先找最短重复单元，再按周期定位”能处理重复音符。新任务换成周期闪烁的灯，最佳做法是什么？',
+    options: ['先验证灯的最短周期，再用周期定位', '直接复制旧任务的音符答案', '只比较灯和音符的颜色', '放弃已验证的策略'],
+    profile: { reasoningSteps: 2, abstraction: 3 },
+  }),
+  definePublicQuestion({
+    id: 'formal-a-v1-foundation-transfer-02', bankId, dimensionId: 'transfer', difficulty: 5, family: 'relational-mapping',
+    stimulus: '旧任务比较两套工作流时，只保留三类关系：X 必须先于 Y；Y 与 Z 共用资源、不能重叠；X 取消时 W 可替代 X。新任务要比较两支机器人队伍，名称、位置和持续时间都不同。',
+    prompt: '哪种比较方法完整迁移了旧任务的深层结构？',
+    options: ['要求机器人名称和位置逐一相同', '只比较谁最先开始', '映射先后、资源冲突和替代关系，忽略名称、位置与持续时间', '把旧工作流的具体时间复制给机器人'],
+    profile: { reasoningSteps: 4, workingMemoryLoad: 4, abstraction: 5, ruleSwitches: 2, distractorSimilarity: 4, stimulusComplexity: 5 },
+  }),
+];

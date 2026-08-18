@@ -19,8 +19,8 @@
 }
 .cm-noise { position: absolute; inset: 0; pointer-events: none; opacity: .12; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.24'/%3E%3C/svg%3E"); }
 .cm-header { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto 34px; display: flex; align-items: center; justify-content: space-between; }
-.cm-header h1 { font-family: Georgia, "Noto Serif SC", serif; margin: 2px 0 0; letter-spacing: .08em; font-size: clamp(28px, 3vw, 44px); }
-.cm-header h1 span { color: var(--violet); }
+.cm-header h2 { font-family: Georgia, "Noto Serif SC", serif; margin: 2px 0 0; letter-spacing: .08em; font-size: clamp(28px, 3vw, 44px); }
+.cm-header h2 span { color: var(--violet); }
 .cm-kicker { display: flex; align-items: center; gap: 7px; color: #b7a7ee; letter-spacing: .16em; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .cm-header-actions { display: flex; gap: 10px; }
 .cm-page button { font: inherit; }
@@ -163,7 +163,7 @@
 @media (max-width: 680px) {
   .cm-page { padding: 86px 14px 30px; }
   .cm-header { margin-bottom: 16px; }
-  .cm-header h1 { font-size: 25px; }
+  .cm-header h2 { font-size: 25px; }
   .cm-ghost { padding: 9px; }.cm-ghost svg { width: 15px; }
   .cm-hero-copy h2 { font-size: 48px; }
   .cm-principles { grid-template-columns: 1fr; margin-top: 25px; }

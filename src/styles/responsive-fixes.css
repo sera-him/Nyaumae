@@ -35,6 +35,22 @@ code {
   word-break: break-all;
 }
 
+/* Shared interactive frame: each game keeps its theme while respecting the
+   same outer width, clipping and control bar rules. */
+.playground-aurora-page .pg-lab-frame {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--aurora-radius-lg, 24px);
+}
+.playground-aurora-page .pg-lab-frame > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.playground-aurora-page .pg-lab-frame :where(canvas, svg, iframe) {
+  max-inline-size: 100%;
+}
+
 /* ── 11. Safe-area padding for notched phones ── */
 @supports (padding: env(safe-area-inset-top)) {
   .aurora-nav {
@@ -94,6 +110,15 @@ code {
 
 /* ── Breakpoint: 768px ── */
 @media (max-width: 768px) {
+  .playground-aurora-page .pg-lab-frame {
+    border-radius: var(--aurora-radius-md, 16px);
+  }
+  .playground-aurora-page .pg-experiment-bar {
+    min-height: 44px;
+    flex-wrap: wrap;
+    row-gap: .2rem;
+    padding: .5rem .7rem;
+  }
   /* 10. World page tabs: horizontal scroll */
   .world-aurora-page .aurora-content-tabs {
     overflow-x: auto;
@@ -213,6 +238,17 @@ code {
 
 /* ── Breakpoint: 360px (small Android phones) ── */
 @media (max-width: 360px) {
+  .playground-aurora-page .pg-lab-frame {
+    width: calc(100% + .5rem);
+    margin-inline: -.25rem;
+    border-radius: var(--aurora-radius-sm, 10px);
+  }
+  .playground-aurora-page .pg-experiment-bar span:last-child {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   /* 5. Character grid: 1 col at extreme narrow */
   .characters-aurora-grid {
     grid-template-columns: 1fr;

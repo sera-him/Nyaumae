@@ -11,7 +11,11 @@ import { semanticHighlight } from '@/lib/semanticHighlight';
 import { getTierStyle, getPositionPercent } from '@/lib/fsiiiTiers';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Network, BookOpen, User, FolderKanban, X, EyeOff, ChevronDown } from 'lucide-react';
-import { frequencyMeta, loadWordFrequency, wordFrequency } from '@/data/wordFrequency';
+import WordFrequencyCloud from '@/components/WordFrequencyCloud';
+import WordFrequencyTable from '@/components/WordFrequencyTable';
+import { frequencyMeta, getWordFrequencyClouds, loadWordFrequency } from '@/data/wordFrequency';
+
+const DEFAULT_WORD_CLOUD_ALPHA = 1.35;
 
 
 export default function CharacterDetail() {
@@ -19,13 +23,34 @@ export default function CharacterDetail() {
   const all = [...characters, ...extraCharacters] as (Character | typeof extraCharacters[0])[];
   const char = all.find((c) => c.id === id);
   const [showArchive, setShowArchive] = useState(false);
-  const [, setFrequencyRevision] = useState(0);
+  const [frequencyClouds, setFrequencyClouds] = useState(getWordFrequencyClouds);
+  const [alphaText, setAlphaText] = useState(String(DEFAULT_WORD_CLOUD_ALPHA));
+  const [alpha, setAlpha] = useState(DEFAULT_WORD_CLOUD_ALPHA);
+
+  const parsedAlpha = Number(alphaText.trim());
+  const alphaInputIsValid = alphaText.trim() !== '' && Number.isFinite(parsedAlpha);
+  const rangeAlpha = Math.min(2, Math.max(1, alpha));
+
+  const handleAlphaInputChange = (value: string) => {
+    setAlphaText(value);
+    if (value.trim() !== '' && Number.isFinite(Number(value))) setAlpha(Number(value));
+  };
+
+  const handleAlphaInputBlur = () => {
+    if (!alphaInputIsValid) setAlphaText(String(alpha));
+  };
+
+  const handleAlphaRangeChange = (value: string) => {
+    const nextAlpha = Number(value);
+    setAlpha(nextAlpha);
+    setAlphaText(String(nextAlpha));
+  };
 
   useEffect(() => {
     if (!showArchive) return;
     let cancelled = false;
     void loadWordFrequency().then(() => {
-      if (!cancelled) setFrequencyRevision((revision) => revision + 1);
+      if (!cancelled) setFrequencyClouds(getWordFrequencyClouds());
     }).catch(() => {
       // The archive is supplementary; keep the character page usable if it fails to load.
     });
@@ -54,7 +79,6 @@ export default function CharacterDetail() {
   const charStories = stories.filter((s) =>
     s.chapters.some((ch) => ch.content.includes(char.name))
   );
-
   return (
     <div className="aurora-ui aurora-generic-page aurora-detail-page" data-aurora-accent="characters">
       <div className="aurora-container aurora-generic-inner max-w-[900px]">
@@ -110,9 +134,16 @@ export default function CharacterDetail() {
                 <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-white/[0.06] text-xs text-nc-text-secondary">
                   {mainChar.approximateAge ? '约 ' : ''}{mainChar.age} 岁
                 </span>
-                <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-white/[0.06] text-xs text-nc-text-secondary">
-                  {mainChar.approximateAge ? '约 ' : ''}公元 {mainChar.birthYear} 年生 {mainChar.birthday ? `· ${mainChar.birthday}` : ''}
-                </span>
+                {mainChar.birthYear !== null && (
+                  <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-white/[0.06] text-xs text-nc-text-secondary">
+                    {mainChar.approximateAge ? '约 ' : ''}公元 {mainChar.birthYear} 年生 {mainChar.birthday ? `· ${mainChar.birthday}` : ''}
+                  </span>
+                )}
+                {mainChar.birthYear === null && (
+                  <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-white/[0.06] text-xs text-nc-text-secondary">
+                    年龄只是形象年龄
+                  </span>
+                )}
                 {mainChar.giantBirthYear !== undefined && !['miaowu', 'delivery-rider', 'zhouji', 'xiulan'].includes(mainChar.id) && (
                   <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-sky-400/15 text-xs text-sky-300">
                     {mainChar.approximateAge ? '约 ' : ''}大人国 {mainChar.giantBirthYear} 年生
@@ -265,11 +296,11 @@ export default function CharacterDetail() {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="rounded-2xl border border-nc-gold/15 liquid-glass-subtle p-6 glass-highlight glass-shine relative">
+            <div className="rounded-2xl border border-nc-gold/15 p-6 relative">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-nc-text-muted flex items-center gap-2">
                   <FolderKanban className="w-4 h-4 text-nc-gold" />
-                  词频统计
+                  词云与月
                 </h3>
                 <button
                   onClick={() => setShowArchive(false)}
@@ -281,21 +312,49 @@ export default function CharacterDetail() {
               <p className="text-xs text-nc-text-muted mb-4 leading-relaxed">
                 从当前 {frequencyMeta.sourceItems} 条站内内容实时统计：
                 {frequencyMeta.totalWords.toLocaleString('zh-CN')} 次有效用词，
-                {frequencyMeta.uniqueWords.toLocaleString('zh-CN')} 个非角色词汇。
-                内容更新后刷新页面即可同步，无需再手工生成词频表。
+                {frequencyMeta.uniqueWords.toLocaleString('zh-CN')} 个唯一词汇。
+                这张 WordClouds 风格的词云与月覆盖完整词频集；文字实际面积按“词频^alpha”分配。
               </p>
-              <div className="flex flex-wrap gap-1.5 max-h-[400px] overflow-y-auto">
-                {wordFrequency.map(({ word, count }) => (
-                  <span
-                    key={word}
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded bg-nc-bg-tertiary border border-nc-violet/10 text-xs text-nc-text-secondary hover:border-nc-gold/30 hover:text-nc-text transition-colors cursor-default"
-                    title={`出现 ${count} 次`}
-                  >
-                    {word}
-                    <span className="text-[11px] text-nc-text-muted">{count}</span>
-                  </span>
-                ))}
+              <div className="word-frequency-alpha-control" aria-label="词云与月面积权重控制">
+                <div className="word-frequency-alpha-heading">
+                  <label htmlFor="word-frequency-alpha-range">面积权重 alpha</label>
+                  <output htmlFor="word-frequency-alpha-range">当前 {alpha}</output>
+                </div>
+                <input
+                  id="word-frequency-alpha-range"
+                  type="range"
+                  min="1"
+                  max="2"
+                  step="0.01"
+                  value={rangeAlpha}
+                  onChange={(event) => handleAlphaRangeChange(event.target.value)}
+                  aria-label="alpha 滑条范围 1 到 2"
+                />
+                <div className="word-frequency-alpha-input-row">
+                  <label htmlFor="word-frequency-alpha-input">自定义 alpha</label>
+                  <input
+                    id="word-frequency-alpha-input"
+                    type="text"
+                    inputMode="text"
+                    value={alphaText}
+                    onChange={(event) => handleAlphaInputChange(event.target.value)}
+                    onBlur={handleAlphaInputBlur}
+                    aria-invalid={!alphaInputIsValid}
+                  />
+                </div>
               </div>
+              <div className="space-y-6 mb-5">
+                <WordFrequencyCloud
+                  id="all-word-cloud"
+                  title="总云图"
+                  entries={frequencyClouds.all}
+                  alpha={alpha}
+                  shape="wordclouds"
+                  shapeLabel="WordClouds 风格自然词团"
+                  emptyText="正在自动生成总云图"
+                />
+              </div>
+              <WordFrequencyTable entries={frequencyClouds.all} />
             </div>
           </motion.div>
         )}

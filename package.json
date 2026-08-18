@@ -6,9 +6,17 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/prepare-sites.mjs",
+    "optimize:images": "python scripts/generate_responsive_images.py",
     "lint": "eslint .",
+    "test:nctb": "node --experimental-strip-types scripts/nctb/nctb-smoke.ts",
+    "nctb:validate": "node --experimental-strip-types scripts/nctb/validate-items.ts",
+    "nctb:generate": "node --experimental-strip-types scripts/nctb/generate-items.ts",
+    "nctb:review": "node --experimental-strip-types scripts/nctb/review-items.ts",
+    "nctb:freeze": "node --experimental-strip-types scripts/nctb/freeze-item.ts",
     "test:conversation": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/conversation-smoke.mjs",
     "test:site": "node scripts/site-smoke.mjs",
+    "test:resilience": "node --experimental-strip-types scripts/resilience-smoke.mjs",
+    "test:city-builder": "node --experimental-strip-types scripts/city-builder-smoke.ts",
     "preview": "vite preview",
     "three-holes:generate": "python scripts/three_holes_unique_generator.py --output src/game/threeHoles/puzzles.generated.json",
     "three-holes:verify": "python scripts/three_holes_unique_generator.py --verify src/game/threeHoles/puzzles.generated.json --unique-time 360"

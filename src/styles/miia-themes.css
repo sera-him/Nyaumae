@@ -542,3 +542,29 @@
     animation: none;
   }
 }
+
+/* Manuscript headings use the same readable ink, but gain a distinct
+   lavender signal so section titles do not disappear into the pale island. */
+.site-theme-shell[data-site-theme='miia'] :is(.miia-subpage, .miia-floating-island) :is(h2,h3,h4) {
+  color: color-mix(in srgb, var(--miia-purple) 62%, var(--miia-ink)) !important;
+  text-shadow: 0 0 12px rgba(123, 90, 166, .16);
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-subpage :is(h2,h3,h4)[class*='text-[#F0E6FF]'],
+.site-theme-shell[data-site-theme='miia'] .miia-subpage :is(h2,h3,h4)[class~='text-nc-text'] {
+  color: color-mix(in srgb, var(--miia-purple) 62%, var(--miia-ink)) !important;
+  text-shadow: 0 0 12px rgba(123, 90, 166, .16);
+}
+
+/* The poems section has a more specific legacy text rule than the shared
+   heading pass above. Re-assert the ink/accent for its actual headings so the
+   pale manuscript surface never receives near-white title text. */
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section :is(h2,h3,h4)[class~='text-nc-text'] {
+  color: color-mix(in srgb, var(--miia-purple) 62%, var(--miia-ink)) !important;
+  text-shadow: 0 0 12px rgba(123, 90, 166, .16);
+}
+
+.site-theme-shell[data-site-theme='miia'] .miia-poems-section :is(h2,h3,h4)[class~='text-nc-gold'] {
+  color: #8d6022 !important;
+  text-shadow: 0 0 10px rgba(141, 96, 34, .14);
+}

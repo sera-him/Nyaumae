@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import './CatMachine.css';
+import { readJsonStorage, removeStorageValue, writeJsonStorage } from '@/lib/browserStorage';
 
 type Need = 'snack' | 'play' | 'nap';
 type Phase = 'intro' | 'arrange' | 'resolving' | 'result' | 'upgrade';
@@ -295,7 +296,11 @@ function getShopLevel(score: number): number {
 
 function loadSavedProgress(): LoadedProgress | null {
   try {
-    const parsed = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null') as Partial<SavedProgress> | null;
+    const parsed = readJsonStorage<Partial<SavedProgress> | null>(SAVE_KEY, null, {
+      currentVersion: 1,
+      getVersion: (value) => value && typeof value === 'object' && 'version' in value && typeof value.version === 'number' ? value.version : 0,
+      migrations: { 0: (value) => ({ ...(value && typeof value === 'object' ? value : {}), version: 1 }) },
+    }).value;
     if (!parsed || parsed.version !== 1 || !Array.isArray(parsed.cats) || !Array.isArray(parsed.stations)) return null;
 
     const cats = parsed.cats
@@ -467,83 +472,6 @@ export default function CatMachine() {
   }, []);
 
   useEffect(() => {
-    const previousTitle = document.title;
-    const imageUrl = new URL('/cat-machine-og.png', window.location.origin).toString();
-    const metadata = [
-      {
-        selector: 'meta[name="description"]',
-        attribute: 'name',
-        key: 'description',
-        content: '猫咪机：用两次猫爪调整九只猫与三层工位，触发贴贴连锁、猫咪天赋、班次事件和永久模块升级。',
-      },
-      {
-        selector: 'meta[property="og:title"]',
-        attribute: 'property',
-        key: 'og:title',
-        content: '猫咪机 · CAT-O-MATIC',
-      },
-      {
-        selector: 'meta[property="og:description"]',
-        attribute: 'property',
-        key: 'og:description',
-        content: '九只猫、三层工位、每班两步。把愿望排成整层，摇铃触发一串会呼噜的连锁。',
-      },
-      {
-        selector: 'meta[property="og:image"]',
-        attribute: 'property',
-        key: 'og:image',
-        content: imageUrl,
-      },
-      {
-        selector: 'meta[name="twitter:title"]',
-        attribute: 'name',
-        key: 'twitter:title',
-        content: '猫咪机 · CAT-O-MATIC',
-      },
-      {
-        selector: 'meta[name="twitter:description"]',
-        attribute: 'name',
-        key: 'twitter:description',
-        content: '把九只猫送进刚刚好的工位，摇铃触发贴贴连锁。',
-      },
-      {
-        selector: 'meta[name="twitter:image"]',
-        attribute: 'name',
-        key: 'twitter:image',
-        content: imageUrl,
-      },
-    ];
-
-    const snapshots = metadata.map((item) => {
-      let element = document.head.querySelector<HTMLMetaElement>(item.selector);
-      const created = !element;
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute(item.attribute, item.key);
-        document.head.appendChild(element);
-      }
-      const previousContent = element.getAttribute('content');
-      element.setAttribute('content', item.content);
-      return { element, created, previousContent };
-    });
-
-    document.title = '猫咪机 · CAT-O-MATIC';
-
-    return () => {
-      document.title = previousTitle;
-      snapshots.forEach(({ element, created, previousContent }) => {
-        if (created) {
-          element.remove();
-        } else if (previousContent === null) {
-          element.removeAttribute('content');
-        } else {
-          element.setAttribute('content', previousContent);
-        }
-      });
-    };
-  }, []);
-
-  useEffect(() => {
     if (phase === 'intro' || phase === 'resolving') return;
     const progress: SavedProgress = {
       version: 1,
@@ -557,13 +485,7 @@ export default function CatMachine() {
       streak,
       moduleIds: modules.map((module) => module.id),
     };
-    let saved = false;
-    try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(progress));
-      saved = true;
-    } catch {
-      // A private browsing context may reject storage.
-    }
+    const saved = writeJsonStorage(SAVE_KEY, progress).persisted;
     if (!saved) return;
     const savedTimer = window.setTimeout(() => setHasSavedProgress(true), 0);
     return () => window.clearTimeout(savedTimer);
@@ -864,12 +786,8 @@ export default function CatMachine() {
     if (!window.confirm('确定清空这台设备上的猫咪机进度吗？店铺等级、模块和累计呼噜都会归零。')) return;
     resolutionTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     resolutionTimersRef.current = [];
-    try {
-      localStorage.removeItem(SAVE_KEY);
-      localStorage.removeItem('cat-machine:best-score');
-    } catch {
-      // Storage is optional.
-    }
+    removeStorageValue(SAVE_KEY);
+    removeStorageValue('cat-machine:best-score');
     setRound(1);
     setCats(createInitialCats());
     setStations(['snack', 'play', 'nap']);

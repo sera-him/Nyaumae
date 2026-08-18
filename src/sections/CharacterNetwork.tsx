@@ -61,7 +61,7 @@ export default function CharacterNetwork() {
     <section id="character-network" className="py-24 px-4 sm:px-6 relative">
       <div ref={ref} className="max-w-[1100px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isVisible ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} className="mb-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-nc-text mb-3 tracking-wide">{semanticHighlight("角色/网络")}</h2>
+          <h2 className="character-network-title text-3xl sm:text-4xl font-bold mb-3 tracking-wide">{semanticHighlight("角色/网络")}</h2>
           <p className="text-nc-text-secondary text-lg">{semanticHighlight(`${nodes.length} 位角色 · 点击查看详情`)}</p>
           <p className="text-nc-text-muted text-xs mt-2 max-w-lg">
             为什么叫「角色/网络」而不是「关系网」或「角色网」？<br />

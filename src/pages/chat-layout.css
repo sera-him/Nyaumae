@@ -56,7 +56,12 @@
   height: calc(100svh - 5.3rem);
   min-height: calc(100vh - 5.3rem);
 }
-.ocean-chat-main, .sweet-chat-main, .aurora-chat-main { overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+.aurora-site-main--chat { height: 100svh; min-height: 100svh; overflow: hidden; }
+.ocean-chat-shell, .sweet-chat-shell, .aurora-chat-shell { position: relative; min-width: 0; min-height: 0; height: 100%; }
+.ocean-chat-main, .sweet-chat-main, .aurora-chat-main { overflow: hidden; overscroll-behavior: contain; }
+.ocean-chat-scroll, .sweet-chat-scroll, .aurora-chat-scroll {
+  flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+}
 .ocean-chat-header, .sweet-chat-header, .aurora-chat-header { position: sticky; z-index: 8; top: 0; flex: 0 0 auto; }
 .original-chat-sidebar-backdrop { display: none; }
 .original-chat-controls {
@@ -175,7 +180,8 @@
 }
 .original-chat-sticker-anchor { position: relative; }
 .original-chat-sticker-panel {
-  position: absolute; z-index: 20; left: 0; bottom: 10px; width: min(390px, calc(100vw - 28px));
+  position: absolute; z-index: 20; left: 0; bottom: 10px; display: flex; flex-direction: column;
+  width: min(390px, calc(100vw - 28px)); overflow: hidden;
   padding: 12px; border: 1px solid var(--oc-line); border-radius: 22px;
   background: var(--oc-surface-2); box-shadow: 0 20px 60px var(--oc-shadow);
   backdrop-filter: blur(24px) saturate(150%); transform-origin: left bottom; animation: originalStickerPop .2s ease-out;
@@ -190,7 +196,7 @@
 }
 .original-chat-sticker-grid {
   display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-height: 310px;
-  padding: 2px; overflow-y: auto; overscroll-behavior: contain;
+  min-height: 0; padding: 2px; overflow-y: auto; overscroll-behavior: contain;
 }
 .original-chat-sticker-grid button {
   display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; padding: 5px 3px;
@@ -200,6 +206,7 @@
 .original-chat-sticker-grid img { width: 100%; aspect-ratio: 1; object-fit: contain; }
 .original-chat-sticker-grid span { width: 100%; overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
 @keyframes originalStickerPop { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
+.ocean-mobile-nav, .sweet-mobile-nav, .aurora-mobile-nav { font-size: 9px; line-height: 1.2; }
 .ocean-mobile-nav a, .sweet-mobile-nav a, .aurora-mobile-nav a {
   display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 64px;
   color: inherit; font-size: inherit; text-decoration: none;

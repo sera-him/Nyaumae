@@ -82,15 +82,15 @@ export const networkNodes: NetworkNode[] = [
   { id: 'quartus',    name: '卡塔斯', group: 'special',  x: 45.49, y: 85.01 },
 
   // 《大人国的小女孩》角色集中区
-  { id: 'changfeng',  name: '长风',     group: 'giant', x: 10, y: 10 },
-  { id: 'chuxia',     name: '初夏',     group: 'giant', x: 30, y: 10 },
-  { id: 'xiaoman',    name: '小满',     group: 'giant', x:  2, y: 29 },
-  { id: 'xiaogu',     name: '小谷',     group: 'giant', x: 20, y: 42 },
-  { id: 'xiaohe',     name: '小禾',     group: 'giant', x: 38, y: 29 },
-  { id: 'miaowu',     name: '喵呜',     group: 'giant', x: 52, y: 42 },
-  { id: 'xiulan',     name: '秀兰奶奶', group: 'giant', x: 63, y: 10 },
-  { id: 'zhouji',     name: '周济',     group: 'giant', x: 85, y: 10 },
-  { id: 'high-school-student', name: '陈予安', group: 'giant', x: 74, y: 34 },
+  { id: 'changfeng',  name: '长风',     group: 'giant', x: 20, y: 16 },
+  { id: 'chuxia',     name: '初夏',     group: 'giant', x: 36, y: 16 },
+  { id: 'xiaoman',    name: '小满',     group: 'giant', x: 18, y: 30 },
+  { id: 'xiaogu',     name: '小谷',     group: 'giant', x: 30, y: 38 },
+  { id: 'xiaohe',     name: '小禾',     group: 'giant', x: 42, y: 30 },
+  { id: 'miaowu',     name: '喵呜',     group: 'giant', x: 50, y: 38 },
+  { id: 'xiulan',     name: '秀兰奶奶', group: 'giant', x: 60, y: 16 },
+  { id: 'zhouji',     name: '周济',     group: 'giant', x: 74, y: 16 },
+  { id: 'high-school-student', name: '陈予安', group: 'giant', x: 68, y: 30 },
 ];
 
 /* ═══════════════════════════════════════════

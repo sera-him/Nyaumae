@@ -1,15 +1,20 @@
 /* ==========================================================================
    Neural Connection motion system
-   Automatic motion communicates ambience/status/progress.
-   Interaction motion communicates affordance/preview.
+   Functional motion: navigation, loading, switching and send state.
+   Feedback motion: press, selection and success acknowledgement.
+   Ambient motion: particles, glow, carousel and background flow.
    ========================================================================== */
 
 :root {
+  --motion-duration-feedback: 160ms;
+  --motion-duration-panel: 220ms;
+  --motion-duration-page: 280ms;
+  --motion-duration-reveal: 480ms;
   --motion-duration-instant: 120ms;
-  --motion-duration-fast: 180ms;
-  --motion-duration-base: 280ms;
-  --motion-duration-slow: 520ms;
-  --motion-duration-scene: 760ms;
+  --motion-duration-fast: var(--motion-duration-feedback);
+  --motion-duration-base: var(--motion-duration-page);
+  --motion-duration-slow: var(--motion-duration-reveal);
+  --motion-duration-scene: var(--motion-duration-reveal);
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
@@ -67,45 +72,12 @@ html[data-motion-page='hidden'] *::after,
   transition-duration: var(--motion-duration-instant);
 }
 
-/* Global press feedback for controls that do not opt into a page-specific
-   motion class.  :where() keeps this rule intentionally low-specificity so
-   game-specific active states and existing component transforms remain the
-   source of truth.  The same :active state is available to mouse, touch and
-   keyboard activation without adding JavaScript or a persistent loop. */
-:where(
-  button:not(:disabled):not([aria-disabled='true']),
-  a[href]:not([aria-disabled='true']),
-  summary:not([aria-disabled='true']),
-  [role='button']:not([aria-disabled='true']),
-  [role='link']:not([aria-disabled='true']),
-  [role='tab']:not([aria-disabled='true']),
-  [role='menuitem']:not([aria-disabled='true']),
-  [role='option']:not([aria-disabled='true']),
-  [role='gridcell']:not([aria-disabled='true']),
-  [role='switch']:not([aria-disabled='true']),
-  [role='checkbox']:not([aria-disabled='true']),
-  [role='radio']:not([aria-disabled='true'])
-):not([data-motion-click='none']) {
-  transition-duration: var(--motion-duration-fast);
+/* Keep transition timing consistent for controls that receive the separate
+   click ripple.  :where() keeps this rule low-specificity so component-level
+   hover, focus, and press states remain the source of truth. */
+:where([data-motion-ripple='true']):not(:disabled):not([aria-disabled='true']) {
+  transition-duration: var(--motion-duration-feedback);
   transition-timing-function: var(--motion-ease-standard);
-}
-
-:where(
-  button:not(:disabled):not([aria-disabled='true']),
-  a[href]:not([aria-disabled='true']),
-  summary:not([aria-disabled='true']),
-  [role='button']:not([aria-disabled='true']),
-  [role='link']:not([aria-disabled='true']),
-  [role='tab']:not([aria-disabled='true']),
-  [role='menuitem']:not([aria-disabled='true']),
-  [role='option']:not([aria-disabled='true']),
-  [role='gridcell']:not([aria-disabled='true']),
-  [role='switch']:not([aria-disabled='true']),
-  [role='checkbox']:not([aria-disabled='true']),
-  [role='radio']:not([aria-disabled='true'])
-):not([data-motion-click='none']):active {
-  transform: scale(var(--motion-press-scale));
-  transition-duration: var(--motion-duration-instant);
 }
 
 /* Click feedback is rendered in a fixed layer so it never replaces a
@@ -119,7 +91,7 @@ html[data-motion-page='hidden'] *::after,
   background: radial-gradient(circle, currentColor 0 8%, transparent 68%);
   opacity: 0;
   transform: translate3d(-50%, -50%, 0) scale(0.22);
-  animation: motion-click-ripple var(--motion-duration-scene) var(--motion-ease-enter) both;
+  animation: motion-click-ripple var(--motion-duration-feedback) var(--motion-ease-enter) both;
   will-change: transform, opacity;
 }
 
@@ -510,7 +482,7 @@ html[data-motion-page='hidden'] *::after,
 }
 
 .box-duel-case.is-opened {
-  animation: motion-box-reveal 520ms var(--motion-ease-enter) both;
+  animation: motion-box-reveal var(--motion-duration-reveal) var(--motion-ease-enter) both;
 }
 
 .super24-result[data-result='correct'] {
@@ -542,13 +514,9 @@ html[data-motion-page='hidden'] *::after,
   animation: motion-status-soft 2.4s ease-in-out infinite;
 }
 
-/* AI settings and dialogue workbench state motion. */
+/* AI settings state motion. */
 .ai-inline-notice,
-.ai-download-progress,
-.dialogue-inspector-content,
-.dialogue-evidence,
-.dialogue-memory-list > *,
-.dialogue-message {
+.ai-download-progress {
   animation: motion-content-arrive var(--motion-duration-slow) var(--motion-ease-enter) both;
 }
 
@@ -596,63 +564,12 @@ html[data-motion-page='hidden'] *::after,
   animation: motion-state-arrive var(--motion-duration-base) var(--motion-ease-spring) both;
 }
 
-.ai-download-progress > div > span,
-.dialogue-progress > i {
+.ai-download-progress > div > span {
   transition: width var(--motion-duration-slow) var(--motion-ease-enter);
 }
 
 .ai-inline-notice.is-success svg {
-  animation: motion-success-mark 520ms var(--motion-ease-spring) both;
-}
-
-.dialogue-portrait-glow {
-  animation: motion-presence-breathe 4.8s ease-in-out infinite;
-}
-
-.dialogue-suggestions button,
-.dialogue-session-list button,
-.dialogue-character-stack button,
-.dialogue-evidence,
-.dialogue-send {
-  transition:
-    transform var(--motion-duration-fast) var(--motion-ease-enter),
-    border-color var(--motion-duration-fast),
-    background-color var(--motion-duration-fast),
-    color var(--motion-duration-fast);
-}
-
-.dialogue-suggestions button:hover,
-.dialogue-suggestions button:focus-visible,
-.dialogue-session-list button:hover,
-.dialogue-session-list button:focus-visible,
-.dialogue-character-stack button:hover,
-.dialogue-character-stack button:focus-visible,
-.dialogue-evidence:hover,
-.dialogue-evidence:focus-visible {
-  transform: translate3d(3px, 0, 0);
-}
-
-.dialogue-send:not(:disabled):hover,
-.dialogue-send:not(:disabled):focus-visible {
-  transform: translate3d(0, -2px, 0) scale(1.03);
-}
-
-.dialogue-send:not(:disabled) {
-  animation: motion-send-ready 420ms var(--motion-ease-spring) both;
-}
-
-.dialogue-message:focus-within .dialogue-message-actions {
-  opacity: 1;
-}
-
-@property --meter {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
-.dialogue-meter-ring {
-  transition: --meter var(--motion-duration-slow) var(--motion-ease-enter);
+  animation: motion-success-mark var(--motion-duration-reveal) var(--motion-ease-spring) both;
 }
 
 /* ==========================================================================
@@ -1552,8 +1469,7 @@ html[data-motion-page='hidden'] *::after,
   .ai-provider-card:hover,
   .ai-size-grid button:hover,
   .ai-runtime-grid button:hover,
-  .ai-tone-options button:hover,
-  .dialogue-send:not(:disabled):hover {
+  .ai-tone-options button:hover {
     transform: none !important;
   }
 
@@ -1570,7 +1486,6 @@ html[data-motion-page='hidden'] *::after,
 
   .story-reading-progress > span,
   .ai-download-progress > div > span,
-  .dialogue-progress > i,
   .fla-weight-bar > span,
   [data-chat-theme] :where(.ocean-voyage-track, .sweet-voyage-track) > span,
   [data-chat-theme] :where(.ocean-affection, .sweet-affection) > span {

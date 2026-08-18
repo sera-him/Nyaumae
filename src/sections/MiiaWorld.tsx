@@ -124,7 +124,7 @@ export default function MiiaWorld() {
             <Brain className="w-5 h-5 text-[#A78BFA]" />
             <h3 className="text-lg font-semibold text-[#F0E6FF]">{semanticHighlight("映射区块")}</h3>
           </div>
-          <div className="font-mono text-xs text-nc-text-muted whitespace-pre leading-relaxed overflow-x-auto">
+          <div className="font-mono text-xs text-nc-text-secondary whitespace-pre leading-relaxed overflow-x-auto">
             {JSON.stringify(mappingBlock, null, 2)}
           </div>
         </div>

@@ -118,3 +118,71 @@ html[data-aurora-low-spec='true'] .liquid-glass-cyan,
 html[data-aurora-low-spec='true'] .liquid-glass-subtle {
   contain: content;
 }
+
+/* Runtime motion tiers. Mobile keeps ambience at lower resolution; genuinely
+   constrained devices keep the visual identity as a static gradient. */
+.motion-atmosphere-surface {
+  isolation: isolate;
+}
+
+.motion-atmosphere-surface[data-motion-static='true']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(102, 233, 218, 0.12), transparent 34%),
+    radial-gradient(circle at 78% 68%, rgba(166, 133, 255, 0.14), transparent 38%),
+    radial-gradient(circle at 56% 12%, rgba(255, 143, 199, 0.08), transparent 28%);
+}
+
+.motion-atmosphere-surface > canvas {
+  z-index: 1;
+}
+
+html[data-motion-quality='static'] [data-motion-kind='ambient'],
+html[data-motion-reduced='true'] [data-motion-kind='ambient'] {
+  animation: none !important;
+}
+
+html[data-motion-quality='static'] canvas[data-motion-kind='ambient'],
+html[data-motion-reduced='true'] canvas[data-motion-kind='ambient'],
+html[data-motion-quality='static'] .motion-atmosphere-surface > canvas,
+html[data-motion-reduced='true'] .motion-atmosphere-surface > canvas {
+  display: none !important;
+}
+
+html[data-motion-quality='static'] .portal-particle-hint,
+html[data-motion-reduced='true'] .portal-particle-hint {
+  display: none;
+}
+
+html[data-motion-quality='static'] .liquid-glass,
+html[data-motion-quality='static'] .liquid-glass-violet,
+html[data-motion-quality='static'] .liquid-glass-cyan,
+html[data-motion-quality='static'] .liquid-glass-subtle,
+html[data-motion-quality='static'] .aurora-menu-shell,
+html[data-motion-quality='static'] .portal-miia,
+html[data-motion-quality='static'] .site-search-panel {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html[data-motion-device='mobile'] .liquid-glass,
+html[data-motion-device='mobile'] .liquid-glass-violet,
+html[data-motion-device='mobile'] .liquid-glass-cyan,
+html[data-motion-device='mobile'] .liquid-glass-subtle,
+html[data-motion-device='mobile'] .aurora-menu-shell,
+html[data-motion-device='mobile'] .portal-miia,
+html[data-motion-device='mobile'] .portal-command-console,
+html[data-motion-device='mobile'] .site-search-panel,
+html[data-motion-device='mobile'] :where(.ocean-composer, .sweet-composer, .aurora-composer) {
+  backdrop-filter: blur(10px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(130%) !important;
+}
+
+html[data-motion-device='mobile'] :where(.aurora-nebula, .sweet-nebula, .portal-hero-refraction)::before,
+html[data-motion-device='mobile'] :where(.aurora-nebula, .sweet-nebula, .portal-hero-refraction)::after {
+  filter: blur(8px) !important;
+}

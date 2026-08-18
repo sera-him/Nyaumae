@@ -1,22 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
-import { ImageOff } from 'lucide-react';
-import { cn, p } from '../lib/utils';
+import { ImageOff, RotateCcw } from 'lucide-react';
+import { cn } from '../lib/utils';
 import { imageHostMap } from '../lib/imageHostMap';
+import ResponsiveImage, { CARD_IMAGE_WIDTHS } from './ResponsiveImage';
 
 interface SmartImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   localSrc: string;
   aspectRatio?: string;
   skeletonClassName?: string;
   containerClassName?: string;
+  responsiveWidths?: readonly number[];
+  backupSrc?: string | null;
 }
-
-const fallbackCache = new Set<string>();
 
 export default function SmartImage({
   localSrc,
   aspectRatio,
   skeletonClassName = 'bg-nc-bg-tertiary',
   containerClassName = '',
+  responsiveWidths = CARD_IMAGE_WIDTHS,
+  backupSrc = '/hero-bg.jpg',
   className: imgClassName = '',
   style,
   onLoad,
@@ -24,16 +27,16 @@ export default function SmartImage({
   loading = 'lazy',
   ...imgProps
 }: SmartImageProps) {
-  const [imageState, setImageState] = useState<{ src: string; status: 'loading' | 'loaded' | 'error' }>(() => ({
+  const [imageState, setImageState] = useState<{ src: string; status: 'loading' | 'loaded' | 'error'; attempt: number }>(() => ({
     src: localSrc,
     status: 'loading',
+    attempt: 0,
   }));
   const mountedRef = useRef(true);
 
-  const remoteUrl = imageHostMap[localSrc] ?? null;
-  const state = imageState.src === localSrc ? imageState.status : 'loading';
-  const useFallback = fallbackCache.has(localSrc);
-  const src = (!useFallback && remoteUrl) ? remoteUrl : p(localSrc);
+  const remoteUrl = imageHostMap[localSrc] ?? undefined;
+  const current = imageState.src === localSrc ? imageState : { src: localSrc, status: 'loading' as const, attempt: 0 };
+  const state = current.status;
 
   useEffect(() => {
     return () => { mountedRef.current = false; };
@@ -41,19 +44,14 @@ export default function SmartImage({
 
   const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (!mountedRef.current) return;
-    setImageState({ src: localSrc, status: 'loaded' });
+    setImageState((value) => ({ ...value, src: localSrc, status: 'loaded' }));
     onLoad?.(e);
   };
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (!mountedRef.current) return;
-    if (!useFallback && remoteUrl) {
-      fallbackCache.add(localSrc);
-      setImageState({ src: localSrc, status: 'loading' });
-    } else {
-      setImageState({ src: localSrc, status: 'error' });
-      onError?.(e);
-    }
+    setImageState((value) => ({ ...value, src: localSrc, status: 'error' }));
+    onError?.(e);
   };
 
   return (
@@ -69,13 +67,23 @@ export default function SmartImage({
       {state === 'error' && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-nc-bg-secondary text-nc-text-muted">
           <ImageOff className="w-8 h-8 mb-2 opacity-50" />
-          <span className="text-xs opacity-50">图片加载失败</span>
+          <span className="text-xs opacity-70">图片和备用资源均加载失败</span>
+          <button
+            type="button"
+            onClick={() => setImageState((value) => ({ src: localSrc, status: 'loading', attempt: value.attempt + 1 }))}
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-nc-text hover:bg-white/5"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />重试
+          </button>
         </div>
       )}
-      <img
+      <ResponsiveImage
         {...imgProps}
-        key={src}
-        src={src}
+        key={`${localSrc}:${current.attempt}`}
+        src={localSrc}
+        fallbackSrc={remoteUrl}
+        backupSrc={backupSrc}
+        widths={responsiveWidths}
         loading={loading}
         className={`w-full h-full transition-opacity duration-500 ${state === 'loaded' ? 'opacity-100' : 'opacity-0'} ${imgClassName}`}
         onLoad={handleLoad}

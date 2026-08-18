@@ -34,6 +34,8 @@ function NoteParagraph({ text, index }: { text: string; index: number }) {
   const isInView = useInView(ref, { once: true, margin: '-50px' });
 
   let content: React.ReactNode[] = [text];
+  let highlightKey = 0;
+  let redMarkKey = 0;
 
   highlights.forEach((word) => {
     content = content.flatMap((node) => {
@@ -46,7 +48,7 @@ function NoteParagraph({ text, index }: { text: string; index: number }) {
         if (i < parts.length - 1) {
           result.push(
             <mark
-              key={`hl-${word}-${i}`}
+              key={`note-${index}-hl-${highlightKey++}`}
               className="rounded-sm px-0.5"
               style={{
                 background: 'linear-gradient(120deg, #fde047 0%, #fde047 100%)',
@@ -76,7 +78,7 @@ function NoteParagraph({ text, index }: { text: string; index: number }) {
         if (i < parts.length - 1) {
           result.push(
             <span
-              key={`rm-${word}-${i}`}
+              key={`note-${index}-rm-${redMarkKey++}`}
               className="relative inline-block"
               style={{ color: '#c0392b' }}
             >

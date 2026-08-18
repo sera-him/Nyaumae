@@ -11,7 +11,7 @@ export default defineConfig({
       name: 'generate-api-html',
       closeBundle() {
         return new Promise((resolve, reject) => {
-          const proc = spawn('node', [path.resolve(__dirname, 'scripts/generate-api-html.mjs')], {
+          const proc = spawn(process.execPath, [path.resolve(__dirname, 'scripts/generate-api-html.mjs')], {
             stdio: 'inherit',
           });
           proc.on('exit', (code) => code === 0 ? resolve() : reject(new Error(`exit code ${code}`)));

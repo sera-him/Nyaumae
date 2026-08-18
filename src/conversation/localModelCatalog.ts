@@ -38,7 +38,9 @@ function ollamaDownload(model: string): LocalModelDownload {
 
 function huggingFaceDownload(repo: string): LocalModelDownload {
   const folder = repo.split('/').pop() ?? repo;
-  const note = repo === 'moonshotai/Kimi-K3'
+  const note = repo === 'deepseek-ai/DeepSeek-V4-Flash-0731'
+    ? '先运行：py -m pip install -U huggingface_hub hf_xet。然后使用上面的 hf download 命令下载 DeepSeek 官方 FP8 权重；该模型没有 Ollama 官方本地包，不要执行 ollama pull。下载完成后请使用支持 DeepSeek-V4 架构的 vLLM 或 SGLang，并按官方模型卡配置推理服务。'
+    : repo === 'moonshotai/Kimi-K3'
     ? '若尚未安装 HF CLI，先运行：py -m pip install -U huggingface_hub hf_xet。Kimi K3 官方原始权重需要兼容其模型架构的分布式推理环境；不能直接通过 Ollama 或普通电脑运行。'
     : repo === 'moonshotai/Kimi-K2.6'
       ? '若尚未安装 HF CLI，先运行：py -m pip install -U huggingface_hub hf_xet。Kimi K2.6 官方原始权重需要兼容其模型架构的高性能推理环境；不能直接通过 Ollama 运行。'
@@ -74,6 +76,7 @@ export const LOCAL_MODEL_TIERS: LocalModelTier[] = [
   { id: '70b', label: '70B', parameters: 7e10, quantizedMemory: '约 45 GB', hardware: '64 GB RAM / Multi-GPU', description: 'Llama 3.3 70B', deviceModel: 'llama3.3:70b', ollamaModel: 'llama3.3:70b' },
   { id: '104b', label: '104B', parameters: 1.04e11, quantizedMemory: '约 70 GB', hardware: '128 GB RAM / Multi-GPU', description: 'Command R+ 104B', deviceModel: 'CohereLabs/c4ai-command-r-plus' },
   { id: '235b', label: '235B', parameters: 2.35e11, quantizedMemory: '约 150 GB', hardware: 'Multi-GPU server', description: 'Qwen3 235B', deviceModel: 'qwen3:235b', ollamaModel: 'qwen3:235b' },
+  { id: '304b', label: '304B', parameters: 3.04e11, quantizedMemory: '约 304 GB（FP8 权重）', hardware: '4×GB300 或同级多 GPU 集群', description: 'DeepSeek-V4-Flash-0731 官方权重', deviceModel: 'deepseek-ai/DeepSeek-V4-Flash-0731' },
   { id: '405b', label: '405B', parameters: 4.05e11, quantizedMemory: '约 260 GB', hardware: '8×80 GB GPU server', description: 'Llama 3.1 405B', deviceModel: 'llama3.1:405b', ollamaModel: 'llama3.1:405b' },
   { id: '671b', label: '671B', parameters: 6.71e11, quantizedMemory: '约 430 GB', hardware: 'Multi-node server', description: 'DeepSeek-R1 671B', deviceModel: 'deepseek-r1:671b', ollamaModel: 'deepseek-r1:671b' },
   { id: '1t', label: '1T', parameters: 1e12, quantizedMemory: '约 640 GB', hardware: 'Inference cluster', description: 'Kimi K2.6', deviceModel: 'moonshotai/Kimi-K2.6' },

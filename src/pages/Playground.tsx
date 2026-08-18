@@ -1,19 +1,21 @@
-import { useMemo } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { ExternalLink, ArrowLeft } from 'lucide-react';
+import { ExternalLink, ArrowLeft, CircleHelp, LoaderCircle, LogOut, Pause, Play, RotateCcw, Save, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ChessRules from '@/sections/ChessRules';
-import SkillTicTacToe from '@/sections/SkillTicTacToe';
-import Problems from '@/sections/Problems';
-import BoxDuel from '@/sections/BoxDuel';
-import Super24 from '@/sections/Super24';
-import HellMaze from '@/sections/HellMaze';
-import ThreeHoles from '@/sections/ThreeHoles';
-import SpaceGame from '@/sections/SpaceGame';
-import FractalEcho from '@/sections/FractalEcho';
-import NeuralEcho from '@/sections/NeuralEcho';
-import CatMachine from '@/sections/CatMachine';
-import NeuralClash from '@/pages/NeuralClash';
+const LazyChessRules = lazy(() => import('@/sections/ChessRules'));
+const LazySkillTicTacToe = lazy(() => import('@/sections/SkillTicTacToe'));
+const LazyProblems = lazy(() => import('@/sections/Problems'));
+const LazyBoxDuel = lazy(() => import('@/sections/BoxDuel'));
+const LazySuper24 = lazy(() => import('@/sections/Super24'));
+const LazyHellMaze = lazy(() => import('@/sections/HellMaze'));
+const LazyThreeHoles = lazy(() => import('@/sections/ThreeHoles'));
+const LazySpaceGame = lazy(() => import('@/sections/SpaceGame'));
+const LazyFractalEcho = lazy(() => import('@/sections/FractalEcho'));
+const LazyNeuralEcho = lazy(() => import('@/sections/NeuralEcho'));
+const LazyCatMachine = lazy(() => import('@/sections/CatMachine'));
+const LazyNeuralClash = lazy(() => import('@/pages/NeuralClash'));
+const LazyCatMouseGame = lazy(() => import('@/pages/CatMouseGame'));
+const LazyCityBuilder = lazy(() => import('@/pages/CityBuilderGame'));
 
 /* ─── Types ─── */
 
@@ -26,6 +28,7 @@ interface GameEntry {
   color: string;
   component?: React.ComponentType;
   scratchId?: number;
+  sessionNote?: string;
 }
 
 const CATEGORIES: { key: GameEntry['category']; label: string }[] = [
@@ -40,61 +43,67 @@ const games: GameEntry[] = [
     id: 'cat-machine', name: '猫咪机',
     desc: '九只猫、三层工位与两步决策。换位、连锁、天赋、突发事件和模块升级，一晚八班刚刚好。',
     category: 'games', icon: '🐾', color: '#f8796f',
-    component: CatMachine,
+    component: LazyCatMachine, sessionNote: '自动保存到本机',
+  },
+  {
+    id: 'city-builder', name: '建设城市',
+    desc: '十二种属性就是十二种资源。与默认3个AI实时建设、交换、应对事件，在竞争中完成跨城项目。',
+    category: 'games', icon: '🏙️', color: '#4ea8de',
+    component: LazyCityBuilder, sessionNote: '当前局仅在本页保留',
   },
   {
     id: 'stellar', name: '星际战线 Stellar',
     desc: '俯视角实时射击与十武器即时切换。识别弱点，连续正确切枪，点燃 Stellar Flow。',
     category: 'games', icon: '✦', color: '#00e5cc',
-    component: SpaceGame,
+    component: LazySpaceGame, sessionNote: '支持本机存档',
   },
   {
     id: 'compound-chess', name: '复合象棋',
     desc: '传统象棋与多种机制的融合变体，包含立体空间、相位变换和召唤单位等创新玩法。',
     category: 'games', icon: '♝', color: '#7c3aed',
-    component: ChessRules,
+    component: LazyChessRules,
   },
   {
     id: 'box-battle', name: '箱子对决',
     desc: '26个箱子、两种角色——参赛者与资本家的资本博弈。Deal or No Deal 式心理战。',
     category: 'games', icon: '💼', color: '#e9c46a',
-    component: BoxDuel,
+    component: LazyBoxDuel,
   },
   {
     id: 'super-24', name: '超级24点',
     desc: '用给定的数字构造表达式，使结果逼近目标值。支持 √ ! ^ 等高级运算。',
     category: 'games', icon: '🔢', color: '#00d4ff',
-    component: Super24,
+    component: LazySuper24,
   },
   {
     id: 'skill-tic-tac-toe', name: '技能井字棋',
     desc: '"每个棋子都有独特技能"的井字棋变体。包含突进、击退、封印、替身等多种技能。',
     category: 'games', icon: '✦', color: '#06b6d4',
-    component: SkillTicTacToe,
+    component: LazySkillTicTacToe,
   },
   {
     id: 'hell-maze-vi', name: '地狱迷宫·VI',
     desc: '六边形蜂窝迷宫，全盲。只有左/前/右三键、三条布尔反馈。玩家什么也看不见。',
     category: 'games', icon: '🔥', color: '#dc2626',
-    component: HellMaze,
+    component: LazyHellMaze,
   },
   {
     id: 'cunning-rabbit', name: '狡兔三窟',
     desc: 'n×n 草原，n 个猞猁活动区。每行每列每区恰好 k 个兔子洞。逻辑推理找出全部。',
     category: 'games', icon: '🐰', color: '#ec4899',
-    component: ThreeHoles,
+    component: LazyThreeHoles,
   },
   {
     id: 'fractal-echo', name: '递归回响',
     desc: '用32次操作编写、攻击和重构无限递归程序。规则继承、祖先改写、克隆回声与尺度剪断。',
     category: 'games', icon: '❋', color: '#10b981',
-    component: FractalEcho,
+    component: LazyFractalEcho,
   },
   {
     id: 'neural-echo', name: '神经回响',
     desc: '分支生长与剪枝的双人策略对战。安排三叉生长、克隆对手节奏，在连续平面上争夺神经网络。',
     category: 'games', icon: '✦', color: '#2dd4bf',
-    component: NeuralEcho,
+    component: LazyNeuralEcho,
   },
 
   /* ─── Rule-based ─── */
@@ -103,12 +112,13 @@ const games: GameEntry[] = [
     id: 'neural-clash', name: '神经交锋',
     desc: '100节点·666突触的大图博弈。神经核控场、强化突触主攻、脉冲自动结算。',
     category: 'games', icon: '🧠', color: '#06b6d4',
-    component: NeuralClash,
+    component: LazyNeuralClash,
   },
   {
     id: 'cat-mouse', name: '猫鼠迷踪',
     desc: '连续平面上的非对称追逐。诱饵骗术、真实气味、疾跑与终局封锁。支持双阵营实战与完整复盘。',
     category: 'games', icon: '🐱', color: '#9d7df6',
+    component: LazyCatMouseGame,
   },
 
   /* ─── Scratch games ─── */
@@ -149,7 +159,7 @@ const KEPT_LEGACY_GAMES: GameEntry[] = [
     id: 'quiz', name: '题目',
     desc: '由语段和题项两部分组成。阅读语段后，从多个题项中选择一个最合适的答案。',
     category: 'games', icon: '?', color: '#ef4444',
-    component: Problems,
+    component: LazyProblems,
   },
 ];
 
@@ -178,6 +188,8 @@ function resolvePlaygroundPath(pathname: string) {
 /* ─── Helpers ─── */
 
 const scratchUrl = (id: number) => `https://www.haohaodada.com/new/Scratch3/index.html?id=${id}`;
+const SCRATCH_DESKTOP_WIDTH = 1200;
+const SCRATCH_DESKTOP_HEIGHT = 650;
 
 const displayGameName = (game: GameEntry) => game.name;
 const displayGameDescription = (game: GameEntry) => game.id === 'fractal-echo'
@@ -217,6 +229,96 @@ function GameCard({ game, onClick }: { game: GameEntry; onClick: () => void }) {
 
 /* ─── Scratch detail ─── */
 
+function ScratchFrame({ src, title }: { src: string; title: string }) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<number>(0);
+  const [scale, setScale] = useState(1);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'timeout' | 'offline' | 'failed'>(() => (
+    typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'loading'
+  ));
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return undefined;
+    const updateScale = () => {
+      const availableWidth = host.getBoundingClientRect().width;
+      setScale(Math.min(1, Math.max(0.2, availableWidth / SCRATCH_DESKTOP_WIDTH)));
+    };
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    window.clearTimeout(timeoutRef.current);
+    if (!navigator.onLine) return undefined;
+    timeoutRef.current = window.setTimeout(() => setStatus('timeout'), 15_000);
+    return () => window.clearTimeout(timeoutRef.current);
+  }, [reloadKey, src]);
+
+  const handleLoad = () => {
+    window.clearTimeout(timeoutRef.current);
+    setStatus('ready');
+  };
+
+  const frameSrc = `${src}${src.includes('?') ? '&' : '?'}reload=${reloadKey}`;
+  const ready = status === 'ready';
+  const reload = () => {
+    setStatus(navigator.onLine ? 'loading' : 'offline');
+    setReloadKey((key) => key + 1);
+  };
+
+  return (
+    <div
+      ref={hostRef}
+      className="relative w-full overflow-hidden bg-black/30"
+      style={{ height: `${SCRATCH_DESKTOP_HEIGHT * scale}px` }}
+      aria-busy={status === 'loading'}
+    >
+      {status === 'loading' && <div className="scratch-load-state" role="status" aria-live="polite">
+        <LoaderCircle className="h-7 w-7 animate-spin text-nc-violet" aria-hidden="true" />
+        <div><p>正在加载 Scratch 游戏…</p><small>页面收到第三方框架的实际加载信号后才会进入游戏。</small></div>
+      </div>}
+      {status !== 'loading' && status !== 'ready' && <div className="scratch-load-state is-timeout" role="alert">
+        <CircleHelp aria-hidden="true" />
+        <div>
+          <p>{status === 'offline' ? '离线时无法打开 Scratch' : status === 'failed' ? 'Scratch 嵌入加载失败' : 'Scratch 加载时间过长'}</p>
+          <small>{status === 'offline' ? '恢复联网后可在这里重试。' : '项目可能被网络、浏览器拦截或第三方服务阻塞。站内其他页面不受影响。'}</small>
+        </div>
+        <div className="scratch-load-actions">
+          <button type="button" data-action="retry" onClick={reload}><RotateCcw />重新加载</button>
+          <a href={src} target="_blank" rel="noopener noreferrer"><ExternalLink />在外部打开</a>
+        </div>
+      </div>}
+      <iframe
+        key={reloadKey}
+        src={frameSrc}
+        title={title}
+        width={SCRATCH_DESKTOP_WIDTH}
+        height={SCRATCH_DESKTOP_HEIGHT}
+        className="absolute left-0 top-0 border-0"
+        style={{
+          width: `${SCRATCH_DESKTOP_WIDTH}px`,
+          maxWidth: 'none',
+          height: `${SCRATCH_DESKTOP_HEIGHT}px`,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          visibility: ready ? 'visible' : 'hidden',
+        }}
+        allow="fullscreen"
+        onLoad={handleLoad}
+        onError={() => {
+          window.clearTimeout(timeoutRef.current);
+          setStatus('failed');
+        }}
+        tabIndex={ready ? 0 : -1}
+      />
+    </div>
+  );
+}
+
 function ScratchDetail({ game, onBack }: { game: GameEntry; onBack: () => void }) {
   return (
     <div
@@ -241,16 +343,19 @@ function ScratchDetail({ game, onBack }: { game: GameEntry; onBack: () => void }
         <div className="flex items-center gap-2">
           {game.scratchId && (
             <a href={scratchUrl(game.scratchId)} target="_blank" rel="noopener noreferrer"
+              data-action="exit"
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs bg-nc-violet/20 text-nc-violet hover:bg-nc-violet/30 transition-colors">
               <ExternalLink className="w-3 h-3" /> 在好好搭搭上打开
             </a>
           )}
-          <button onClick={onBack} className="text-xs text-nc-text-muted hover:text-nc-text transition-colors px-2 py-1">
-            <ArrowLeft className="w-4 h-4" />
+          <button type="button" data-action="back" onClick={onBack} aria-label="返回 Scratch 游戏列表" className="flex items-center gap-1 text-xs text-nc-text-muted hover:text-nc-text transition-colors px-2 py-1">
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+            <span>返回</span>
           </button>
         </div>
       </div>
-      {game.scratchId && <iframe src={scratchUrl(game.scratchId)} title={game.name} className="w-full border-0" style={{ height: '650px' }} allow="autoplay; fullscreen" />}
+      <div className="scratch-session-note"><CircleHelp /><span><strong>玩法说明</strong>{game.desc}</span><small><Save />第三方项目，存档由外部平台管理</small></div>
+      {game.scratchId && <ScratchFrame key={game.id} src={scratchUrl(game.scratchId)} title={game.name} />}
     </div>
   );
 }
@@ -258,7 +363,48 @@ function ScratchDetail({ game, onBack }: { game: GameEntry; onBack: () => void }
 /* ─── Playable game component ─── */
 
 function PlayableGame({ game, onBack }: { game: GameEntry; onBack: () => void }) {
-  if (game.component) {
+  const GameComponent = game.component;
+  const [paused, setPaused] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const [confirmRestart, setConfirmRestart] = useState(false);
+  const [restartKey, setRestartKey] = useState(0);
+
+  useEffect(() => {
+    if (!paused) return undefined;
+    const blockInput = (event: KeyboardEvent) => {
+      if (['Escape', 'Tab', 'Enter', ' '].includes(event.key)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    };
+    window.addEventListener('keydown', blockInput, true);
+    return () => window.removeEventListener('keydown', blockInput, true);
+  }, [paused]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('nc-game-session-state', {
+      detail: { gameId: game.id, paused },
+    }));
+    return () => {
+      window.dispatchEvent(new CustomEvent('nc-game-session-state', {
+        detail: { gameId: game.id, paused: false },
+      }));
+    };
+  }, [game.id, paused]);
+
+  const togglePaused = () => {
+    if (game.id === 'stellar') {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'p' }));
+    }
+    setPaused((value) => !value);
+  };
+
+  const restart = () => {
+    setConfirmRestart(false);
+    setPaused(false);
+    setRestartKey((key) => key + 1);
+  };
+
+  if (GameComponent) {
     return (
       <div
         className="relative pg-lab-frame"
@@ -269,17 +415,25 @@ function PlayableGame({ game, onBack }: { game: GameEntry; onBack: () => void })
         <div className="pg-experiment-bar">
           <span className="pg-status-dot" style={{ backgroundColor: game.color }} />
           <span className="text-xs font-mono font-semibold" style={{ color: game.color }}>{displayGameName(game)}</span>
-          <span className="text-xs text-nc-text-muted/50">EXPERIMENT / {game.id.toUpperCase()}</span>
+          <span className="text-xs text-nc-text-muted/50">PLAYABLE / 站内游戏</span>
         </div>
-        <div className="sticky top-0 z-10 flex items-center gap-2 px-4 py-2 bg-nc-bg/80 backdrop-blur-sm border-b border-white/[0.06] rounded-t-2xl">
-          <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-nc-text-muted hover:text-nc-text transition-colors">
-            <ArrowLeft className="w-4 h-4" /> 返回
-          </button>
-          <span className="text-xs text-nc-text-muted/50">|</span>
-          <GameIcon icon={game.icon} color={game.color} />
-          <span className="text-sm font-medium">{displayGameName(game)}</span>
+        <div className="game-session-toolbar">
+          <div className="game-session-title"><GameIcon icon={game.icon} color={game.color} /><span><strong>{displayGameName(game)}</strong><small><Save />{game.sessionNote ?? '当前局仅在本页保留'}</small></span></div>
+          <div className="game-session-actions">
+            <button type="button" onClick={() => setRulesOpen((value) => !value)} aria-expanded={rulesOpen}><CircleHelp />玩法说明</button>
+            <button type="button" onClick={togglePaused}>{paused ? <Play /> : <Pause />}{paused ? '继续' : '暂停'}</button>
+            <button type="button" data-action="reset" onClick={() => setConfirmRestart(true)}><RotateCcw />重新开始</button>
+            <button type="button" data-action="exit" onClick={onBack}><LogOut />退出</button>
+          </div>
         </div>
-        <game.component />
+        {rulesOpen && <section className="game-session-rules" aria-label={`${game.name}玩法说明`}><strong>玩法说明</strong><p>{displayGameDescription(game)}</p><small>游戏内如有专用按键或规则面板，以其提示为准。暂停后页面会拦截键盘、鼠标与触控操作。</small><button type="button" data-action="close" onClick={() => setRulesOpen(false)} aria-label="关闭玩法说明"><X /></button></section>}
+        <Suspense fallback={<div className="flex min-h-[320px] items-center justify-center gap-3 text-sm text-nc-text-muted" role="status"><LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />正在下载游戏模块…</div>}>
+          <div className={`game-session-stage${paused ? ' is-paused' : ''}`} aria-hidden={paused || undefined} inert={paused || undefined}>
+            <GameComponent key={`${game.id}-${restartKey}`} />
+          </div>
+        </Suspense>
+        {paused && <div className="game-session-pause" role="status"><Pause /><strong>游戏已暂停</strong><p>当前输入已锁定，点击继续返回游戏。</p><button type="button" onClick={togglePaused}><Play />继续游戏</button></div>}
+        {confirmRestart && <div className="game-session-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) setConfirmRestart(false); }}><section className="game-session-dialog" role="dialog" aria-modal="true" aria-labelledby="game-restart-title"><header><strong id="game-restart-title">重新开始当前游戏？</strong><button type="button" data-action="close" onClick={() => setConfirmRestart(false)} aria-label="关闭"><X /></button></header><p>{game.id === 'cat-machine' ? '当前自动存档会由游戏自身规则处理。' : '当前页面中的本局进度会被清空。'}</p><footer><button type="button" data-action="cancel" onClick={() => setConfirmRestart(false)}>取消</button><button type="button" data-action="reset" onClick={restart}>确认重新开始</button></footer></section></div>}
       </div>
     );
   }
@@ -322,21 +476,15 @@ export default function Playground() {
 
   /* Navigate helper */
   const goToCategory = (cat: GameEntry['category']) => navigate(`/playground/${cat}`);
-  const goToGame = (g: GameEntry) => {
-    if (g.id === 'cat-mouse') {
-      navigate('/cat-mouse');
-      return;
-    }
-    navigate(`/playground/${g.category}/${g.id}`);
-  };
+  const goToGame = (g: GameEntry) => navigate(`/playground/${g.category}/${g.id}`);
   const goBack = () => { if (category) navigate(`/playground/${category}`); else navigate('/playground'); };
 
   return (
     <div className="aurora-ui aurora-generic-page playground-aurora-page" data-aurora-accent="playground">
-      <div className="aurora-container aurora-generic-inner max-w-5xl">
-      <div className="aurora-simple-hero text-center"><p className="aurora-eyebrow">06 / INTERACTIVE LAB</p><h1 className="aurora-title">Playground</h1><p className="aurora-lead mx-auto">探索各种游戏、实验与互动体验</p></div>
+      <div className={`aurora-container aurora-generic-inner ${selectedGame?.id === 'city-builder' ? 'max-w-[1400px]' : 'max-w-5xl'}`}>
+      {!selectedGame && <div className="aurora-simple-hero text-center"><p className="aurora-eyebrow">06 / INTERACTIVE LAB</p><h1 className="aurora-title">Playground</h1><p className="aurora-lead mx-auto">探索各种游戏、实验与互动体验</p></div>}
 
-      {category && (
+      {category && !selectedGame && (
         /* Tabs */
         <div className="aurora-tabs justify-center mb-8" role="tablist" aria-label="游戏分类">
           {CATEGORIES.map(c => (

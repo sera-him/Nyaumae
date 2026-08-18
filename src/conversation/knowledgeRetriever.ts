@@ -25,14 +25,14 @@ const ROUTE_BY_ANCHOR: Record<string, string> = {
   '#hero': '/',
   '#worldview': '/world/overview',
   '#world': '/world/overview',
-  '#characters': '/characters/all',
-  '#extra-characters': '/characters/other',
+  '#characters': '/characters',
+  '#extra-characters': '/characters?group=other',
   '#stories': '/stories',
   '#extra-stories': '/stories',
   '#timeline': '/world/timeline',
   '#organizations': '/world/organizations',
   '#dictionary': '/world/dictionary',
-  '#character-network': '/characters/all',
+  '#character-network': '/characters',
   '#miia-world': '/miia/world',
   '#math': '/math/fsiii',
   '#problems': '/playground/games',
@@ -41,7 +41,7 @@ const ROUTE_BY_ANCHOR: Record<string, string> = {
 
 function routeForItem(id: string, href: string): string {
   if (id.startsWith('char_')) return `/characters/${id.slice('char_'.length)}`;
-  if (id.startsWith('extra_char_')) return `/characters/other`;
+  if (id.startsWith('extra_char_')) return `/characters?group=other`;
   if (id === 'story_mia-world') return '/stories/mia-world/chapters/1';
   if (id === 'story_fox-penguin') return '/stories/fox-penguin/chapters/1';
   if (id === 'story_zhenhai-refining') return '/stories/zhenhai-refining/chapters/1';

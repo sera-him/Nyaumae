@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Bot,
   Check,
@@ -24,10 +24,13 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
+  Square,
   Terminal,
   Trash2,
   Zap,
 } from 'lucide-react';
+import { confirmAction } from '@/lib/confirmAction';
+import { readJsonStorage, readStorageValue, removeStorageValue, writeJsonStorage } from '@/lib/browserStorage';
 import { Link } from 'react-router';
 import { conversationRepository } from '@/conversation/storage';
 import type { AiConfig } from '@/conversation/types';
@@ -59,6 +62,23 @@ type CloudPresetId =
   | 'custom';
 type LocalRuntime = 'ollama' | 'lmstudio' | 'custom';
 type ToneId = 'precise' | 'balanced' | 'creative';
+
+const AI_SETTINGS_DRAFT_KEY = 'neural-connection:ai-settings-draft:v1';
+
+function readSettingsDraft(fallback: AiConfig): AiConfig {
+  const draft = readJsonStorage<Partial<AiConfig> | null>(AI_SETTINGS_DRAFT_KEY, null).value;
+  return draft ? { ...fallback, ...draft, apiKey: fallback.apiKey } : fallback;
+}
+
+function writeSettingsDraft(config: AiConfig): void {
+  const safeDraft: Partial<AiConfig> = { ...config };
+  delete safeDraft.apiKey;
+  writeJsonStorage(AI_SETTINGS_DRAFT_KEY, safeDraft);
+}
+
+function clearSettingsDraft(): void {
+  removeStorageValue(AI_SETTINGS_DRAFT_KEY);
+}
 
 const CUSTOM_MODEL_VALUE = '__custom_model__';
 
@@ -136,7 +156,7 @@ function runtimeFromConfig(config: AiConfig): LocalRuntime {
 }
 
 export default function AISettingsPage() {
-  const initialConfig = useMemo(() => conversationRepository.getAiConfig(), []);
+  const initialConfig = useMemo(() => readSettingsDraft(conversationRepository.getAiConfig()), []);
   const memoryGb = useMemo(() => deviceMemory(), []);
   const [config, setConfig] = useState<AiConfig>(initialConfig);
   const [mode, setMode] = useState<SetupMode>(() => initialMode(initialConfig));
@@ -152,6 +172,24 @@ export default function AISettingsPage() {
   const [downloadText, setDownloadText] = useState('');
   const [importText, setImportText] = useState('');
   const [showTransfer, setShowTransfer] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(() => readStorageValue(AI_SETTINGS_DRAFT_KEY).value !== null);
+  const actionLockRef = useRef(false);
+  const skipDraftWriteRef = useRef(false);
+  const testAbortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => testAbortRef.current?.abort(), []);
+
+  useEffect(() => {
+    if (skipDraftWriteRef.current) {
+      skipDraftWriteRef.current = false;
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      writeSettingsDraft(config);
+      setDraftSaved(true);
+    }, 220);
+    return () => window.clearTimeout(timer);
+  }, [config]);
 
   const cloudPreset = CLOUD_PROVIDERS.find((item) => item.id === cloudPresetId) ?? CLOUD_PROVIDERS.find((item) => item.id === 'custom')!;
   const selectedTier = LOCAL_MODEL_TIERS.find((tier) => tier.id === selectedTierId) ?? LOCAL_MODEL_TIERS.find((tier) => tier.id === '1_7b')!;
@@ -261,38 +299,53 @@ export default function AISettingsPage() {
   });
 
   const saveOnly = () => {
+    if (actionLockRef.current) return;
+    actionLockRef.current = true;
     const next = buildNextConfig();
     const errors = validateAiConfig(next);
     if (errors.length) {
       setNotice({ kind: 'error', text: errors.join(' ') });
+      actionLockRef.current = false;
       return;
     }
     if (mode === 'browser' && !selectedTier.browserModel) {
       setNotice({ kind: 'error', text: '当前选择的尺寸没有可供浏览器加载的内置权重，请切换到“电脑本地”模式后再保存。' });
+      actionLockRef.current = false;
       return;
     }
     const saved = conversationRepository.saveAiConfig(next);
+    skipDraftWriteRef.current = true;
     setConfig(saved);
     setApiKeyDraft('');
+    clearSettingsDraft();
+    setDraftSaved(false);
     setNotice({ kind: 'success', text: '设置已保存，可以开始对话了。' });
+    queueMicrotask(() => { actionLockRef.current = false; });
   };
 
   const saveAndTest = async () => {
+    if (actionLockRef.current) return;
+    actionLockRef.current = true;
     const next = buildNextConfig();
     const errors = validateAiConfig(next);
     if (errors.length) {
       setNotice({ kind: 'error', text: errors.join(' ') });
+      actionLockRef.current = false;
       return;
     }
     if (mode === 'browser' && !selectedTier.browserModel) {
       setNotice({ kind: 'error', text: '当前选择的尺寸没有可供浏览器加载的内置权重，请切换到“电脑本地”模式后再保存并测试。' });
+      actionLockRef.current = false;
       return;
     }
     if (ollamaModelSelectionNeedsAttention) {
       setNotice({ kind: 'error', text: '当前模型没有 Ollama 官方本地包。请切换到支持官方权重的运行器并填写其模型名称，或选择 Ollama 可用的模型后再测试。' });
+      actionLockRef.current = false;
       return;
     }
     setTesting(true);
+    const controller = new AbortController();
+    testAbortRef.current = controller;
     setNotice({ kind: 'info', text: mode === 'browser' ? '正在准备浏览器本地模型…' : '正在连接模型…' });
     try {
       if (mode === 'browser') {
@@ -300,18 +353,23 @@ export default function AISettingsPage() {
         await prepareBrowserModel(next.model, (progress, text) => {
           setDownloadProgress(progress);
           setDownloadText(text);
-        });
+        }, controller.signal);
       }
-      await testModelConnection(next);
+      await testModelConnection(next, controller.signal);
       const saved = conversationRepository.saveAiConfig(next);
+      skipDraftWriteRef.current = true;
       setConfig(saved);
       setApiKeyDraft('');
+      clearSettingsDraft();
+      setDraftSaved(false);
       setDownloadProgress(mode === 'browser' ? 100 : null);
       setNotice({ kind: 'success', text: mode === 'browser' ? '模型已保存在浏览器缓存中，可以离线对话。' : '连接成功，设置已经保存。' });
     } catch (error) {
       setNotice({ kind: 'error', text: error instanceof Error ? error.message : '连接失败，请检查填写内容后重试。' });
     } finally {
       setTesting(false);
+      testAbortRef.current = null;
+      actionLockRef.current = false;
     }
   };
 
@@ -321,12 +379,19 @@ export default function AISettingsPage() {
   };
 
   const clear = () => {
+    if (!confirmAction({
+      title: '清除这台设备上的 AI 设置？',
+      consequence: '服务地址、模型参数和已保存的密钥都会移除；已经下载的浏览器模型缓存不会自动删除。',
+    })) return;
     conversationRepository.clearAiConfig();
     const fresh = conversationRepository.getAiConfig();
+    skipDraftWriteRef.current = true;
     setConfig(fresh);
     setMode('cloud');
     setCloudPresetId(findCloudPreset(fresh).id);
     setApiKeyDraft('');
+    clearSettingsDraft();
+    setDraftSaved(false);
     setNotice({ kind: 'info', text: '这台设备上的 AI 设置已清除。浏览器模型缓存可在浏览器的网站数据中清除。' });
   };
 
@@ -344,6 +409,10 @@ export default function AISettingsPage() {
   const importConfig = () => {
     try {
       const next = sanitizeImportedConfig(JSON.parse(importText) as unknown, config);
+      if (!confirmAction({
+        title: '载入这份 AI 配置？',
+        consequence: '当前表单中的服务、模型和参数会被替换；导入内容不包含 API Key，仍需你自行确认后保存。',
+      })) return;
       setConfig(next);
       setMode(initialMode(next));
       setCloudPresetId(findCloudPreset(next).id);
@@ -356,7 +425,7 @@ export default function AISettingsPage() {
   };
 
   return (
-    <main className="ai-settings-page aurora-ui">
+    <div className="ai-settings-page aurora-ui">
       <div className="aurora-container ai-settings-inner">
         <header className="ai-settings-hero">
           <div>
@@ -456,7 +525,7 @@ export default function AISettingsPage() {
               </div>
               <div className="ai-tier-detail">
                 <div><Cpu /><span><small>已选尺寸</small><strong>{selectedTier.label}</strong></span></div>
-                <div><MemoryStick /><span><small>4-bit 约需</small><strong>{selectedTier.quantizedMemory}</strong></span></div>
+                <div><MemoryStick /><span><small>权重/量化内存估算</small><strong>{selectedTier.quantizedMemory}</strong></span></div>
                 <div><Monitor /><span><small>建议设备</small><strong>{selectedTier.hardware}</strong></span></div>
                 <p>{selectedTier.description}</p>
               </div>
@@ -522,11 +591,14 @@ export default function AISettingsPage() {
           </div>
         </details>
 
-        {notice && <div className={`ai-inline-notice is-${notice.kind}`} role="status" aria-live="polite">{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : notice.kind === 'success' ? <CheckCircle2 /> : <ShieldCheck />}<span>{notice.text}</span></div>}
+        {notice && <div className={`ai-inline-notice is-${notice.kind}`} role={notice.kind === 'error' ? 'alert' : 'status'} aria-live="polite">{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : notice.kind === 'success' ? <CheckCircle2 /> : <ShieldCheck />}<span>{notice.text}</span>{notice.kind === 'error' && !testing && <button type="button" data-action="retry" onClick={() => void saveAndTest()}><RotateCcw />重试</button>}</div>}
+
+        {draftSaved && <p className="ai-draft-status"><Save />表单草稿已保存在本机（不包含 API Key）</p>}
 
         <div className="ai-main-actions">
           <button type="button" className="ai-button ai-button-secondary" onClick={saveOnly} disabled={testing || !hasUsableKey}><Save />仅保存</button>
-          <button type="button" className="ai-button ai-button-primary" onClick={() => void saveAndTest()} disabled={testing || !hasUsableKey || (mode === 'browser' && !webGpuReady) || ollamaModelSelectionNeedsAttention}>{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : mode === 'browser' ? <Download /> : <Zap />}{testing ? (mode === 'browser' ? '正在下载并加载…' : '正在连接…') : mode === 'browser' ? '下载模型并启用' : '保存并测试连接'}</button>
+          <button type="button" className="ai-button ai-button-primary" data-motion-ripple="true" onClick={() => void saveAndTest()} disabled={testing || !hasUsableKey || (mode === 'browser' && !webGpuReady) || ollamaModelSelectionNeedsAttention}>{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : mode === 'browser' ? <Download /> : <Zap />}{testing ? (mode === 'browser' ? '正在下载并加载…' : '正在连接…') : mode === 'browser' ? '下载模型并启用' : '保存并测试连接'}</button>
+          {testing && <button type="button" className="ai-button ai-button-danger" onClick={() => testAbortRef.current?.abort()}><Square />取消连接</button>}
         </div>
 
         <div className="ai-privacy-note"><ShieldCheck /><span><strong>{mode === 'cloud' ? '密钥仅存储在这台设备上' : '本地模式不会把对话发送给云端模型服务商'}</strong>，配置导出中也不会包含密钥。</span><Link to="/chat">前往 AI 对话 <ExternalLink /></Link></div>
@@ -536,6 +608,6 @@ export default function AISettingsPage() {
           {showTransfer && <div className="ai-transfer-body"><p>可复制或导入不含密钥的配置，适合在不同设备间迁移。</p><div className="ai-settings-actions"><button type="button" className="ai-button ai-button-secondary" onClick={() => void exportConfig()}><Clipboard />复制配置</button><button type="button" className="ai-button ai-button-danger" onClick={clear}><Trash2 />清除本机设置</button><button type="button" className="ai-button ai-button-secondary" onClick={() => setImportText('')}><RotateCcw />清空文本</button></div><textarea className="ai-import-box" value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="在这里粘贴配置 JSON" rows={6} /><button type="button" className="ai-button ai-button-secondary" onClick={importConfig} disabled={!importText.trim()}>载入配置</button></div>}
         </section>
       </div>
-    </main>
+    </div>
   );
 }

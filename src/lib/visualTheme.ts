@@ -7,6 +7,7 @@ export const SITE_THEMES = [
   'math',
   'playground',
   'api',
+  'codex',
   'story-mia',
   'story-ocean',
   'story-zhenhai',
@@ -34,6 +35,7 @@ const THEME_ROUTES = [
   { theme: 'math', prefixes: ['/math'] },
   { theme: 'playground', prefixes: ['/playground'] },
   { theme: 'api', prefixes: ['/api'] },
+  { theme: 'codex', prefixes: ['/codex', '/analytics'] },
 ] as const satisfies readonly ThemeRoute[];
 
 function normalizePathname(pathname: string): string {

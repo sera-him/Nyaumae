@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useMusic } from '@/contexts/MusicContext';
@@ -56,17 +56,25 @@ const groupLabelColors: Record<string, string> = {
 
 export default function CharactersPage() {
   const { ref, isVisible } = useScrollReveal();
-  const { playTrack, currentTrack } = useMusic();
+  const { playTrack, currentTrack, isMuted } = useMusic();
   const location = useLocation();
   const navigate = useNavigate();
-  const slug = location.pathname.replace('/characters/', '') || 'all';
-  const activeFilter = FILTER_MAP[slug] || 'all';
+  const filterParam = new URLSearchParams(location.search).get('group') ?? 'all';
+  const activeFilterKey = FILTER_MAP[filterParam] ? filterParam : 'all';
+  const activeFilter = FILTER_MAP[activeFilterKey];
 
-  useMemo(() => {
-    if (isVisible && currentTrack !== '/audio/stars.mp3') {
+  useEffect(() => {
+    if (isVisible && !isMuted && currentTrack !== '/audio/stars.mp3') {
       playTrack('/audio/stars.mp3');
     }
-  }, [isVisible, playTrack, currentTrack]);
+  }, [currentTrack, isMuted, isVisible, playTrack]);
+
+  const selectFilter = (filter: string) => {
+    const params = new URLSearchParams(location.search);
+    if (filter === 'all') params.delete('group');
+    else params.set('group', filter);
+    navigate({ pathname: '/characters', search: params.toString() ? `?${params.toString()}` : '' });
+  };
 
   const filtered = activeFilter === 'all'
     ? characters
@@ -105,9 +113,9 @@ export default function CharactersPage() {
               {filters.map((f) => (
                 <button
                   key={f.key}
-                  onClick={() => navigate(`/characters/${f.key}`)}
+                  onClick={() => selectFilter(f.key)}
                   role="tab"
-                  aria-selected={slug === f.key}
+                  aria-selected={activeFilterKey === f.key}
                   className="aurora-tab"
                 >
                   {f.label}

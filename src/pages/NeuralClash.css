@@ -10,7 +10,7 @@
 .nc-brand { gap: 11px; }
 .nc-brand-mark { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid #4e3a76; color: #c5acff; background: #171226; }
 .nc-brand small,.nc-node-title small,.nc-result small,.nc-rulebook header small { display: block; color: var(--violet); font-size: 9px; letter-spacing: .2em; font-weight: 700; }
-.nc-brand h1 { font-size: 19px; margin: 1px 0 0; letter-spacing: .08em; }
+.nc-brand h2 { font-size: 19px; margin: 1px 0 0; letter-spacing: .08em; }
 .nc-score-strip { height: 56px; display: grid; grid-template-columns: 1fr 128px 1fr; border: 1px solid var(--line); background: #111722; }
 .nc-score { display: grid; grid-template-columns: auto 1fr; align-content: center; padding: 7px 15px; column-gap: 10px; }
 .nc-score.red { text-align: right; grid-template-columns: 1fr auto; }
@@ -25,8 +25,9 @@
 .nc-top-actions { justify-content: flex-end; gap: 8px; }
 .nc-top-actions button,.nc-rulebook header button { border: 1px solid var(--line); background: #141b27; color: #cbd5e5; height: 34px; padding: 0 12px; display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; }
 .nc-top-actions button:hover,.nc-rulebook header button:hover { border-color: #56647b; background: #1a2331; }
-.nc-layout { height: calc(100vh - 76px); display: grid; grid-template-columns: 248px minmax(420px,1fr) 270px; }
-.nc-panel { background: #0d121b; padding: 16px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #303a4c transparent; }
+.nc-layout { height: calc(100vh - 76px); min-height: 0; display: grid; grid-template-columns: 248px minmax(420px,1fr) 270px; grid-template-rows: minmax(0,1fr); }
+.nc-layout > * { min-width: 0; min-height: 0; }
+.nc-panel { min-height: 0; background: #0d121b; padding: 16px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #303a4c transparent; }
 .nc-command { border-right: 1px solid var(--line); }.nc-inspector { border-left: 1px solid var(--line); }
 .nc-turn-card { min-height: 86px; padding: 15px; background: var(--panel-2); border: 1px solid var(--line); border-left: 3px solid #728096; }
 .nc-turn-card.blue { border-left-color: var(--blue); }.nc-turn-card.red { border-left-color: var(--red); }

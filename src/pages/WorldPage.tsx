@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { useLocation, NavLink } from 'react-router';
+import type { KeyboardEvent } from 'react';
+import { useLocation, useNavigate, NavLink } from 'react-router';
 import { Globe, Trophy, Clock, Building2, ArrowRight, Orbit, BookMarked, Sparkles, Ship } from 'lucide-react';
 import WorldOverview from '@/sections/WorldOverview';
 import QETSection from '@/sections/QETSection';
@@ -30,12 +31,26 @@ function getTabFromUrl(pathname: string): string {
 
 export default function WorldPage() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const tabFromUrl = getTabFromUrl(location.pathname);
   const activeTab = tabFromUrl;
 
   const current = tabs.find((t) => t.key === activeTab) || tabs[0];
   const Component = current.component;
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLAnchorElement>, index: number) => {
+    let nextIndex: number | null = null;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (index + 1) % tabs.length;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (index - 1 + tabs.length) % tabs.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = tabs.length - 1;
+    if (nextIndex === null) return;
+    event.preventDefault();
+    const nextKey = tabs[nextIndex].key;
+    document.getElementById(`world-tab-${nextKey}`)?.focus();
+    navigate(`/world/${nextKey}`);
+  };
 
   return (
     <AuroraPage accent="world" className="aurora-content-page world-aurora-page">
@@ -55,20 +70,25 @@ export default function WorldPage() {
           </div>
           <AuroraPanel className="aurora-hero-stats">
             <AuroraStat label="POPULATION" value="1.2B+" />
-            <AuroraStat label="ARCHIVES" value="05" />
+            <AuroraStat label="ARCHIVES" value={String(tabs.length).padStart(2, '0')} />
             <AuroraStat label="STATUS" value="ONLINE" />
           </AuroraPanel>
         </motion.div>
 
         <div className="aurora-tabs aurora-content-tabs" role="tablist" aria-label="世界观章节">
-          {tabs.map((t) => {
+          {tabs.map((t, index) => {
             const Icon = t.icon;
             return (
               <NavLink
                 key={t.key}
+                id={`world-tab-${t.key}`}
                 to={`/world/${t.key}`}
                 role="tab"
                 aria-current={activeTab === t.key ? 'page' : undefined}
+                aria-selected={activeTab === t.key}
+                aria-controls={`world-panel-${t.key}`}
+                tabIndex={activeTab === t.key ? 0 : -1}
+                onKeyDown={(event) => handleTabKeyDown(event, index)}
                 className={({ isActive }) => `aurora-tab inline-flex items-center gap-2 ${isActive ? 'aurora-tab-active' : ''}`}
               >
                 <Icon className="w-4 h-4" />
@@ -84,6 +104,9 @@ export default function WorldPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="aurora-legacy-content"
+          id={`world-panel-${activeTab}`}
+          role="tabpanel"
+          aria-labelledby={`world-tab-${activeTab}`}
         >
           <Component />
         </motion.div>

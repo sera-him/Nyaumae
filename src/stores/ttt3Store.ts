@@ -19,6 +19,11 @@ import {
   getOverloadRate,
 } from '@/game/ttt3/engine';
 
+function appendActionLog(state: TTT3GameState, message?: string): TTT3GameState {
+  if (!message || state.actionLog[state.actionLog.length - 1] === message) return state;
+  return { ...state, actionLog: [...state.actionLog, message] };
+}
+
 interface TTT3Store {
   // 游戏状态
   gameState: TTT3GameState;
@@ -150,12 +155,13 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
 
       // 可以落子 → 解锁 + 落子
       const result = placePiece(afterKey, player, physicalPos);
+      const resultState = appendActionLog(result.state, result.log);
       if (result.gamblerRetry) {
         // 赌徒重试，回合不结束，玩家重新选择位置
-        set({ gameState: result.state, activeSkill: null });
+        set({ gameState: resultState, activeSkill: null });
         return;
       }
-      const afterTurn = endTurn(result.state);
+      const afterTurn = endTurn(resultState);
       const isEnded = afterTurn.phase !== 'playing';
       set({ gameState: afterTurn, activeSkill: null, phase: isEnded ? 'ended' : 'playing' });
       return;
@@ -172,13 +178,14 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
     }
 
     const result = placePiece(gameState, player, physicalPos);
+    const resultState = appendActionLog(result.state, result.log);
     if (result.gamblerRetry) {
       // 赌徒重试，回合不结束，玩家重新选择位置
-      set({ gameState: result.state, activeSkill: null });
+      set({ gameState: resultState, activeSkill: null });
       return;
     }
     // 结束回合（胜负检查在 endTurn 中统一处理）
-    const afterTurn = endTurn(result.state);
+    const afterTurn = endTurn(resultState);
     const isEnded = afterTurn.phase !== 'playing';
     set({ gameState: afterTurn, activeSkill: null, phase: isEnded ? 'ended' : 'playing' });
   },
@@ -191,9 +198,10 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
 
     const player = gameState.currentPlayer;
     const result = applySkill(gameState, skill, player, params);
+    const resultState = appendActionLog(result.state, result.log);
 
     if (!result.success) {
-      set({ gameState: result.state });
+      set({ gameState: resultState });
       return;
     }
 
@@ -205,13 +213,13 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
     ];
 
     if ((turnEndingSkills as number[]).includes(skill)) {
-      const afterTurn = endTurn(result.state);
+      const afterTurn = endTurn(resultState);
       const isEnded = afterTurn.phase !== 'playing';
       set({ gameState: afterTurn, activeSkill: null, phase: isEnded ? 'ended' : 'playing' });
       return;
     }
 
-    set({ gameState: result.state, activeSkill: null });
+    set({ gameState: resultState, activeSkill: null });
   },
 
   setShowProfShop: (v) => set({ showProfShop: v }),
@@ -221,7 +229,7 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
     const player = gameState.currentPlayer;
     const result = buyProfession(gameState, player, prof, snatch);
     if (result.success) {
-      set({ gameState: result.state, showProfShop: false });
+      set({ gameState: appendActionLog(result.state, result.log), showProfShop: false });
     }
   },
 
@@ -230,7 +238,7 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
     const player = gameState.currentPlayer;
     const result = forgetProfession(gameState, player, index);
     if (result.success) {
-      set({ gameState: result.state });
+      set({ gameState: appendActionLog(result.state, result.log) });
     }
   },
 
@@ -242,7 +250,7 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
     const player = gameState.currentPlayer;
     const result = matthewShift(gameState, player, matthewShiftCells[0], matthewShiftCells[1]);
     if (result.success) {
-      set({ gameState: result.state, matthewShiftCells: null });
+      set({ gameState: appendActionLog(result.state, result.log), matthewShiftCells: null });
     }
   },
 
@@ -268,7 +276,7 @@ export const useTTT3Store = create<TTT3Store>((set, get) => ({
 
     // 尝试使用 Skip Protocol
     const result = applySkill(gameState, SkillEnum.SKIP_PROTOCOL, player);
-    const afterTurn = endTurn(result.state);
+    const afterTurn = endTurn(appendActionLog(result.state, result.log));
     set({ gameState: afterTurn });
   },
 

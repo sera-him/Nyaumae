@@ -12,17 +12,19 @@ import './styles/accessibility.css'
 import './styles/responsive-fixes.css'
 import './styles/performance.css'
 import './styles/readability.css'
+import './styles/interaction-system.css'
 import App from './App.tsx'
+import AppErrorBoundary from './components/AppErrorBoundary.tsx'
+import { installAsyncModuleRecovery } from './lib/asyncModuleRecovery.ts'
+import { applyMotionProfile } from './lib/motionPolicy.ts'
 
-const lowSpec = typeof navigator !== 'undefined' && (
-  (navigator.hardwareConcurrency ?? 8) < 4 ||
-  (navigator as { deviceMemory?: number }).deviceMemory !== undefined &&
-  (navigator as { deviceMemory?: number }).deviceMemory! < 4
-);
-document.documentElement.dataset.auroraLowSpec = lowSpec ? 'true' : 'false';
+installAsyncModuleRecovery();
+applyMotionProfile();
 
 createRoot(document.getElementById('root')!).render(
-  <HashRouter>
-    <App />
-  </HashRouter>,
+  <AppErrorBoundary>
+    <HashRouter>
+      <App />
+    </HashRouter>
+  </AppErrorBoundary>,
 )

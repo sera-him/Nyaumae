@@ -3,6 +3,7 @@ import {
   ArrowRight, ArrowUpRight, BrainCircuit, Flower2, MessageCircleMore, Palette, Sparkles, Waves,
 } from 'lucide-react';
 import { Link } from 'react-router';
+import ResponsiveImage, { DETAIL_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
 import './ChatSelect.css';
 
 const CHAT_THEMES = [
@@ -22,7 +23,7 @@ const CHAT_THEMES = [
     name: '甜梦小屋',
     code: 'SWEET THEME',
     description: '粉色甜心小屋：糖果泡泡、奶油云与软软的泡泡，泡芙陪你聊天。',
-    to: '/sweetdream',
+    to: '/chat/sweetdream',
     icon: Flower2,
     preview: 'linear-gradient(145deg, #ffe4f1 0%, #fff6e9 55%, #ffe3f0 100%)',
     image: '/chat-themes/sweet-dream.png',
@@ -43,7 +44,7 @@ const CHAT_THEMES = [
 
 export default function ChatSelect() {
   return (
-    <main className="chat-select-page aurora-ui">
+    <div className="chat-select-page aurora-ui">
       <div className="chat-select-atmosphere" aria-hidden="true" />
       <div className="aurora-container chat-select-inner">
         <header className="chat-select-hero">
@@ -65,12 +66,13 @@ export default function ChatSelect() {
                 transition={{ duration: .5, delay: .08 * index, ease: [0.22, 1, 0.36, 1] }}
               >
                 <div className="chat-select-preview" style={{ background: theme.preview }}>
-                  <img
+                  <ResponsiveImage
                     className="chat-select-preview-image"
                     src={theme.image}
                     alt=""
+                    widths={DETAIL_IMAGE_WIDTHS}
+                    sizes="(max-width: 720px) calc(100vw - 48px), 360px"
                     loading={index === 0 ? 'eager' : 'lazy'}
-                    decoding="async"
                   />
                   <span className="chat-select-preview-label">THEME PREVIEW</span>
                 </div>
@@ -91,11 +93,11 @@ export default function ChatSelect() {
         <div className="chat-select-workbench">
           <BrainCircuit />
           <div>
-            <strong>对话工作台</strong>
-            <span>记忆与正史管理、系统级对话调试，面向高级用户的完整控制台。</span>
+            <strong>AI 连接设置</strong>
+            <span>配置模型、运行方式与隐私选项，三个聊天主题会共享这些设置。</span>
           </div>
           <Link to="/settings/ai">
-            打开工作台<ArrowUpRight />
+            打开设置<ArrowUpRight />
           </Link>
         </div>
 
@@ -103,6 +105,6 @@ export default function ChatSelect() {
           <MessageCircleMore /><span>主题仅影响视觉外观，不会重置对话</span><Palette /><span>随时可以在导航「星海对话」中切换</span>
         </footer>
       </div>
-    </main>
+    </div>
   );
 }

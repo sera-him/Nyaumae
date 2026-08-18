@@ -26,6 +26,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   const howlRef = useRef<Howl | null>(null);
   const pendingRef = useRef<string | null>(null);
   const lockRef = useRef(false);
+  const userActivatedRef = useRef(false);
   const timerRef = useRef<number>(0);
 
   // Safe unload with lock
@@ -46,14 +47,13 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const stopTrack = useCallback(() => {
-    safeUnload();
     setCurrentTrack(null);
     pendingRef.current = null;
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = 0;
     }
-  }, [safeUnload]);
+  }, []);
 
   const playTrack = useCallback((track: string) => {
     // Debounce: ignore if same track requested within 500ms
@@ -68,68 +68,58 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     // Delay by 100ms to batch rapid calls
     timerRef.current = window.setTimeout(() => {
       pendingRef.current = null;
-
-      // Don't recreate if same track is already loaded
-      if (currentTrack === track && howlRef.current) {
-        if (!isMuted && !howlRef.current.playing()) {
-          howlRef.current.play();
-        }
-        return;
-      }
-
-      safeUnload();
-
-      try {
-        const howl = new Howl({
-          src: [track],
-          loop: true,
-          volume: 0.35,
-          html5: true,
-        });
-        howlRef.current = howl;
-        if (!isMuted) {
-          howl.play();
-        }
-        setCurrentTrack(track);
-      } catch {
-        // ignore initialization errors
-      }
+      setCurrentTrack(track);
+      timerRef.current = 0;
     }, 100);
-  }, [isMuted, currentTrack, safeUnload]);
+  }, []);
 
   const toggleMusic = useCallback(() => {
     setIsMuted((prev) => {
-      const next = !prev;
-      try {
-        if (howlRef.current) {
-          if (next) {
-            howlRef.current.pause();
-          } else {
-            howlRef.current.play();
-          }
-        }
-      } catch {
-        // ignore
-      }
-      return next;
+      if (prev) userActivatedRef.current = true;
+      return !prev;
     });
-    setIsPlaying((prev) => !prev);
   }, []);
 
-  // Handle mute state changes
+  // Keep the requested track without allocating an HTML5 audio object while muted.
   useEffect(() => {
-    try {
-      if (howlRef.current) {
-        if (isMuted) {
-          howlRef.current.pause();
-        } else {
-          howlRef.current.play();
-        }
-      }
-    } catch {
-      // ignore
+    let active = true;
+    const markStopped = () => {
+      if (active) setIsPlaying(false);
+    };
+
+    safeUnload();
+    queueMicrotask(markStopped);
+
+    if (isMuted || !currentTrack || !userActivatedRef.current) {
+      return () => {
+        active = false;
+      };
     }
-  }, [isMuted]);
+
+    try {
+      const howl = new Howl({
+        src: [currentTrack],
+        loop: true,
+        volume: 0.35,
+        html5: true,
+        onplay: () => {
+          if (active) setIsPlaying(true);
+        },
+        onpause: markStopped,
+        onstop: markStopped,
+        onend: markStopped,
+        onloaderror: markStopped,
+      });
+      howlRef.current = howl;
+      howl.play();
+    } catch {
+      queueMicrotask(markStopped);
+    }
+
+    return () => {
+      active = false;
+    };
+  }, [currentTrack, isMuted, safeUnload]);
 
   // Cleanup on unmount
   useEffect(() => {

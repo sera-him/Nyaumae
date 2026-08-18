@@ -8,6 +8,11 @@ import TextStoryReader from '@/components/TextStoryReader';
 import ReadingProgress from '@/components/ReadingProgress';
 import { emitRouteReady } from '@/lib/deepLinkCoordinator';
 import { getStoryConfig, type ChapterButtonStyle } from '@/lib/storyThemeConfig';
+import StoryReaderTools from '@/components/StoryReaderTools';
+import { useReadingPreferences } from '@/hooks/useReadingPreferences';
+import { recordReadingProgress } from '@/lib/readingState';
+import SmartImage from '@/components/SmartImage';
+import { READER_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
 
 function getTabLabel(chapter: StoryChapter, style: ChapterButtonStyle, index: number): string {
   if (style === 'bubble') return String(index + 1);
@@ -61,6 +66,12 @@ export default function StoryReader() {
   const story = stories.find((s) => s.id === storyId);
   const config = story ? getStoryConfig(story.id) : null;
   const topRef = useRef<HTMLDivElement>(null);
+  const { preferences, updatePreferences } = useReadingPreferences();
+  const chapterIndex = chapterId ? parseInt(chapterId, 10) - 1 : 0;
+  const validIndex = story && !isNaN(chapterIndex) && chapterIndex >= 0 && chapterIndex < story.chapters.length
+    ? chapterIndex
+    : null;
+  const activeChapter = validIndex !== null ? story?.chapters[validIndex] : null;
 
   useEffect(() => {
     if (story) emitRouteReady(`/stories/${storyId}`);
@@ -70,6 +81,16 @@ export default function StoryReader() {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     topRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
   }, [chapterId, storyId]);
+
+  useEffect(() => {
+    if (!story || validIndex === null || !activeChapter) return;
+    recordReadingProgress({
+      storyId: story.id,
+      storyTitle: story.title,
+      chapterTitle: activeChapter.title,
+      href: `/stories/${story.id}/chapters/${validIndex + 1}`,
+    });
+  }, [activeChapter, story, validIndex]);
 
   if (!story) {
     return (
@@ -87,11 +108,6 @@ export default function StoryReader() {
   if (story.contentSource) {
     return <TextStoryReader story={story} />;
   }
-
-  const chapterIndex = chapterId ? parseInt(chapterId, 10) - 1 : 0;
-  const validIndex = !isNaN(chapterIndex) && chapterIndex >= 0 && chapterIndex < story.chapters.length
-    ? chapterIndex
-    : null;
 
   if (validIndex === null) {
     return (
@@ -126,10 +142,25 @@ export default function StoryReader() {
       <div className="aurora-container aurora-generic-inner max-w-[800px]">
         <Link
           to="/stories"
+          data-action="back"
           className="inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> 返回故事列表
         </Link>
+
+        <StoryReaderTools
+          chapters={story.chapters.map((item, index) => ({ id: String(index), label: item.title }))}
+          activeId={String(validIndex)}
+          onSelect={(id) => goToChapter(Number(id))}
+          onPrevious={() => goToChapter(validIndex - 1)}
+          onNext={() => goToChapter(validIndex + 1)}
+          hasPrevious={validIndex > 0}
+          hasNext={validIndex < story.chapters.length - 1}
+          preferences={preferences}
+          onPreferencesChange={updatePreferences}
+        />
+
+        <p className="aurora-eyebrow story-reader-eyebrow">STORY READER</p>
 
         {cfg.coverImage ? (
           <motion.div
@@ -137,7 +168,16 @@ export default function StoryReader() {
             animate={{ opacity: 1, y: 0 }}
             className="story-cover"
           >
-            <img src={cfg.coverImage} alt={story.title} />
+            <SmartImage
+              localSrc={cfg.coverImage}
+              alt={story.title}
+              responsiveWidths={READER_IMAGE_WIDTHS}
+              sizes="(max-width: 840px) calc(100vw - 32px), 800px"
+              loading="eager"
+              fetchPriority="high"
+              containerClassName="h-full w-full"
+              className="object-cover"
+            />
             <div className="story-cover-overlay" aria-hidden="true" />
             <div className="story-cover-content">
               <h1 className="story-cover-title">{story.title}</h1>
@@ -199,14 +239,25 @@ export default function StoryReader() {
             <h2 className="text-xl font-semibold text-nc-text mb-6">{chapter.title}</h2>
             {(chapter.image || chapter.images?.length) && (
               <div className="mb-6 grid gap-4 md:grid-cols-2">
-                {[chapter.image, ...(chapter.images ?? [])].filter(Boolean).map((image, imageIndex) => (
-                  <div key={image} className="rounded-xl overflow-hidden">
-                    <img src={image} alt={`${chapter.title} 图片 ${imageIndex + 1}`} className="w-full object-cover" />
-                  </div>
+                {[chapter.image, ...(chapter.images ?? [])].filter((image): image is string => Boolean(image)).map((image, imageIndex) => (
+                  <SmartImage
+                    key={image}
+                    localSrc={image}
+                    alt={`${chapter.title} 图片 ${imageIndex + 1}`}
+                    responsiveWidths={READER_IMAGE_WIDTHS}
+                    sizes="(max-width: 767px) calc(100vw - 64px), 368px"
+                    aspectRatio="16 / 9"
+                    containerClassName="rounded-xl"
+                    className="object-cover"
+                    loading="lazy"
+                  />
                 ))}
               </div>
             )}
-            <div className={`text-nc-text-secondary leading-[1.9] text-[15px] space-y-4 whitespace-pre-wrap ${titleFontClass}`}>
+            <div
+              className={`text-nc-text-secondary space-y-4 whitespace-pre-wrap ${titleFontClass}`}
+              style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight }}
+            >
               {renderStoryContent(chapter.content)}
             </div>
           </motion.div>

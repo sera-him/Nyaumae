@@ -1,8 +1,8 @@
 import { p } from '../lib/utils.ts';
 
 const rawCharacterImages: Record<string, string> = {
-  'high-school-student': 'characters/high-school-student.png',
-  linmo: 'characters/linmo.png',
+  'high-school-student': 'characters/linmo.png',
+  linmo: 'characters/high-school-student.png',
   gpt: 'characters/gpt.png',
   wangshu: 'characters/wangshu.png',
   neon: 'characters/neon.png',

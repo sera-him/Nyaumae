@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BlockMath, InlineMath } from 'react-katex';
 import {
@@ -13,12 +14,22 @@ import {
   HeartPulse,
   Languages,
   Network,
+  RefreshCcw,
   Scale,
   ShieldCheck,
+  SlidersHorizontal,
   Sparkles,
   Target,
   Users,
 } from 'lucide-react';
+import {
+  ADULT_REFERENCE_SCORES,
+  evaluatePemsL,
+  PEMS_DIMENSIONS,
+  shiftScores,
+  type PemsDimensionCode,
+  type PemsScores,
+} from '../lib/pemsLModel';
 import 'katex/dist/katex.min.css';
 
 const dimensions = [
@@ -64,21 +75,28 @@ const dimensions = [
   },
 ];
 
-const transitionParameters = [
-  { dimension: 'P', threshold: '-1.50', slope: '1.0' },
-  { dimension: 'E', threshold: '-0.75', slope: '1.6' },
-  { dimension: 'M', threshold: '-1.00', slope: '1.3' },
-  { dimension: 'S', threshold: '-1.25', slope: '1.0' },
-  { dimension: 'L', threshold: '-0.75', slope: '1.5' },
+const scorePresets: { id: string; label: string; description: string; scores: PemsScores }[] = [
+  {
+    id: 'adult-line',
+    label: '成年参考线',
+    description: '五个维度都恰好位于各自 Tᵢ',
+    scores: ADULT_REFERENCE_SCORES,
+  },
+  {
+    id: 'balanced',
+    label: '均衡偏高',
+    description: '五个维度统一设为 0.4',
+    scores: { P: 0.4, E: 0.4, M: 0.4, S: 0.4, L: 0.4 },
+  },
+  {
+    id: 'executive-gap',
+    label: '执行短板',
+    description: '其余较高，但 E 明显偏低',
+    scores: { P: 0.8, E: -2.1, M: 0.8, S: 0.8, L: 0.8 },
+  },
 ];
 
-const weights = [
-  { code: 'P', value: 5, label: '生理' },
-  { code: 'E', value: 30, label: '执行' },
-  { code: 'M', value: 25, label: '情绪' },
-  { code: 'S', value: 15, label: '社会' },
-  { code: 'L', value: 25, label: '语言' },
-];
+const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
 function Formula({ math, label }: { math: string; label?: string }) {
   return (
@@ -124,6 +142,17 @@ function GlassCard({ children, className = '' }: { children: React.ReactNode; cl
 }
 
 export default function FLAModel() {
+  const [scores, setScores] = useState<PemsScores>(() => ({ ...ADULT_REFERENCE_SCORES }));
+  const evaluation = useMemo(() => evaluatePemsL(scores), [scores]);
+  const sensitivityBand = useMemo(() => ({
+    low: evaluatePemsL(shiftScores(scores, -0.25)).demoEquivalentAge,
+    high: evaluatePemsL(shiftScores(scores, 0.25)).demoEquivalentAge,
+  }), [scores]);
+
+  const updateScore = (code: PemsDimensionCode, value: number) => {
+    setScores((current) => ({ ...current, [code]: value }));
+  };
+
   return (
     <div className="relative mx-auto max-w-[1100px] pb-12">
       <div className="pointer-events-none absolute left-1/2 top-20 -z-0 h-[460px] w-[760px] max-w-full -translate-x-1/2 rounded-full bg-violet-600/[0.07] blur-[100px]" />
@@ -137,7 +166,7 @@ export default function FLAModel() {
         <div className="mb-6 flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-2 rounded-full border border-nc-cyan/25 bg-nc-cyan/[0.08] px-3 py-1.5 text-xs font-medium text-nc-cyan">
             <Sparkles className="h-3.5 w-3.5" />
-            PEMS-L FLA v2.0
+            PEMS-L FLA v2.1
           </span>
           <span className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-nc-text-muted">
             功能法律年龄模型
@@ -164,7 +193,7 @@ export default function FLAModel() {
           </div>
           <ChevronRight className="hidden h-5 w-5 text-nc-text-muted sm:block" />
           <div className="rounded-xl border border-nc-cyan/15 bg-nc-cyan/[0.05] px-4 py-3">
-            <p className="mb-1 text-[10px] uppercase tracking-[0.16em] text-nc-cyan/70">v2.0 mapping</p>
+            <p className="mb-1 text-[10px] uppercase tracking-[0.16em] text-nc-cyan/70">v2.1 mapping</p>
             <p className="text-sm font-medium text-nc-text">多维成熟度 → 人口成长曲线 → 年龄等效值</p>
           </div>
         </div>
@@ -274,11 +303,11 @@ export default function FLAModel() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/[0.05] font-mono text-nc-text-secondary">
-                    {transitionParameters.map((row) => (
-                      <tr key={row.dimension} className="transition-colors hover:bg-white/[0.025]">
-                        <td className="px-4 py-3 font-semibold text-nc-text">{row.dimension}</td>
-                        <td className="px-4 py-3">{row.threshold}</td>
-                        <td className="px-4 py-3">{row.slope}</td>
+                    {PEMS_DIMENSIONS.map((dimension) => (
+                      <tr key={dimension.code} className="transition-colors hover:bg-white/[0.025]">
+                        <td className="px-4 py-3 font-semibold text-nc-text">{dimension.code}</td>
+                        <td className="px-4 py-3">{dimension.threshold.toFixed(2)}</td>
+                        <td className="px-4 py-3">{dimension.slope.toFixed(1)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -299,19 +328,19 @@ export default function FLAModel() {
 
           <div className="mt-6">
             <div className="fla-weight-bar mb-3 flex h-3 overflow-hidden rounded-full bg-white/[0.04]" data-motion-reveal>
-              {weights.map((weight) => (
+              {PEMS_DIMENSIONS.map((dimension) => (
                 <div
-                  key={weight.code}
-                  style={{ width: `${weight.value}%` }}
+                  key={dimension.code}
+                  style={{ width: `${dimension.weight * 100}%` }}
                   className="border-r border-nc-bg last:border-r-0 odd:bg-nc-cyan/70 even:bg-violet-400/70"
                 />
               ))}
             </div>
             <div className="grid grid-cols-5 gap-1">
-              {weights.map((weight) => (
-                <div key={weight.code} className="text-center">
-                  <p className="font-mono text-sm font-semibold text-nc-text">{weight.code} · {weight.value}%</p>
-                  <p className="mt-0.5 text-[10px] text-nc-text-muted">{weight.label}</p>
+              {PEMS_DIMENSIONS.map((dimension) => (
+                <div key={dimension.code} className="text-center">
+                  <p className="font-mono text-sm font-semibold text-nc-text">{dimension.code} · {dimension.weight * 100}%</p>
+                  <p className="mt-0.5 text-[10px] text-nc-text-muted">{dimension.shortLabel}</p>
                 </div>
               ))}
             </div>
@@ -383,6 +412,190 @@ export default function FLAModel() {
           </GlassCard>
         </section>
 
+        <GlassCard className="overflow-hidden">
+          <div className="border-b border-white/[0.06] p-5 sm:p-8">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <div className="mb-2 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.18em] text-nc-cyan">
+                  <span className="font-mono text-nc-text-muted">06</span>
+                  <span className="h-px w-8 bg-nc-cyan/40" />
+                  <span>Interactive lab</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <SlidersHorizontal className="h-6 w-6 text-nc-cyan" />
+                  <h3 className="text-2xl font-semibold tracking-tight text-nc-text sm:text-3xl">把公式变成可检查的实验台</h3>
+                </div>
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-nc-text-secondary sm:text-base">
+                  调整五个标准分，实时查看每项匹配度、软短板效应和演示年龄反查。先用预设比较，再拖动单个维度，会更容易看清哪一步改变了结果。
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setScores({ ...ADULT_REFERENCE_SCORES })}
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-white/[0.09] bg-white/[0.035] px-4 py-2 text-sm text-nc-text-secondary transition-colors hover:border-nc-cyan/30 hover:text-nc-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nc-cyan"
+              >
+                <RefreshCcw className="h-4 w-4" />
+                重置成年线
+              </button>
+            </div>
+
+            <div className="mt-5 rounded-xl border border-amber-300/15 bg-amber-300/[0.045] px-4 py-3 text-xs leading-6 text-amber-100/75">
+              透明度说明：十条生命周期函数尚无可公开复核的拟合数据，因此实验台用
+              <span className="mx-1 font-mono text-amber-100">Qdemo(a)=sigmoid[0.22(a−18)]</span>
+              演示最后一步反查。它用于检查模型行为，不是现实测评、诊断或法律结论。
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="PEMS-L 分数预设">
+              {scorePresets.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => setScores({ ...preset.scores })}
+                  title={preset.description}
+                  className="min-h-11 rounded-xl border border-white/[0.08] bg-black/15 px-4 py-2 text-left transition-colors hover:border-violet-300/30 hover:bg-violet-400/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300"
+                >
+                  <span className="block text-sm font-medium text-nc-text">{preset.label}</span>
+                  <span className="mt-0.5 block text-[10px] text-nc-text-muted">{preset.description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-[1.12fr_0.88fr]">
+            <div className="space-y-4 p-5 sm:p-8">
+              {evaluation.dimensions.map((dimension) => (
+                <div key={dimension.code} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+                  <div className="mb-3 flex items-start justify-between gap-4">
+                    <label htmlFor={`pems-score-${dimension.code}`} className="flex min-w-0 items-center gap-3">
+                      <span
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-mono text-sm font-bold"
+                        style={{ backgroundColor: `${dimension.color}16`, color: dimension.color }}
+                      >
+                        {dimension.code}
+                      </span>
+                      <span>
+                        <span className="block text-sm font-medium text-nc-text">{dimension.title}</span>
+                        <span className="mt-0.5 block text-[10px] text-nc-text-muted">
+                          Tᵢ {dimension.threshold.toFixed(2)} · sᵢ {dimension.slope.toFixed(1)} · 权重 {dimension.weight * 100}%
+                        </span>
+                      </span>
+                    </label>
+                    <output
+                      htmlFor={`pems-score-${dimension.code}`}
+                      className="rounded-lg bg-black/25 px-2.5 py-1 font-mono text-sm font-semibold text-nc-text"
+                    >
+                      {dimension.score > 0 ? '+' : ''}{dimension.score.toFixed(1)}
+                    </output>
+                  </div>
+
+                  <input
+                    id={`pems-score-${dimension.code}`}
+                    type="range"
+                    min="-3"
+                    max="3"
+                    step="0.1"
+                    value={dimension.score}
+                    onChange={(event) => updateScore(dimension.code, Number(event.currentTarget.value))}
+                    aria-label={`${dimension.title}标准分`}
+                    aria-valuetext={`${dimension.score.toFixed(1)}，匹配度 ${formatPercent(dimension.probability)}`}
+                    className="h-11 w-full cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nc-cyan"
+                    style={{ accentColor: dimension.color }}
+                  />
+
+                  <div className="mt-1 flex items-center gap-3">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.05]">
+                      <div
+                        className="h-full rounded-full transition-[width] duration-150"
+                        style={{ width: `${dimension.probability * 100}%`, backgroundColor: dimension.color }}
+                      />
+                    </div>
+                    <span className="w-[88px] text-right font-mono text-[11px] text-nc-text-muted">
+                      q{dimension.code} {formatPercent(dimension.probability)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <aside className="border-t border-white/[0.06] bg-black/10 p-5 sm:p-8 lg:border-l lg:border-t-0" aria-label="PEMS-L 即时结果">
+              <div className="lg:sticky lg:top-24" aria-live="polite">
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-nc-text-muted">Demonstration result</p>
+                <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-2">
+                  <p className="font-mono text-5xl font-semibold tracking-tight text-nc-text sm:text-6xl">
+                    {evaluation.demoEquivalentAge.toFixed(1)}
+                    <span className="ml-1 text-lg font-normal text-nc-text-muted">岁</span>
+                  </p>
+                  <span className={`mb-2 rounded-full border px-3 py-1 text-xs ${
+                    evaluation.maturity >= evaluation.adultReference
+                      ? 'border-emerald-300/20 bg-emerald-300/[0.06] text-emerald-200'
+                      : 'border-amber-300/20 bg-amber-300/[0.06] text-amber-100'
+                  }`}>
+                    {evaluation.maturity >= evaluation.adultReference ? '达到演示成年线' : '未达到演示成年线'}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-nc-text-muted">这是演示曲线上的 A*，不是自然年龄，也不决定任何人的权利。</p>
+
+                <div
+                  className="relative mt-7 h-14"
+                  role="img"
+                  aria-label={`演示年龄刻度 0 到 30 岁，当前结果 ${evaluation.demoEquivalentAge.toFixed(1)} 岁，成年参考线 18 岁`}
+                >
+                  <div className="absolute left-0 right-0 top-4 h-1 rounded-full bg-gradient-to-r from-violet-500/30 via-nc-cyan/50 to-emerald-400/40" />
+                  <div className="absolute bottom-0 left-0 font-mono text-[10px] text-nc-text-muted">0</div>
+                  <div className="absolute bottom-0 font-mono text-[10px] text-nc-text-muted" style={{ left: '60%', transform: 'translateX(-50%)' }}>18</div>
+                  <div className="absolute bottom-0 right-0 font-mono text-[10px] text-nc-text-muted">30</div>
+                  <div className="absolute top-0 h-9 w-px bg-amber-200/60" style={{ left: '60%' }} />
+                  <div
+                    className="absolute top-2 h-5 w-2 -translate-x-1/2 rounded-full bg-nc-cyan shadow-[0_0_16px_rgba(34,211,238,0.7)] transition-[left] duration-150"
+                    style={{ left: `${evaluation.demoEquivalentAge / 30 * 100}%` }}
+                  />
+                </div>
+
+                <div className="mt-7 space-y-3">
+                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="text-nc-text-secondary">几何成熟度 Q</span>
+                      <span className="font-mono font-semibold text-nc-text">{formatPercent(evaluation.maturity)}</span>
+                    </div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.05]">
+                      <div className="h-full rounded-full bg-nc-cyan transition-[width] duration-150" style={{ width: `${evaluation.maturity * 100}%` }} />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="text-nc-text-secondary">普通加权平均</span>
+                      <span className="font-mono text-nc-text">{formatPercent(evaluation.arithmeticMaturity)}</span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between gap-3 text-xs">
+                      <span className="text-nc-text-muted">软短板拉低</span>
+                      <span className="font-mono text-rose-200/80">
+                        {evaluation.bottleneckGap >= 0.00005 ? '−' : ''}{(evaluation.bottleneckGap * 100).toFixed(2)} 个百分点
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-violet-300/10 bg-violet-400/[0.04] p-4">
+                    <p className="text-[10px] uppercase tracking-[0.16em] text-violet-200/70">±0.25 分敏感性带</p>
+                    <p className="mt-1 font-mono text-lg text-nc-text">
+                      {sensitivityBand.low.toFixed(1)}–{sensitivityBand.high.toFixed(1)} 岁
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-nc-text-muted">所有维度同时上下移动 0.25 分的压力测试，不是统计置信区间。</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded-xl border-l-2 border-rose-300/50 bg-rose-300/[0.035] px-4 py-3">
+                  <p className="text-xs text-nc-text-muted">当前最低匹配维度</p>
+                  <p className="mt-1 text-sm font-medium text-nc-text">
+                    {evaluation.limitingDimension.code} · {evaluation.limitingDimension.title}
+                    <span className="ml-2 font-mono text-rose-200/80">{formatPercent(evaluation.limitingDimension.probability)}</span>
+                  </p>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </GlassCard>
+
         <div className="grid gap-6 lg:grid-cols-2">
           <GlassCard className="p-5 sm:p-7">
             <div className="mb-5 flex items-start gap-3">
@@ -390,7 +603,7 @@ export default function FLAModel() {
                 <Target className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.16em] text-nc-cyan">06 · Calibration</p>
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-nc-cyan">07 · Calibration</p>
                 <h3 className="mt-1 text-xl font-semibold text-nc-text">成年线仍为 18，由人口目标校准</h3>
               </div>
             </div>
@@ -417,7 +630,7 @@ export default function FLAModel() {
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.16em] text-emerald-300">07 · Irreversibility</p>
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-emerald-300">08 · Irreversibility</p>
                 <h3 className="mt-1 text-xl font-semibold text-nc-text">成年法律身份不可逆</h3>
               </div>
             </div>
@@ -433,7 +646,7 @@ export default function FLAModel() {
 
         <GlassCard className="p-5 sm:p-8">
           <SectionHeading
-            index="08"
+            index="09"
             eyebrow="Measurement model"
             title="把一次考试升级为稳定能力估计"
             description="失眠、生病或紧张不应让一个人的功能法律年龄在一天内从 19.2 跌到 16.8。五维真实能力应作为潜变量，通过多次、不同可靠度的测量进行估计。"
@@ -458,7 +671,7 @@ export default function FLAModel() {
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-nc-cyan">Recommended architecture</p>
-              <h3 className="mt-1 text-2xl font-semibold text-nc-text">PEMS-L FLA v2.0 最终结构</h3>
+              <h3 className="mt-1 text-2xl font-semibold text-nc-text">PEMS-L FLA v2.1 当前结构</h3>
             </div>
           </div>
 

@@ -2,10 +2,11 @@ import { motion } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { stories } from '@/data/stories';
 import { Link } from 'react-router';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, BookOpen } from 'lucide-react';
 import SmartImage from '@/components/SmartImage';
 import RotatingImage from '@/components/RotatingImage';
 import '../styles/stories-index.css'
+import { getLatestReadingProgress } from '@/lib/readingState';
 
 function getStoryCovers(storyId: string): string[] {
   const coverMap: Record<string, string[]> = {
@@ -42,6 +43,7 @@ function getStoryDotColor(storyId: string): string {
 
 export default function StoriesPage() {
   const { ref, isVisible } = useScrollReveal();
+  const latestProgress = getLatestReadingProgress();
 
   return (
     <div className="aurora-ui aurora-generic-page stories-aurora-page" data-aurora-accent="stories">
@@ -53,12 +55,20 @@ export default function StoriesPage() {
             transition={{ duration: 0.8 }}
             className="aurora-simple-hero"
           >
-            <p className="aurora-eyebrow">03 / NARRATIVE UNIVERSES</p>
+            <p className="aurora-eyebrow">03 / STORY DIRECTORY</p>
             <h1 className="aurora-title">故事章节</h1>
             <p className="aurora-lead">
               {stories.length} 个叙事宇宙，等待神经连接
             </p>
           </motion.div>
+
+          {latestProgress && (
+            <Link to={latestProgress.href} className="story-continue-card" aria-label={`继续阅读${latestProgress.storyTitle}，${latestProgress.chapterTitle}`}>
+              <span><BookOpen /></span>
+              <div><small>CONTINUE READING / 继续阅读</small><strong>{latestProgress.storyTitle}</strong><p>{latestProgress.chapterTitle}</p></div>
+              <ArrowRight />
+            </Link>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {stories.map((story, i) => {

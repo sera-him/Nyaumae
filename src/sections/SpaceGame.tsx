@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { PointerEvent as ReactPointerEvent } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -18,6 +18,7 @@ import {
   Trophy,
   Zap,
 } from 'lucide-react';
+import { readStorageValue } from '@/lib/browserStorage';
 import { motion } from 'framer-motion';
 import { ENEMY_DEFS, generateConditions, generateEnemyDef, generateRandomRune, generateRoster, getStageReward } from '@/game/data';
 import {
@@ -68,7 +69,10 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
   const activeBattleRef = useRef(battle);
   const frameRef = useRef(0);
   const endedRef = useRef(false);
-  const { ref: arenaRef, isMotionActive } = useMotionActivity<HTMLDivElement>('240px 0px');
+  const { ref: arenaRef, isMotionActive } = useMotionActivity<HTMLDivElement>(
+    '240px 0px',
+    { cost: 'high', priority: 100 },
+  );
   const [hud, setHud] = useState(() => ({
     hp: battle.player.hp,
     alive: battle.enemies.filter((enemy) => enemy.alive).length,
@@ -78,6 +82,7 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
     stellar: 0,
     paused: false,
   }));
+  const [keyboardAim, setKeyboardAim] = useState({ x: 480, y: 270 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -153,8 +158,37 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
     else inputRef.current.keys.delete(key);
   };
 
+  const handleCanvasKeyDown = (event: ReactKeyboardEvent<HTMLCanvasElement>) => {
+    const key = event.key.toLowerCase();
+    if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) event.preventDefault();
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      inputRef.current.mouseDown = true;
+      return;
+    }
+    const aimMoves: Record<string, { x: number; y: number }> = {
+      i: { x: 0, y: -36 }, j: { x: -36, y: 0 }, k: { x: 0, y: 36 }, l: { x: 36, y: 0 },
+    };
+    const move = aimMoves[key];
+    if (!move) return;
+    event.preventDefault();
+    setKeyboardAim((current) => {
+      const next = { x: Math.max(0, Math.min(960, current.x + move.x)), y: Math.max(0, Math.min(540, current.y + move.y)) };
+      inputRef.current.mouseX = next.x;
+      inputRef.current.mouseY = next.y;
+      return next;
+    });
+  };
+
+  const handleCanvasKeyUp = (event: ReactKeyboardEvent<HTMLCanvasElement>) => {
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      inputRef.current.mouseDown = false;
+    }
+  };
+
   return (
-    <div ref={arenaRef} className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#06030d] shadow-2xl shadow-violet-950/40">
+    <div ref={arenaRef} className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#06030d] shadow-2xl shadow-violet-950/40" data-motion-kind="functional" data-motion-running={isMotionActive ? 'true' : 'false'}>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] bg-black/35 px-4 py-3 font-mono text-xs">
         <div className="flex items-center gap-4">
           <span className="text-cyan-300">STAGE {battle.stageId}</span>
@@ -182,11 +216,15 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
         <canvas
           ref={canvasRef}
           className="block aspect-video w-full touch-none cursor-crosshair"
-          onPointerDown={(event) => { pointAt(event); inputRef.current.mouseDown = true; event.currentTarget.setPointerCapture(event.pointerId); }}
+          tabIndex={0} role="application" aria-label="Stellar 战场" aria-describedby="stellar-battle-help stellar-battle-status"
+          onPointerDown={(event) => { pointAt(event); inputRef.current.mouseDown = true; event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); }}
           onPointerMove={pointAt}
-          onPointerUp={() => { inputRef.current.mouseDown = false; }}
+          onPointerUp={() => { inputRef.current.mouseDown = false; }} onPointerCancel={() => { inputRef.current.mouseDown = false; }} onBlur={() => { inputRef.current.mouseDown = false; inputRef.current.keys.clear(); }}
+          onKeyDown={handleCanvasKeyDown} onKeyUp={handleCanvasKeyUp}
           onContextMenu={(event) => event.preventDefault()}
         />
+        <p id="stellar-battle-help" className="sr-only">聚焦战场后，使用 WASD 或方向键移动，I、J、K、L 调整瞄准方向，按住空格或 Enter 射击，数字 1 到 0 切换武器，P 或 Escape 暂停。鼠标和触控操作保持可用。</p>
+        <p id="stellar-battle-status" className="sr-only" aria-live="polite">键盘瞄准坐标：{Math.round(keyboardAim.x)}，{Math.round(keyboardAim.y)}。</p>
         {hud.paused && (
           <div className="absolute inset-0 grid place-items-center bg-[#06030d]/70 backdrop-blur-sm">
             <button type="button" onClick={() => { activeBattleRef.current.paused = false; }} className="flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-6 py-3 text-sm font-medium text-cyan-200">
@@ -261,7 +299,7 @@ export default function SpaceGame() {
 
   useEffect(() => {
     if (saveKey) return;
-    const activeKey = localStorage.getItem('nc_stellar_active_key');
+    const activeKey = readStorageValue('nc_stellar_active_key').value;
     if (activeKey) loadGame(activeKey);
   }, [loadGame, saveKey]);
 

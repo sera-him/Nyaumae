@@ -1,0 +1,201 @@
+.word-frequency-cloud {
+  min-width: 0;
+  padding: .55rem 0;
+}
+
+.word-frequency-cloud-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .45rem;
+}
+
+.word-frequency-cloud-heading h4 {
+  margin: 0;
+  color: var(--aurora-text, #eafffb);
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.word-frequency-cloud-heading p {
+  margin: .15rem 0 0;
+  color: var(--aurora-text-muted, #8ca6b4);
+  font-size: .64rem;
+}
+
+.word-frequency-cloud-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.word-frequency-cloud-count,
+.word-frequency-cloud-status {
+  color: var(--aurora-text-muted, #8ca6b4);
+  font-size: .62rem;
+}
+
+.word-frequency-alpha-control {
+  display: grid;
+  gap: .45rem;
+  margin: .65rem 0 .85rem;
+  padding: .7rem .8rem;
+  border: 1px solid rgba(159, 247, 238, .12);
+  border-radius: .65rem;
+  background: rgba(159, 247, 238, .035);
+}
+
+.word-frequency-alpha-heading,
+.word-frequency-alpha-input-row {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  flex-wrap: wrap;
+  color: var(--aurora-text-muted, #8ca6b4);
+  font-size: .62rem;
+}
+
+.word-frequency-alpha-heading {
+  justify-content: space-between;
+}
+
+.word-frequency-alpha-heading label,
+.word-frequency-alpha-input-row label {
+  color: #bdfcf3;
+  font-weight: 600;
+}
+
+.word-frequency-alpha-heading output {
+  color: #ffd78a;
+  font-variant-numeric: tabular-nums;
+}
+
+.word-frequency-alpha-control input[type='range'] {
+  width: 100%;
+  accent-color: #4fc1a5;
+}
+
+.word-frequency-alpha-input-row input[type='text'] {
+  width: 7rem;
+  border: 1px solid rgba(159, 247, 238, .2);
+  border-radius: .35rem;
+  padding: .25rem .4rem;
+  color: #eafffb;
+  background: rgba(7, 19, 29, .78);
+  font-size: .68rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.word-frequency-alpha-input-row input[type='text'][aria-invalid='true'] {
+  border-color: rgba(228, 119, 121, .8);
+}
+
+.word-frequency-alpha-input-row span {
+  color: var(--aurora-text-muted, #8ca6b4);
+}
+
+.word-frequency-download {
+  border: 1px solid rgba(159, 247, 238, .24);
+  border-radius: 999px;
+  padding: .28rem .58rem;
+  color: #bdfcf3;
+  background: rgba(159, 247, 238, .08);
+  font-size: .62rem;
+  transition: border-color .2s ease, background-color .2s ease, opacity .2s ease;
+}
+
+.word-frequency-download:hover:not(:disabled),
+.word-frequency-download:focus-visible:not(:disabled) {
+  border-color: rgba(159, 247, 238, .55);
+  background: rgba(159, 247, 238, .16);
+}
+
+.word-frequency-download:disabled {
+  cursor: not-allowed;
+  opacity: .38;
+}
+
+.word-frequency-cloud-canvas-wrap {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(31, 45, 51, .08);
+  border-radius: .18rem;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(31, 45, 51, .06);
+}
+
+.word-frequency-cloud-svg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+}
+
+.word-frequency-cloud-svg text {
+  cursor: pointer;
+  outline: none;
+  transition: opacity .15s ease, filter .15s ease;
+}
+
+.word-frequency-cloud-svg text:hover,
+.word-frequency-cloud-svg text:focus-visible {
+  filter: brightness(1.28);
+  opacity: 1;
+  outline: none;
+}
+
+.word-frequency-cloud-generating {
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  color: var(--aurora-text-muted, #8ca6b4);
+  font-size: .7rem;
+}
+
+.word-frequency-cloud-status {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .65rem;
+  min-height: 1.75rem;
+  padding: .35rem .65rem;
+  border-top: 1px solid rgba(31, 45, 51, .08);
+  background: rgba(255, 255, 255, .96);
+}
+
+.word-frequency-cloud-status strong {
+  color: #eafffb;
+  font-weight: 600;
+}
+
+.word-frequency-cloud-empty {
+  display: grid;
+  min-height: 10rem;
+  place-items: center;
+  color: var(--aurora-text-muted, #8ca6b4);
+  font-size: .72rem;
+}
+
+@media (max-width: 640px) {
+  .word-frequency-cloud-heading {
+    display: block;
+  }
+
+  .word-frequency-cloud-actions {
+    justify-content: flex-start;
+    margin-top: .45rem;
+  }
+
+  .word-frequency-cloud-status {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: .12rem;
+  }
+}

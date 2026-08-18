@@ -55,7 +55,7 @@ export const IMAGE_INVENTORY: ImageAsset[] = [
     usedIn: ['src/pages/Portal.tsx (hero overview image)'],
     type: 'hero',
     hasAlt: true,
-    altText: '夕阳与星空下的星界馆，五位少女在环形图书馆中阅读、学习与交流',
+    altText: '夕阳与星空下的星界馆，五个身影在环形图书馆中阅读、学习与交流',
   },
 
   // ── Story Cover Images (StoriesPage) ────────────────────────────────

@@ -6,7 +6,7 @@ let loadPromise: Promise<void> | undefined;
 
 export function ensureSiteKnowledgeLoaded(): Promise<void> {
   if (!loadPromise) {
-    loadPromise = import('../data/fullSearchIndex')
+    loadPromise = import('../data/fullSearchIndex.ts')
       .then(({ fullSearchIndex, fullTextSearch }) => {
         knowledgeRetriever.setSource({
           items: fullSearchIndex,

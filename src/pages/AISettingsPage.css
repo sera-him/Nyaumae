@@ -86,7 +86,8 @@
 
 .ai-step-heading h2 {
   margin: 0;
-  color: #f4f0ff;
+  color: color-mix(in srgb, #9f8fff 72%, #fff);
+  text-shadow: 0 0 18px rgba(159, 143, 255, .16);
   font-size: 1.05rem;
 }
 

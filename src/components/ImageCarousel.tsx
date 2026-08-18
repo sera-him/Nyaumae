@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useMotionActivity } from '@/hooks/useMotionActivity';
 
 interface Props {
   images: { src: string; alt?: string }[];
@@ -8,21 +9,22 @@ interface Props {
 
 export default function ImageCarousel({ images, interval = 4000 }: Props) {
   const [index, setIndex] = useState(0);
+  const { ref: carouselRef, isMotionActive } = useMotionActivity<HTMLDivElement>();
 
   const go = useCallback((next: number) => {
     setIndex((next + images.length) % images.length);
   }, [images.length]);
 
   useEffect(() => {
-    if (images.length < 2) return;
+    if (images.length < 2 || !isMotionActive) return;
     const id = setInterval(() => go(index + 1), interval);
     return () => clearInterval(id);
-  }, [index, interval, go, images.length]);
+  }, [index, interval, go, images.length, isMotionActive]);
 
   if (!images.length) return null;
 
   return (
-    <div className="relative w-full aspect-video max-h-[75vh] overflow-hidden rounded-2xl bg-nc-bg">
+    <div ref={carouselRef} className="relative w-full aspect-video max-h-[75vh] overflow-hidden rounded-2xl bg-nc-bg" data-motion-loop data-motion-kind="ambient">
       <AnimatePresence mode="wait">
         <motion.img
           key={index}
@@ -31,7 +33,7 @@ export default function ImageCarousel({ images, interval = 4000 }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.48 }}
           className="absolute inset-0 w-full h-full object-cover"
         />
       </AnimatePresence>

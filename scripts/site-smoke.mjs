@@ -9,9 +9,14 @@ const ROUTES = [
   { label: '咪呀空间', path: '/miia/world' },
   { label: '数学模型', path: '/math/fsiii' },
   { label: '游戏', path: '/playground/games' },
+  { label: '建设城市', path: '/playground/games/city-builder' },
   { label: '聊天', path: '/chat' },
   { label: 'AI 设置', path: '/settings/ai' },
-  { label: 'SweetDream', path: '/sweetdream' },
+  { label: 'NCTB', path: '/nctb' },
+  { label: '全站搜索', path: '/codex' },
+  { label: '数据统计', path: '/analytics' },
+  { label: 'SweetDream', path: '/chat/sweetdream' },
+  { label: 'SweetDream 旧链接', path: '/sweetdream' },
   { label: '404 路由', path: '/__site-smoke__-not-found' },
 ];
 

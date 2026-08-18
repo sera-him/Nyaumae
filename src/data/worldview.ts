@@ -1,3 +1,6 @@
+import { characters } from './characters';
+import { extraCharacters } from './extraCharacters';
+
 export const worldviewStats = [
   { label: '世界观人口', value: '1,207,963,268', unit: '人' },
   { label: '人均寿命', value: '74', unit: '岁 6 月 24 天' },
@@ -10,37 +13,22 @@ export const regionFsiiiStats = {
   range: [100.01, 104.72] as const,
 };
 
-export const fsiiiRankings = [
-  { rank: 1, name: 'Damocles', score: 1314 },
-  { rank: 2, name: 'Eirene', score: 831 },
-  { rank: 3, name: '咪呀', score: 226 },
-  { rank: 3, name: 'Līlā', score: 226 },
-  { rank: 5, name: 'あいえふちゃん', score: 180 },
-  { rank: 6, name: '墨问', score: 177 },
-  { rank: 7, name: '卡塔斯', score: 174 },
-  { rank: 8, name: '莱尼尔', score: 165 },
-  { rank: 9, name: 'mia³', score: 158 },
-  { rank: 10, name: 'Nimfa', score: 144 },
-  { rank: 10, name: 'Nihilib', score: 144 },
-  { rank: 12, name: '初音ミク', score: 139 },
-  { rank: 13, name: '棋程', score: 138 },
-  { rank: 14, name: '墨璇玥.iv', score: 136 },
-  { rank: 15, name: '赵召', score: 123 },
-  { rank: 16, name: '林深', score: 120 },
-  { rank: 17, name: '朵拉·卡可拉', score: 115 },
-  { rank: 18, name: '星野遥', score: 114 },
-  { rank: 19, name: '米雅', score: 109 },
-  { rank: 19, name: 'Mia', score: 109 },
-  { rank: 19, name: '米娅', score: 109 },
-  { rank: 22, name: '林可梦', score: 105 },
-  { rank: 23, name: '可乐', score: 103 },
-  { rank: 24, name: '哈姆诗', score: 98 },
-  { rank: 25, name: '零', score: 96 },
-  { rank: 26, name: '米迷', score: 94 },
-  { rank: 27, name: '墨奥幂.fc', score: 93 },
-  { rank: 28, name: '爱丽丝', score: 92 },
-  { rank: 29, name: '林浅', score: 90 },
-];
+const fsiiiScores = [
+  ...characters.filter((character) => character.fsiii !== undefined)
+    .map((character) => ({ name: character.name, score: character.fsiii! })),
+  ...extraCharacters.filter((character) => character.fsiii !== undefined)
+    .map((character) => ({ name: character.name, score: character.fsiii! })),
+].sort((a, b) => b.score - a.score);
+
+export const fsiiiRankings = fsiiiScores.reduce<Array<{ rank: number; name: string; score: number }>>(
+  (rankings, entry, index) => {
+    const previous = rankings[index - 1];
+    const rank = previous && previous.score === entry.score ? previous.rank : index + 1;
+    rankings.push({ rank, ...entry });
+    return rankings;
+  },
+  [],
+);
 
 export const heightWeightModel = [
   { height: 0.5, values: [3.25, 3.34, 3.44, 3.90, 3.88, 3.66, 4.07, 1.75, 1.49, 1.24] },

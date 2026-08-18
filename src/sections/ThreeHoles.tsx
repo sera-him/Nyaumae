@@ -12,6 +12,7 @@ import { RotateCcw } from 'lucide-react';
 import { DIFFICULTIES, createPuzzleState } from '@/game/threeHoles/puzzleGen';
 import type { PuzzleState } from '@/game/threeHoles/puzzleGen';
 import './ThreeHoles.css';
+import { confirmAction } from '@/lib/confirmAction';
 
 type Mark = 0 | 1 | 2;
 type PaintMark = 1 | 2;
@@ -258,10 +259,10 @@ export default function ThreeHoles() {
 
   if (!state) {
     return (
-      <main className="rabbit-game rabbit-game--welcome">
+      <div className="rabbit-game rabbit-game--welcome">
         <section className="rabbit-welcome" aria-labelledby="rabbit-title">
           <p className="rabbit-kicker">逻辑填格</p>
-          <h1 id="rabbit-title">狡兔三窟</h1>
+          <h2 id="rabbit-title">狡兔三窟</h2>
           <p>
             在 n×n 草原上标出兔子洞。每行、每列和每个猞猁活动区都恰好有 k 个兔子洞，
             且兔子洞之间不能相邻。
@@ -288,7 +289,7 @@ export default function ThreeHoles() {
             开始游戏
           </button>
         </section>
-      </main>
+      </div>
     );
   }
 
@@ -311,15 +312,18 @@ export default function ThreeHoles() {
     }
   }
   const givenCount = givenHoleCount + givenExcludedCount;
-  const rowCounts = marks.map((row) => row.filter((mark) => mark === 2).length);
+  const progressMarks: Mark[][] = state.surrendered
+    ? state.solution.map((row) => row.map((hasRabbit) => hasRabbit ? 2 : 0) as Mark[])
+    : marks as Mark[][];
+  const rowCounts = progressMarks.map((row) => row.filter((mark) => mark === 2).length);
   const colCounts = Array.from(
     { length: n },
-    (_, col) => marks.filter((row) => row[col] === 2).length,
+    (_, col) => progressMarks.filter((row) => row[col] === 2).length,
   );
   const regionCounts = Array<number>(n).fill(0);
   for (let row = 0; row < n; row++) {
     for (let col = 0; col < n; col++) {
-      if (marks[row][col] === 2) regionCounts[regions[row][col]]++;
+      if (progressMarks[row][col] === 2) regionCounts[regions[row][col]]++;
     }
   }
   const adjacentConflictCount = marks.reduce(
@@ -339,6 +343,10 @@ export default function ThreeHoles() {
   } as CSSProperties;
 
   const resetToMenu = () => {
+    if (state && !state.won && !state.surrendered && !confirmAction({
+      title: '放弃当前狡兔三窟谜题？',
+      consequence: '当前标记、用时和未完成进度都会清空。',
+    })) return;
     dragRef.current = null;
     startTimeRef.current = 0;
     setElapsed(0);
@@ -352,11 +360,11 @@ export default function ThreeHoles() {
   };
 
   return (
-    <main className="rabbit-game">
+    <div className="rabbit-game">
       <header className="rabbit-header">
         <div>
           <p className="rabbit-kicker">逻辑填格</p>
-          <h1>狡兔三窟</h1>
+          <h2>狡兔三窟</h2>
           <p>{DIFFICULTIES[difficultyIndex].name} · {n}×{n} · 每行 / 列 / 区 {k} 洞</p>
         </div>
         <button className="rabbit-secondary-button" type="button" onClick={resetToMenu}>
@@ -414,7 +422,7 @@ export default function ThreeHoles() {
                 Array.from({ length: n }, (_, col) => {
                   const isGiven = state.givens[row][col];
                   const visibleMark: Mark = state.surrendered
-                    ? (state.solution[row][col] ? 2 : marks[row][col])
+                    ? (state.solution[row][col] ? 2 : 0)
                     : marks[row][col] as Mark;
                   const region = regions[row][col];
                   const conflict = hasAdjacentRabbit(marks as Mark[][], row, col);
@@ -474,8 +482,8 @@ export default function ThreeHoles() {
               <strong>{displayedRabbitCount}<small> / {targetCount}</small></strong>
             </div>
             <div>
-              <span>已排除</span>
-              <strong>{excludedCount}</strong>
+              <span>{state.surrendered ? '答案中的非兔洞' : '已排除'}</span>
+              <strong>{state.surrendered ? n * n - targetCount : excludedCount}</strong>
             </div>
             <div>
               <span>用时</span>
@@ -523,6 +531,6 @@ export default function ThreeHoles() {
           )}
         </aside>
       </div>
-    </main>
+    </div>
   );
 }

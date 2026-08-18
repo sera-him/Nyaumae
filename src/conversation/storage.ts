@@ -10,6 +10,7 @@ import type {
   PromptDefinition,
 } from './types.ts';
 import { createId, nowIso } from './utils.ts';
+import { readJsonStorage, removeStorageValue, writeJsonStorage } from '../lib/browserStorage.ts';
 
 const STORAGE_KEY = 'nyaumae:conversation-state:v1';
 const AI_CONFIG_KEY = 'nyaumae:ai-config:v1';
@@ -55,44 +56,44 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function getStorage(): Storage | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    return window.localStorage;
-  } catch {
-    return null;
-  }
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isConversationStateShape(value: unknown): value is ConversationState {
+  return isRecord(value)
+    && value.schemaVersion === SCHEMA_VERSION
+    && Array.isArray(value.conversations)
+    && Array.isArray(value.messages)
+    && Array.isArray(value.memories)
+    && Array.isArray(value.levelEvents)
+    && Array.isArray(value.levelProfiles)
+    && Array.isArray(value.prompts);
 }
 
 function readState(): ConversationState {
-  const storage = getStorage();
-  if (!storage) return clone(EMPTY_STATE);
-  try {
-    const raw = storage.getItem(STORAGE_KEY);
-    if (!raw) return clone(EMPTY_STATE);
-    const parsed = JSON.parse(raw) as Partial<ConversationState>;
-    return {
-      schemaVersion: parsed.schemaVersion ?? SCHEMA_VERSION,
-      conversations: parsed.conversations ?? [],
-      messages: parsed.messages ?? [],
-      memories: parsed.memories ?? [],
-      levelEvents: parsed.levelEvents ?? [],
-      levelProfiles: parsed.levelProfiles ?? [],
-      prompts: parsed.prompts ?? [],
-    };
-  } catch {
-    return clone(EMPTY_STATE);
-  }
+  return readJsonStorage(STORAGE_KEY, clone(EMPTY_STATE), {
+    currentVersion: SCHEMA_VERSION,
+    migrations: {
+      0: (value) => {
+        const parsed = isRecord(value) ? value : {};
+        return {
+          schemaVersion: SCHEMA_VERSION,
+          conversations: Array.isArray(parsed.conversations) ? parsed.conversations : [],
+          messages: Array.isArray(parsed.messages) ? parsed.messages : [],
+          memories: Array.isArray(parsed.memories) ? parsed.memories : [],
+          levelEvents: Array.isArray(parsed.levelEvents) ? parsed.levelEvents : [],
+          levelProfiles: Array.isArray(parsed.levelProfiles) ? parsed.levelProfiles : [],
+          prompts: Array.isArray(parsed.prompts) ? parsed.prompts : [],
+        };
+      },
+    },
+    validate: isConversationStateShape,
+  }).value;
 }
 
 function writeState(state: ConversationState): void {
-  const storage = getStorage();
-  if (!storage) return;
-  try {
-    storage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // Quota or privacy-mode failures should not stop the current conversation.
-  }
+  writeJsonStorage(STORAGE_KEY, state);
 }
 
 function normalizeMessage(message: Message): Message {
@@ -346,38 +347,18 @@ export class ConversationRepository {
   }
 
   getAiConfig(): AiConfig {
-    const storage = getStorage();
-    if (!storage) return clone(DEFAULT_AI_CONFIG);
-    try {
-      const raw = storage.getItem(AI_CONFIG_KEY);
-      if (!raw) return clone(DEFAULT_AI_CONFIG);
-      return { ...clone(DEFAULT_AI_CONFIG), ...(JSON.parse(raw) as Partial<AiConfig>) };
-    } catch {
-      return clone(DEFAULT_AI_CONFIG);
-    }
+    const stored = readJsonStorage<Partial<AiConfig>>(AI_CONFIG_KEY, {});
+    return { ...clone(DEFAULT_AI_CONFIG), ...stored.value };
   }
 
   saveAiConfig(config: AiConfig): AiConfig {
     const next = { ...clone(config), updatedAt: nowIso() };
-    const storage = getStorage();
-    if (storage) {
-      try {
-        storage.setItem(AI_CONFIG_KEY, JSON.stringify(next));
-      } catch {
-        // The in-memory caller still receives the config for the current request.
-      }
-    }
+    writeJsonStorage(AI_CONFIG_KEY, next);
     return clone(next);
   }
 
   clearAiConfig(): void {
-    const storage = getStorage();
-    if (!storage) return;
-    try {
-      storage.removeItem(AI_CONFIG_KEY);
-    } catch {
-      // Ignore privacy-mode failures.
-    }
+    removeStorageValue(AI_CONFIG_KEY);
   }
 
   clearAllConversationData(): void {

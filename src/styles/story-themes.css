@@ -52,6 +52,44 @@
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
+/* Story titles sit on very different covers and papers. Keep the title
+   readable, but let each story's own accent carry the visual emphasis instead
+   of leaving every heading as the same flat white. */
+.story-reader-aurora[data-aurora-accent='story-mia'] .story-cover-title,
+.story-reader-aurora[data-aurora-accent='story-mia'] .aurora-reader-heading h1,
+.story-reader-aurora[data-aurora-accent='story-mia'] .aurora-reader-paper > h2 {
+  color: #dfd2ff;
+  text-shadow: 0 2px 16px rgba(185, 160, 255, 0.28);
+}
+
+.story-reader-aurora[data-aurora-accent='story-ocean'] .story-cover-title,
+.story-reader-aurora[data-aurora-accent='story-ocean'] .aurora-reader-heading h1,
+.story-reader-aurora[data-aurora-accent='story-ocean'] .aurora-reader-paper > h2 {
+  color: #a8fff4;
+  text-shadow: 0 2px 16px rgba(86, 232, 220, 0.25);
+}
+
+.story-reader-aurora[data-aurora-accent='story-zhenhai'] .story-cover-title,
+.story-reader-aurora[data-aurora-accent='story-zhenhai'] .aurora-reader-heading h1,
+.story-reader-aurora[data-aurora-accent='story-zhenhai'] .aurora-reader-paper > h2 {
+  color: #edc789;
+  text-shadow: 0 2px 16px rgba(213, 154, 85, 0.25);
+}
+
+.story-reader-aurora[data-aurora-accent='story-agi'] .story-cover-title,
+.story-reader-aurora[data-aurora-accent='story-agi'] .aurora-reader-heading h1,
+.story-reader-aurora[data-aurora-accent='story-agi'] .aurora-reader-paper > h2 {
+  color: #e9bf72;
+  text-shadow: 0 2px 16px rgba(233, 191, 114, 0.25);
+}
+
+.story-reader-aurora[data-aurora-accent='story-giant'] .story-cover-title,
+.story-reader-aurora[data-aurora-accent='story-giant'] .aurora-reader-heading h1,
+.story-reader-aurora[data-aurora-accent='story-giant'] .aurora-reader-paper > h2 {
+  color: #b9ddff;
+  text-shadow: 0 2px 16px rgba(147, 201, 255, 0.25);
+}
+
 .story-cover-subtitle {
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.7);

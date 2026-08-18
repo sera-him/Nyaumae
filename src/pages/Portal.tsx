@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type FocusEvent as ReactFocusEvent } from 'react';
-import { Link } from 'react-router';
-import { ArrowLeft, ArrowRight, BookOpen, Cpu, Gamepad2, Globe2, Heart, Users } from 'lucide-react';
+import { Link, useNavigate } from 'react-router';
+import { ArrowLeft, ArrowRight, BookOpen, BrainCircuit, Gamepad2, Globe2, History, MessageCircleMore, Search, Sigma, Sparkles, Users } from 'lucide-react';
 import { useMotionActivity } from '@/hooks/useMotionActivity';
+import { readLastViewed } from '@/lib/lastViewed';
+import { NAVIGATION_GROUPS } from '@/lib/routeManifest';
+import ResponsiveImage, { PORTAL_IMAGE_WIDTHS, THUMBNAIL_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
+import { writeStorageValue } from '@/lib/browserStorage';
 import './PortalAurora.css';
 
 const slides = [
@@ -22,19 +26,56 @@ const slideMetadata = [
   { location: '宇宙交汇处', time: '黄昏', region: '入口' },
 ];
 
-const entries = [
-  { id: 'world', label: '世界', en: 'World', meta: '1,207,963,268 人', icon: Globe2, href: '/world', desc: '12 亿人口的平行数字宇宙。哲华学校科照真学院与德澜思拓公司构成双核心驱动力，AGI 与意识的边界在此模糊。从冯·诺伊曼班的精英选拔到心界 VR 的沉浸式体验，每个意识体都在寻找自己的神经频率。' },
-  { id: 'characters', label: '角色', en: 'Characters', meta: '37 个意识体', icon: Users, href: '/characters', desc: '31 位主角色与 6 位补充意识体，各自闪烁着不同的神经频率。M/I/A 家族、哲华系、因派系、德澜思拓与《大人国的小女孩》角色群——每个角色都承载着独特的存在悖论。' },
-  { id: 'stories', label: '叙事', en: 'Narratives', meta: '4 个长篇 · 24+ 碎片', icon: BookOpen, href: '/stories', desc: "《大人国的小女孩》、M/I/A's World、狐狸与企鹅、AGI 应许之地——四个长篇叙事宇宙，以及 24+ 诗歌碎片。从星界馆的午后到大人国的三十天，故事在时间流速错叠的角落里展开。" },
-  { id: 'miia', label: '咪呀 mī yā', en: 'Inner Space', meta: 'FSIII 226 · 2017', icon: Heart, href: '/miia', desc: '内心独白、数学笔记与诗歌碎片。二年级生的集合论遐想、对存在的温柔质问、以及「只想被你看见然后被爱」的朴素愿望。FSIII 226，2017 年生，被定格在十四岁的投影与真实成长之间的涟漪。' },
-  { id: 'fsiii', label: 'FSIII', en: 'Cognition Index', meta: '29 个意识体', icon: Cpu, href: '/math/fsiii', desc: '理性骨架——公式与数据的语言。29 个意识体的 FSIII 排名与评分，从 Damocles 的 1314 到林浅的 90，构成一套贯穿世界观的量化认知体系。各省均值、区域分布、层级划分尽在其中。' },
-  { id: 'playground', label: '游戏', en: 'Playground', meta: '规则 · 概率 · 谜题', icon: Gamepad2, href: '/playground', desc: '复合象棋——棋子、规则与毒化机制；技能井字棋——三连棋变体与技能对战；题目——谜题、QR 码与考核。在规则与概率的交界处，用游戏理解这个世界的底层逻辑。' },
-];
+const commandExamples = ['打开小禾第一次出现的章节', '画出喵呜到游泳池的关系路线', '继续上次 NCTB 测试', '启动 Cat Machine', '检查第二卷第五章是否违反正史'];
+const directoryIconMap = {
+  miia: Sparkles,
+  world: Globe2,
+  stories: BookOpen,
+  characters: Users,
+  math: Sigma,
+  playground: Gamepad2,
+  ai: MessageCircleMore,
+  other: Search,
+} as const;
+const directoryAccentMap = {
+  miia: '#f58ab8',
+  world: '#66e9da',
+  stories: '#ff9fc8',
+  characters: '#c2a0ff',
+  math: '#75e8d5',
+  playground: '#8caeff',
+  ai: '#74efe0',
+  other: '#ffd17a',
+} as const;
+
+function commandRoute(command: string): string {
+  const normalized = command.toLocaleLowerCase();
+  if (/nctb|智力|测验|测试|能力图谱/.test(normalized)) return '/nctb';
+  if (/cat machine|catmachine|游戏|递归回响|aurora atlas/.test(normalized)) return '/playground';
+  if (/角色|人物|关系|邻居|亲友|章节|故事|正史|出现/.test(normalized)) return `/codex?q=${encodeURIComponent(command)}`;
+  return `/chat/aurora?prompt=${encodeURIComponent(command)}`;
+}
+
+function NeuralCommandConsole() {
+  const navigate = useNavigate();
+  const [command, setCommand] = useState('');
+  const submit = (event: React.FormEvent<HTMLFormElement>, fallback = false) => {
+    event.preventDefault();
+    const value = command.trim();
+    if (!value) return;
+    writeStorageValue('neural-connection:last-command', value);
+    navigate(fallback ? `/codex?q=${encodeURIComponent(value)}` : commandRoute(value));
+  };
+  return <div className="portal-command-console"><div className="portal-command-heading"><span><BrainCircuit size={15} /> AI ASSISTANT / FIND & EXPLORE</span><small>{command.length} / 200</small></div><form onSubmit={(event) => submit(event)}><Search size={18} aria-hidden="true" /><input value={command} onChange={(event) => setCommand(event.target.value)} maxLength={200} placeholder="需要时，让 AI 帮你查找内容" aria-label="向站内 AI 助手输入问题" /><button type="submit" data-motion-ripple="true" aria-label="发送给站内 AI 助手"><ArrowRight size={18} /></button></form><div className="portal-command-actions"><button type="button" onClick={() => submit({ preventDefault: () => undefined } as React.FormEvent<HTMLFormElement>, true)}>搜索全部内容</button><span>可以直接搜索，也可以带着问题进入对话</span></div><div className="portal-command-examples" aria-label="辅助问题示例">{commandExamples.slice(0, 3).map((example) => <button type="button" key={example} onClick={() => setCommand(example)}>{example}</button>)}</div></div>;
+}
 
 type Particle = { x: number; y: number; vx: number; vy: number; r: number; a: number; c: number[] };
 
 function NeuralParticles() {
-  const { ref: canvasRef, isMotionActive } = useMotionActivity<HTMLCanvasElement>('120px 0px');
+  const { ref: canvasRef, isMotionActive, motionProfile } = useMotionActivity<HTMLCanvasElement>(
+    '120px 0px',
+    { cost: 'high', priority: 20 },
+  );
   const particlesRef = useRef<Particle[]>([]);
   const pointerRef = useRef({ x: 0, y: 0, active: false });
 
@@ -48,6 +89,8 @@ function NeuralParticles() {
     let width = 1;
     let height = 1;
     let frame = 0;
+    let targetCount = 72;
+    const burstAllowance = motionProfile.mobile ? 8 : 24;
     const makeParticle = (x = Math.random() * width, y = Math.random() * height, burst = false): Particle => {
       const angle = Math.random() * Math.PI * 2;
       const speed = burst ? .45 + Math.random() * 1.1 : .08 + Math.random() * .22;
@@ -57,14 +100,15 @@ function NeuralParticles() {
       const rect = hero.getBoundingClientRect();
       width = rect.width;
       height = rect.height;
-      const ratio = Math.min(devicePixelRatio || 1, 2);
+      const ratio = Math.min(devicePixelRatio || 1, motionProfile.pixelRatioCap);
       canvas.width = Math.round(width * ratio);
       canvas.height = Math.round(height * ratio);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
-      const target = width < 640 ? 42 : 72;
-      while (particlesRef.current.length < target) particlesRef.current.push(makeParticle());
+      targetCount = Math.max(18, Math.round(72 * motionProfile.particleScale));
+      while (particlesRef.current.length < targetCount) particlesRef.current.push(makeParticle());
+      if (particlesRef.current.length > targetCount + burstAllowance) particlesRef.current.length = targetCount + burstAllowance;
     };
     const connect = (a: Particle, b: { x: number; y: number; c: number[] }, max: number, strength = 1) => {
       const distance = Math.hypot(a.x - b.x, a.y - b.y);
@@ -94,14 +138,15 @@ function NeuralParticles() {
       const rect = hero.getBoundingClientRect(); const x = event.clientX - rect.left; const y = event.clientY - rect.top;
       const amount = width < 640 ? 8 : 12;
       for (let i = 0; i < amount; i += 1) particlesRef.current.push(makeParticle(x + (Math.random() - .5) * 18, y + (Math.random() - .5) * 18, true));
+      if (particlesRef.current.length > targetCount + burstAllowance) particlesRef.current.splice(0, particlesRef.current.length - targetCount - burstAllowance);
       canvas.dataset.particleCount = String(particlesRef.current.length);
     };
     const observer = new ResizeObserver(resize); observer.observe(hero); resize(); draw();
     hero.addEventListener('pointermove', move, { passive: true }); hero.addEventListener('pointerleave', leave); hero.addEventListener('pointerdown', burst);
     canvas.dataset.particleCount = String(particlesRef.current.length);
     return () => { cancelAnimationFrame(frame); observer.disconnect(); hero.removeEventListener('pointermove', move); hero.removeEventListener('pointerleave', leave); hero.removeEventListener('pointerdown', burst); };
-  }, [canvasRef, isMotionActive]);
-  return <canvas ref={canvasRef} className="portal-particles" aria-hidden="true" />;
+  }, [canvasRef, isMotionActive, motionProfile.mobile, motionProfile.particleScale, motionProfile.pixelRatioCap]);
+  return <canvas ref={canvasRef} className="portal-particles" data-motion-kind="ambient" data-motion-running={isMotionActive ? 'true' : 'false'} data-motion-static={motionProfile.quality === 'static' || motionProfile.reducedMotion ? 'true' : 'false'} aria-hidden="true" />;
 }
 
 export default function Portal() {
@@ -109,8 +154,10 @@ export default function Portal() {
   const [carouselHovered, setCarouselHovered] = useState(false);
   const [carouselFocused, setCarouselFocused] = useState(false);
   const [timerReset, setTimerReset] = useState(0);
+  const [lastViewed] = useState(() => (typeof window === 'undefined' ? null : readLastViewed()));
   const { ref: carouselRef, isMotionActive: carouselMotionActive } = useMotionActivity<HTMLDivElement>('240px 0px');
   const carouselPaused = carouselHovered || carouselFocused || !carouselMotionActive;
+  const nextSlide = slides[(slide + 1) % slides.length];
 
   const go = useCallback((next: number) => {
     setSlide((next + slides.length) % slides.length);
@@ -133,28 +180,26 @@ export default function Portal() {
     return () => window.clearInterval(timer);
   }, [advance, carouselPaused, timerReset]);
 
-  const cardColors: Record<string, string> = {
-    world: '#66e9da', characters: '#a685ff', stories: '#ff8fc7',
-    miia: '#d99cff', fsiii: '#ffc76b', playground: '#79a9ff',
-  };
+  const lastViewedTarget = lastViewed?.path ?? '/world';
+  const lastViewedDescription = lastViewed ? `回到：${lastViewed.label}` : '还没有记录，从世界观开始';
 
   return (
     <div className="portal-aurora">
-      <section className="portal-hero" data-motion-loop>
+      <section className="portal-hero" data-motion-loop data-motion-kind="ambient">
         <div className="portal-hero-bg" />
         <div className="portal-hero-refraction" aria-hidden="true" />
         <NeuralParticles />
-        <p className="portal-particle-hint">✦ 移动指针连接神经 · 点击生成新粒子</p>
+        <p className="portal-particle-hint">✦ 移动指针唤醒星尘 · 点击生成新粒子</p>
         <div className="portal-hero-grid">
           <div className="portal-hero-copy">
             <p className="portal-kicker"><span>01</span> AURORA ATLAS / 由意识编织</p>
             <h1><span>NEURAL</span><span>CONNECTION</span></h1>
             <p className="portal-lead">一个由意识编织的<br />数字宇宙</p>
-            <div className="portal-actions">
-              <Link className="portal-primary" to="/stories">阅读故事 <span aria-hidden="true">→</span></Link>
-              <Link className="portal-secondary" to="/characters">探索角色 <span aria-hidden="true">↗</span></Link>
-              <Link className="portal-tertiary" to="/playground">进入游戏 <span aria-hidden="true">→</span></Link>
-            </div>
+            <nav className="portal-primary-paths" aria-label="咪呀空间入口">
+              <Link to="/miia" className="portal-primary-path portal-primary-path--miia" data-motion-ripple="true">
+                <Sparkles aria-hidden="true" /><span><small>MIIA / INNER SPACE</small><strong>咪呀空间</strong><em>从内心独白、数学遐想与诗歌碎片，进入咪呀的空间。</em></span><ArrowRight aria-hidden="true" />
+              </Link>
+            </nav>
           </div>
           <aside className="portal-miia">
             <div className="portal-miia-head"><span>TRANSMISSION / 2017</span><span>▮▮▮</span></div>
@@ -162,14 +207,30 @@ export default function Portal() {
             <p>ただみてほしいそんであいしてほしい</p>
             <div><strong>积分结果 = 2e</strong><span>你好～我是 ∫₀¹[...]d(2x) 的二年级生<br />只想被你看见然后被爱</span></div>
           </aside>
-          <div className="portal-stats"><div><span>WORLD POPULATION</span><strong>1,207,963,268</strong></div><div><span>AVERAGE LIFESPAN</span><strong>74y 6m 24d</strong></div><div><span>CREATOR</span><strong>Nyaumæ</strong></div></div>
+          <div className="portal-stats"><div><span>WORLD POPULATION</span><strong>1,207,963,268</strong></div><div><span>AVERAGE LIFESPAN</span><strong>74y 6m 24d</strong></div><div><span>CREATOR</span><strong>nyaumæ</strong></div></div>
+        </div>
+      </section>
+
+      <section className="portal-section portal-activity-section" aria-labelledby="portal-activity-title">
+        <div className="portal-section-head"><div><p>01 / FIRST CONNECTION</p><h2 id="portal-activity-title">从这里继续</h2></div><span>回到上次停下的地方，或从世界观、故事与角色开启新的旅程。</span></div>
+        <div className="portal-activity-grid">
+          <Link to={lastViewedTarget} className="portal-activity-card portal-activity-resume"><History /><span><small>CONTINUE / LAST VIEWED</small><strong>上次在看</strong><em>{lastViewedDescription}</em></span><ArrowRight /></Link>
+          <Link to="/world" className="portal-activity-card portal-activity-world"><Globe2 /><span><small>WORLD LORE / CANON</small><strong>世界观</strong><em>从地点、规则、组织和时间线，找到这座世界的坐标。</em></span><ArrowRight /></Link>
+          <Link to="/stories" className="portal-activity-card portal-activity-story"><BookOpen /><span><small>STORY DIRECTORY / READ</small><strong>故事</strong><em>打开故事目录，选择一个宇宙和一段章节开始阅读。</em></span><ArrowRight /></Link>
+          <Link to="/characters" className="portal-activity-card portal-activity-character"><Users /><span><small>CHARACTER NETWORK / MEET</small><strong>角色</strong><em>从人物档案、阵营和关系网，认识每一次相遇。</em></span><ArrowRight /></Link>
         </div>
       </section>
 
       <section className="portal-section portal-visions">
-        <div className="portal-section-head"><div><p>01 / VISUAL ARCHIVE</p><h2>世界的六个切面</h2></div><span>在时间、意识与规则之间，图像是通往这个宇宙的第一道门。</span></div>
+        <div className="portal-section-head"><div><p>02 / VISUAL ARCHIVE</p><h2>世界的六个切面</h2></div><span>在时间、角色与规则之间，图像是通往宇宙的第一道门。</span></div>
         <figure className="portal-overview">
-          <img src="/2-generated.png" alt="夕阳与星空下的星界馆，五位少女在环形图书馆中阅读、学习与交流" loading="lazy" decoding="async" />
+          <ResponsiveImage
+            src="/2-generated.png"
+            alt="夕阳与星空下的星界馆，五个身影在环形图书馆中阅读、学习与交流"
+            widths={PORTAL_IMAGE_WIDTHS}
+            sizes="(max-width: 640px) calc(100vw - 32px), 1180px"
+            loading="lazy"
+          />
           <div className="portal-overview-shade" aria-hidden="true" />
           <div className="portal-overview-index" aria-hidden="true"><span>ARCHIVE 00</span><span>OVERVIEW</span></div>
           <figcaption>
@@ -199,24 +260,62 @@ export default function Portal() {
             aria-roledescription="幻灯片"
             aria-label={`第 ${slide + 1} 张，共 ${slides.length} 张：${slides[slide].title}`}
           >
-            <img key={slides[slide].src} src={slides[slide].src} alt={slides[slide].alt} loading="lazy" decoding="async" />
+            <ResponsiveImage
+              key={slides[slide].src}
+              src={slides[slide].src}
+              alt={slides[slide].alt}
+              widths={PORTAL_IMAGE_WIDTHS}
+              sizes="(max-width: 640px) calc(100vw - 32px), 1180px"
+              loading="lazy"
+              className="portal-carousel-main"
+            />
+            {carouselMotionActive && (
+              <ResponsiveImage
+                key={`preload-${nextSlide.src}`}
+                src={nextSlide.src}
+                alt=""
+                widths={PORTAL_IMAGE_WIDTHS}
+                sizes="(max-width: 640px) calc(100vw - 32px), 1180px"
+                loading="eager"
+                fetchPriority="low"
+                pictureClassName="portal-carousel-preload"
+                aria-hidden="true"
+              />
+            )}
             <div className="portal-carousel-shade" />
             <div className="portal-caption" aria-live="polite"><p>VISUAL ARCHIVE {String(slide + 1).padStart(2, '0')}</p><h3>{slides[slide].title}</h3><div className="portal-slide-meta"><span>{slideMetadata[slide].location}</span><span>{slideMetadata[slide].time}</span><span>{slideMetadata[slide].region}</span></div></div>
             <div className="portal-count"><strong>{String(slide + 1).padStart(2, '0')}</strong><span>/ 06</span></div>
-            <button type="button" className="portal-arrow portal-prev" onClick={() => go(slide - 1)} aria-controls="portal-archive-slide" aria-label={`上一张：${slides[(slide - 1 + slides.length) % slides.length].title}`}><ArrowLeft aria-hidden="true" /></button>
-            <button type="button" className="portal-arrow portal-next" onClick={() => go(slide + 1)} aria-controls="portal-archive-slide" aria-label={`下一张：${slides[(slide + 1) % slides.length].title}`}><ArrowRight aria-hidden="true" /></button>
+            <button type="button" className="portal-arrow portal-prev" data-motion-click="none" onClick={() => go(slide - 1)} aria-controls="portal-archive-slide" aria-label={`上一张：${slides[(slide - 1 + slides.length) % slides.length].title}`}><ArrowLeft aria-hidden="true" /></button>
+            <button type="button" className="portal-arrow portal-next" data-motion-click="none" onClick={() => go(slide + 1)} aria-controls="portal-archive-slide" aria-label={`下一张：${slides[(slide + 1) % slides.length].title}`}><ArrowRight aria-hidden="true" /></button>
           </div>
-          <div className="portal-thumbs" role="group" aria-label="选择视觉档案">{slides.map((item, index) => <button key={item.src} type="button" className={index === slide ? 'active' : ''} onClick={() => go(index)} aria-label={`查看第 ${index + 1} 张：${item.alt}`} aria-controls="portal-archive-slide" aria-pressed={index === slide} aria-current={index === slide ? 'true' : undefined}><img src={item.src} alt="" loading="lazy" decoding="async" /><span>{String(index + 1).padStart(2, '0')}</span></button>)}</div>
+          <div className="portal-thumbs" role="group" aria-label="选择视觉档案">{slides.map((item, index) => <button key={item.src} type="button" className={index === slide ? 'active' : ''} onClick={() => go(index)} aria-label={`查看第 ${index + 1} 张：${item.alt}`} aria-controls="portal-archive-slide" aria-pressed={index === slide} aria-current={index === slide ? 'true' : undefined}><ResponsiveImage src={item.src} alt="" widths={THUMBNAIL_IMAGE_WIDTHS} sizes="(max-width: 640px) 30vw, 180px" loading="lazy" /><span>{String(index + 1).padStart(2, '0')}</span></button>)}</div>
           <span className="portal-carousel-status" aria-live="polite">{carouselPaused ? '自动轮播已暂停' : '自动轮播播放中'}</span>
         </div>
       </section>
 
-      <section className="portal-section portal-worlds">
-        <div className="portal-section-head"><div><p>02 / ENTRY MATRIX</p><h2>选择一条神经路径</h2></div><span>六个入口，六种理解世界的方式。</span></div>
-        <div className="portal-entry-grid">{entries.map((entry, index) => { const Icon = entry.icon; return <Link to={entry.href} key={entry.id} className={`portal-entry portal-entry-${entry.id}`} style={{ '--card': cardColors[entry.id] } as React.CSSProperties}><div className="portal-entry-top"><span>0{index + 1}</span><span>{entry.meta}</span></div><div className="portal-entry-title"><Icon /><div><p>{entry.en}</p><h3>{entry.label}</h3></div></div><p>{entry.desc}</p><div className="portal-entry-link"><span>进入 {entry.label}</span><span>↗</span></div></Link>; })}</div>
+      <section className="portal-section portal-worlds" aria-labelledby="portal-directory-title">
+        <div className="portal-section-head"><div><p>03 / COMPLETE DIRECTORY</p><h2 id="portal-directory-title">完整目录</h2></div><span>从故事、角色和世界观，到数学、游戏与对话，所有内容入口都汇集在这里。</span></div>
+        <div className="portal-entry-grid portal-system-grid">
+          {NAVIGATION_GROUPS.map((group, index) => {
+            const Icon = directoryIconMap[group.id];
+            return <Link to={group.root} key={group.id} className={`portal-entry portal-entry-${group.id}`} style={{ '--card': directoryAccentMap[group.id] } as React.CSSProperties}>
+              <div className="portal-entry-top"><span>{String(index + 1).padStart(2, '0')}</span><span>{group.caption}</span></div>
+              <div className="portal-entry-title"><Icon /><div><p>SPACE / {group.caption}</p><h3>{group.label}</h3></div></div>
+              <p>{group.description}</p>
+              <div className="portal-entry-link"><span>进入{group.label}</span><span>↗</span></div>
+            </Link>;
+          })}
+        </div>
       </section>
 
-      <section className="portal-closing"><p>“意识不是一座孤岛。”</p><span>每一次注视，都是一次神经连接。</span></section>
+      <section className="portal-section portal-support-section" aria-labelledby="portal-support-title">
+        <div className="portal-section-head"><div><p>04 / SITE TOOL</p><h2 id="portal-support-title">需要时，问一次就好</h2></div><span>输入想找的人物、故事或设定，AI 会带着站内来源一起回答。</span></div>
+        <div className="portal-support-layout portal-support-layout--single">
+          <NeuralCommandConsole />
+        </div>
+      </section>
+
+      <section className="portal-closing"><p>“世界不是一座孤岛。”</p><span>角色、世界与游戏，沿着神经连接彼此感应，让每一次相遇成为新的回响。</span></section>
     </div>
   );
 }

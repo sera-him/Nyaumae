@@ -1,16 +1,35 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
-import { ArrowLeft, ChevronRight, LoaderCircle } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ListTree, Minus, Plus } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import PageState from '@/components/PageState';
 import { renderStoryContent } from '@/lib/renderStoryContent';
 import ReadingProgress from '@/components/ReadingProgress';
 import { emitRouteReady } from '@/lib/deepLinkCoordinator';
 import { getStoryConfig } from '@/lib/storyThemeConfig';
 import type { Story, StoryChapter } from '@/data/stories';
+import SmartImage from '@/components/SmartImage';
+import { READER_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
+import { useReadingPreferences } from '@/hooks/useReadingPreferences';
+import { recordReadingProgress } from '@/lib/readingState';
 
 interface TextStoryPart {
   title: string;
   chapters: StoryChapter[];
+}
+
+interface LoadedTextStory {
+  source: string;
+  parts: TextStoryPart[];
+  error: string | null;
+}
+
+const textStoryCache = new Map<string, TextStoryPart[]>();
+const textStoryRequests = new Map<string, Promise<TextStoryPart[]>>();
+
+function isStoryFormattingArtifact(line: string): boolean {
+  const trimmed = line.trim();
+  return /^-+$/.test(trimmed) || /^=+$/.test(trimmed) || /^<a id="[^"]+"><\/a>$/.test(trimmed);
 }
 
 const partImages: Partial<Record<number, string>> = {
@@ -39,6 +58,8 @@ function parseTextStory(source: string): TextStoryPart[] {
   };
 
   for (const line of source.replace(/^\uFEFF/, '').split(/\r?\n/)) {
+    if (isStoryFormattingArtifact(line)) continue;
+
     if (!line.startsWith('## ')) {
       if (currentChapter) currentChapter.lines.push(line);
       continue;
@@ -61,6 +82,38 @@ function parseTextStory(source: string): TextStoryPart[] {
 
   commitChapter();
   return parts.filter((part) => part.chapters.length > 0);
+}
+
+function loadTextStory(sourceUrl: string): Promise<TextStoryPart[]> {
+  const cached = textStoryCache.get(sourceUrl);
+  if (cached) return Promise.resolve(cached);
+
+  const pending = textStoryRequests.get(sourceUrl);
+  if (pending) return pending;
+
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort('story-timeout'), 15_000);
+  const request = fetch(sourceUrl, { signal: controller.signal })
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.text();
+    })
+    .then((source) => {
+      window.clearTimeout(timeout);
+      const parts = parseTextStory(source);
+      if (parts.length === 0) throw new Error('EMPTY_STORY');
+      textStoryCache.set(sourceUrl, parts);
+      textStoryRequests.delete(sourceUrl);
+      return parts;
+    })
+    .catch((error) => {
+      window.clearTimeout(timeout);
+      textStoryRequests.delete(sourceUrl);
+      throw error;
+    });
+
+  textStoryRequests.set(sourceUrl, request);
+  return request;
 }
 
 function getPaperClass(paperStyle: string): string {
@@ -88,11 +141,57 @@ interface TextStoryReaderProps {
   story: Story;
 }
 
+interface ChapterDirectoryProps {
+  parts: TextStoryPart[];
+  activePart: number;
+  activeChapter: number;
+  onSelect: (partIndex: number, chapterIndex: number) => void;
+}
+
+function ChapterDirectory({ parts, activePart, activeChapter, onSelect }: ChapterDirectoryProps) {
+  return (
+    <nav className="story-reader-directory-list" aria-label="章节目录">
+      {parts.map((partItem, partIndex) => (
+        <section key={partItem.title} className={partIndex === activePart ? 'is-active' : undefined}>
+          <p>{partItem.title}</p>
+          <ol>
+            {partItem.chapters.map((chapterItem, chapterIndex) => {
+              const selected = partIndex === activePart && chapterIndex === activeChapter;
+              return (
+                <li key={chapterItem.title}>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(partIndex, chapterIndex)}
+                    aria-current={selected ? 'page' : undefined}
+                  >
+                    <span>{String(chapterIndex + 1).padStart(2, '0')}</span>
+                    <strong>{chapterItem.title}</strong>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))}
+    </nav>
+  );
+}
+
 export default function TextStoryReader({ story }: TextStoryReaderProps) {
   const { partId, chapterId } = useParams<{ partId?: string; chapterId?: string }>();
   const navigate = useNavigate();
-  const [parts, setParts] = useState<TextStoryPart[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const sourceUrl = story.contentSource!;
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [loadedStory, setLoadedStory] = useState<LoadedTextStory>(() => ({
+    source: sourceUrl,
+    parts: textStoryCache.get(sourceUrl) ?? [],
+    error: null,
+  }));
+  const { preferences, updatePreferences } = useReadingPreferences();
+  const parts = loadedStory.source === sourceUrl
+    ? loadedStory.parts
+    : textStoryCache.get(sourceUrl) ?? [];
+  const error = loadedStory.source === sourceUrl ? loadedStory.error : null;
   const config = getStoryConfig(story.id);
   const paperClass = getPaperClass(config.paperStyle);
   const navClass = getNavClass(config.chapterButtonStyle);
@@ -102,23 +201,31 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
   }, [story.id]);
 
   useEffect(() => {
-    const controller = new AbortController();
+    let active = true;
 
-    fetch(story.contentSource!, { signal: controller.signal })
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.text();
+    void loadTextStory(sourceUrl)
+      .then((nextParts) => {
+        if (active) setLoadedStory({ source: sourceUrl, parts: nextParts, error: null });
       })
-      .then((source) => {
-        setParts(parseTextStory(source));
-      })
-      .catch((fetchError: unknown) => {
-        if (fetchError instanceof DOMException && fetchError.name === 'AbortError') return;
-        setError('正文暂时无法加载，请稍后重试。');
+      .catch((loadError: unknown) => {
+        if (active) {
+          const reason = !navigator.onLine
+            ? '当前处于离线状态，正文尚未缓存。联网后可原地重试。'
+            : loadError instanceof DOMException && loadError.name === 'AbortError'
+              ? '正文请求超过 15 秒，已停止等待。'
+              : loadError instanceof Error && loadError.message.startsWith('HTTP ')
+                ? `正文服务返回 ${loadError.message.replace('HTTP ', '')}。`
+                : '正文资源暂时不可用。';
+          setLoadedStory((current) => ({
+            source: sourceUrl,
+            parts: current.source === sourceUrl ? current.parts : [],
+            error: reason,
+          }));
+        }
       });
 
-    return () => controller.abort();
-  }, [story.contentSource]);
+    return () => { active = false; };
+  }, [loadAttempt, sourceUrl]);
 
   const partIndex = partId ? parseInt(partId, 10) - 1 : 0;
   const validPartIndex = !isNaN(partIndex) && partIndex >= 0 && partIndex < parts.length ? partIndex : null;
@@ -164,16 +271,68 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
     (validChapterIndex > 0 || validPartIndex > 0)
   );
 
+  const previousChapterTitle = hasPrevChapter && validPartIndex !== null && validChapterIndex !== null
+    ? validChapterIndex > 0
+      ? parts[validPartIndex].chapters[validChapterIndex - 1]?.title
+      : parts[validPartIndex - 1]?.chapters.at(-1)?.title
+    : null;
+  const nextChapterTitle = hasNextChapter && validPartIndex !== null && validChapterIndex !== null && part
+    ? validChapterIndex < part.chapters.length - 1
+      ? part.chapters[validChapterIndex + 1]?.title
+      : parts[validPartIndex + 1]?.chapters[0]?.title
+    : null;
+
+  const retryLoad = () => {
+    setLoadedStory((current) => ({
+      source: sourceUrl,
+      parts: current.source === sourceUrl ? current.parts : [],
+      error: null,
+    }));
+    setLoadAttempt((attempt) => attempt + 1);
+  };
+
+  useEffect(() => {
+    if (validPartIndex === null || validChapterIndex === null || !part || !chapter) return;
+    recordReadingProgress({
+      storyId: story.id,
+      storyTitle: story.title,
+      chapterTitle: `${part.title} · ${chapter.title}`,
+      href: `/stories/${story.id}/parts/${validPartIndex + 1}/chapters/${validChapterIndex + 1}`,
+    });
+  }, [chapter, part, story.id, story.title, validChapterIndex, validPartIndex]);
+
+  useEffect(() => {
+    const handleChapterKey = (event: KeyboardEvent) => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A'].includes(target.tagName))) return;
+      if (event.key === 'ArrowLeft' && hasPrevChapter) {
+        event.preventDefault();
+        prevChapter();
+      }
+      if (event.key === 'ArrowRight' && hasNextChapter) {
+        event.preventDefault();
+        nextChapter();
+      }
+    };
+    window.addEventListener('keydown', handleChapterKey);
+    return () => window.removeEventListener('keydown', handleChapterKey);
+  });
+
   if (error) {
+    const offline = typeof navigator !== 'undefined' && !navigator.onLine;
     return (
       <div className="aurora-ui aurora-generic-page story-reader-aurora" data-aurora-accent={config.theme}>
-        <div className="aurora-container aurora-generic-inner max-w-[900px]">
-          <Link to="/stories" className="inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> 返回故事列表
-          </Link>
-          <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-6 text-red-200">
-            {error}
-          </div>
+        <div className="aurora-container aurora-generic-inner story-reader-shell">
+          <PageState
+            kind={offline ? 'offline' : 'error'}
+            title={offline ? `${story.title} · 离线时无法载入` : `${story.title} · 正文暂时无法加载`}
+            description={`${error} 当前仍停留在第 ${partId ?? '1'} 篇、第 ${chapterId ?? '1'} 章，网址和阅读位置不会改变。`}
+            actions={<>
+              <button type="button" data-action="retry" className="aurora-button aurora-button-primary" onClick={retryLoad}>原地重试正文</button>
+              <Link to="/stories" data-action="back" className="aurora-button">返回故事列表</Link>
+            </>}
+          />
         </div>
       </div>
     );
@@ -182,13 +341,8 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
   if (parts.length === 0) {
     return (
       <div className="aurora-ui aurora-generic-page story-reader-aurora" data-aurora-accent={config.theme}>
-        <div className="aurora-container aurora-generic-inner max-w-[900px]">
-          <Link to="/stories" className="inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> 返回故事列表
-          </Link>
-          <div className="flex items-center gap-2 text-nc-text-muted py-12">
-            <LoaderCircle className="w-4 h-4 animate-spin" /> 正在载入正文…
-          </div>
+        <div className="aurora-container aurora-generic-inner story-reader-shell">
+          <PageState kind="loading" title="正在载入正文" description="章节与阅读进度准备好后会自动显示。" />
         </div>
       </div>
     );
@@ -197,16 +351,16 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
   if (validPartIndex === null || !part || validChapterIndex === null || !chapter) {
     return (
       <div className="aurora-ui aurora-generic-page story-reader-aurora" data-aurora-accent={config.theme}>
-        <div className="aurora-container aurora-generic-inner max-w-[900px]">
-          <Link to="/stories" className="inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> 返回故事列表
-          </Link>
-          <div className="text-center py-12">
-            <p className="text-nc-text-muted mb-4">未找到该章节</p>
-            <Link to={`/stories/${story.id}/parts/1/chapters/1`} className="text-nc-cyan hover:underline">
-              返回第一章
-            </Link>
-          </div>
+        <div className="aurora-container aurora-generic-inner story-reader-shell">
+          <PageState
+            kind="empty"
+            title="未找到该章节"
+            description="章节地址可能已更新，可以从第一章重新开始。"
+            actions={<>
+              <Link to={`/stories/${story.id}/parts/1/chapters/1`} className="aurora-button aurora-button-primary">返回第一章</Link>
+              <Link to="/stories" className="aurora-button">故事列表</Link>
+            </>}
+          />
         </div>
       </div>
     );
@@ -215,29 +369,51 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
   return (
     <div className="aurora-ui aurora-generic-page story-reader-aurora" data-aurora-accent={config.theme}>
       <ReadingProgress resetKey={`${story.id}-${validPartIndex}-${validChapterIndex}`} />
-      <div className="aurora-container aurora-generic-inner max-w-[900px]">
+      <div className="aurora-container aurora-generic-inner story-reader-shell">
         <Link
           to="/stories"
-          className="inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors"
+          data-action="back"
+          className="story-reader-back aurora-button aurora-button-quiet"
         >
           <ArrowLeft className="w-4 h-4" /> 返回故事列表
         </Link>
+
+        <div className="story-reader-tools" aria-label="阅读显示设置">
+          <button type="button" onClick={() => updatePreferences({ ...preferences, fontSize: Math.max(14, preferences.fontSize - 1) })} disabled={preferences.fontSize <= 14} aria-label="减小字号"><Minus /></button>
+          <span className="story-reader-tool-value">{preferences.fontSize}px</span>
+          <button type="button" onClick={() => updatePreferences({ ...preferences, fontSize: Math.min(22, preferences.fontSize + 1) })} disabled={preferences.fontSize >= 22} aria-label="增大字号"><Plus /></button>
+          <button type="button" onClick={() => updatePreferences({ ...preferences, lineHeight: preferences.lineHeight >= 2.15 ? 1.65 : preferences.lineHeight >= 1.85 ? 2.2 : 1.9 })}>行距 {preferences.lineHeight.toFixed(2)}</button>
+          <span className="story-reader-keyboard-hint"><ChevronLeft /><ChevronRight /> 键盘翻章</span>
+        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="aurora-reader-heading"
         >
-          <h1 className="text-3xl font-bold text-nc-text mb-2">{story.title}</h1>
-          {story.subtitle && <p className="text-nc-text-secondary">{story.subtitle}</p>}
+          <p className="aurora-eyebrow">STORY READER</p>
+          <h1>{story.title}</h1>
+          {story.subtitle && <p>{story.subtitle}</p>}
         </motion.div>
 
-        {story.video && (
+        <details className="story-reader-directory story-reader-directory--mobile">
+          <summary><ListTree aria-hidden="true" />章节目录<span>{validPartIndex + 1}.{validChapterIndex + 1}</span></summary>
+          <ChapterDirectory parts={parts} activePart={validPartIndex} activeChapter={validChapterIndex} onSelect={goToChapter} />
+        </details>
+
+        <div className="story-reader-layout">
+          <aside className="story-reader-directory story-reader-directory--desktop">
+            <div className="story-reader-directory-heading"><ListTree aria-hidden="true" /><span><small>CONTENTS</small><strong>章节目录</strong></span></div>
+            <ChapterDirectory parts={parts} activePart={validPartIndex} activeChapter={validChapterIndex} onSelect={goToChapter} />
+          </aside>
+
+          <div className="story-reader-content">
+          {story.video && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08, duration: 0.45 }}
-            className="mb-8 overflow-hidden rounded-2xl border border-white/[0.08] bg-black shadow-2xl shadow-black/20"
+            className="story-reader-video"
           >
             <video
               src={story.video}
@@ -253,70 +429,8 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
           </motion.div>
         )}
 
-        <>
-          <div className="mb-4">
-            <p className="text-xs font-mono uppercase tracking-widest text-nc-text-muted mb-2">篇目</p>
-            <div className="aurora-tabs story-reader-chapter-tabs" role="tablist" aria-label="故事篇目">
-              {parts.map((partItem, index) => (
-                <button
-                  key={partItem.title}
-                  onClick={() => {
-                    if (index !== validPartIndex) {
-                      goToChapter(index, 0);
-                    }
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      if (index !== validPartIndex) {
-                        goToChapter(index, 0);
-                      }
-                    }
-                  }}
-                  role="tab"
-                  aria-selected={validPartIndex === index}
-                  className="aurora-tab"
-                >
-                  {partItem.title}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {part && (
-            <div className="mb-8">
-              <p className="text-xs font-mono uppercase tracking-widest text-nc-text-muted mb-2">章节</p>
-              <div className="aurora-tabs story-reader-chapter-tabs" role="tablist" aria-label="故事章节">
-                {part.chapters.map((chapterItem, index) => (
-                  <button
-                    key={chapterItem.title}
-                    onClick={() => {
-                      if (index !== validChapterIndex) {
-                        goToChapter(validPartIndex, index);
-                      }
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        if (index !== validChapterIndex) {
-                          goToChapter(validPartIndex, index);
-                        }
-                      }
-                    }}
-                    role="tab"
-                    aria-selected={validChapterIndex === index}
-                    className="aurora-tab"
-                  >
-                    {chapterItem.title}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           <AnimatePresence mode="wait" initial={false}>
-            {chapter && (
-              <motion.div
+              <motion.article
                 key={`${validPartIndex}-${validChapterIndex}`}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -325,41 +439,52 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
                 className={`aurora-reader-paper prose prose-invert max-w-none ${paperClass}`}
               >
                 {partImage && (
-                  <img
-                    src={partImage}
+                  <SmartImage
+                    localSrc={partImage}
                     alt={`${part.title}插图`}
-                    className="w-full aspect-video object-cover rounded-2xl border border-white/[0.08] mb-8 shadow-2xl shadow-black/20"
+                    responsiveWidths={READER_IMAGE_WIDTHS}
+                    sizes="(max-width: 840px) calc(100vw - 32px), 800px"
+                    loading="lazy"
+                    aspectRatio="16 / 9"
+                    containerClassName="w-full rounded-2xl border border-white/[0.08] mb-8 shadow-2xl shadow-black/20"
+                    className="object-cover"
                   />
                 )}
-                <p className="text-sm text-nc-text-muted mb-2">{part.title}</p>
-                <h2 className="text-xl font-semibold text-nc-text mb-6">{chapter.title}</h2>
-                <div className="font-serif-cn text-nc-text-secondary leading-[1.9] text-[15px] space-y-4 whitespace-pre-wrap">
+                <header className="story-reader-article-heading">
+                  <p>{part.title}</p>
+                  <h2>{chapter.title}</h2>
+                </header>
+                <div className="story-reader-prose font-serif-cn whitespace-pre-wrap" style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight }}>
                   {renderStoryContent(chapter.content)}
                 </div>
-              </motion.div>
-            )}
+              </motion.article>
           </AnimatePresence>
 
-          <div className="mt-12 flex items-center justify-between">
-            {hasPrevChapter ? (
+          <nav className="story-reader-nav-area" aria-label="章节翻页">
+            {hasPrevChapter && (
               <button
+                type="button"
                 onClick={prevChapter}
-                className={`story-reader-nav flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
+                className={`story-reader-nav story-reader-nav--previous ${navClass}`}
               >
-                <ArrowLeft className="w-4 h-4" /> 上一章
+                <ArrowLeft aria-hidden="true" />
+                <span><small>上一章</small><strong>{previousChapterTitle}</strong></span>
               </button>
-            ) : <div />}
+            )}
 
             {hasNextChapter && (
               <button
+                type="button"
                 onClick={nextChapter}
-                className={`story-reader-nav flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
+                className={`story-reader-nav story-reader-nav--next ${navClass}`}
               >
-                下一章 <ChevronRight className="w-4 h-4" />
+                <span><small>下一章</small><strong>{nextChapterTitle}</strong></span>
+                <ChevronRight aria-hidden="true" />
               </button>
             )}
+          </nav>
           </div>
-        </>
+        </div>
       </div>
     </div>
   );

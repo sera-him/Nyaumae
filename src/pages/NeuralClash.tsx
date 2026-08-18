@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent } from 'react';
 import { Activity, ArrowRight, Atom, Bolt, CircleHelp, Crosshair, Eye, Flag, RefreshCcw, Shield, Sparkles, Swords, Waves } from 'lucide-react';
 import {
   applyAction, createGame, endAction, legalTargets, nodeDegreeSummary, previewNode,
@@ -6,6 +6,7 @@ import {
   type ActionMode, type GameState, type Owner, type Side,
 } from '@/game/neuralClash/engine';
 import './NeuralClash.css';
+import { confirmAction } from '@/lib/confirmAction';
 
 const OWNER_COLOR: Record<Owner, string> = {
   neutral: '#8390a3', blue: '#4dc7ff', red: '#ff557d', dead: '#343a46',
@@ -23,6 +24,7 @@ function NeuralCanvas({ game, onNodeClick }: { game: GameState; onNodeClick: (id
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState<number | null>(null);
+  const [keyboardNode, setKeyboardNode] = useState(game.selected ?? 0);
   const focus = hovered ?? game.selected;
   const targetSet = useMemo(() => new Set(game.selected === null ? [] : legalTargets(game, game.selected)), [game]);
   const previews = useMemo(() => game.map.nodes.map((node) => previewNode(game, node.id)), [game]);
@@ -113,13 +115,47 @@ function NeuralCanvas({ game, onNodeClick }: { game: GameState; onNodeClick: (id
     return found;
   };
 
+  const moveKeyboardFocus = (horizontal: number, vertical: number) => {
+    const origin = game.map.nodes[keyboardNode] ?? game.map.nodes[0];
+    const candidate = game.map.nodes
+      .filter((node) => node.id !== origin.id)
+      .map((node) => {
+        const dx = node.x - origin.x;
+        const dy = node.y - origin.y;
+        const forward = dx * horizontal + dy * vertical;
+        const sideways = Math.abs(dx * vertical - dy * horizontal);
+        return { node, forward, sideways, distance: Math.hypot(dx, dy) };
+      })
+      .filter((item) => item.forward > 0.001)
+      .sort((a, b) => (a.sideways * 1.8 + a.distance - a.forward * .35) - (b.sideways * 1.8 + b.distance - b.forward * .35))[0];
+    if (!candidate) return;
+    setKeyboardNode(candidate.node.id);
+    setHovered(candidate.node.id);
+  };
+
+  const handleKeyboard = (event: ReactKeyboardEvent<HTMLCanvasElement>) => {
+    if (event.key === 'ArrowLeft') { event.preventDefault(); moveKeyboardFocus(-1, 0); return; }
+    if (event.key === 'ArrowRight') { event.preventDefault(); moveKeyboardFocus(1, 0); return; }
+    if (event.key === 'ArrowUp') { event.preventDefault(); moveKeyboardFocus(0, -1); return; }
+    if (event.key === 'ArrowDown') { event.preventDefault(); moveKeyboardFocus(0, 1); return; }
+    if (event.key === 'Home') { event.preventDefault(); setKeyboardNode(0); setHovered(0); return; }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onNodeClick(keyboardNode);
+    }
+  };
+
+  const keyboardNodeLabel = game.map.nodes[keyboardNode] ? `节点 ${keyboardNode + 1}` : '节点 1';
+
   return (
     <div className="nc-board" ref={wrapRef}>
       <canvas
-        ref={canvasRef} aria-label="神经交锋棋盘，包含100个可交互节点"
+        ref={canvasRef} tabIndex={0} role="application" aria-describedby="neural-clash-board-help neural-clash-board-status" aria-label={`神经交锋棋盘，当前键盘焦点为${keyboardNodeLabel}`}
         onPointerMove={(event) => setHovered(nodeAt(event))} onPointerLeave={() => setHovered(null)}
-        onPointerDown={(event) => { const id = nodeAt(event); if (id !== null) onNodeClick(id); }}
+        onPointerDown={(event) => { const id = nodeAt(event); if (id !== null) { setKeyboardNode(id); onNodeClick(id); } }} onKeyDown={handleKeyboard} onFocus={() => setHovered(keyboardNode)} onBlur={() => setHovered(null)}
       />
+      <p id="neural-clash-board-help" className="sr-only">使用方向键在节点之间移动键盘焦点，按 Enter 或空格选择当前节点。鼠标和触控操作仍可直接选择节点。</p>
+      <p id="neural-clash-board-status" className="sr-only" aria-live="polite">当前键盘焦点：{keyboardNodeLabel}。</p>
       <div className="nc-board-legend" aria-hidden="true">
         <span><i />普通突触</span><span><i className="enhanced" />强化突触</span><span><b>⬡</b>神经核</span>
       </div>
@@ -166,11 +202,6 @@ export default function NeuralClash() {
   const selectedPreview = selectedNode ? previewNode(game, selectedNode.id) : null;
   const selectedDegree = selectedNode ? nodeDegreeSummary(game.map, selectedNode.id) : null;
 
-  useEffect(() => {
-    const previous = document.title; document.title = '神经交锋 · 100节点大战';
-    return () => { document.title = previous; };
-  }, []);
-
   const onNodeClick = (id: number) => {
     setGame((current) => {
       if (current.phase !== 'actions' || !current.active || current.mode === 'inspect') return { ...current, selected: id };
@@ -187,7 +218,13 @@ export default function NeuralClash() {
     else if (game.phase === 'final-ready') setGame(resolveFinalPulse);
     else if (game.phase === 'actions') setGame(endAction);
   };
-  const reset = () => setGame(createGame());
+  const reset = () => {
+    if (!confirmAction({
+      title: '生成新地图并重置当前对局？',
+      consequence: '当前节点归属、行动点和本局结果都会清空。',
+    })) return;
+    setGame(createGame());
+  };
   const actionButtons: { mode: ActionMode; icon: typeof Eye; disabled: boolean }[] = [
     { mode: 'inspect', icon: Eye, disabled: false },
     { mode: 'expand', icon: ArrowRight, disabled: !game.active || game.ap[game.active] < 1 },
@@ -199,12 +236,12 @@ export default function NeuralClash() {
   return (
     <div className="neural-clash">
       <header className="nc-topbar">
-        <div className="nc-brand"><span className="nc-brand-mark"><Atom size={22} /></span><div><small>NEURAL CLASH</small><h1>神经交锋</h1></div></div>
+        <div className="nc-brand"><span className="nc-brand-mark"><Atom size={22} /></span><div><small>NEURAL CLASH</small><h2>神经交锋</h2></div></div>
         <ScoreStrip game={game} />
         <div className="nc-top-actions"><button onClick={() => setRulesOpen(true)}><CircleHelp size={17} />规则</button><button onClick={reset}><RefreshCcw size={16} />新地图</button></div>
       </header>
 
-      <main className="nc-layout">
+      <div className="nc-layout">
         <aside className="nc-panel nc-command">
           <div className={`nc-turn-card ${game.active ?? 'neutral'}`}>
             <small>当前阶段</small><strong>{game.phase === 'actions' ? `${sideName(game.active)}行动` : game.phase === 'pulse-ready' ? '神经脉冲' : game.phase === 'final-ready' ? '终局脉冲' : '对局结束'}</strong>
@@ -254,7 +291,7 @@ export default function NeuralClash() {
             </div>
           </> : <div className="nc-empty-inspector"><Atom size={34} /><h2>选择一个节点</h2><p>查看归属、突触构成与本轮脉冲的预计票数。</p></div>}
         </aside>
-      </main>
+      </div>
 
       {game.phase === 'finished' && <div className="nc-result"><div className={`nc-result-card ${game.winner ?? ''}`}>
         <small>FINAL SYNAPSE REPORT</small><h2>{game.winner === 'draw' ? '神经网络达成平衡' : `${game.winner === 'blue' ? '蓝方' : '红方'}赢得交锋`}</h2>

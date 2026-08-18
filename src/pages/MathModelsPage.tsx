@@ -130,7 +130,7 @@ const tabs = [
 function FsiiiTab() {
   const { ref, isVisible } = useScrollReveal();
 
-  const aiIds = new Set(['damocles', 'eirene', 'zero']);
+  const aiIds = new Set(['damocles', 'eirene', 'zero', 'gpt']);
 
   const allItems: FsiiiItem[] = [
     ...characters.filter((c) => c.fsiii !== undefined)

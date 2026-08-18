@@ -100,3 +100,8 @@
     animation: none;
   }
 }
+.playground-game-card > div:last-child > div:first-child,
+.game-session-title strong {
+  color: color-mix(in srgb, var(--game-accent, var(--aurora-accent)) 82%, white);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--game-accent, var(--aurora-accent)) 18%, transparent);
+}

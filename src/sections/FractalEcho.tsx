@@ -19,6 +19,8 @@ import {
   type EchoColor,
 } from '@/game/recursiveEcho/engine';
 import './FractalEcho.css';
+import { confirmAction } from '@/lib/confirmAction';
+import ResponsiveImage, { READER_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
 
 type Player = 'blue' | 'orange';
 type Actor = Exclude<EchoColor, 'empty'>;
@@ -233,13 +235,20 @@ export default function FractalEcho() {
     setSelected(4);
   };
 
+  const confirmRestart = () => session.turn === 0 || finished || confirmAction({
+    title: '重新开始递归回响？',
+    consequence: '当前回合、棋盘控制和最近回响记录都会清空。',
+  });
+
   const changeMode = (nextMode: ModeId) => {
+    if (!confirmRestart()) return;
     setMode(nextMode);
     setSession(createSession(aiMoves));
     setSelected(4);
   };
 
   const changeAiMoves = (nextMoves: number) => {
+    if (!confirmRestart()) return;
     setAiMoves(nextMoves);
     restart(nextMoves);
   };
@@ -282,7 +291,7 @@ export default function FractalEcho() {
           <button type="button" onClick={() => setShowRules((value) => !value)}>
             <BookOpen size={15} /> 规则图 {showRules ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
-          <button type="button" className="re-icon-button" onClick={() => restart()} aria-label="重新开始">
+          <button type="button" className="re-icon-button" onClick={() => { if (confirmRestart()) restart(); }} aria-label="重新开始">
             <RotateCcw size={16} />
           </button>
         </div>
@@ -422,7 +431,7 @@ export default function FractalEcho() {
         <section className="re-rules-section" id="recursive-echo-rules">
           <div className="re-rules-image-wrap">
             <div className="re-section-head"><div><span className="re-eyebrow">RULE IMAGE</span><h3>同步回响版规则图</h3></div></div>
-            <img src="/recursive-echo-rules.png" alt="递归回响同步回响版规则图" className="re-rules-image" />
+            <ResponsiveImage src="/recursive-echo-rules.png" alt="递归回响同步回响版规则图" widths={READER_IMAGE_WIDTHS} sizes="(max-width: 900px) calc(100vw - 48px), 860px" className="re-rules-image" />
           </div>
           <div className="re-rules-copy">
             <div className="re-section-head"><div><span className="re-eyebrow">TEXT SUPPLEMENT</span><h3>本局补充说明</h3></div></div>

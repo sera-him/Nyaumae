@@ -86,7 +86,7 @@ const CHAR_KEYWORDS: string[] = [
   'Līlā', 'Lila', '朵拉', '朵拉·卡可拉', '爱丽丝', '可乐', '莱尼尔', '莱尼尔·塞佛·卡可拉', '塞佛', '卡可拉',
   '棋程', '哈姆诗', '墨问', 'Nihilib', 'Nimfa', 'Matthew',
   // AI / 特殊
-  'Eirene', 'Damocles', '初音ミク', 'Miku', 'ミク', 'Nyaumæ',
+  'Eirene', 'Damocles', '初音ミク', 'Miku', 'ミク', 'nyaumæ',
   'あいえふちゃん',
   // 故事角色
   '狐狸', '红狐狸', '小狐狸', '橙狐狸',

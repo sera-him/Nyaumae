@@ -4,7 +4,6 @@ import { MemoryManager, memoryManager } from './memoryManager.ts';
 import { PromptRegistry, promptRegistry } from './promptRegistry.ts';
 import { estimateTokens, truncateText } from './utils.ts';
 import { characters } from '../data/characters.ts';
-import { characterStateManager } from './characterState.ts';
 import { STICKER_SYSTEM_PROMPT } from './stickers.ts';
 
 export const DEFAULT_CONTEXT_BUDGET: ContextBudget = {
@@ -108,18 +107,8 @@ export class ContextBuilder {
           : 'website-assistant';
     addBlock('mode', modePromptType, promptText(this.prompts, modePromptType, {
       pageRoute: input.pageContext?.route ?? input.conversation.pageContext?.route ?? '/',
-      characterId: input.characterId ?? input.conversation.characterId ?? '',
-      characterName: characters.find((character) => character.id === characterId)?.name ?? '',
       storyId: input.pageContext?.entityId ?? '',
     }, promptOptions), budget.mode);
-
-    if (characterId) {
-      const character = characters.find((item) => item.id === characterId);
-      const characterProfile = character
-        ? characterStateManager.buildCharacterContext(character, { characterId })
-        : `Selected character id: ${characterId}\nNo verified character profile was found. Do not invent one.`;
-      addBlock('character-profile', 'character-profile', characterProfile, budget.character);
-    }
 
     const pageContext = input.pageContext ?? input.conversation.pageContext;
     if (pageContext) {
@@ -136,7 +125,13 @@ export class ContextBuilder {
     addBlock('canon-guard', 'canon-guard', promptText(this.prompts, 'canon-guard', {}, promptOptions), budget.canon);
 
     const maxSpoilerLevel = input.conversation.mode === 'story-query' ? 2 : 0;
-    const documents = this.knowledge.search(input.currentInput, {
+    const selectedCharacter = input.conversation.mode === 'character' && characterId
+      ? characters.find((character) => character.id === characterId)
+      : undefined;
+    const knowledgeQuery = selectedCharacter
+      ? [input.currentInput, selectedCharacter.name, selectedCharacter.alias].filter(Boolean).join(' ')
+      : input.currentInput;
+    const documents = this.knowledge.search(knowledgeQuery, {
       maxResults: 6,
       maxSpoilerLevel,
       characterId: input.conversation.mode === 'character' ? characterId : undefined,

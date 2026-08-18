@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'neural-connection-';
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v11';
 const PRECACHE_NAME = `${CACHE_PREFIX}precache-${CACHE_VERSION}`;
 const STATIC_CACHE_NAME = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const CURRENT_CACHE_NAMES = [PRECACHE_NAME, STATIC_CACHE_NAME];
@@ -95,8 +95,11 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(PRECACHE_NAME)
       .then((cache) => cache.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {

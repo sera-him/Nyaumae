@@ -40,4 +40,10 @@ export default defineConfig([
       'react-refresh/only-export-components': 'off',
     },
   },
+  {
+    files: ['scripts/nctb/**/*.ts'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])

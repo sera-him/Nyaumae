@@ -192,6 +192,25 @@
 
   /* Keep gradient text readable by adding a solid fallback */
   .aurora-title,
+  .aurora-section-title,
+  .story-reader-shell .aurora-reader-heading h1,
+  .story-reader-article-heading h2,
+  .full-search-hero h1,
+  .full-search-state h2,
+  .full-search-section-heading h2,
+  .character-network-title,
+  .aurora-legacy-content :is(h2,h3,h4),
+  .aurora-detail-page :is(h1,h2,h3),
+  .portal-overview figcaption h3,
+  .nctb-section-heading h2,
+  .nctb-workspace h2,
+  .nctb-challenge-card h3,
+  .nctb-challenge-empty h3,
+  .nctb-ability-heading h3,
+  .nctb-report-hero h2,
+  .nctb-chart-card h3,
+  .nctb-recommendation-card h3,
+  .nctb-trend-card h3,
   .portal-hero h1 span {
     background: none !important;
     -webkit-text-fill-color: var(--aurora-text, #f8f4ff) !important;
@@ -294,6 +313,43 @@
 /* --------------------------------------------------------------------------
    5. TOUCH TARGETS — minimum 44x44px on touch devices
    -------------------------------------------------------------------------- */
+
+/* The 44px interaction area is a baseline at every viewport, not only when a
+   browser reports a coarse pointer. This also covers hybrid laptops. */
+.site-theme-shell :where(button, [role='button'], summary, .aurora-button, .aurora-tab) {
+  min-height: 44px;
+}
+
+.site-theme-shell :where(
+  .aurora-icon-button,
+  .aurora-nav-search,
+  .portal-arrow,
+  .site-search-close,
+  button[aria-label]:not(:has(span))
+) {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.site-theme-shell :where(input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='hidden']), select, textarea) {
+  min-height: 44px;
+}
+
+.site-theme-shell :where(button, input, select, textarea):disabled,
+.site-theme-shell :where([role='button'], [role='tab'])[aria-disabled='true'] {
+  cursor: not-allowed !important;
+  opacity: .42 !important;
+  filter: saturate(.55);
+  transform: none !important;
+}
+
+.site-theme-shell :where(button, [role='button']):active:not(:disabled):not([aria-disabled='true']) {
+  transform: scale(.98);
+}
+
+.site-theme-shell :where([aria-selected='true'], [aria-pressed='true'], [aria-current='page']) {
+  border-color: rgba(var(--aurora-accent-rgb, 166, 133, 255), .58);
+}
 
 @media (hover: none) and (pointer: coarse) {
 

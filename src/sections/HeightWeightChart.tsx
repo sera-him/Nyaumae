@@ -231,7 +231,7 @@ export default function HeightWeightChart() {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = container.getBoundingClientRect();
     const w = rect.width;
     canvas.width = w * dpr;

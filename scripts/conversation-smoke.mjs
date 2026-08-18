@@ -300,15 +300,34 @@ test('canon guard blocks overwriting locked canon but allows a labeled draft for
   assert.equal(guard.assessMemory({ ...candidate, canonStatus: 'draft' }).verdict, 'review');
 });
 
-test('character context includes the selected public profile and a strict knowledge boundary', () => {
+test('character context retrieves the selected profile instead of injecting a static profile', () => {
   const repository = new ConversationRepository();
   const conversation = repository.createConversation({ mode: 'character', title: 'Character context', characterId: 'xiaoman' });
-  const builder = new ContextBuilder(new MemoryManager(repository), new KnowledgeRetriever({ items: [], search: () => [] }), new PromptRegistry(repository));
+  let searchQuery = '';
+  const item = {
+    id: 'char_xiaoman',
+    title: '小满',
+    content: '小满的公开角色资料。',
+    category: '角色',
+    href: '#characters',
+    relatedIds: ['xiaoman'],
+    canonStatus: 'canon',
+    spoilerLevel: 0,
+  };
+  const knowledge = new KnowledgeRetriever({
+    items: [item],
+    search: (query) => {
+      searchQuery = query;
+      return [{ item }];
+    },
+  });
+  const builder = new ContextBuilder(new MemoryManager(repository), knowledge, new PromptRegistry(repository));
   const result = builder.build({ conversation, currentInput: 'Introduce yourself.', recentMessages: [], characterId: 'xiaoman' });
   const profile = result.blocks.find((block) => block.id === 'character-profile');
-  assert.equal(profile?.included, true);
-  assert.match(profile?.content ?? '', /小满/);
-  assert.match(profile?.content ?? '', /Knowledge boundary/);
+  const retrieved = result.blocks.find((block) => block.id === 'knowledge');
+  assert.equal(profile, undefined);
+  assert.match(searchQuery, /小满/);
+  assert.match(retrieved?.content ?? '', /小满/);
 });
 
 test('built-in prompts are practical Chinese instructions and render page variables', () => {
@@ -316,9 +335,10 @@ test('built-in prompts are practical Chinese instructions and render page variab
   const registry = new PromptRegistry(repository);
   const core = registry.get('core-system');
   const website = registry.get('website-assistant');
-  assert.equal(core?.version, 3);
+  assert.equal(core?.version, 6);
   assert.match(core?.content ?? '', /先直接回答最重要的结论/);
-  assert.equal(website?.version, 2);
+  assert.equal(website?.version, 3);
+  assert.equal(registry.list().some((prompt) => /小满|xiaoman/i.test(prompt.content)), false);
   const rendered = registry.render(website, { pageRoute: '/stories' });
   assert.match(rendered, /当前页面路径是 \/stories/);
   assert.equal(rendered.includes('{{pageRoute}}'), false);
@@ -340,10 +360,13 @@ test('character and story mode prompts are injected only once', () => {
     recentMessages: [],
     characterId: 'xiaoman',
   });
+  const characterPrompt = registry.get('character');
+  assert.equal(characterPrompt?.version, 6);
+  assert.equal(/小满|xiaoman/i.test(characterPrompt?.content ?? ''), false);
   const characterRules = characterResult.messages
     .map((message) => message.content)
     .join('\n')
-    .match(/只有在用户明确选择角色后/g) ?? [];
+    .match(/只有在用户明确选择角色/g) ?? [];
   assert.equal(characterRules.length, 1);
 
   const storyConversation = repository.createConversation({

@@ -19,6 +19,7 @@ import {
   skillTicTacToeOverview,
 } from '@/data/skillTicTacToe';
 import ParticleField from '@/components/ParticleField';
+import { confirmAction } from '@/lib/confirmAction';
 import {
   Zap, Crosshair, Sparkles, TrendingUp, Eye, Coins,
   Play, RotateCcw, Settings, Shield, Brain,
@@ -320,11 +321,13 @@ function GamePanel({ onOpenSetup }: { onOpenSetup: () => void }) {
           {gameState.venture[player] && <span className="text-yellow-400 text-xs">[{s('Venture')}]</span>}
         </div>
         <div className="flex gap-2">
-          <button onClick={onOpenSetup} className="p-2 rounded-lg bg-nc-bg-tertiary text-nc-text-muted hover:text-nc-text border border-nc-violet/10">
-            <Settings className="w-4 h-4" />
+          <button type="button" onClick={onOpenSetup} aria-label="打开对局设置" title="对局设置" className="p-2 rounded-lg bg-nc-bg-tertiary text-nc-text-muted hover:text-nc-text border border-nc-violet/10">
+            <Settings className="w-4 h-4" aria-hidden="true" />
           </button>
-          <button onClick={restartWithSameSettings} className="p-2 rounded-lg bg-nc-bg-tertiary text-nc-text-muted hover:text-nc-text border border-nc-violet/10">
-            <RotateCcw className="w-4 h-4" />
+          <button type="button" onClick={() => {
+            if (confirmAction({ title: '重新开始技能井字棋？', consequence: '当前棋盘、回合、技能与双方资源都会重置。' })) restartWithSameSettings();
+          }} aria-label="重新开始本局" title="重新开始" className="p-2 rounded-lg bg-nc-bg-tertiary text-nc-text-muted hover:text-nc-text border border-nc-violet/10">
+            <RotateCcw className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -665,7 +668,7 @@ function ActionLog({ logs, isOverloaded, seed }: { logs: string[]; isOverloaded:
         )}
         {logs.slice(-8).map((log, i) => (
           <p key={i} className="text-[11px] text-nc-text-secondary leading-tight">
-            <span className="text-nc-text-muted">{s(`${logs.length - 8 + i + 1}.`)}</span> {s(log)}
+            <span className="text-nc-text-muted">{s(`${Math.max(0, logs.length - 8) + i + 1}.`)}</span> {s(log)}
           </p>
         ))}
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { CSSProperties, FormEvent } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ArrowUpRight, BookOpen, Bot, BrainCircuit, Check, ChevronDown, ChevronRight,
   Compass, Copy, Edit3, Eraser, FileDown, Home, Menu, MessageCircle,
@@ -17,6 +18,8 @@ import type {
   Citation, Conversation, ConversationMode, Message, MessageStatus,
 } from '@/conversation/types';
 import { CHAT_STICKERS, parseMessageParts, stickerToken } from '@/conversation/stickers';
+import ResponsiveImage, { THUMBNAIL_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
+import { readStorageValue, writeStorageValue } from '@/lib/browserStorage';
 import './ThemedChat.css';
 
 type ChatTheme = 'ocean' | 'sweet' | 'aurora';
@@ -62,15 +65,47 @@ const SELECTED_CHAT_KEY = 'nyaumae:chat-selected:v1';
 const CHAT_DRAFTS_KEY = 'nyaumae:chat-drafts:v1';
 const AFFECTION_KEY = 'nyaumae:chat-affection:v1';
 const MAX_INPUT_LENGTH = 8_000;
+const STICKER_PANEL_CSS_VARIABLES = [
+  '--oc-surface-2', '--oc-line', '--oc-shadow', '--oc-ink', '--oc-ink-faint', '--oc-ink-muted', '--oc-hover-sticker',
+] as const;
 
 const MODE_LABELS: Record<ConversationMode, string> = {
   'website-assistant': '网站助手',
   character: '角色对话',
   'story-query': '故事查询',
-  'nctb-proctor': 'NCTB 监考',
+  'nctb-proctor': 'NCTB 主试',
   'game-assistant': '游戏助手',
   creative: '创作模式',
 };
+
+const MODE_OPTIONS = Object.entries(MODE_LABELS) as Array<[ConversationMode, string]>;
+const NCTB_PROCTOR_TITLE = 'NCTB 认知实验主试';
+
+interface ChatDeepLink {
+  mode: ConversationMode | null;
+  prompt: string;
+}
+
+function readChatDeepLink(search: string): ChatDeepLink {
+  const params = new URLSearchParams(search);
+  const rawMode = params.get('mode');
+  const mode = rawMode && Object.prototype.hasOwnProperty.call(MODE_LABELS, rawMode)
+    ? rawMode as ConversationMode
+    : null;
+  return {
+    mode,
+    prompt: params.get('prompt')?.trim().slice(0, 200) ?? '',
+  };
+}
+
+function deepLinkConversationTitle(mode: ConversationMode, prompt: string): string {
+  if (mode === 'nctb-proctor') return NCTB_PROCTOR_TITLE;
+  return prompt.slice(0, 36) || MODE_LABELS[mode];
+}
+
+function shouldNormalizeNctbTitle(title: string): boolean {
+  return ['New conversation', '新对话', '网站助手', 'NCTB 监考'].includes(title);
+}
 
 const STATUS_LABELS: Record<MessageStatus, string> = {
   pending: '等待中',
@@ -96,20 +131,12 @@ type ConfirmationState =
 
 function readLocalValue(key: string): string {
   if (typeof window === 'undefined') return '';
-  try {
-    return window.localStorage.getItem(key) ?? '';
-  } catch {
-    return '';
-  }
+  return readStorageValue(key).value ?? '';
 }
 
 function writeLocalValue(key: string, value: string): void {
   if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(key, value);
-  } catch {
-    // Device-local UI preferences are optional.
-  }
+  writeStorageValue(key, value);
 }
 
 function readDrafts(): Record<string, string> {
@@ -179,16 +206,23 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
   const [showContext, setShowContext] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const [showStickers, setShowStickers] = useState(false);
+  const [stickerPanelStyle, setStickerPanelStyle] = useState<CSSProperties | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(() => typeof window === 'undefined' || window.innerWidth > 820);
   const [affection, setAffection] = useState(readAffection);
   const [profile, setProfile] = useState(() => levelSystem.getProfile());
+  const [isHydrated, setIsHydrated] = useState(false);
   const [confirmation, setConfirmation] = useState<ConfirmationState>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const chatRootRef = useRef<HTMLDivElement | null>(null);
+  const chatScrollRef = useRef<HTMLElement | null>(null);
   const threadEndRef = useRef<HTMLDivElement | null>(null);
   const stickerPanelRef = useRef<HTMLElement | null>(null);
+  const stickerPortalRef = useRef<HTMLDivElement | null>(null);
+  const stickerButtonRef = useRef<HTMLButtonElement | null>(null);
   const controlsRef = useRef<HTMLElement | null>(null);
   const controlsButtonRef = useRef<HTMLButtonElement | null>(null);
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
+  const consumedDeepLinkRef = useRef('');
 
   const selectedConversation = conversations.find((conversation) => conversation.id === selectedId);
   const activeMode = selectedConversation?.mode ?? 'website-assistant';
@@ -235,7 +269,12 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
     queueMicrotask(() => {
       const existing = conversationEngine.listConversations();
       if (existing.length === 0) {
-        const created = conversationEngine.createConversation({ mode: 'website-assistant', title: '网站助手' });
+        const deepLink = readChatDeepLink(location.search);
+        const initialMode = deepLink.mode ?? 'website-assistant';
+        const created = conversationEngine.createConversation({
+          mode: initialMode,
+          title: deepLinkConversationTitle(initialMode, deepLink.prompt),
+        });
         setInput(drafts[created.id] ?? '');
         refresh(created.id);
       } else {
@@ -244,13 +283,91 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
         setInput(drafts[initialId] ?? '');
         refresh(initialId);
       }
+      setIsHydrated(true);
     });
     // Repository hydration is intentionally performed once when the themed shell mounts.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    threadEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    if (!isHydrated || !selectedId) return;
+    const deepLink = readChatDeepLink(location.search);
+    if (!deepLink.mode && !deepLink.prompt) return;
+    const signature = `${location.key}:${deepLink.mode ?? ''}:${deepLink.prompt}`;
+    if (consumedDeepLinkRef.current === signature) return;
+    consumedDeepLinkRef.current = signature;
+
+    queueMicrotask(() => {
+      const existing = conversationEngine.listConversations();
+      const current = conversationEngine.getConversation(selectedId);
+      let availableDrafts = drafts;
+
+      // Persist the visible draft before a deep link changes conversations. The
+      // normal debounced writer may not have fired yet when navigation happens.
+      if (current && input !== (drafts[current.id] ?? '')) {
+        availableDrafts = { ...drafts };
+        if (input) availableDrafts[current.id] = input;
+        else delete availableDrafts[current.id];
+        setDrafts(availableDrafts);
+        writeLocalValue(CHAT_DRAFTS_KEY, JSON.stringify(availableDrafts));
+      }
+
+      const draftFor = (conversation: Conversation): string => (
+        conversation.id === current?.id ? input : availableDrafts[conversation.id] ?? ''
+      );
+      const canReceivePrompt = (conversation: Conversation): boolean => {
+        if (!deepLink.prompt) return true;
+        const draft = draftFor(conversation).trim();
+        return !draft || draft === deepLink.prompt;
+      };
+
+      let target = current;
+      if (deepLink.mode) {
+        const matchingMode = existing.filter((conversation) => conversation.mode === deepLink.mode);
+        target = current?.mode === deepLink.mode && canReceivePrompt(current)
+          ? current
+          : matchingMode.find(canReceivePrompt);
+      }
+
+      const targetMode = deepLink.mode ?? target?.mode ?? current?.mode ?? 'website-assistant';
+      if (!target) {
+        target = conversationEngine.createConversation({
+          mode: targetMode,
+          title: deepLinkConversationTitle(targetMode, deepLink.prompt),
+        });
+      }
+
+      let targetDraft = draftFor(target);
+      if (deepLink.prompt && targetDraft.trim() && targetDraft.trim() !== deepLink.prompt) {
+        target = conversationEngine.createConversation({
+          mode: targetMode,
+          title: deepLinkConversationTitle(targetMode, deepLink.prompt),
+        });
+        targetDraft = '';
+      }
+
+      if (target.mode === 'nctb-proctor' && shouldNormalizeNctbTitle(target.title)) {
+        target = conversationRepository.updateConversation(target.id, { title: NCTB_PROCTOR_TITLE }) ?? target;
+      }
+
+      refresh(target.id);
+      setEditingId('');
+      setInput(targetDraft.trim() ? targetDraft : deepLink.prompt);
+      setNotice('');
+      setShowControls(false);
+      setShowContext(false);
+      if (window.innerWidth <= 820) setSidebarOpen(false);
+      window.setTimeout(() => composerRef.current?.focus(), 0);
+    });
+    // The mode/prompt handoff is consumed once per navigation entry. Existing
+    // drafts stay attached to their conversations instead of being overwritten.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydrated, location.key, location.search, selectedId]);
+
+  useEffect(() => {
+    const chatScroll = chatScrollRef.current;
+    if (!chatScroll) return;
+    chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
   }, [messages, streamingText]);
 
   useEffect(() => {
@@ -287,10 +404,64 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
   useEffect(() => {
     if (!showStickers) return;
     const closeOnOutsideClick = (event: MouseEvent) => {
-      if (!stickerPanelRef.current?.contains(event.target as Node)) setShowStickers(false);
+      const target = event.target as Node;
+      if (!stickerPanelRef.current?.contains(target) && !stickerPortalRef.current?.contains(target)) setShowStickers(false);
     };
     document.addEventListener('mousedown', closeOnOutsideClick);
     return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+  }, [showStickers]);
+
+  useEffect(() => {
+    if (!showStickers) {
+      queueMicrotask(() => setStickerPanelStyle(null));
+      return;
+    }
+
+    const updateStickerPanel = () => {
+      const trigger = stickerButtonRef.current;
+      const root = chatRootRef.current;
+      if (!trigger || !root) return;
+
+      const triggerRect = trigger.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const viewportLeft = viewport?.offsetLeft ?? 0;
+      const viewportTop = viewport?.offsetTop ?? 0;
+      const viewportWidth = viewport?.width ?? window.innerWidth;
+      const navigationBottom = document.querySelector<HTMLElement>('[aria-label="全站导航"]')?.getBoundingClientRect().bottom ?? viewportTop;
+      const safeTop = Math.max(viewportTop + 14, navigationBottom + 10);
+      const panelWidth = Math.min(390, viewportWidth - 28);
+      const left = Math.min(
+        Math.max(viewportLeft + 14, triggerRect.left),
+        viewportLeft + viewportWidth - panelWidth - 14,
+      );
+      const maxHeight = Math.max(160, Math.min(420, triggerRect.top - safeTop - 10));
+      const rootStyle = getComputedStyle(root);
+      const nextStyle: Record<string, string | number> = {
+        position: 'fixed',
+        zIndex: 80,
+        left,
+        top: safeTop,
+        bottom: 'auto',
+        width: panelWidth,
+        maxHeight,
+      };
+      STICKER_PANEL_CSS_VARIABLES.forEach((variable) => {
+        nextStyle[variable] = rootStyle.getPropertyValue(variable);
+      });
+      setStickerPanelStyle(nextStyle as CSSProperties);
+    };
+
+    updateStickerPanel();
+    window.addEventListener('resize', updateStickerPanel);
+    window.addEventListener('scroll', updateStickerPanel, true);
+    window.visualViewport?.addEventListener('resize', updateStickerPanel);
+    window.visualViewport?.addEventListener('scroll', updateStickerPanel);
+    return () => {
+      window.removeEventListener('resize', updateStickerPanel);
+      window.removeEventListener('scroll', updateStickerPanel, true);
+      window.visualViewport?.removeEventListener('resize', updateStickerPanel);
+      window.visualViewport?.removeEventListener('scroll', updateStickerPanel);
+    };
   }, [showStickers]);
 
   useEffect(() => {
@@ -326,7 +497,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
     const created = conversationEngine.createConversation({
       mode: activeMode,
       characterId: selectedCharacter || undefined,
-      title: '新对话',
+      title: activeMode === 'nctb-proctor' ? NCTB_PROCTOR_TITLE : '新对话',
     });
     refresh(created.id);
     setEditingId('');
@@ -440,7 +611,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
   const renderMessageContent = (content: string, keyPrefix: string) => (
     <div className="original-chat-rich-message">
       {parseMessageParts(content).map((part, index) => part.type === 'sticker'
-        ? <img className="original-chat-sticker-message" src={part.sticker.src} alt={part.sticker.label} title={part.sticker.label} key={`${keyPrefix}-sticker-${index}`} />
+        ? <ResponsiveImage className="original-chat-sticker-message" src={part.sticker.src} alt={part.sticker.label} title={part.sticker.label} widths={THUMBNAIL_IMAGE_WIDTHS} sizes="160px" key={`${keyPrefix}-sticker-${index}`} />
         : part.value.split('\n').map((line, lineIndex) => <p key={`${keyPrefix}-text-${index}-${lineIndex}`}>{line || '\u00a0'}</p>))}
     </div>
   );
@@ -519,7 +690,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
       : '清空当前上下文？';
 
   return (
-    <div className={`${p}-chat`} data-sidebar={sidebarOpen ? 'open' : 'closed'} data-chat-theme={theme} data-motion-loop>
+    <div ref={chatRootRef} className={`${p}-chat`} data-sidebar={sidebarOpen ? 'open' : 'closed'} data-chat-theme={theme} data-motion-loop>
       <div className={`${p}-chat-sky`} aria-hidden="true">
         <i /><i /><i /><i /><i /><i /><i /><i />
         <span className={`${p}-planet ${p}-planet-one`} />
@@ -544,7 +715,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
           <Plus /><span>新建对话</span><kbd>Ctrl Shift O</kbd>
         </button>
         <label className={`${p}-search`}>
-          <Search /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索对话" />
+          <Search /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索对话" aria-label="搜索对话" />
         </label>
         <div className={`${p}-history`}>
           <p>最近对话</p>
@@ -566,8 +737,10 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
         </div>
       </aside>
 
-      <main className={`${p}-chat-main`}>
+      <div className={`${p}-chat-shell`}>
+      <section className={`${p}-chat-main`} aria-label="聊天内容">
         <header className={`${p}-chat-header`}>
+          <h1 className="sr-only">{selectedConversation?.title ?? copy.assistant}</h1>
           <div className={`${p}-header-left`}>
             {!sidebarOpen && <button type="button" className={`${p}-icon-btn`} onClick={() => setSidebarOpen(true)} aria-label="打开侧栏"><Menu /></button>}
             <div className={`${p}-model-mark`}><Bot /></div>
@@ -583,7 +756,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
               if (!selectedConversation) return;
               downloadFile(`conversation-${selectedConversation.id}.json`, conversationEngine.exportConversation(selectedConversation.id));
               setNotice('对话已导出，文件不包含 API Key。');
-            }}><FileDown /><span>导出</span></button>
+            }} aria-label="导出当前对话"><FileDown /><span>导出</span></button>
           </div>
         </header>
 
@@ -591,20 +764,21 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
           <section className="original-chat-controls" aria-label="对话设置" ref={controlsRef}>
             <header><div><strong>对话设置</strong><span>按当前会话单独保存</span></div><button type="button" onClick={() => setShowControls(false)} aria-label="关闭对话设置"><X /></button></header>
             <label>模式<select value={activeMode} onChange={(event) => updateConversation({ mode: event.target.value as ConversationMode })}>
-              <option value="website-assistant">网站助手</option><option value="character">角色对话</option><option value="story-query">故事查询</option>
+              {MODE_OPTIONS.map(([mode, label]) => <option key={mode} value={mode}>{label}</option>)}
             </select></label>
             {activeMode === 'character' && <label>角色<select value={selectedCharacter} onChange={(event) => updateConversation({ characterId: event.target.value || undefined, mode: 'character' })}>
               <option value="">选择角色</option>{characters.map((character) => <option key={character.id} value={character.id}>{character.name}</option>)}
             </select></label>}
             <label>模型<input key={`${selectedConversation?.id}-${selectedConversation?.model ?? aiConfig.model}`} defaultValue={selectedConversation?.model ?? aiConfig.model} onBlur={(event) => updateConversation({ model: event.currentTarget.value.trim() || undefined })} /></label>
             <Link to="/settings/ai"><Settings2 />连接设置</Link>
-            <Link to="/chat/system"><BrainCircuit />记忆与正史管理</Link>
+            <Link to="/codex"><BrainCircuit />搜索全站内容</Link>
             <button type="button" onClick={clearContext}><Eraser />清空上下文</button>
             <button type="button" className="is-danger" onClick={deleteConversation}><Trash2 />删除对话</button>
           </section>
         )}
 
-        <section className={`${p}-conversation`} aria-live="polite">
+        <section ref={chatScrollRef} className={`${p}-chat-scroll`} aria-label="消息记录" tabIndex={0}>
+        <div className={`${p}-conversation`} aria-live="polite">
           <div className={`${p}-date`}>今天 · 在这里安心地聊聊吧</div>
           {messages.length === 0 && (
             <article className={`${p}-message`}>
@@ -626,14 +800,15 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
                 <div className={`${p}-bubble`}>{renderMessageContent(message.content, message.id)}</div>
                 <div className="original-chat-message-actions">
                   {message.status === 'completed' && <button type="button" onClick={() => void copyMessage(message.content)}><Copy />复制</button>}
+                  {message.role === 'assistant' && message.status === 'failed' && message.id === lastAssistant?.id && !isGenerating && <button type="button" data-action="retry" onClick={() => void regenerate()}><RotateCcw />重试</button>}
                   {message.role === 'user' && !isGenerating && <button type="button" onClick={() => { setInput(message.content); setEditingId(message.id); composerRef.current?.focus(); }}><Edit3 />编辑</button>}
                   {message.role === 'assistant' && message.id === lastAssistant?.id && message.citations.length > 0 && <button type="button" onClick={() => { setCitations(message.citations); setShowContext(true); }}><BookOpen />{message.citations.length} 条来源</button>}
                 </div>
               </div>
             </article>
           ))}
-          {isGenerating && streamingText && <article className={`${p}-message`}>
-            <div className={`${p}-avatar`}><Sparkles /></div><div className={`${p}-message-content`}><div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>生成中</span></div><div className={`${p}-bubble`}>{renderMessageContent(streamingText, 'streaming')}</div></div>
+          {isGenerating && <article className={`${p}-message`} aria-live="polite" aria-busy="true">
+            <div className={`${p}-avatar`}><Sparkles /></div><div className={`${p}-message-content`}><div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>{streamingText ? '生成中' : '发送中'}</span></div><div className={`${p}-bubble`}>{streamingText ? renderMessageContent(streamingText, 'streaming') : <p>正在发送并准备回答…</p>}</div></div>
           </article>}
 
           {showContext && <section className="original-chat-context" aria-label="来源与记忆">
@@ -645,12 +820,15 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
             </div>
             <div className="original-chat-context-column"><h3>引用来源</h3>{citations.length ? citations.map((citation) => <Link to={citation.route} key={citation.id}><BookOpen /><span><strong>{citation.title}</strong><small>{citation.excerpt || citation.route}</small></span><ArrowUpRight /></Link>) : <p>本次请求没有检索到可靠的站内来源。</p>}</div>
             <div className="original-chat-context-column"><h3>使用记忆</h3>{memoryRecords.length ? memoryRecords.map((memory) => <article className="original-chat-memory" key={memory.id}><strong>{memory.title}</strong><span>{memory.content}</span><small>{memory.scope} · v{memory.version}</small></article>) : <p>本次请求没有注入长期记忆。</p>}</div>
-            <footer><Link to="/chat/system"><BrainCircuit />打开完整记忆与正史管理<ArrowUpRight /></Link></footer>
+            <footer><Link to="/codex"><BrainCircuit />打开全站搜索<ArrowUpRight /></Link></footer>
           </section>}
           <div ref={threadEndRef} />
+        </div>
         </section>
 
         {notice && <div className="original-chat-notice" role="status"><Shield /><span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label="关闭提示"><X /></button></div>}
+
+      </section>
 
         <section className={`${p}-composer-shell`} ref={stickerPanelRef}>
           {editingId && <div className="original-chat-editing">正在编辑历史消息；发送后将从这里重新生成 <button type="button" onClick={() => { setEditingId(''); setInput(''); composerRef.current?.focus(); }}>取消</button></div>}
@@ -659,33 +837,34 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
             {lastUser && !isGenerating && <button type="button" onClick={() => { setInput(lastUser.content); setEditingId(lastUser.id); composerRef.current?.focus(); }}><Edit3 />编辑上一条</button>}
             <button type="button" onClick={() => setShowContext((value) => !value)}><Shield />来源与记忆</button>
           </div>
-          <div className="original-chat-sticker-anchor">
-            {showStickers && <div className="original-chat-sticker-panel" role="dialog" aria-label="猫猫表情包">
+          {showStickers && stickerPanelStyle && typeof document !== 'undefined' && createPortal(
+            <div ref={stickerPortalRef} className="original-chat-sticker-panel" style={stickerPanelStyle} role="dialog" aria-label="猫猫表情包">
               <header><div><strong>猫猫表情</strong><span>点击即可发送</span></div><button type="button" onClick={() => setShowStickers(false)} aria-label="关闭表情面板">×</button></header>
               <div className="original-chat-sticker-grid">
                 {CHAT_STICKERS.map((sticker) => <button type="button" key={sticker.id} onClick={() => sendSticker(sticker.id)} title={sticker.label} aria-label={`发送${sticker.label}表情`}>
-                  <img src={sticker.src} alt="" /><span>{sticker.label}</span>
+                  <ResponsiveImage src={sticker.src} alt="" widths={THUMBNAIL_IMAGE_WIDTHS} sizes="96px" /><span>{sticker.label}</span>
                 </button>)}
               </div>
-            </div>}
-          </div>
-          <form className={`${p}-composer`} onSubmit={(event) => void send(event)}>
-            <button type="button" onClick={() => setShowStickers((value) => !value)} aria-label="打开猫猫表情" title="猫猫表情" aria-expanded={showStickers} disabled={isGenerating}><SmilePlus /></button>
+            </div>,
+            document.body,
+          )}
+          <form className={`${p}-composer`} onSubmit={(event) => void send(event)} aria-busy={isGenerating}>
+            <button ref={stickerButtonRef} type="button" onClick={() => setShowStickers((value) => !value)} aria-label="打开猫猫表情" title="猫猫表情" aria-expanded={showStickers} disabled={isGenerating}><SmilePlus /></button>
             <textarea ref={composerRef} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void send(); }
             }} placeholder={activeMode === 'character' && !selectedCharacter ? '先从对话设置中选择角色…' : '在星海里说点什么…'} rows={1} maxLength={MAX_INPUT_LENGTH} aria-label="聊天消息" />
             <button type="button" className={`${p}-tool`} onClick={() => setShowContext((value) => !value)} aria-label="查看来源与记忆"><Shield />{memoryRecords.length ? `${memoryRecords.length} 条记忆` : '隐私上下文'}</button>
             {isGenerating
-              ? <button type="button" className={`${p}-send`} onClick={() => abortRef.current?.abort()} aria-label="停止生成"><Square /></button>
-              : <button type="submit" className={`${p}-send`} disabled={!input.trim()} aria-label="发送"><Send /></button>}
+              ? <button type="button" className={`${p}-send`} data-motion-ripple="true" onClick={() => abortRef.current?.abort()} aria-label="停止生成"><Square /></button>
+              : <button type="submit" className={`${p}-send`} data-motion-ripple="true" disabled={!input.trim() || isGenerating} aria-label="发送"><Send /></button>}
           </form>
-          <p><span>AI 可能会犯错，请通过引用核对重要信息 · API Key 仅保存在本机</span>{nearInputLimit && <strong>{input.length.toLocaleString('zh-CN')} / {MAX_INPUT_LENGTH.toLocaleString('zh-CN')}</strong>}</p>
+          <p><span>{input ? '草稿已自动保存在本机 · ' : ''}AI 可能会犯错，请通过引用核对重要信息 · API Key 仅保存在本机</span>{nearInputLimit && <strong>{input.length.toLocaleString('zh-CN')} / {MAX_INPUT_LENGTH.toLocaleString('zh-CN')}</strong>}</p>
         </section>
 
         <aside className={`${p}-pet-dock`} aria-label="陪伴角色">
           <div className={`${p}-pet-bubble`}><strong>{copy.pet}</strong><span>{copy.petLine}</span></div>
           <button type="button" className={`${p}-pet`} onClick={petPoffy} aria-label={`摸摸泡芙，当前亲密度 ${affection}%`}>
-            <span className={`${p}-pet-halo`} /><img src="/pets/poffy.png" alt="泡芙" /><i>♥</i>
+            <span className={`${p}-pet-halo`} /><ResponsiveImage src="/pets/poffy.png" alt="泡芙" widths={THUMBNAIL_IMAGE_WIDTHS} sizes="112px" loading="lazy" /><i>♥</i>
             {theme === 'sweet' && <span className="sweet-pet-toppings"><b className="sweet-topping" /><b className="sweet-topping" /><b className="sweet-topping" /><b className="sweet-topping" /><b className="sweet-topping" /></span>}
             {theme === 'aurora' && <span className="aurora-pet-glow" />}
           </button>
@@ -699,7 +878,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
           <Link to="/settings/ai"><Settings2 />设置</Link>
           <button type="button" onClick={() => setShowControls((value) => !value)}><MoreHorizontal />更多</button>
         </nav>
-      </main>
+      </div>
 
       {confirmation && <div className="original-chat-dialog-backdrop" role="presentation" onMouseDown={(event) => {
         if (event.currentTarget === event.target) setConfirmation(null);

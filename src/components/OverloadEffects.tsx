@@ -66,7 +66,10 @@ export function GlitchText({ text, className = '' }: GlitchTextProps) {
 // Overload Canvas Effect
 export function OverloadCanvas() {
   const { active } = useOverload();
-  const { ref: canvasRef, isMotionActive } = useMotionActivity<HTMLCanvasElement>();
+  const { ref: canvasRef, isMotionActive, motionProfile } = useMotionActivity<HTMLCanvasElement>(
+    '160px 0px',
+    { cost: 'high', priority: 80 },
+  );
   const animRef = useRef<number>(0);
   const destroyedRef = useRef(false);
 
@@ -122,7 +125,7 @@ export function OverloadCanvas() {
       }
 
       // Spawn - 10x more: 150 max vs original 15
-      if (fragments.length < 150) {
+      if (fragments.length < (motionProfile.mobile ? 60 : 150)) {
         const fromLeft = Math.random() > 0.5;
         fragments.push({
           x: fromLeft ? -100 : canvas.width + 100,
@@ -164,7 +167,7 @@ export function OverloadCanvas() {
       ro.disconnect();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
-  }, [active, canvasRef, isMotionActive]);
+  }, [active, canvasRef, isMotionActive, motionProfile.mobile]);
 
   if (!active) return null;
 
@@ -172,6 +175,8 @@ export function OverloadCanvas() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none"
+      data-motion-kind="ambient"
+      data-motion-running={isMotionActive ? 'true' : 'false'}
       style={{ mixBlendMode: 'screen' }}
     />
   );

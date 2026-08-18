@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavLink, useParams } from 'react-router';
+import type { KeyboardEvent } from 'react';
+import { NavLink, useNavigate, useParams } from 'react-router';
 import { Heart, NotebookPen, Feather } from 'lucide-react';
 import MiiaWorld from '@/sections/MiiaWorld';
 import MiiaMathNotes from '@/sections/MiiaMathNotes';
@@ -13,10 +14,24 @@ const tabs = [
 
 export default function MiiaSpace() {
   const { section = 'world' } = useParams<{ section: string }>();
+  const navigate = useNavigate();
   const activeTab = section;
 
   const current = tabs.find((t) => t.key === activeTab) || tabs[0];
   const Component = current.component;
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLAnchorElement>, index: number) => {
+    let nextIndex: number | null = null;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (index + 1) % tabs.length;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (index - 1 + tabs.length) % tabs.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = tabs.length - 1;
+    if (nextIndex === null) return;
+    event.preventDefault();
+    const nextKey = tabs[nextIndex].key;
+    document.getElementById(`miia-tab-${nextKey}`)?.focus();
+    navigate(`/miia/${nextKey}`);
+  };
 
   return (
     <div className="aurora-ui aurora-generic-page miia-aurora-page" data-aurora-accent="miia">
@@ -32,14 +47,19 @@ export default function MiiaSpace() {
         </motion.div>
 
         <div className="aurora-tabs mb-8" role="tablist" aria-label="咪呀空间章节">
-          {tabs.map((t) => {
+          {tabs.map((t, index) => {
             const Icon = t.icon;
             return (
               <NavLink
                 key={t.key}
+                id={`miia-tab-${t.key}`}
                 to={`/miia/${t.key}`}
                 role="tab"
                 aria-current={activeTab === t.key ? 'page' : undefined}
+                aria-selected={activeTab === t.key}
+                aria-controls={`miia-panel-${t.key}`}
+                tabIndex={activeTab === t.key ? 0 : -1}
+                onKeyDown={(event) => handleTabKeyDown(event, index)}
                 className={({ isActive }) => `aurora-tab miia-space-tab inline-flex items-center gap-2 ${isActive ? 'aurora-tab-active' : ''}`}
               >
                 <Icon className="w-4 h-4" />
@@ -57,6 +77,9 @@ export default function MiiaSpace() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
             data-motion-loop
+            id={`miia-panel-${activeTab}`}
+            role="tabpanel"
+            aria-labelledby={`miia-tab-${activeTab}`}
           >
             <Component />
           </motion.div>

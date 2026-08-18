@@ -212,6 +212,30 @@
   --site-theme-grid-opacity: 0.02;
 }
 
+.site-theme-shell[data-site-theme='codex'] {
+  --site-theme-bg: #06121b;
+  --site-theme-bg-rgb: 6, 18, 27;
+  --site-theme-bg-deep: #030b12;
+  --site-theme-bg-deep-rgb: 3, 11, 18;
+  --site-theme-panel: #0b202c;
+  --site-theme-panel-rgb: 11, 32, 44;
+  --site-theme-panel-strong: #112d3b;
+  --site-theme-panel-strong-rgb: 17, 45, 59;
+  --site-theme-text: #f5fbfb;
+  --site-theme-text-secondary: #bdd3d5;
+  --site-theme-text-muted: #a2c1c4;
+  --site-theme-border: rgba(120, 225, 213, 0.18);
+  --site-theme-border-strong: rgba(120, 225, 213, 0.31);
+  --site-theme-accent: #78e1d5;
+  --site-theme-accent-rgb: 120, 225, 213;
+  --site-theme-accent-secondary: #9f9cff;
+  --site-theme-accent-secondary-rgb: 159, 156, 255;
+  --site-theme-environment-one-rgb: 120, 225, 213;
+  --site-theme-environment-two-rgb: 159, 156, 255;
+  --site-theme-environment-three-rgb: 231, 201, 120;
+  --site-theme-grid-opacity: 0.015;
+}
+
 .site-theme-shell[data-site-theme='story-mia'] {
   --site-theme-bg: #0d0a1c;
   --site-theme-bg-rgb: 13, 10, 28;

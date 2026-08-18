@@ -9,7 +9,7 @@ import FeedbackModal from '@/components/FeedbackModal';
 
 const FOOTER_QUOTES = [
   {
-    author: 'Nyaumæ',
+    author: 'nyaumæ',
     borderClass: 'border-nc-violet/30',
     lines: [
       '「AGI 来了，AGI 来了，',
@@ -69,7 +69,7 @@ export default function Footer() {
           </div>
 
           <p className="aurora-footer-meta text-sm text-nc-text-muted mb-3">
-            © 2021-2026 <span className="text-nc-text-secondary font-medium">Nyaumæ</span> · {semanticHighlight("由意识编织")}
+            © 2021-2026 <span className="text-nc-text-secondary font-medium">nyaumæ</span> · {semanticHighlight("由意识编织")}
           </p>
 
           <a
