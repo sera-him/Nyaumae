@@ -1,4 +1,4 @@
-import { primeFocus, revolutionTable, vppRules, exchangeRates, fosStory, gaoKaiStory, gaoKaiTableData, iqTests, yearDayData } from '@/data/extraStories';
+import { primeFocus, revolutionTable, vppRules, exchangeRates, fosStory, gaoKaiStory, gaoKaiTableData, iqTests, yearDayData, shengYuQiYueInfo, agiEmploymentRegulation } from '@/data/extraStories';
 import { semanticHighlight } from '@/lib/semanticHighlight';
 import { Cpu, Globe, Scale, GraduationCap, Brain } from 'lucide-react';
 import SmartImage from '@/components/SmartImage';
@@ -12,6 +12,17 @@ export default function PrimeFocus() {
           <p className="text-nc-text text-lg">
             初音ミク · Eirene · Damocles · 高考改革
           </p>
+        </div>
+
+        {/* 生育契约法 - 新增，归属未来线生育调控前身 */}
+        <div className="future-story-card bg-[#100A1A] border border-pink-500/20 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
+          <h3 className="text-lg font-semibold text-pink-300 mb-4 flex items-center gap-2">
+            <Scale className="w-5 h-5" />
+            生育契约法
+          </h3>
+          <pre className="font-sans text-sm text-nc-text leading-[1.9] whitespace-pre-wrap">
+            {semanticHighlight(shengYuQiYueInfo)}
+          </pre>
         </div>
 
         {/* Prime Focus Story */}
@@ -122,6 +133,17 @@ export default function PrimeFocus() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* AGI就业调节体系 - 新增 */}
+        <div className="future-story-card bg-[#100A1A] border border-cyan-400/20 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
+          <h3 className="text-lg font-semibold text-cyan-300 mb-4 flex items-center gap-2">
+            <Scale className="w-5 h-5" />
+            全球自治AGI自动化就业调节体系（2026.8.2）
+          </h3>
+          <pre className="font-sans text-sm text-nc-text leading-[1.9] whitespace-pre-wrap">
+            {semanticHighlight(agiEmploymentRegulation)}
+          </pre>
         </div>
 
         {/* GaoKai Story */}

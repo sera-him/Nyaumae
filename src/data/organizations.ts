@@ -134,4 +134,16 @@ export const organizations: Organization[] = [
     image: '/org-xinjie.jpg',
     icon: '/icons/org-xinjie.png',
   },
+  {
+    id: 'trinity',
+    name: '三一学院',
+    shortName: '三一',
+    budget: '未公开',
+    members: ['耶稣', 'Agents'],
+    color: 'from-amber-500 to-orange-600',
+    accentColor: '#F59E0B',
+    description: '三场考试构成：圣子占5%（10套简单题取A）、圣父占85%（多场中等难度）、圣灵占10%（最难考试+3-5名Agents面试）。未绑定特定学段，独立于QET体系。',
+    image: '/org-zhihua.jpg',
+    icon: '/icons/org-zhihua.png',
+  },
 ];

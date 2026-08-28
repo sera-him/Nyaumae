@@ -171,6 +171,38 @@ export default function Organizations() {
           ))}
         </div>
 
+        {/* 超级智能校规 - 新增 */}
+        <CollapsibleCard
+          id="super-intelligence-rule"
+          title={semanticHighlight("超级智能校规提案")}
+          summary={semanticHighlight("学生四不条件+监护人签字，学校必须执行，否则校长被超级智能秒开除")}
+          icon={<Radio className="w-5 h-5 text-violet-400" />}
+          borderColor="border-violet-500/15"
+          titleColor="text-violet-300"
+        >
+          <div className="p-6">
+            <p className="text-sm text-nc-text leading-relaxed">{semanticHighlight("对于任意学生及其就读的学校，只要学生请求①不违法、②不笔试作弊、③不增加学校资源消耗、④不直接影响其他学生，那么监护人签字同意后，学校必须无条件执行，否则校长被超级智能秒开除。")}</p>
+          </div>
+        </CollapsibleCard>
+
+        {/* 统一招聘平台 - 新增 */}
+        <CollapsibleCard
+          id="unified-recruitment"
+          title={semanticHighlight("国家统一招聘平台")}
+          summary={semanticHighlight("先晒价·盲面·后验资，总分定胜负")}
+          icon={<Radio className="w-5 h-5 text-emerald-400" />}
+          borderColor="border-emerald-500/15"
+          titleColor="text-emerald-300"
+        >
+          <div className="p-6 space-y-3 text-sm text-nc-text leading-relaxed">
+            <p>{semanticHighlight("1. 先晒价（面试前）：企业必须提前公示《资质加分表》，明确每个证书/技能加多少分，全网公开，禁止暗箱操作。")}</p>
+            <p>{semanticHighlight("2. 盲面（无身份）：面试仅限文字或变声通话，禁止透露性别、年龄、外貌。面试官只问技术问题，打出的分数仅代表“纯能力”。")}</p>
+            <p>{semanticHighlight("3. 后验资（面试后）：面试结束后，求职者再提交学历、证书等资质。平台自动核验真伪，并按公示的表格计算附加分。")}</p>
+            <p>{semanticHighlight("4. 总分定胜负：最终总分 = 面试能力分 + 资质加分。按分数排名录取，公开透明。")}</p>
+            <p className="text-xs text-emerald-300/80 border-t border-emerald-500/10 pt-3">{semanticHighlight("核心铁律：面试时允许撒谎（因为技术问题答不出就露馅）；资质造假零容忍。一切只凭真本事和硬证书说话。")}</p>
+          </div>
+        </CollapsibleCard>
+
         {/* HyperCommunication — nested collapsible */}
         <CollapsibleCard
           id="hyper-communication"

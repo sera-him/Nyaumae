@@ -3,6 +3,15 @@ export interface WordFreq {
   count: number;
 }
 
+export interface WordFreqDetailed extends WordFreq {
+  docCount: number;
+  docRate: number;
+  saturation: number;
+  density: number;
+  length: number;
+  isCharacter: boolean;
+}
+
 export interface WordFrequencyClouds {
   ordinary: WordFreq[];
   characters: WordFreq[];
@@ -32,6 +41,13 @@ let indexedItems: readonly SearchIndexItem[] = [];
 let totalWords = 0;
 let loadPromise: Promise<void> | undefined;
 
+// Detailed-mode auxiliary state (raw counts, not story-weighted)
+const docLengthsRaw: number[] = [];
+const perWordDocCounts = new Map<string, Map<number, number>>();
+const saturationMap = new Map<string, number>();
+const densityMap = new Map<string, number>();
+export const wordFrequencyDetailed: WordFreqDetailed[] = [];
+
 const segmenter = typeof Intl.Segmenter === 'function'
   ? new Intl.Segmenter('zh-CN', { granularity: 'word' })
   : null;
@@ -59,6 +75,7 @@ function normalizeSegment(value: string): string {
 
 function isUsefulWord(word: string): boolean {
   if (!word) return false;
+  if (normalizeSegment(word) === 'object') return false;
   if (protectedTermKeys.has(normalizeSegment(word))) return true;
   // Dictionary affix notation (for example `mi+`, `+s`, or `+'n`) is
   // grammatical metadata, not a standalone lexical word.
@@ -71,7 +88,9 @@ function isUsefulWord(word: string): boolean {
 }
 
 function mergeSegmentedWords(text: string): string[] {
-  if (!segmenter) return [];
+  if (!segmenter) {
+    return text.split(/[\s·.,，。！？：；/()（）\-]+/).filter(word => word.length > 0);
+  }
   const parts = [...segmenter.segment(text)];
   const words: string[] = [];
 
@@ -162,7 +181,7 @@ function buildTitleTemplates(items: readonly SearchIndexItem[]): TitleTemplate[]
 }
 
 function getContentSegments(item: SearchIndexItem): readonly string[] {
-  return item.frequencySegments?.length ? item.frequencySegments : [item.content];
+  return item.frequencySegments ?? [item.content];
 }
 
 const FREQUENCY_COLORS = [
@@ -197,10 +216,19 @@ function buildFrequencyIndex(items: readonly SearchIndexItem[]): void {
   documentsByWord.clear();
   frequencyHighlightMap.clear();
   wordFrequency.splice(0, wordFrequency.length);
+  wordFrequencyDetailed.splice(0, wordFrequencyDetailed.length);
+  saturationMap.clear();
+  densityMap.clear();
+  perWordDocCounts.clear();
+  docLengthsRaw.length = 0;
+  for (let i = 0; i < items.length; i += 1) docLengthsRaw.push(0);
   totalWords = 0;
 
   const seenSegments = new Set<string>();
   const titleTemplates = buildTitleTemplates(items);
+
+  const STORY_WEIGHT = 0.1;
+  const isStoryDoc = (index: number): boolean => items[index]?.id === 'story_1-txt';
 
   const addSegment = (segment: string, documentIndex: number): void => {
     const segmentKey = normalizeSegment(segment);
@@ -209,12 +237,17 @@ function buildFrequencyIndex(items: readonly SearchIndexItem[]): void {
     const words = tokenize(segment);
     if (words.length === 0) return;
 
+    const weight = isStoryDoc(documentIndex) ? STORY_WEIGHT : 1;
+
     seenSegments.add(segmentKey);
-    totalWords += words.length;
+    // count (Σ) is story-weighted, other metrics use raw
+    totalWords += words.length * weight;
+    docLengthsRaw[documentIndex] += words.length;
     for (const word of words) {
       const normalized = normalizeWordKey(word);
       if (!normalized) continue;
-      frequencyMap.set(normalized, (frequencyMap.get(normalized) ?? 0) + 1);
+      // weighted count for Σ column
+      frequencyMap.set(normalized, (frequencyMap.get(normalized) ?? 0) + weight);
       const currentLabel = displayWordMap.get(normalized);
       if (!currentLabel || (currentLabel === currentLabel.toLocaleLowerCase('zh-CN') && word !== word.toLocaleLowerCase('zh-CN'))) {
         displayWordMap.set(normalized, word);
@@ -222,6 +255,10 @@ function buildFrequencyIndex(items: readonly SearchIndexItem[]): void {
       const documents = documentsByWord.get(normalized) ?? new Set<number>();
       documents.add(documentIndex);
       documentsByWord.set(normalized, documents);
+      // raw per-doc counts for saturation/density (not weighted, per your note: 大人国只有count 0.1，其他正常)
+      const perDoc = perWordDocCounts.get(normalized) ?? new Map<number, number>();
+      perDoc.set(documentIndex, (perDoc.get(documentIndex) ?? 0) + 1);
+      perWordDocCounts.set(normalized, perDoc);
     }
   };
 
@@ -247,6 +284,37 @@ function buildFrequencyIndex(items: readonly SearchIndexItem[]): void {
       .map(([word, count]) => ({ word: displayWordMap.get(word) ?? word, count }))
       .sort((a, b) => b.count - a.count || b.word.length - a.word.length || a.word.localeCompare(b.word, 'zh-CN')),
   );
+
+  // Build detailed metrics from raw per-doc counts
+  const sourceItems = items.length;
+  for (const [key, weightedCount] of frequencyMap) {
+    const displayWord = displayWordMap.get(key) ?? key;
+    const docSet = documentsByWord.get(key);
+    const docCount = docSet?.size ?? 0;
+    const perDoc = perWordDocCounts.get(key);
+    let saturation = 0;
+    let density = 0;
+    if (perDoc) {
+      for (const [docIdx, rawCount] of perDoc) {
+        saturation += Math.log(rawCount + 1);
+        const denom = docLengthsRaw[docIdx] || 1;
+        density += rawCount / denom;
+      }
+    }
+    saturationMap.set(key, saturation);
+    densityMap.set(key, density);
+    wordFrequencyDetailed.push({
+      word: displayWord,
+      count: weightedCount,
+      docCount,
+      docRate: sourceItems ? docCount / sourceItems : 0,
+      saturation,
+      density,
+      length: [...displayWord].reduce((sum, ch) => sum + (ch.codePointAt(0)! <= 0x7F ? 1 : 2), 0),
+      isCharacter: protectedTermKeys.has(normalizeSegment(displayWord)),
+    });
+  }
+  wordFrequencyDetailed.sort((a, b) => b.count - a.count || b.docCount - a.docCount || a.word.localeCompare(b.word, 'zh-CN'));
   frequencyMeta.sourceItems = items.length;
   frequencyMeta.totalWords = totalWords;
   frequencyMeta.uniqueWords = wordFrequency.length;
@@ -321,4 +389,20 @@ export function getWordFrequencyClouds(): WordFrequencyClouds {
 
 export function getWordFreqScore(word: string): number {
   return frequencyMap.get(normalizeWordKey(word)) ?? 0;
+}
+
+export function getWordDocumentCount(word: string): number {
+  return documentsByWord.get(normalizeWordKey(word))?.size ?? 0;
+}
+
+export function getWordSaturation(word: string): number {
+  return saturationMap.get(normalizeWordKey(word)) ?? 0;
+}
+
+export function getWordDensity(word: string): number {
+  return densityMap.get(normalizeWordKey(word)) ?? 0;
+}
+
+export function getWordFrequencyDetailed(): WordFreqDetailed[] {
+  return [...wordFrequencyDetailed];
 }

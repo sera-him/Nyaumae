@@ -35,6 +35,7 @@ export const pieceTierColorMap: Record<string, string> = {
   'C': 'text-purple-400', 'c': 'text-purple-400',
   'J': 'text-purple-400', 'j': 'text-purple-400',
   '车': 'text-purple-400',
+  '炮': 'text-purple-400',
   '大炮': 'text-purple-400',
   '圣骑士': 'text-purple-400',
   // 蓝色 tier (blue-400)

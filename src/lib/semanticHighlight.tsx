@@ -272,6 +272,7 @@ const PIECE_KEYWORDS: Record<string, string> = {
   // Purple (purple-400): R, C, J
   '车': 'text-purple-400 font-semibold',
   'R': 'text-purple-400 font-semibold',
+  '炮': 'text-purple-400 font-semibold',
   '大炮': 'text-purple-400 font-semibold',
   'C': 'text-purple-400 font-semibold',
   '圣骑士': 'text-purple-400 font-semibold',

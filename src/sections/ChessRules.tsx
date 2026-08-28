@@ -216,7 +216,7 @@ export default function ChessRules() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-4"
           >
-            <p className="text-xs text-nc-text-muted">* 表示初始有该棋子但数量可能为零或特殊条件出现</p>
+            <p className="text-xs text-nc-text-muted">* 表示该棋子进入敌方英语（L）十字1-2格禁区会被消灭</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {chessPieceTiers.map((piece, i) => {
                 const tierKey = piece.tier.replace('*', '');
@@ -409,7 +409,7 @@ function ChessGameBoard() {
   const {
     gameState, gameStarted, selectedPos, legalMoves,
     promoteChoice, witchSkillMode, selectedCheeseType, startGame, resetGame,
-    selectCell, confirmPromotion, cancelPromotion, undoLastMove,
+    selectCell, confirmPromotion, undoLastMove,
     setWitchSkillMode, setCheeseType, transformQueen, executeDecrypt,
     skillConfirmTarget, confirmSkill, cancelSkill, requestSelfDestruct,
     antennaPushMode, antennaPushTargets, antennaPushPlayer,
@@ -468,7 +468,7 @@ function ChessGameBoard() {
           ? '黑方获胜'
           : '和棋';
 
-  const cellSize = 'min(calc((100vw - 48px) / 12), 44px)';
+  const cellSize = 'min(calc((100vw - 80px) / 12), 44px)';
 
   return (
     <motion.div
@@ -1065,20 +1065,16 @@ function ChessGameBoard() {
                   <button
                     key={opt}
                     onClick={() => confirmPromotion(opt)}
-                    className={`px-3 py-2 rounded-lg font-mono font-bold text-sm transition-all border hover:scale-105 ${
+                    className={`px-3 py-2 rounded-lg font-mono font-bold text-sm transition-all border hover:scale-105 cursor-pointer active:scale-95 ${
                       pieceTierColorMap[opt] || 'text-nc-text'
                     } bg-nc-bg border-nc-violet/10 hover:border-nc-violet/30`}
+                    style={{ pointerEvents: 'auto' }}
                   >
                     {opt}
                   </button>
                 ))}
               </div>
-              <button
-                onClick={cancelPromotion}
-                className="mt-4 w-full py-2 rounded-lg text-sm text-nc-text-muted hover:text-nc-text border border-nc-violet/10 hover:border-nc-violet/20 transition-all"
-              >
-                取消升变（不升变）
-              </button>
+              <p className="mt-3 text-xs text-nc-text-muted text-center">象可选 E 保留为象；横移仍在底线可再次升变</p>
             </div>
           </motion.div>
         )}

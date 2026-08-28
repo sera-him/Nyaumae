@@ -110,8 +110,8 @@ export function isPoisonedRemoved(piece: Piece, poisonCount: number): boolean {
 // 升变规则
 // ============================================================
 
-/** 兵可以升变的棋子 */
-export const PAWN_PROMOTIONS: PieceType[] = ['R', 'N', 'C', 'Q', 'E', 'B'];
+/** 兵可以升变的棋子（P不能→C） */
+export const PAWN_PROMOTIONS: PieceType[] = ['R', 'N', 'Q', 'E', 'B'];
 
 /** 象可以升变的棋子 */
 export const ELEPHANT_PROMOTIONS: PieceType[] = [

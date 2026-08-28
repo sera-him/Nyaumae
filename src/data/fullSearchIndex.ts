@@ -2,12 +2,19 @@ import { characters, zeroChar } from './characters';
 import { ATTRIBUTE_DEFINITIONS } from '@/game/cityBuilder/model';
 import { extraCharacters } from './extraCharacters';
 import { stories } from './stories';
-import { dictionary } from './dictionary';
-import { poems, extraPoems, miiaStoryFragments, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory } from './extraStories';
+import { storyText } from './storyText';
+import { gameHintTexts } from './gameHintTexts';
+import { dictionary, bilingualText } from './dictionary';
+import { poems, extraPoems, miiaStoryFragments, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory, chapterIndex, wishSection, correctOverdose, xishouStory, revolutionTable, vppRules, iqTests, gaoKaiTableData, jingBeiGouFragment, penPoemFragment, starChildStory, dualAxisModel, sanYiCollegeInfo, theoremFragments, sanCengNationInfo, wageFragment, shengYuQiYueInfo, superIntelligenceRule, gaoKaoVolunteerRule, subwayPricingRule, unifiedRecruitmentRule, agiEmploymentRegulation } from './extraStories';
 import { organizations, zhihuaClasses } from './organizations';
 import { timelineEvents } from './timeline';
 import { characterRelations, relationLabels } from './relationships';
 import { chessPieces, chessSpecialRules } from './chess';
+import { NCTB_DIMENSIONS } from '@/nctb/catalog';
+import { PEMS_DIMENSIONS } from '@/lib/pemsLModel';
+import { FORMAL_A_V1_QUESTIONS } from '@/nctb/banks/formal-a.v1';
+import { FORMAL_FOUNDATION_V1_QUESTIONS } from '@/nctb/banks/formal-foundation.v1';
+import { DIMENSION_SPECS } from '@/nctb/specs/index';
 import {
   skillTicTacToeOverview,
   probabilityAlgorithm,
@@ -29,6 +36,7 @@ import {
   lawValuesNote,
   moralPrinciples,
   nyaumaeismPrinciples,
+  fourDimensionTest,
 } from './worldSettings';
 import {
   miaWorldBackground,
@@ -49,11 +57,14 @@ import {
   mathFormulas,
   caregiverStress,
   fuShuYuStory,
+  foreverThreeWorld,
+  f3wCodeLine,
   sheepsFull,
 } from './fragments';
 import { miiaTexts, miiaWish, miiaAgiLand, miiaAgiPoem, lilaAnalysis, mappingBlock } from './miiaTexts';
-import { worldviewStats, regionFsiiiStats, fsiiiRankings, heightWeightModel, worldviewInfo } from './worldview';
+import { worldviewStats, regionFsiiiStats, fsiiiRankings, heightWeightModel, worldviewInfo, modelNames } from './worldview';
 import { LAND_ALLOCATION_META, LAND_ALLOCATION_SEARCH_TEXT } from './landAllocationPolicy';
+import { NEURAL_SYSTEMS } from './neuralConnectionPlan';
 
 export interface FullSearchItem {
   id: string;
@@ -127,12 +138,19 @@ for (const character of [...characters, zeroChar]) {
 }
 
 for (const character of extraCharacters) {
-  add(`extra_char_${character.id}`, character.name, character, character.category === 'AI' ? '技能' : '角色', '#extra-characters');
+  const hiddenText = character.hidden ? ` ${character.hidden}` : '';
+  add(`extra_char_${character.id}`, character.name, `${character.bio}${hiddenText}`, character.category === 'AI' ? '技能' : '角色', '#extra-characters');
 }
 
 for (const story of stories) {
   const chapterText = story.chapters.map((chapter, index) => `第 ${index + 1} 章 ${chapter.title} ${chapter.content}`).join(' ');
   add(`story_${story.id}`, story.title, `${story.subtitle ?? ''} ${chapterText}`, '故事', '#stories');
+}
+if (storyText) {
+  add('story_1-txt', '大人国的小女孩正文', storyText, '故事', '#stories');
+}
+for (const hint of gameHintTexts) {
+  add(`game-hint_${hint.game}`, hint.name, hint.texts.join(' '), '游戏', hint.href);
 }
 
 for (const entry of dictionary) {
@@ -152,6 +170,28 @@ for (const [id, entry] of [
 ] as const) {
   add(`story_${id}`, typeof entry === 'object' && entry !== null && 'title' in entry ? entry.title : id, entry, '故事', '#extra-stories');
 }
+add('extra-chapter-index', '章节索引', chapterIndex, '故事', '#extra-stories');
+add('extra-wish-section', '愿望区块', wishSection, '故事', '#extra-stories');
+add('extra-correct-overdose', '矫枉过正', correctOverdose, '故事', '#extra-stories');
+add('extra-xishou-story', '夕兽故事', xishouStory, '故事', '#extra-stories');
+for (const [index, entry] of revolutionTable.entries()) add(`revolution_${index}`, '革命表', entry, '设定', '#world-settings');
+add('extra-vpp-rules', 'VPP 规则', vppRules, '设定', '#world-settings');
+for (const [index, entry] of iqTests.entries()) add(`iq-test_${index}`, '智商测试', entry, '设定', '#world-settings');
+add('extra-gaokai-table', '高考表', gaoKaiTableData, '设定', '#extra-stories');
+add('extra-jingbeigou', '京贝狗', jingBeiGouFragment, '故事', '#extra-stories');
+add('extra-pen-poem', '把笔放下', penPoemFragment, '故事', '#extra-stories');
+add('extra-star-child', '星尘之子', starChildStory, '故事', '#stories');
+add('extra-dual-axis', '双轴模型', dualAxisModel, '设定', '#miia-world');
+add('extra-sanyi-college', '三一学院', sanYiCollegeInfo, '设定', '#organizations');
+add('extra-theorem', '定理', theoremFragments, '设定', '#miia-math-notes');
+add('extra-sanceng-nation', '三层国家', sanCengNationInfo, '设定', '/world/pacific-islands');
+add('extra-wage', '工资零花钱', wageFragment, '故事', '#extra-stories');
+add('extra-shengyu-qiyue', '生育契约法', shengYuQiYueInfo, '设定', '#prime-focus');
+add('extra-super-intelligence', '超级智能校规', superIntelligenceRule, '设定', '#organizations');
+add('extra-gaokao-volunteer', '高考志愿', gaoKaoVolunteerRule, '设定', '/math/fsiii');
+add('extra-subway-pricing', '地铁定价', subwayPricingRule, '设定', '/playground/games/city-builder');
+add('extra-unified-recruitment', '统一招聘', unifiedRecruitmentRule, '设定', '#organizations');
+add('extra-agi-employment', 'AGI就业调节', agiEmploymentRegulation, '设定', '#prime-focus');
 
 for (const [index, entry] of organizations.entries()) add(`org_${index}`, entry.name, entry, '设定', '#organizations');
 for (const [index, entry] of zhihuaClasses.entries()) add(`class_${index}`, entry.name, entry, '设定', '#organizations');
@@ -204,8 +244,22 @@ const fragmentSources: Array<[string, string, unknown, string]> = [
   ['caregiver-stress', '照护者压力', caregiverStress, '#world-settings'],
   ['fu-shu-yu', '复数域公主梦', fuShuYuStory, '#extra-stories'],
   ['sheeps-full', '羊了个羊', sheepsFull, '#extra-stories'],
+  ['forever-three', '永远的3人世界', foreverThreeWorld, '#extra-stories'],
+  ['f3w-code', 'F3W 代码', f3wCodeLine, '#extra-stories'],
 ];
 for (const [id, title, content, href] of fragmentSources) add(`fragment_${id}`, title, content, '设定', href);
+add('setting_four-dimension', '四维测试', fourDimensionTest, '设定', '#world-settings');
+for (const [index, name] of modelNames.entries()) add(`model-name_${index}`, name, name, '设定', '#math');
+for (const system of NEURAL_SYSTEMS) add(`neural-system_${system.id}`, system.title, `${system.title} ${system.description}`, '设定', '#world-settings');
+add('dict-bilingual', 'Dadi Sapichi 中文对照', bilingualText, '词典', '#dictionary');
+add('hyper-communication', 'HyperCommunication 超沟通', '四种模式 汇报 各项目集群10分钟闪电汇报 碰撞 预设跨学科议题 错位 用非本学科语言汇报 静默 不使用语言仅用书写图像代码交流 核心规则 赵召必须参加 不允许说这是你们科照真的问题 每学期每位学生至少发言3次 不记录不存档 大型HC分组必须计算机随机分配 收敛HC 1月初回顾总结 发散HC 6月底展望开题 寒暑假暂停 QET考前两周暂停', '设定', '#organizations');
+add('chess-poison', '中毒查询', '兵 象 骷髅兵 不可吃子 被移除 马 蹩腿 被移除 教 田 蹩腿 己方半场不可过中线 被移除 车 横竖最多2格 横竖最多1格 被移除 后 鸵鸟 8方向最多2格 4方向最多1格 巨鲸 被移除 老鼠 马步只能走一个日字 斜线最多2格 直线最多2格 猫 缅因猫 英语 天线 免疫 失去技能 王 女巫 圣骑士 太空人 星舰 火箭 反女巫 免疫 黄奶酪减少1次中毒 橙奶酪减少4次中毒 蓝奶酪下回合对手可操纵 紫奶酪增加2次中毒 黑奶酪增加8次中毒', '棋子', '#chess');
+add('ttt3-rules', '技能三子棋规则', '传统三子棋 概率机制 SP技能 每个格子独立成功概率 中心3角4边6 SP上限30 每回合获得SP 技能消耗SP 职业天赋 突发事件', '技能', '#skill-ttt');
+add('fractal-rules', '递归回响规则', '每次点击己方生长点生成三根计分子枝 17轮起保留一根 不足6px剪去 16个有效生长点 回声9 17 25轮补充 地形影响', '游戏', '/playground/games/fractal-echo');
+add('neural-rules', '神经回响规则', '每次点击己方生长点生成三根计分子枝 6px时剪去 16个有效生长点 回声9 17 25轮最多2次复刻 分形阶段', '游戏', '/playground/games/neural-echo');
+add('cat-machine-guide', '猫咪机指引', '九只猫 三层工位 换位 连锁 天赋 突发事件 模块升级 后备箱同时支援 9只猫同时其余4辆车 故事阶段', '游戏', '/playground/games/cat-machine');
+add('nav-groups', '导航分组', 'MIIA 世界 世界观 编年史 组织 词典 未来线 西太平洋诸岛国 角色 故事目录 游戏宇宙 Scratch NCTB 认知实验室 数学实验室 创作对话 AI助手', '页面', '#hero');
+add('game-session-rules', '游戏通用规则', '玩法说明 游戏内专用按键 暂停后页面拦截不可操作 继续游戏 规则说明 100节点666突触神经核强化突触脉冲 非对称追逐诱饵真实气味疾跑复盘', '游戏', '/playground/games');
 
 for (const text of miiaTexts) add(`miia_${text.id}`, text.title, text, '故事', '#miia-world');
 add('miia-wish', '米娅的愿望', miiaWish, '故事', '#miia-world');
@@ -262,6 +316,33 @@ const gameRecords: Array<[string, string, string, string]> = [
   ['scratch-reinforcement-simulator', '强化模拟器', 'Scratch 小游戏', '/playground/scratch/reinforcement-simulator'],
 ];
 for (const [id, title, content, href] of gameRecords) add(id, title, content, '游戏', href);
+
+for (const dimension of NCTB_DIMENSIONS) {
+  add(`nctb-dim_${dimension.id}`, `${dimension.title} ${dimension.english}`, `${dimension.title} ${dimension.english} ${dimension.description} ${dimension.skill}`, '测评', '/nctb');
+}
+add('nctb-modes', 'NCTB考试模式', '标准考试 正式考试 全部题目统一作为考试题 整套完成后统一反馈 不显示提示 解释或单题对错', '测评', '/nctb');
+add('nctb-strategies', 'NCTB选题策略', '固定难度 自适应难度 题库按目标难度优先排序 并完整记录实际难度', '测评', '/nctb');
+add('nctb-hero', '认知实验室介绍', '十个维度 五十道题 一套可中断 可恢复 可解释的本地能力探索闭环', '测评', '/nctb');
+add('nctb-safety', 'NCTB数据说明', '标准考试只是本地一致化操作 不是受监管或保密的心理测验 综合探索分是十维描述性分数的平均', '测评', '/nctb');
+
+for (const spec of DIMENSION_SPECS) {
+  add(`nctb-spec_${spec.id}`, `${spec.id} 构念 ${spec.construct}`, `${spec.construct} 测量 ${spec.measures.join(' ')} 不测量 ${spec.shouldNotMeasure.join(' ')} 题族 ${spec.itemFamilies.join(' ')} 难度模型 ${spec.difficultyModel.join(' ')}`, '测评', '/nctb');
+}
+for (const question of [...FORMAL_A_V1_QUESTIONS, ...FORMAL_FOUNDATION_V1_QUESTIONS]) {
+  const text = `${question.prompt} ${question.stimulus ?? ''} ${question.options.join(' ')}`;
+  add(`nctb-q_${question.id}`, question.prompt, text, '测评', '/nctb');
+}
+
+for (const dimension of PEMS_DIMENSIONS) {
+  add(`fla-dim_${dimension.code}`, `PEMS-L ${dimension.code} ${dimension.title}`, `${dimension.title} ${dimension.shortLabel} 权重${dimension.weight * 100}% 阈值${dimension.threshold} 斜率${dimension.slope}`, '设定', '/math/fla');
+}
+add('fla-model', 'PEMS-L FLA v2.1 功能法律年龄模型', '功能法律年龄模型 PEMS-L FLA 从五科加权到人口曲线反查 不推翻生命周期函数 重构年龄映射的最后一步 旧公式默认能力可以无限互相补偿 五个维度彼此独立 现实中的认知能力峰值时间高度异质 执行功能包含共同因素与不同子成分 社会认知甚至会随年龄向不同方向变化', '设定', '/math/fla');
+add('fla-dimensions', 'PEMS-L 五维度', '生理发育 执行功能 情绪调节 社会互动 语言符号 P E M S L 不测身高 肌肉或青春期程度 避免让力量更大的年轻人无缘无故获得更高法律年龄 测量的是决策稳定性 而不是情绪多寡 容易哭或情绪强烈不应自动等于不成熟 不以是否符合主流社交方式为标准 关注能否理解具有法律意义的符号系统', '设定', '/math/fla');
+add('fla-formula', 'PEMS-L 公式说明', '几何平均 软短板效应 成年线18岁由人口目标校准 成年法律身份不可逆 老年人不会因认知老化出现80到17到15到12并重新取得未成年人身份 当前能力下降应进入特定行为能力评估 而不是让年龄倒流', '设定', '/math/fla');
+
+add('pacific-islands', '西太平洋诸岛国', '太平洋西侧的一组岛国与城邦 从君主制王国到AI托管城市 从渔业共和国到虚拟娱乐群岛 构成一片复杂而鲜活的海洋政治版图 岚汐共和国 青屿联邦 白潮王国 镜海共和国 雨见公国 星浦联邦 澄湾共和国 玄礁共同体 夕岬王国 浮光群岛国 海庭共和国 远汐联邦', '设定', '/world/pacific-islands');
+add('pacific-nations', '西太平洋诸岛国详情', '岚汐共和国与中国日本都有密切贸易往来 青屿联邦由七座主要岛屿组成 农业和海洋工程发达 白潮王国保留君主制的航运国家 拥有古老海军传统 镜海共和国以金融教育和精密仪器产业闻名 雨见公国多山多雨的小型岛国 星浦联邦由天然岛屿和人工岛共同组成 澄湾共和国重要渔业冷链和海上补给中心 玄礁共同体依靠港口海洋法务和跨国仲裁生存 夕岬王国火山岛国家 拥有地热能源 浮光群岛国旅游文化产业和虚拟娱乐发达 海庭共和国长期保持中立 远汐联邦位于更外侧的太平洋', '设定', '/world/pacific-islands');
+add('pacific-timeline', '西太平洋时间线', '2042年4月2日 雾岬市熄灭所有对外识别灯 切断中央政府进入城市系统的全部权限 城市AGI接管全部治理责任 第一艘悬空舰从东港地下船坞升起 岚汐共和国装甲车队遭精确电磁打击 工程无人机拆除隧道出口前一段轨道 雾岬市议会通过自由市临时宪章 自称雾岬自由市', '设定', '/world/pacific-islands');
 
 export const fullSearchIndex: FullSearchItem[] = items;
 

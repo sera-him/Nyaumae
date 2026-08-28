@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, User, BookOpen, Sparkles, Settings, Swords, BookMarked, BarChart3, ArrowUpRight, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import PageState from '@/components/PageState';
-import { getPopularWords, getRelatedWords, type WordFreq } from '@/data/wordFrequency';
+import { getPopularWords, getRelatedWords, getWordFreqScore, type WordFreq } from '@/data/wordFrequency';
 import { loadSearchData } from '@/lib/searchDataLoader';
 import { recordSearch } from '@/lib/analytics';
 import { useSearchSession } from '@/hooks/useSearchSession';
@@ -336,9 +336,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       </div>
                     ) : null;
                   })()}
-                  <p className="px-4 py-1 text-xs text-nc-text-muted">
-                    找到 {results.length} 个结果 · 按匹配度排序
-                  </p>
+                  {(() => {
+                    const totalOccurrences = trimmedQuery.split(/[\s·.,，。！？：；/()（）-]+/).filter(Boolean).reduce((s, w) => s + getWordFreqScore(w), 0);
+                    return (
+                      <p className="px-4 py-1 text-xs text-nc-text-muted">
+                        找到 {results.length} 篇{totalOccurrences ? `，共 ${totalOccurrences.toLocaleString('zh-CN')} 次` : ''} · 按匹配度排序
+                      </p>
+                    );
+                  })()}
                   {results.map(({ item, score }, idx) => {
                     const Icon = categoryIcons[item.category] || Search;
                     const snippet = getSnippet(item.content, query);

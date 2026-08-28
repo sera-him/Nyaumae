@@ -1,6 +1,6 @@
 import {
   extraPoems, poems, chapterIndex, wishSection, correctOverdose, xishouStory,
-  absurdNarrative, tinyWish, miiaStoryFragments,
+  absurdNarrative, tinyWish, miiaStoryFragments, jingBeiGouFragment, penPoemFragment, wageFragment,
 } from '@/data/extraStories';
 import {
   paradigmText, rtoText, yearDayFragment, numberFragments,
@@ -113,6 +113,36 @@ export default function ExtraStories() {
           <p className="text-lg text-nc-text-secondary">
             Period 系列 · Corruption 0f Emotion · 更多叙事碎片
           </p>
+        </div>
+
+        {/* 笔放下 - 新增 */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-nc-text mb-4 flex items-center gap-2">
+              <Feather className="w-5 h-5 shrink-0 text-nc-rose" />
+              {semanticHighlight("就这样把笔放下")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {penPoemFragment.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlight(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* 工资零花钱 - 新增碎片 */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-emerald-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-emerald-300 mb-4 flex items-center gap-2">
+              <Coins className="w-5 h-5 shrink-0" />
+              {semanticHighlight("工资与零花钱")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[1.9] whitespace-pre-wrap text-base sm:text-[15px]">
+              {wageFragment.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlight(line)}</span>
+              ))}
+            </pre>
+          </article>
         </div>
 
         {/* Poems from Stories */}
@@ -467,6 +497,13 @@ export default function ExtraStories() {
               </article>
             ))}
           </div>
+        </div>
+
+        {/* 京贝狗 - 无标题置于末尾 */}
+        <div className="miia-story-card bg-nc-bg-secondary/50 border border-white/[0.06] rounded-xl p-6 sm:p-8 opacity-80">
+          <pre className="whitespace-pre-wrap font-serif text-nc-text-muted leading-[1.9] text-sm sm:text-base">
+            {semanticHighlight(jingBeiGouFragment)}
+          </pre>
         </div>
       </div>
     </section>

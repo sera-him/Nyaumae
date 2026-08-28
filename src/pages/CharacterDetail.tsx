@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router';
+import { useParams, Link, useLocation } from 'react-router';
 import { characters, type Character } from '@/data/characters';
 import { extraCharacters } from '@/data/extraCharacters';
 import { characterRelations, relationLabels, relationColors } from '@/data/relationships';
@@ -13,17 +13,26 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Network, BookOpen, User, FolderKanban, X, EyeOff, ChevronDown } from 'lucide-react';
 import WordFrequencyCloud from '@/components/WordFrequencyCloud';
 import WordFrequencyTable from '@/components/WordFrequencyTable';
-import { frequencyMeta, getWordFrequencyClouds, loadWordFrequency } from '@/data/wordFrequency';
+import WordFrequencyDetailedList from '@/components/WordFrequencyDetailedList';
+import { frequencyMeta, getWordFrequencyClouds, getWordFrequencyDetailed, loadWordFrequency, type WordFreqDetailed } from '@/data/wordFrequency';
 
 const DEFAULT_WORD_CLOUD_ALPHA = 1.35;
 
 
 export default function CharacterDetail() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const all = [...characters, ...extraCharacters] as (Character | typeof extraCharacters[0])[];
   const char = all.find((c) => c.id === id);
-  const [showArchive, setShowArchive] = useState(false);
+  const [showArchive, setShowArchive] = useState(() => {
+    if (id !== 'miia') return false;
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(location.search);
+    return params.get('archive') === '1' || location.hash === '#deep-archive';
+  });
   const [frequencyClouds, setFrequencyClouds] = useState(getWordFrequencyClouds);
+  const [frequencyDetailed, setFrequencyDetailed] = useState<WordFreqDetailed[]>(() => getWordFrequencyDetailed());
+  const [freqMode, setFreqMode] = useState<'simple' | 'detailed'>('simple');
   const [alphaText, setAlphaText] = useState(String(DEFAULT_WORD_CLOUD_ALPHA));
   const [alpha, setAlpha] = useState(DEFAULT_WORD_CLOUD_ALPHA);
 
@@ -47,10 +56,19 @@ export default function CharacterDetail() {
   };
 
   useEffect(() => {
+    if (id !== 'miia') return;
+    const params = new URLSearchParams(location.search);
+    if (params.get('archive') === '1' || location.hash === '#deep-archive') setShowArchive(true);
+  }, [id, location.hash, location.search]);
+
+  useEffect(() => {
     if (!showArchive) return;
     let cancelled = false;
     void loadWordFrequency().then(() => {
-      if (!cancelled) setFrequencyClouds(getWordFrequencyClouds());
+      if (!cancelled) {
+        setFrequencyClouds(getWordFrequencyClouds());
+        setFrequencyDetailed(getWordFrequencyDetailed());
+      }
     }).catch(() => {
       // The archive is supplementary; keep the character page usable if it fails to load.
     });
@@ -291,6 +309,7 @@ export default function CharacterDetail() {
       <AnimatePresence>
         {showArchive && (
           <motion.div
+            id="deep-archive"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -354,7 +373,15 @@ export default function CharacterDetail() {
                   emptyText="正在自动生成总云图"
                 />
               </div>
-              <WordFrequencyTable entries={frequencyClouds.all} />
+              <div className="word-frequency-mode-switch" role="group" aria-label="词频明细模式">
+                <button type="button" className={freqMode === 'simple' ? 'is-active' : ''} onClick={() => setFreqMode('simple')}>简洁</button>
+                <button type="button" className={freqMode === 'detailed' ? 'is-active' : ''} onClick={() => setFreqMode('detailed')}>详细</button>
+              </div>
+              {freqMode === 'simple' ? (
+                <WordFrequencyTable entries={frequencyClouds.all} />
+              ) : (
+                <WordFrequencyDetailedList entries={frequencyDetailed} />
+              )}
             </div>
           </motion.div>
         )}

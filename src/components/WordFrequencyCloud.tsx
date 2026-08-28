@@ -788,6 +788,9 @@ function makeCloudLayout(entries: WordFreq[], width: number, alpha: number): Clo
     alpha,
     maximumFontSize,
   );
+  if (!expandedPass.complete) {
+    console.warn('Word cloud layout incomplete: not all words could be placed');
+  }
   const projectedWords = projectPackedCloud(
     expandedPass.words,
     placementWidth,

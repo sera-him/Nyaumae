@@ -7,7 +7,7 @@ import type {
   Move, HistoryEntry,
 } from './types';
 import {
-  BOARD_SIZE,
+  BOARD_SIZE, ENGLISH_VULNERABLE,
 } from './types';
 import {
   inBounds, getPiece, isEmpty, cloneBoard,
@@ -44,21 +44,23 @@ function isKingSafeAfterMove(
   simBoard[to.row][to.col] = piece;
   simBoard[from.row][from.col] = null;
 
-  // 模拟英语捕捉：如果移动到敌方英语范围内，棋子被移除
-  englishLoop: for (let row = 0; row < BOARD_SIZE; row++) {
-    for (let col = 0; col < BOARD_SIZE; col++) {
-      const ep = getPiece(simBoard, { row, col });
-      if (ep && ep.owner !== player && ep.type === 'L') {
-        // 检查英语是否因中毒失去技能
-        if (poisonMap) {
-          const lKey = pieceKey(ep, { row, col });
-          if ((poisonMap[lKey] || 0) >= 4) continue;
-        }
-        const dr = Math.abs(to.row - row);
-        const dc = Math.abs(to.col - col);
-        if ((dr <= 2 && dc === 0) || (dc <= 2 && dr === 0)) {
-          simBoard[to.row][to.col] = null;
-          break englishLoop;
+  // 模拟英语捕捉：仅 * 棋子进入敌方英语十字1-2格会被消灭
+  if (ENGLISH_VULNERABLE.includes(piece.type)) {
+    englishLoop: for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        const ep = getPiece(simBoard, { row, col });
+        if (ep && ep.owner !== player && ep.type === 'L') {
+          // 检查英语是否因中毒失去技能
+          if (poisonMap) {
+            const lKey = pieceKey(ep, { row, col });
+            if ((poisonMap[lKey] || 0) >= 4) continue;
+          }
+          const dr = Math.abs(to.row - row);
+          const dc = Math.abs(to.col - col);
+          if ((dr <= 2 && dc === 0) || (dc <= 2 && dr === 0)) {
+            simBoard[to.row][to.col] = null;
+            break englishLoop;
+          }
         }
       }
     }
@@ -477,12 +479,12 @@ export function executeMove(state: GameState, move: Move): GameState {
     delete newState.poison[key];
   }
 
-  // ---- 处理升变 ----
+  // ---- 处理升变（E→E 时不重复转移中毒，避免同键删除） ----
   if (needsPromotion && move.promoteTo) {
     newState.board[to.row][to.col] = { type: move.promoteTo, owner: player };
     // 升变后更新 key 引用
     const promoKey = pieceKey({ type: move.promoteTo, owner: player }, to);
-    if (newState.poison[newKey]) {
+    if (newState.poison[newKey] && promoKey !== newKey) {
       newState.poison[promoKey] = newState.poison[newKey];
       delete newState.poison[newKey];
     }
@@ -504,16 +506,22 @@ export function executeMove(state: GameState, move: Move): GameState {
     }
   }
 
-  // ---- 王移动到火箭上合成太空人 ----
+  // ---- 火箭被吃同归于尽（王吃己方火箭除外→合成太空人） ----
   const movedPiece = getPiece(newState.board, to);
-  if (movedPiece && movedPiece.type === 'K') {
-    // 检查目标位置是否是火箭（已在走子时处理）
-    // 王可以"移动"到火箭上——实际是走到火箭格时触发
-    // 这里在走子后检查：如果目标位置之前是火箭
-    if (captured && captured.type === 'X' && captured.owner === player) {
-      // 王吃火箭 → 合成太空人
+  if (captured && captured.type === 'X') {
+    const isKingOwnRocket = movedPiece && movedPiece.type === 'K' && captured.owner === player;
+    if (isKingOwnRocket) {
+      // 王吃己方火箭 → 合成太空人
       newState.board[to.row][to.col] = { type: 'U', owner: player };
       newState.rocketPos = { ...state.rocketPos, [player]: null };
+    } else {
+      // 任意其他棋子吃火箭 → 吃子方一并被移除（同归于尽）
+      newState.board[to.row][to.col] = null;
+      // 清理中毒标记
+      const deadKey = movedPiece ? pieceKey(movedPiece, to) : null;
+      if (deadKey && newState.poison[deadKey]) delete newState.poison[deadKey];
+      // 清空被吃火箭方的 rocketPos（己方或敌方）
+      newState.rocketPos = { ...state.rocketPos, [captured.owner]: null };
     }
   }
 
@@ -583,9 +591,8 @@ export function executeMove(state: GameState, move: Move): GameState {
     }
   }
 
-  // ---- 英语的特殊能力（敌方棋子移动到其范围内被移除，中毒≥4 失去技能） ----
-  // 需要检测所有新移动到的位置周围是否有敌方英语
-  if (finalPiece) {
+  // ---- 英语的特殊能力（仅 * 棋子进入敌方十字1-2格被移除，中毒≥4 失去技能） ----
+  if (finalPiece && ENGLISH_VULNERABLE.includes(finalPiece.type)) {
     englishLoop: for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         const ep = getPiece(newState.board, { row, col });

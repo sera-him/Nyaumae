@@ -167,6 +167,9 @@
 .full-search-random-dot.category-设定 { color: #c5b6ff; background: currentColor; }
 .full-search-popular-section { border-bottom: 0; }
 .full-search-popular-tags { display: flex; flex-wrap: wrap; gap: .38rem; }
+.full-search-popular-hint { margin: .85rem 0 0; color: var(--site-theme-text-muted, #a2c1c4); font-size: .62rem; line-height: 1.7; }
+.full-search-popular-link { color: var(--site-theme-accent, #78e1d5); text-decoration: underline; text-underline-offset: 3px; }
+.full-search-popular-link:hover { color: #fff; }
 .full-search-popular-tags button { display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .58rem; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; color: var(--site-theme-text-secondary, #bdd3d5); background: rgba(255,255,255,.025); font-size: .65rem; cursor: pointer; }
 .full-search-popular-tags button:hover { color: #fff; border-color: rgba(120,225,213,.35); background: rgba(120,225,213,.055); }
 .full-search-popular-tags small { color: var(--site-theme-text-muted, #a2c1c4); font: .52rem/1 'JetBrains Mono', monospace; }

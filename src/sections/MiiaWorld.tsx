@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMusic } from '@/contexts/MusicContext';
 import { miiaTexts, miiaWish, miiaAgiLand, miiaAgiPoem, lilaAnalysis, mappingBlock } from '@/data/miiaTexts';
+import { dualAxisModel } from '@/data/extraStories';
 import ParticleField from '@/components/ParticleField';
 import { semanticHighlight } from '@/lib/semanticHighlight';
 import SmartImage from '@/components/SmartImage';
@@ -130,7 +131,7 @@ export default function MiiaWorld() {
         </div>
 
         {/* Līlā 分析 */}
-        <div className="bg-[#100A1A] border border-[#00E5CC]/10 rounded-xl p-6 miia-diary-card">
+        <div className="bg-[#100A1A] border border-[#00E5CC]/10 rounded-xl p-6 miia-diary-card mb-8">
           <div className="flex items-center gap-3 mb-4">
             <ScrollText className="w-5 h-5 text-[#00E5CC]" />
             <h3 className="text-lg font-semibold text-[#F0E6FF]">{semanticHighlight("关于 Līlā 的分析")}</h3>
@@ -145,6 +146,19 @@ export default function MiiaWorld() {
           <div className="text-sm text-nc-text leading-relaxed space-y-3">
             {lilaAnalysis.map((p, i) => (
               <p key={i}>{semanticHighlight(p)}</p>
+            ))}
+          </div>
+        </div>
+
+        {/* 双轴模型 - 紧接 Līlā 分析之后 */}
+        <div className="bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 miia-diary-card">
+          <div className="flex items-center gap-3 mb-4">
+            <Brain className="w-5 h-5 text-[#A78BFA]" />
+            <h3 className="text-lg font-semibold text-[#F0E6FF]">{semanticHighlight("双轴模型：控制与不认可")}</h3>
+          </div>
+          <div className="text-sm text-nc-text leading-relaxed space-y-3">
+            {dualAxisModel.split('\n\n').map((paragraph, i) => (
+              <p key={i} className="text-justify">{semanticHighlight(paragraph)}</p>
             ))}
           </div>
         </div>

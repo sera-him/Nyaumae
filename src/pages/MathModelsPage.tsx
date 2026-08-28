@@ -10,6 +10,7 @@ import { getTierStyle, getPositionPercent } from '@/lib/fsiiiTiers';
 import type { Tier } from '@/lib/fsiiiTiers';
 import HeightWeightChart from '@/sections/HeightWeightChart';
 import FLAModel from '@/sections/FLAModel';
+import { gaoKaoVolunteerRule } from '@/data/extraStories';
 
 /* ═══════════════════════════════════════════════
    ANIMATION STYLES
@@ -309,6 +310,21 @@ function FsiiiTab() {
               </div>
             </div>
           </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.3 }}
+          className="liquid-glass-subtle border border-white/[0.06] rounded-2xl p-6 mt-10 glass-highlight glass-shine relative"
+        >
+          <h3 className="text-lg font-semibold text-nc-text mb-3 flex items-center gap-2">
+            <Calculator className="w-5 h-5 text-nc-cyan" />
+            高考志愿独立位次模型
+          </h3>
+          <p className="text-sm text-nc-text-secondary leading-relaxed whitespace-pre-wrap">
+            {semanticHighlight(gaoKaoVolunteerRule)}
+          </p>
         </motion.div>
       </div>
     </div>

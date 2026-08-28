@@ -16,6 +16,7 @@ const nations = [
   { name: '浮光群岛国', desc: '旅游、文化产业和虚拟娱乐发达。', color: 'text-pink-300' },
   { name: '海庭共和国', desc: '长期保持中立，是诸岛国重要的外交会议地点。', color: 'text-indigo-300' },
   { name: '远汐联邦', desc: '位于更外侧的太平洋，领土广大而人口稀少。', color: 'text-teal-300' },
+  { name: '渊垂联邦', desc: '三层立体国家：上层机器人农业，中层普通城市，下层毒品与廉价劳动力。政府居间管理，海关分层管制。', color: 'text-zinc-300' },
 ];
 
 const chinaPolicy = [
@@ -86,6 +87,32 @@ export default function PacificIslands() {
               </div>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* 渊垂联邦详情 - 新增三层国家 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.45 }}
+          className="pacific-relation-card bg-nc-bg-secondary border border-zinc-500/20 rounded-xl p-5 mb-16 hover:border-zinc-400/30 transition-all duration-300"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Shield className="w-5 h-5 text-zinc-300" />
+            <h3 className="text-lg font-semibold text-nc-text">{semanticHighlight("渊垂联邦 · 三层结构")}</h3>
+            <span className="ml-auto text-xs font-mono text-zinc-400 border border-zinc-500/20 px-2 py-0.5 rounded">TRIVIUM</span>
+          </div>
+          <p className="text-sm text-nc-text-secondary leading-relaxed mb-4">{semanticHighlight("上层机器人农业区，中层普通城市，下层毒品与廉价劳动力。政府居于上下层之间，不直接经营毒品，只收税。上下层可自由进出，但上行需过海关：无违禁品直通，少量违禁品可交钱放行，大量不可。")}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div className="bg-nc-bg/50 rounded-lg p-3 border border-zinc-500/10">
+              <p className="text-xs text-zinc-400 font-bold mb-1">下层规则</p>
+              <p className="text-sm text-nc-text-muted leading-relaxed">{semanticHighlight("自愿进入，因成瘾滞留，提供廉价劳动力；大量吸毒失生育能力，不自然繁衍。")}</p>
+            </div>
+            <div className="bg-nc-bg/50 rounded-lg p-3 border border-zinc-500/10">
+              <p className="text-xs text-zinc-400 font-bold mb-1">海关双轨</p>
+              <p className="text-sm text-nc-text-muted leading-relaxed">{semanticHighlight("中层正常开放，下层平时关闭；若遭外部制裁，下层立即开放，毒品流向全球。")}</p>
+            </div>
+          </div>
+          <p className="text-xs text-zinc-500">{semanticHighlight("注：渊垂联邦为西太平洋诸岛国新增设定，独立于本土主世界。")}</p>
         </motion.div>
 
         {/* 澄湾共和国 - 中国关系 */}

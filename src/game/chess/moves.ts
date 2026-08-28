@@ -407,11 +407,12 @@ function witchMovesSep(board: Board, pos: Position): SeparatedMoves {
   return { moves, captures: [] };
 }
 
-/** Z — 骷髅兵：上/左/右各1格 */
+/** Z — 骷髅兵：前/左/右各1格（前为己方前进方向） */
 function skeletonMovesSep(board: Board, pos: Position, player: Player): SeparatedMoves {
   const moves: Position[] = [];
   const captures: Position[] = [];
-  const dirs: [number, number][] = [[-1, 0], [0, -1], [0, 1]];
+  const fwd = forwardDir(player);
+  const dirs: [number, number][] = [[fwd, 0], [0, -1], [0, 1]];
   for (const [dr, dc] of dirs) {
     const to = { row: pos.row + dr, col: pos.col + dc };
     if (!inBounds(to)) continue;
@@ -430,11 +431,12 @@ function antiWitchMovesSep(board: Board, pos: Position): SeparatedMoves {
   return witchMovesSep(board, pos);
 }
 
-/** IZ — 反骷髅兵：下/左/右各1格 */
+/** IZ — 反骷髅兵：前/左/右各1格（前为反向，朝己方底线） */
 function antiSkeletonMovesSep(board: Board, pos: Position, player: Player): SeparatedMoves {
   const moves: Position[] = [];
   const captures: Position[] = [];
-  const dirs: [number, number][] = [[1, 0], [0, -1], [0, 1]];
+  const fwd = -forwardDir(player);
+  const dirs: [number, number][] = [[fwd, 0], [0, -1], [0, 1]];
   for (const [dr, dc] of dirs) {
     const to = { row: pos.row + dr, col: pos.col + dc };
     if (!inBounds(to)) continue;

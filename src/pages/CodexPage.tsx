@@ -20,9 +20,9 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { createPortal } from 'react-dom';
-import { getPopularWords, getRelatedWords, type WordFreq } from '@/data/wordFrequency';
+import { frequencyMeta, getPopularWords, getRelatedWords, type WordFreq } from '@/data/wordFrequency';
 import type { FullSearchItem } from '@/data/fullSearchIndex';
 import {
   ANALYTICS_DATA_EVENT,
@@ -189,6 +189,14 @@ function formatSearchTime(timestamp: number): string {
   if (age < 3_600_000) return `${Math.floor(age / 60_000)} 分钟前`;
   if (age < 86_400_000) return `${Math.floor(age / 3_600_000)} 小时前`;
   return new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric' }).format(timestamp);
+}
+
+function formatPopularCount(count: number): string {
+  if (!Number.isFinite(count)) return '—';
+  // 保留一位小数的友好缩写：codex 热门词仅作概览，完整明细在深层档案
+  if (count >= 10000) return `${(count / 10000).toFixed(1).replace(/\.0$/, '')}w`;
+  if (count >= 1000) return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+  return count.toLocaleString('zh-CN');
 }
 
 export default function CodexPage() {
@@ -560,8 +568,8 @@ export default function CodexPage() {
               })}
             </div>
             {trimmedQuery && relatedWords.length > 0 && <div className="full-search-related">
-              <span>高频关联</span>
-              <div>{relatedWords.map((word) => <button type="button" key={word.word} onClick={() => runSearch(word.word)}>{word.word}<small>{word.count}</small></button>)}</div>
+              <span>高频关联 · 保留一位小数</span>
+              <div>{relatedWords.map((word) => <button type="button" key={word.word} onClick={() => runSearch(word.word)} title={`全站出现 ${word.count.toLocaleString('zh-CN')} 次`}>{word.word}<small>{formatPopularCount(word.count)}</small></button>)}</div>
             </div>}
           </div>
 
@@ -648,10 +656,13 @@ export default function CodexPage() {
           </div>
 
           <section className="full-search-section full-search-popular-section" aria-labelledby="full-search-popular-title" data-testid="full-search-popular-words">
-            <div className="full-search-section-heading"><div><span className="full-search-section-kicker">06 / FREQUENCY</span><h2 id="full-search-popular-title">高频词</h2></div><button type="button" className="full-search-expand-button" onClick={() => setShowAllPopular((value) => !value)}>{showAllPopular ? '收起' : '展开全部'} {showAllPopular ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div>
+            <div className="full-search-section-heading"><div><span className="full-search-section-kicker">06 / FREQUENCY</span><h2 id="full-search-popular-title">高频词 · 保留一位小数</h2></div><button type="button" className="full-search-expand-button" onClick={() => setShowAllPopular((value) => !value)}>{showAllPopular ? '收起' : '展开全部'} {showAllPopular ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div>
             <div className="full-search-popular-tags">
-              {popularWords.slice(0, showAllPopular ? popularWords.length : 10).map((word) => <button type="button" key={word.word} onClick={() => runSearch(word.word)} title={`全站出现 ${word.count} 次`}><span>{word.word}</span><small>{word.count}</small></button>)}
+              {popularWords.slice(0, showAllPopular ? popularWords.length : 10).map((word) => <button type="button" key={word.word} onClick={() => runSearch(word.word)} title={`全站出现 ${word.count.toLocaleString('zh-CN')} 次（完整 ${formatPopularCount(word.count)}）`}><span>{word.word}</span><small>{formatPopularCount(word.count)}</small></button>)}
             </div>
+            <p className="full-search-popular-hint">
+              热门词为概览，仅展示 {popularWords.length ? `Top ${popularWords.length}` : '高频'} 且计数保留一位小数（如 1.2w / 1.5k）。完整 {frequencyMeta.uniqueWords ? `${frequencyMeta.uniqueWords.toLocaleString('zh-CN')} 项` : '全量'} 词频、文档数与“词云与月”请前往 <Link to="/characters/miia?archive=1#deep-archive" className="full-search-popular-link">咪呀 · 深层档案</Link> 查看。
+            </p>
           </section>
         </div>}
       </section>

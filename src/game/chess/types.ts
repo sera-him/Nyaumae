@@ -159,3 +159,6 @@ export const CANNOT_CAPTURE: PieceType[] = ['Y', 'W', 'IW', 'U', 'O'];
 
 /** 鹰（不可阻挡，不阻碍其他棋子吃子检查） */
 export const UNBLOCKABLE: PieceType[] = ['T'];
+
+/** 进入英语禁区会被消灭的棋子（* 标记） */
+export const ENGLISH_VULNERABLE: PieceType[] = ['P','E','Z','IZ','M','N','T','Y','W','IW','R','C','O','G','H'];
