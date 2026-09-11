@@ -68,11 +68,30 @@ export default function RotatingImage({
             alt={i === 0 ? alt : `${alt} (${i + 1})`}
             onLoad={() => handleLoad(i)}
             onError={() => handleError(i)}
-            loading="lazy"
+            loading={isMotionActive ? 'eager' : 'lazy'}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
               isVisible ? 'opacity-100' : 'opacity-0'
             } ${className}`}
           />
+        );
+      })}
+      {/* Once the card is near the viewport, warm the whole image set so
+          rotation never shows a skeleton while the next frame loads. */}
+      {isMotionActive && localImages.map((src, i) => {
+        if (visibleIndexes.includes(i) || loaded.has(i)) return null;
+        return (
+          <div key={`warm-${i}`} aria-hidden="true" className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0">
+            <ResponsiveImage
+              src={src}
+              fallbackSrc={remoteFirst && !failedArr.has(i) ? imageHostMap[src] : undefined}
+              widths={CARD_IMAGE_WIDTHS}
+              sizes="(max-width: 640px) calc(100vw - 32px), 440px"
+              loading="eager"
+              alt=""
+              onLoad={() => handleLoad(i)}
+              onError={() => handleError(i)}
+            />
+          </div>
         );
       })}
       {!loaded.has(current) && (

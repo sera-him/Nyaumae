@@ -65,6 +65,8 @@ export default function MiiaWorld() {
           aspectRatio="16/9"
           containerClassName="miia-dream-image w-full rounded-xl border border-[#8B5CF6]/10 mb-8"
           className="object-cover"
+          loading="eager"
+          fetchPriority="high"
         />
 
         {/* Active Text */}

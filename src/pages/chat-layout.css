@@ -62,6 +62,43 @@
 .ocean-chat-scroll, .sweet-chat-scroll, .aurora-chat-scroll {
   flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
 }
+/* 内部滚动区统一显示细滚动条（覆盖 Win11 悬浮式自动隐藏行为） */
+.ocean-chat-scroll, .sweet-chat-scroll, .aurora-chat-scroll,
+.ocean-history, .sweet-history, .aurora-history,
+.original-chat-sticker-grid, .original-chat-controls {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(129,124,168,.5) transparent;
+}
+.ocean-chat-scroll::-webkit-scrollbar, .sweet-chat-scroll::-webkit-scrollbar, .aurora-chat-scroll::-webkit-scrollbar,
+.ocean-history::-webkit-scrollbar, .sweet-history::-webkit-scrollbar, .aurora-history::-webkit-scrollbar,
+.original-chat-sticker-grid::-webkit-scrollbar, .original-chat-controls::-webkit-scrollbar {
+  width: 8px; height: 8px;
+}
+.ocean-chat-scroll::-webkit-scrollbar-track, .sweet-chat-scroll::-webkit-scrollbar-track, .aurora-chat-scroll::-webkit-scrollbar-track,
+.ocean-history::-webkit-scrollbar-track, .sweet-history::-webkit-scrollbar-track, .aurora-history::-webkit-scrollbar-track,
+.original-chat-sticker-grid::-webkit-scrollbar-track, .original-chat-controls::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ocean-chat-scroll::-webkit-scrollbar-thumb, .sweet-chat-scroll::-webkit-scrollbar-thumb, .aurora-chat-scroll::-webkit-scrollbar-thumb,
+.ocean-history::-webkit-scrollbar-thumb, .sweet-history::-webkit-scrollbar-thumb, .aurora-history::-webkit-scrollbar-thumb,
+.original-chat-sticker-grid::-webkit-scrollbar-thumb, .original-chat-controls::-webkit-scrollbar-thumb {
+  border-radius: 999px; background: rgba(129,124,168,.4);
+}
+.ocean-chat-scroll::-webkit-scrollbar-thumb:hover, .sweet-chat-scroll::-webkit-scrollbar-thumb:hover, .aurora-chat-scroll::-webkit-scrollbar-thumb:hover,
+.ocean-history::-webkit-scrollbar-thumb:hover, .sweet-history::-webkit-scrollbar-thumb:hover, .aurora-history::-webkit-scrollbar-thumb:hover,
+.original-chat-sticker-grid::-webkit-scrollbar-thumb:hover, .original-chat-controls::-webkit-scrollbar-thumb:hover {
+  background: rgba(129,124,168,.68);
+}
+/* 深色主题（aurora）下滚动条稍亮，保证可见性 */
+.aurora-chat .aurora-chat-scroll, .aurora-chat .aurora-history {
+  scrollbar-color: rgba(190,196,224,.42) transparent;
+}
+.aurora-chat .aurora-chat-scroll::-webkit-scrollbar-thumb, .aurora-chat .aurora-history::-webkit-scrollbar-thumb {
+  background: rgba(190,196,224,.34);
+}
+.aurora-chat .aurora-chat-scroll::-webkit-scrollbar-thumb:hover, .aurora-chat .aurora-history::-webkit-scrollbar-thumb:hover {
+  background: rgba(190,196,224,.6);
+}
 .ocean-chat-header, .sweet-chat-header, .aurora-chat-header { position: sticky; z-index: 8; top: 0; flex: 0 0 auto; }
 .original-chat-sidebar-backdrop { display: none; }
 .original-chat-controls {

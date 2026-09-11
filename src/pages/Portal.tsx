@@ -266,7 +266,8 @@ export default function Portal() {
               alt={slides[slide].alt}
               widths={PORTAL_IMAGE_WIDTHS}
               sizes="(max-width: 640px) calc(100vw - 32px), 1180px"
-              loading="lazy"
+              loading="eager"
+              fetchPriority={slide === 0 ? 'high' : undefined}
               className="portal-carousel-main"
             />
             {carouselMotionActive && (
@@ -282,6 +283,23 @@ export default function Portal() {
                 aria-hidden="true"
               />
             )}
+            {carouselMotionActive && (() => {
+              const prevSlide = slides[(slide - 1 + slides.length) % slides.length];
+              if (prevSlide.src === slides[slide].src || prevSlide.src === nextSlide.src) return null;
+              return (
+                <ResponsiveImage
+                  key={`preload-prev-${prevSlide.src}`}
+                  src={prevSlide.src}
+                  alt=""
+                  widths={PORTAL_IMAGE_WIDTHS}
+                  sizes="(max-width: 640px) calc(100vw - 32px), 1180px"
+                  loading="eager"
+                  fetchPriority="low"
+                  pictureClassName="portal-carousel-preload"
+                  aria-hidden="true"
+                />
+              );
+            })()}
             <div className="portal-carousel-shade" />
             <div className="portal-caption" aria-live="polite"><p>VISUAL ARCHIVE {String(slide + 1).padStart(2, '0')}</p><h3>{slides[slide].title}</h3><div className="portal-slide-meta"><span>{slideMetadata[slide].location}</span><span>{slideMetadata[slide].time}</span><span>{slideMetadata[slide].region}</span></div></div>
             <div className="portal-count"><strong>{String(slide + 1).padStart(2, '0')}</strong><span>/ 06</span></div>

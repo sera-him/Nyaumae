@@ -56,6 +56,8 @@ export default function HeroCompact() {
           alt=""
           containerClassName="absolute inset-0"
           className="object-cover opacity-40"
+          loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-nc-bg/60 via-nc-bg/40 to-nc-bg" />
       </div>
