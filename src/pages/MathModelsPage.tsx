@@ -11,6 +11,7 @@ import type { Tier } from '@/lib/fsiiiTiers';
 import HeightWeightChart from '@/sections/HeightWeightChart';
 import FLAModel from '@/sections/FLAModel';
 import { gaoKaoVolunteerRule } from '@/data/extraStories';
+import '@/styles/math-terminal.css';
 
 /* ═══════════════════════════════════════════════
    ANIMATION STYLES

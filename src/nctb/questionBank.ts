@@ -1,4 +1,5 @@
 import { FORMAL_A_V1_QUESTIONS } from './banks/formal-a.v1.ts';
+import { FORMAL_A_V2_QUESTIONS } from './banks/formal-a.v2.ts';
 import { FORMAL_FOUNDATION_V1_QUESTIONS } from './banks/formal-foundation.v1.ts';
 import type {
   NctbBankId,
@@ -7,7 +8,7 @@ import type {
   NctbPublicQuestion,
 } from './types.ts';
 
-export const FORMAL_QUESTIONS = [...FORMAL_A_V1_QUESTIONS, ...FORMAL_FOUNDATION_V1_QUESTIONS];
+export const FORMAL_QUESTIONS = [...FORMAL_A_V1_QUESTIONS, ...FORMAL_FOUNDATION_V1_QUESTIONS, ...FORMAL_A_V2_QUESTIONS];
 export const EXAM_QUESTIONS = FORMAL_QUESTIONS;
 
 const BANKS: Readonly<Record<NctbBankId, readonly NctbPublicQuestion[]>> = {

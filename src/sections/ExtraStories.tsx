@@ -343,7 +343,7 @@ export default function ExtraStories() {
         </div>
 
         {/* id().val.exp.redir()?dif:dis — standalone code fragment */}
-        <div className="miia-story-card bg-[#0a0a12] border border-nc-violet/20 rounded-xl p-6 sm:p-8 mb-10">
+        <div className="miia-story-card bg-[var(--aurora-brand-bg-ink)] border border-nc-violet/20 rounded-xl p-6 sm:p-8 mb-10">
           <h3 className="text-lg font-bold text-nc-violet mb-4 flex items-center gap-2">
             <Code2 className="w-5 h-5 shrink-0" />
             {semanticHighlight("碎片：id().val.exp.redir()?dif:dis")}

@@ -1,6 +1,12 @@
-import { useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { frequencyMeta, type WordFreqDetailed } from '@/data/wordFrequency';
 import './WordFrequencyDetailedList.css';
+
+// Windowed rendering: thousands of <tr> at once is the single heaviest paint
+// on the data page. Only the rows intersecting the scroll viewport (plus a
+// small overscan) are mounted; spacer rows keep the scrollbar geometry exact.
+const ROW_HEIGHT = 46; // must match `tbody tr { height }` in the CSS
+const OVERSCAN = 8;
 
 type SortKey = 'word' | 'count' | 'docCount' | 'saturation' | 'density' | 'length' | 'type';
 
@@ -27,9 +33,40 @@ interface Props {
   entries: WordFreqDetailed[];
 }
 
-export default function WordFrequencyDetailedList({ entries }: Props) {
+function Arrow({ active, dir }: { active: boolean; dir: 'asc' | 'desc' }) {
+  return (
+    <span className={`sort-arrow ${active ? 'is-active' : ''}`} aria-hidden="true">{active ? (dir === 'asc' ? '↑' : '↓') : '↕'}</span>
+  );
+}
+
+function Th({ k, label, title, sort, onSort }: { k: SortKey; label: string; title?: string; sort: SortState; onSort: (key: SortKey) => void }) {
+  const active = sort.key === k;
+  return (
+    <th onClick={() => onSort(k)} title={title ?? label} aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+      <span className="th-inner">{label}<Arrow active={active} dir={sort.dir} /></span>
+    </th>
+  );
+}
+
+function WordFrequencyDetailedList({ entries }: Props) {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortState>({ key: 'count', dir: 'desc' });
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewportH, setViewportH] = useState(720);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (el) setScrollTop(el.scrollTop);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setViewportH(el.clientHeight || 720));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const handleSort = (key: SortKey) => {
     setSort(prev => {
@@ -42,7 +79,7 @@ export default function WordFrequencyDetailedList({ entries }: Props) {
 
   const filteredSorted = useMemo(() => {
     const q = query.trim().toLocaleLowerCase('zh-CN');
-    let list = q ? entries.filter(e => e.word.toLocaleLowerCase('zh-CN').includes(q)) : entries.slice();
+    const list = q ? entries.filter(e => e.word.toLocaleLowerCase('zh-CN').includes(q)) : entries.slice();
     const { key, dir } = sort;
     const mul = dir === 'asc' ? 1 : -1;
     list.sort((a, b) => {
@@ -74,12 +111,27 @@ export default function WordFrequencyDetailedList({ entries }: Props) {
   const maxSaturation = useMemo(() => Math.max(1, ...filteredSorted.map(e => e.saturation)), [filteredSorted]);
   const maxDensity = useMemo(() => Math.max(1e-6, ...filteredSorted.map(e => e.density)), [filteredSorted]);
 
+  // Reset scroll position when the dataset identity changes (filter/sort),
+  // otherwise the window math lands somewhere unexpected.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      el.scrollTop = 0;
+      setScrollTop(0);
+    }
+  }, [query, sort]);
+
+  const rowCount = filteredSorted.length;
+  const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
+  const end = Math.min(rowCount, Math.ceil((scrollTop + viewportH) / ROW_HEIGHT) + OVERSCAN);
+  const visibleRows = useMemo(() => filteredSorted.slice(start, end), [filteredSorted, start, end]);
+
   const downloadCsv = () => {
     const header = '排名,词语,绝对声量Σ,声量占比%,广度N,广度率N%,饱和度Σln,密度Σw/T,长度,类型';
     const rows = filteredSorted.map((e, idx) => {
       const rate = (e.docRate * 100).toFixed(2);
       const countRate = frequencyMeta.totalWords ? ((e.count / frequencyMeta.totalWords) * 100).toFixed(2) : '0.00';
-      return `${idx + 1},${JSON.stringify(e.word)},${e.count},${countRate}%,${e.docCount},${rate}%,${e.saturation.toFixed(2)},${e.density.toFixed(4)},${e.length},${e.isCharacter ? '角色' : '普通'}`;
+      return `${idx + 1},${JSON.stringify(e.word)},${e.count.toFixed(1)},${countRate}%,${e.docCount},${rate}%,${e.saturation.toFixed(2)},${e.density.toFixed(4)},${e.length},${e.isCharacter ? '角色' : '普通'}`;
     });
     const csv = [header, ...rows].join('\n');
     const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
@@ -91,19 +143,6 @@ export default function WordFrequencyDetailedList({ entries }: Props) {
     link.click();
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-  };
-
-  const Arrow = ({ active, dir }: { active: boolean; dir: 'asc' | 'desc' }) => (
-    <span className={`sort-arrow ${active ? 'is-active' : ''}`} aria-hidden="true">{active ? (dir === 'asc' ? '↑' : '↓') : '↕'}</span>
-  );
-
-  const Th = ({ k, label, title }: { k: SortKey; label: string; title?: string }) => {
-    const active = sort.key === k;
-    return (
-      <th onClick={() => handleSort(k)} title={title ?? label} aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-        <span className="th-inner">{label}<Arrow active={active} dir={sort.dir} /></span>
-      </th>
-    );
   };
 
   return (
@@ -120,24 +159,30 @@ export default function WordFrequencyDetailedList({ entries }: Props) {
           <span>筛选词语</span>
           <input type="search" value={query} onChange={e => { setQuery(e.target.value); }} placeholder="输入词语…" aria-label="筛选详细词频" />
         </label>
-        <span className="word-frequency-detailed-total">显示 {filteredSorted.length.toLocaleString('zh-CN')} / {entries.length.toLocaleString('zh-CN')} 项 · 全量展示</span>
+        <span className="word-frequency-detailed-total">{rowCount.toLocaleString('zh-CN')} 项 · 虚拟滚动</span>
       </div>
-      <div className="word-frequency-detailed-scroll">
+      <div className="word-frequency-detailed-scroll" ref={scrollRef} onScroll={handleScroll}>
         <table data-frequency-detailed="true">
           <thead>
             <tr>
               <th className="col-rank">排名</th>
-              <Th k="word" label="词语" />
-              <Th k="count" label="绝对声量 Σ" title="Σw_i，大人国 0.1x 加权，灰字为占比" />
-              <Th k="docCount" label="广度 N" title="N=文档数，原值不加权，灰字为N%" />
-              <Th k="saturation" label="饱和度 Σln" title="Σ ln(w_i+1)，w_i为该词在单篇出现次数（原值）" />
-              <Th k="density" label="密度 Σw/T" title="Σ w_i/TotalWords_i，原值" />
-              <Th k="length" label="长度" title="字节数（汉字=2，ASCII=1）" />
-              <Th k="type" label="类型" />
+              <Th k="word" label="词语" sort={sort} onSort={handleSort} />
+              <Th k="count" label="绝对声量 Σ" title="Σw_i，大人国 0.1x 加权，灰字为占比" sort={sort} onSort={handleSort} />
+              <Th k="docCount" label="广度 N" title="N=文档数，原值不加权，灰字为N%" sort={sort} onSort={handleSort} />
+              <Th k="saturation" label="饱和度 Σln" title="Σ ln(w_i+1)，w_i为该词在单篇出现次数（原值）" sort={sort} onSort={handleSort} />
+              <Th k="density" label="密度 Σw/T" title="Σ w_i/TotalWords_i，原值" sort={sort} onSort={handleSort} />
+              <Th k="length" label="长度" title="字节数（汉字=2，ASCII=1）" sort={sort} onSort={handleSort} />
+              <Th k="type" label="类型" sort={sort} onSort={handleSort} />
             </tr>
           </thead>
           <tbody>
-            {filteredSorted.map((e, idx) => {
+            {start > 0 && (
+              <tr className="virtual-spacer" aria-hidden="true" style={{ height: start * ROW_HEIGHT }}>
+                <td colSpan={8} />
+              </tr>
+            )}
+            {visibleRows.map((e, offset) => {
+              const idx = start + offset;
               const countRate = frequencyMeta.totalWords ? (e.count / frequencyMeta.totalWords) * 100 : 0;
               const docRate = e.docRate * 100;
               const countAlpha = e.count / maxCount;
@@ -167,10 +212,17 @@ export default function WordFrequencyDetailedList({ entries }: Props) {
                 </tr>
               );
             })}
+            {end < rowCount && (
+              <tr className="virtual-spacer" aria-hidden="true" style={{ height: (rowCount - end) * ROW_HEIGHT }}>
+                <td colSpan={8} />
+              </tr>
+            )}
           </tbody>
         </table>
-        {filteredSorted.length === 0 && <p className="word-frequency-detailed-empty">没有匹配的词语。</p>}
+        {rowCount === 0 && <p className="word-frequency-detailed-empty">没有匹配的词语。</p>}
       </div>
     </section>
   );
 }
+
+export default memo(WordFrequencyDetailedList);

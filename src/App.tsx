@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
 import { MotionConfig, motion } from 'framer-motion';
-import { useLocation, useNavigationType } from 'react-router';
+import { useLocation, useNavigate, useNavigationType } from 'react-router';
 import Navigation from '@/sections/Navigation';
 import Footer from '@/sections/Footer';
 import { MusicProvider } from '@/contexts/MusicContext';
 import { OverloadProvider } from '@/contexts/OverloadContext';
 import SearchModal from '@/components/SearchModal';
+import SiteAids from '@/components/SiteAids';
 import SiteMotionController from '@/components/SiteMotionController';
 import RouteMetadata from '@/components/RouteMetadata';
 import ResilienceNotices from '@/components/ResilienceNotices';
@@ -48,6 +49,7 @@ function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const activePageViewRef = useRef<ActivePageView | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const navigationType = useNavigationType();
   const siteTheme = resolveSiteTheme(location.pathname);
   const routeScrollKey = `route:${location.pathname}${location.search}`;
@@ -68,7 +70,10 @@ function App() {
 
   useEffect(() => {
     window.history.scrollRestoration = 'manual';
-  }, []);
+    const open = () => handleSearchOpen();
+    window.addEventListener('nc:open-search', open);
+    return () => window.removeEventListener('nc:open-search', open);
+  }, [handleSearchOpen]);
 
   useEffect(() => {
     // Keep the selected tab discoverable after a route change on narrow screens.
@@ -118,16 +123,7 @@ function App() {
     };
   }, [location.pathname]);
 
-  useEffect(() => {
-    const openSearch = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        handleSearchOpen();
-      }
-    };
-    window.addEventListener('keydown', openSearch);
-    return () => window.removeEventListener('keydown', openSearch);
-  }, [handleSearchOpen]);
+  // 全站搜索只用 `/` 打开（SiteAids 派发 nc:open-search），Ctrl+K 已让给对话页的新建对话。
 
   useEffect(() => {
     // The playground list is intentionally metadata-only. Search data (which
@@ -140,13 +136,34 @@ function App() {
   }, [location.pathname]);
 
   useEffect(() => {
+    // Legacy HashRouter anchors (href="#/...") may still appear inside rendered
+    // content. Route them through the router now that URLs are clean paths.
+    const routeLegacyHashLink = (event: MouseEvent) => {
+      if (!(event.target instanceof Element)) return;
+      const anchor = event.target.closest<HTMLAnchorElement>('a[href]');
+      if (!anchor || anchor.target === '_blank' || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const href = anchor.getAttribute('href');
+      if (!href?.startsWith('#/')) return;
+      event.preventDefault();
+      navigate(href.slice(1));
+    };
+
+    document.addEventListener('click', routeLegacyHashLink);
+    return () => document.removeEventListener('click', routeLegacyHashLink);
+  }, [navigate]);
+
+  useEffect(() => {
     const preloadLinkTarget = (event: Event) => {
       if (!(event.target instanceof Element)) return;
       const anchor = event.target.closest<HTMLAnchorElement>('a[href]');
-      if (!anchor) return;
+      if (!anchor || anchor.target === '_blank') return;
       const href = anchor.getAttribute('href');
-      if (!href?.startsWith('#/')) return;
-      void preloadRoute(href.slice(1)).catch(() => {
+      if (!href) return;
+      // Router links render as normal paths ("/world"); legacy hash links
+      // ("#/world") take the same loader after stripping the "#".
+      const target = href.startsWith('#/') ? href.slice(1) : href;
+      if (!target.startsWith('/') || target.startsWith('//')) return;
+      void preloadRoute(target).catch(() => {
         // Navigation itself owns user-visible loading and recovery.
       });
     };
@@ -196,7 +213,9 @@ function App() {
     const frame = requestAnimationFrame(() => {
       if (saved) {
         window.scrollTo(saved.scrollX, saved.scrollY);
-      } else {
+      } else if (navigationType === 'PUSH') {
+        // 只有真正打开新页面才回到顶部；REPLACE（如 /codex 打字时同步 ?q=）
+        // 不能动视口，否则输入框会跨过吸顶阈值重建 DOM，打断中文输入。
         window.scrollTo({ top: 0, behavior: 'auto' });
       }
     });
@@ -205,6 +224,7 @@ function App() {
 
   return (
     <MotionConfig reducedMotion="user">
+      <SiteAids />
       <SiteMotionController />
       <RouteMetadata />
       <MusicProvider>
@@ -216,7 +236,7 @@ function App() {
           >
             <div className="aurora-app-atmosphere" data-motion-loop data-motion-kind="ambient" aria-hidden="true" />
             {!immersive && <Navigation onSearchClick={handleSearchOpen} onSearchIntent={handleSearchIntent} />}
-            <main className={`aurora-site-main relative z-[1]${isThemedChatRoute ? ' aurora-site-main--chat' : ''}`}>
+            <main id="main" tabIndex={-1} className={`aurora-site-main relative z-[1]${isThemedChatRoute ? ' aurora-site-main--chat' : ''}`}>
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}

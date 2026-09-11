@@ -5,17 +5,17 @@ import SmartImage from '@/components/SmartImage';
 
 export default function PrimeFocus() {
   return (
-    <section id="prime-focus" className="future-line-motion py-24 px-4 sm:px-6 bg-[#0D0614] relative">
+    <section id="prime-focus" className="future-line-motion py-24 px-4 sm:px-6 bg-[var(--aurora-brand-bg-deep)] relative">
       <div className="max-w-[1100px] mx-auto">
         <div className="mb-12" data-motion-reveal>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#F0E6FF] mb-3 tracking-wide">{semanticHighlight("Prime Focus & 未来线")}</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-[var(--aurora-brand-text)] mb-3 tracking-wide">{semanticHighlight("Prime Focus & 未来线")}</h2>
           <p className="text-nc-text text-lg">
             初音ミク · Eirene · Damocles · 高考改革
           </p>
         </div>
 
         {/* 生育契约法 - 新增，归属未来线生育调控前身 */}
-        <div className="future-story-card bg-[#100A1A] border border-pink-500/20 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
+        <div className="future-story-card bg-[var(--aurora-brand-bg)] border border-pink-500/20 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
           <h3 className="text-lg font-semibold text-pink-300 mb-4 flex items-center gap-2">
             <Scale className="w-5 h-5" />
             生育契约法
@@ -27,7 +27,7 @@ export default function PrimeFocus() {
 
         {/* Prime Focus Story */}
         {primeFocus.sections.map((section, i) => (
-          <div key={i} className="future-story-card bg-[#100A1A] border border-[#8B5CF6]/15 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
+          <div key={i} className="future-story-card bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/15 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
             {i === 0 && (
               <SmartImage
                 localSrc="/story-prime-focus.jpg"
@@ -37,7 +37,7 @@ export default function PrimeFocus() {
                 className="object-cover"
               />
             )}
-            <h3 className="text-lg font-semibold text-[#00E5CC] mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-[var(--aurora-brand-cyan)] mb-4 flex items-center gap-2">
               <Cpu className="w-5 h-5" />
               {section.subtitle}
             </h3>
@@ -48,10 +48,10 @@ export default function PrimeFocus() {
         ))}
 
         {/* Revolution Table */}
-        <div className="future-data-panel bg-[#100A1A] border border-[#EF4444]/20 rounded-xl overflow-hidden mb-8" data-motion-reveal>
+        <div className="future-data-panel bg-[var(--aurora-brand-bg)] border border-[#EF4444]/20 rounded-xl overflow-hidden mb-8" data-motion-reveal>
           <div className="px-6 py-4 border-b border-[#EF4444]/10">
-            <h3 className="text-lg font-semibold text-[#F0E6FF] flex items-center gap-2">
-              <Scale className="w-5 h-5 text-[#EF4444]" />
+            <h3 className="text-lg font-semibold text-[var(--aurora-brand-text)] flex items-center gap-2">
+              <Scale className="w-5 h-5 text-[var(--aurora-brand-red)]" />
               三次革命
             </h3>
           </div>
@@ -68,10 +68,10 @@ export default function PrimeFocus() {
               <tbody>
                 {revolutionTable.map((row) => (
                   <tr key={row.name} className="future-table-row border-b border-[#8B5CF6]/5">
-                    <td className="px-4 py-3 text-[#F0E6FF] font-medium">{semanticHighlight(row.name)}</td>
+                    <td className="px-4 py-3 text-[var(--aurora-brand-text)] font-medium">{semanticHighlight(row.name)}</td>
                     <td className="px-4 py-3 text-nc-text">{semanticHighlight(row.type)}</td>
-                    <td className="px-4 py-3 text-[#00E5CC]">{semanticHighlight(row.promise)}</td>
-                    <td className="px-4 py-3 text-[#EF4444]">{semanticHighlight(row.cost)}</td>
+                    <td className="px-4 py-3 text-[var(--aurora-brand-cyan)]">{semanticHighlight(row.promise)}</td>
+                    <td className="px-4 py-3 text-[var(--aurora-brand-red)]">{semanticHighlight(row.cost)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -80,32 +80,32 @@ export default function PrimeFocus() {
         </div>
 
         {/* VPP */}
-        <div className="future-focus-card bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
-          <h3 className="text-base font-semibold text-[#F0E6FF] mb-3 flex items-center gap-2">
-            <Globe className="w-4 h-4 text-[#00E5CC]" />
+        <div className="future-focus-card bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
+          <h3 className="text-base font-semibold text-[var(--aurora-brand-text)] mb-3 flex items-center gap-2">
+            <Globe className="w-4 h-4 text-[var(--aurora-brand-cyan)]" />
             虚拟考生计划 (VPP)
           </h3>
           <p className="text-sm text-nc-text leading-relaxed">{semanticHighlight(vppRules)}</p>
         </div>
 
         {/* Exchange Rates */}
-        <div className="future-focus-card bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 mb-6" data-motion-reveal>
-          <h3 className="text-base font-semibold text-[#F0E6FF] mb-3">{semanticHighlight("汇率设定（2028）")}</h3>
+        <div className="future-focus-card bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 mb-6" data-motion-reveal>
+          <h3 className="text-base font-semibold text-[var(--aurora-brand-text)] mb-3">{semanticHighlight("汇率设定（2028）")}</h3>
           <div className="flex flex-wrap gap-4">
             {exchangeRates.map((r, i) => (
-              <span key={i} className="future-rate-chip font-mono text-sm text-[#00E5CC] bg-[#1A1025] px-3 py-1.5 rounded-md">{r}</span>
+              <span key={i} className="future-rate-chip font-mono text-sm text-[var(--aurora-brand-cyan)] bg-[var(--aurora-brand-bg-raised)] px-3 py-1.5 rounded-md">{r}</span>
             ))}
           </div>
         </div>
 
         {/* Year/Day */}
-        <div className="future-data-panel bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 mb-6" data-motion-reveal>
+        <div className="future-data-panel bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 mb-6" data-motion-reveal>
           <pre className="font-mono text-sm text-nc-text whitespace-pre-wrap">{semanticHighlight(yearDayData)}</pre>
         </div>
 
         {/* FOS Story */}
-        <div className="future-story-card bg-[#100A1A] border border-[#F59E0B]/15 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
-          <h3 className="text-base font-semibold text-[#F59E0B] mb-3 flex items-center gap-2">
+        <div className="future-story-card bg-[var(--aurora-brand-bg)] border border-[#F59E0B]/15 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
+          <h3 className="text-base font-semibold text-[var(--aurora-brand-amber)] mb-3 flex items-center gap-2">
             <GraduationCap className="w-4 h-4" />
             Fill Ocean High School
           </h3>
@@ -120,15 +120,15 @@ export default function PrimeFocus() {
         </div>
 
         {/* IQ Tests */}
-        <div className="future-focus-card bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
-          <h3 className="text-base font-semibold text-[#F0E6FF] mb-4 flex items-center gap-2">
-            <Brain className="w-4 h-4 text-[#8B5CF6]" />
+        <div className="future-focus-card bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
+          <h3 className="text-base font-semibold text-[var(--aurora-brand-text)] mb-4 flex items-center gap-2">
+            <Brain className="w-4 h-4 text-[var(--aurora-brand-violet)]" />
             智商测试三层方法
           </h3>
           <div className="space-y-3">
             {iqTests.map((t, i) => (
               <div key={i} className="future-method-item border-l-2 border-[#8B5CF6]/30 pl-4">
-                <p className="text-xs font-mono text-[#F472B6] mb-1">{t.method}</p>
+                <p className="text-xs font-mono text-[var(--aurora-brand-pink)] mb-1">{t.method}</p>
                 <p className="text-sm text-nc-text">{semanticHighlight(t.content)}</p>
               </div>
             ))}
@@ -136,7 +136,7 @@ export default function PrimeFocus() {
         </div>
 
         {/* AGI就业调节体系 - 新增 */}
-        <div className="future-story-card bg-[#100A1A] border border-cyan-400/20 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
+        <div className="future-story-card bg-[var(--aurora-brand-bg)] border border-cyan-400/20 rounded-xl p-6 sm:p-8 mb-6" data-motion-reveal>
           <h3 className="text-lg font-semibold text-cyan-300 mb-4 flex items-center gap-2">
             <Scale className="w-5 h-5" />
             全球自治AGI自动化就业调节体系（2026.8.2）
@@ -147,8 +147,8 @@ export default function PrimeFocus() {
         </div>
 
         {/* GaoKai Story */}
-        <div className="future-story-card bg-[#100A1A] border border-[#00E5CC]/15 rounded-xl p-6 sm:p-8" data-motion-reveal>
-          <h3 className="text-lg font-semibold text-[#00E5CC] mb-3 flex items-center gap-2">
+        <div className="future-story-card bg-[var(--aurora-brand-bg)] border border-[#00E5CC]/15 rounded-xl p-6 sm:p-8" data-motion-reveal>
+          <h3 className="text-lg font-semibold text-[var(--aurora-brand-cyan)] mb-3 flex items-center gap-2">
             <Cpu className="w-5 h-5" />
             Damocles 高考改革：750分之死
           </h3>

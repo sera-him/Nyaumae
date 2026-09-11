@@ -1,0 +1,202 @@
+/* CharacterDetail — 角色详情页（横幅 + 卡片化分区） */
+
+.char-detail-inner {
+  max-width: 1120px;
+}
+
+/* ── Hero 横幅 ─────────────────────────────── */
+.char-hero {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.01));
+  isolation: isolate;
+}
+
+.char-hero-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.char-hero-backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(46px) saturate(1.2) brightness(0.5);
+  transform: scale(1.3);
+}
+
+.char-hero-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, rgba(8, 7, 16, 0.94) 15%, rgba(8, 7, 16, 0.62) 58%, rgba(8, 7, 16, 0.38));
+}
+
+.char-hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px 24px;
+}
+
+@media (min-width: 768px) {
+  .char-hero-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 36px;
+    padding: 40px 44px;
+  }
+}
+
+.char-portrait {
+  width: 168px;
+  height: 168px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+@media (min-width: 768px) {
+  .char-portrait {
+    width: 216px;
+    height: 216px;
+    margin: 0;
+  }
+}
+
+/* ── 分区标题 ─────────────────────────────── */
+.char-section {
+  margin-bottom: 44px;
+}
+
+.char-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--nc-text, #f2eefc);
+  margin: 0 0 16px;
+}
+
+/* ── 关联角色卡片 ─────────────────────────── */
+.char-relation-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .char-relation-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .char-relation-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.char-relation-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.025);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.char-relation-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(103, 232, 218, 0.28);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.char-relation-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── 出场故事卡片 ─────────────────────────── */
+.char-story-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 768px) {
+  .char-story-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.char-story-card {
+  display: block;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.char-story-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(103, 232, 218, 0.3);
+}
+
+.char-story-cover {
+  width: 100%;
+  aspect-ratio: 16 / 6.5;
+}
+
+.char-story-body {
+  padding: 14px 16px 16px;
+}
+
+/* ── 形象图集 ─────────────────────────────── */
+.char-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .char-gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.char-gallery-item {
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.char-gallery-item img {
+  transition: transform 0.45s ease;
+}
+
+.char-gallery-item:hover img {
+  transform: scale(1.06);
+}

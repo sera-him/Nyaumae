@@ -185,3 +185,15 @@
     align-items: flex-start;
   }
 }
+/* Virtual scrolling: fixed row height must match ROW_HEIGHT in the component. */
+.word-frequency-detailed-scroll tbody tr {
+  height: 46px;
+}
+.word-frequency-detailed-scroll tr.virtual-spacer {
+  height: auto;
+}
+.word-frequency-detailed-scroll tr.virtual-spacer td {
+  padding: 0;
+  border: none;
+  background: transparent;
+}

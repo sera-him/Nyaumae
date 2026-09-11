@@ -109,7 +109,7 @@ const anchorRoutes: Record<string, string> = {
   'chess-rules': '/playground/games/compound-chess',
   'skill-ttt': '/playground/games/skill-tic-tac-toe',
   'skill-tic-tac-toe': '/playground/games/skill-tic-tac-toe',
-  problems: '/playground/games/quiz',
+  problems: '/playground/games',
   overload: '/world/settings',
 };
 
@@ -208,7 +208,6 @@ export default function CodexPage() {
   const inputWrapRef = useRef<HTMLLabelElement>(null);
   const inputSentinelRef = useRef<HTMLDivElement>(null);
   const resultButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const lastUrlQueryRef = useRef(new URLSearchParams(location.search).get('q') ?? '');
   const [searchIndex, setSearchIndex] = useState<SearchIndexModule | null>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [popularWords, setPopularWords] = useState<WordFreq[]>([]);
@@ -227,29 +226,16 @@ export default function CodexPage() {
   const [showAllPopular, setShowAllPopular] = useState(false);
   const [randomSeed, setRandomSeed] = useState(() => Date.now());
   const [isInputPinned, setIsInputPinned] = useState(false);
+  const inputFocusRestoreRef = useRef<{ start: number; end: number } | null>(null);
   const trimmedQuery = query.trim();
 
   useEffect(() => {
+    // URL 对本页是只读的：只在打开页面/外部导航时读取一次 ?q=（分享链接仍有效），
+    // 打字过程绝不写 URL、不触发导航——与 / 快捷搜索框行为一致，
+    // 否则防抖 replace 会连带滚动恢复/吸顶重建，打断中文输入。
     const urlQuery = new URLSearchParams(location.search).get('q') ?? '';
-    lastUrlQueryRef.current = urlQuery;
-    const frame = window.requestAnimationFrame(() => {
-      if (urlQuery !== query) setQuery(urlQuery);
-    });
-    return () => window.cancelAnimationFrame(frame);
-    // URL changes are authoritative; query edits are synchronized by the next effect.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setQuery(urlQuery);
   }, [location.search, setQuery]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      if (query === lastUrlQueryRef.current) return;
-      lastUrlQueryRef.current = query;
-      const params = new URLSearchParams();
-      if (trimmedQuery) params.set('q', trimmedQuery);
-      navigate({ pathname: '/codex', search: params.toString() ? `?${params}` : '' }, { replace: true });
-    }, 180);
-    return () => window.clearTimeout(timer);
-  }, [navigate, query, trimmedQuery]);
 
   useEffect(() => {
     let cancelled = false;
@@ -328,6 +314,12 @@ export default function CodexPage() {
 
       const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       const stickyTop = (window.innerWidth <= 700 ? 3.65 : 4.15) * rootFontSize;
+      // 吸顶切换会把输入框搬到 portal（DOM 重建），先记录焦点与光标，切换后恢复，
+      // 避免用户滚动经过阈值时输入被打断。
+      const activeInput = inputRef.current;
+      inputFocusRestoreRef.current = activeInput && document.activeElement === activeInput
+        ? { start: activeInput.selectionStart ?? activeInput.value.length, end: activeInput.selectionEnd ?? activeInput.value.length }
+        : null;
       const shouldPin = sentinel.getBoundingClientRect().top <= stickyTop
         && workspace.getBoundingClientRect().bottom > stickyTop + inputWrap.offsetHeight + 4;
       setIsInputPinned((current) => current === shouldPin ? current : shouldPin);
@@ -342,6 +334,16 @@ export default function CodexPage() {
       window.removeEventListener('resize', updatePinnedState);
     };
   }, []);
+
+  useEffect(() => {
+    const restore = inputFocusRestoreRef.current;
+    inputFocusRestoreRef.current = null;
+    if (!restore) return;
+    const input = inputRef.current;
+    if (!input) return;
+    input.focus();
+    input.setSelectionRange(restore.start, restore.end);
+  }, [isInputPinned]);
 
   const relatedWords = useMemo(() => {
     if (!trimmedQuery || searchedQuery !== trimmedQuery || results.length === 0) return [];
@@ -432,6 +434,10 @@ export default function CodexPage() {
   }, [setQuery]);
 
   const handleInputKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+    // 输入法组词期间（isComposing / keyCode 229），按键必须交给输入法处理，
+    // 否则会劫持候选框的方向键，或用 Enter/Escape 误触发打开结果、清空搜索。
+    if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
+
     if (event.key === 'Escape') {
       event.preventDefault();
       if (query) clearSearch();
@@ -514,7 +520,7 @@ export default function CodexPage() {
     </label>
   );
 
-  return <main className="full-search-page">
+  return <div className="full-search-page">
     <div className="full-search-ambient" aria-hidden="true"><span /><span /><span /></div>
     <div className="full-search-shell">
       <header className="full-search-hero">
@@ -667,5 +673,5 @@ export default function CodexPage() {
         </div>}
       </section>
     </div>
-  </main>;
+  </div>;
 }

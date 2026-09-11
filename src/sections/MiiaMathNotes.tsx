@@ -134,7 +134,7 @@ function NoteParagraph({ text, index }: { text: string; index: number }) {
 
 export default function MiiaMathNotes() {
   return (
-    <section id="miia-math-notes" className="miia-subpage miia-math-page py-20 px-4 sm:px-6 bg-[#0D0614] relative overflow-hidden">
+    <section id="miia-math-notes" className="miia-subpage miia-math-page py-20 px-4 sm:px-6 bg-[var(--aurora-brand-bg-deep)] relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none opacity-30">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl" />
@@ -273,12 +273,12 @@ export default function MiiaMathNotes() {
         </div>
 
         {/* 定理1-3 - 新增 */}
-        <div className="max-w-3xl mx-auto mt-10 bg-[#faf6ed] rounded-lg p-6 sm:p-8 shadow-xl">
-          <h3 className="text-lg font-bold text-[#3d3b38] mb-4 flex items-center gap-2">
+        <div className="max-w-3xl mx-auto mt-10 bg-[var(--aurora-brand-cream)] rounded-lg p-6 sm:p-8 shadow-xl">
+          <h3 className="text-lg font-bold text-[var(--aurora-brand-stone)] mb-4 flex items-center gap-2">
             <BookOpenText className="w-5 h-5 text-violet-600" />
             定理一二三 · 整数伪装
           </h3>
-          <div className="space-y-4 text-sm text-[#3d3b38] leading-relaxed whitespace-pre-wrap" style={{ fontFamily: '"ZCOOL KuaiLe", "Ma Shan Zheng", cursive' }}>
+          <div className="space-y-4 text-sm text-[var(--aurora-brand-stone)] leading-relaxed whitespace-pre-wrap" style={{ fontFamily: '"ZCOOL KuaiLe", "Ma Shan Zheng", cursive' }}>
             {theoremFragments.split('\n\n').map((para, i) => (
               <p key={i}>{semanticHighlight(para)}</p>
             ))}

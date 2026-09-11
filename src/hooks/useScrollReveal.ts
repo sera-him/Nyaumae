@@ -5,6 +5,10 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(threshol
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') {
+      setIsVisible(true);
+      return;
+    }
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

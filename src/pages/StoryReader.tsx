@@ -13,6 +13,7 @@ import { useReadingPreferences } from '@/hooks/useReadingPreferences';
 import { recordReadingProgress } from '@/lib/readingState';
 import SmartImage from '@/components/SmartImage';
 import { READER_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
+import '@/styles/story-themes.css';
 
 function getTabLabel(chapter: StoryChapter, style: ChapterButtonStyle, index: number): string {
   if (style === 'bubble') return String(index + 1);
@@ -97,7 +98,7 @@ export default function StoryReader() {
       <div className="min-h-screen flex items-center justify-center text-nc-text-muted">
         <div className="text-center">
           <p className="text-lg mb-4">故事未找到</p>
-          <Link to="/stories" className="text-nc-cyan hover:underline">
+          <Link to="/stories" className="tap-safe text-nc-cyan hover:underline">
             返回故事列表
           </Link>
         </div>
@@ -114,7 +115,7 @@ export default function StoryReader() {
       <div className="min-h-screen flex items-center justify-center text-nc-text-muted">
         <div className="text-center">
           <p className="text-lg mb-4">未找到该章节</p>
-          <Link to={`/stories/${storyId}/chapters/1`} className="text-nc-cyan hover:underline">
+          <Link to={`/stories/${storyId}/chapters/1`} className="tap-safe text-nc-cyan hover:underline">
             返回第一章
           </Link>
         </div>
@@ -143,7 +144,7 @@ export default function StoryReader() {
         <Link
           to="/stories"
           data-action="back"
-          className="inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors"
+          className="tap-safe inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> 返回故事列表
         </Link>

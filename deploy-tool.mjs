@@ -32,7 +32,7 @@ const DEFAULT_CONFIG = {
   buildCommand: 'npm run build',
   outputDir: 'dist',
   pagesProject: '',
-  pagesBranch: 'main',
+  pagesBranch: 'gh-pages',
 };
 
 const HISTORY_FILE = '.deploy-tool-history.json';
@@ -41,6 +41,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = process.cwd();
 
 // ─── Config Loading ────────────────────────────────────────────────
+function autoDeployEnabled() {
+  const v = (process.env.DEPLOY_TOOL_AUTO || '1').trim().toLowerCase();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
 function getConfig() {
   return {
     port: parseInt(process.env.DEPLOY_TOOL_PORT || String(DEFAULT_CONFIG.port), 10),
@@ -48,6 +53,7 @@ function getConfig() {
     outputDir: process.env.DEPLOY_TOOL_OUTPUT_DIR || DEFAULT_CONFIG.outputDir,
     pagesProject: process.env.CLOUDFLARE_PAGES_PROJECT || DEFAULT_CONFIG.pagesProject,
     pagesBranch: process.env.CLOUDFLARE_PAGES_BRANCH || DEFAULT_CONFIG.pagesBranch,
+    autoDeploy: autoDeployEnabled(),
   };
 }
 
@@ -808,6 +814,7 @@ function startServer() {
   console.log(`  Output Directory  : ${cfgForDisplay.outputDir}`);
   console.log(`  Pages Project     : ${cfgForDisplay.pagesProject || '(not set)'}`);
   console.log(`  Branch            : ${cfgForDisplay.pagesBranch}`);
+  console.log(`  Auto Mode         : ${cfgForDisplay.autoDeploy ? 'ON (auto build + deploy on start)' : 'OFF'}`);
   console.log(`  Listen Address    : http://127.0.0.1:${cfg.port}`);
   console.log(`  Token Configured  : ${hasToken() ? 'Yes' : 'No'}`);
   if (hasToken()) {
@@ -825,6 +832,13 @@ function startServer() {
   server.listen(cfg.port, '127.0.0.1', () => {
     const url = `http://127.0.0.1:${cfg.port}`;
     openBrowser(url);
+
+    // Auto mode: run Build + Deploy automatically on start, no manual click needed.
+    if (cfgForDisplay.autoDeploy) {
+      console.log('Auto mode enabled: starting Build + Deploy automatically...');
+      addLog('=== Auto mode: Build + Deploy started automatically ===', 'stdout');
+      startBuildAndDeployTask();
+    }
   });
 
   server.on('error', (err) => {

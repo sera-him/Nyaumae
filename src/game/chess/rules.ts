@@ -15,7 +15,7 @@ import {
   enemyBaseline, cloneBoard, isEmpty,
   pieceKey, baseline,
 } from './board';
-import { getCaptures } from './moves';
+import { getRawMoves } from './moves';
 
 // ============================================================
 // 中毒效果 — 限制走法
@@ -274,16 +274,22 @@ export function filterWhaleZones(
 // 鸵鸟安全区（计算敌方全体攻击范围）
 // ============================================================
 
-/** 计算某玩家的所有棋子的攻击范围（所有可达吃子位置） */
-export function getAttackRange(board: Board, player: Player): Set<string> {
+/** 计算某玩家的所有棋子的攻击范围（所有可达吃子位置，考虑中毒缩射程） */
+export function getAttackRange(
+  board: Board,
+  player: Player,
+  poisonMap?: Record<string, number>,
+): Set<string> {
   const range = new Set<string>();
   const pieces = findAllPieces(board, player);
   for (const { piece, pos } of pieces) {
     if (piece.type === 'T') continue; // 猫无攻击范围
-    // 直接使用分离后的 getCaptures，更精确
-    const caps = getCaptures(board, pos, piece);
-    for (const to of caps) {
-      range.add(`${to.row},${to.col}`);
+    const key = pieceKey(piece, pos);
+    const poisonCount = poisonMap ? poisonMap[key] || 0 : 0;
+    // 必须用 getRawMoves（内含 filterMovesByPoison），否则中毒 Q/R/B/N 射程不缩，误报将军
+    const raw = getRawMoves(board, pos, piece, poisonCount);
+    for (const m of raw) {
+      if (m.isCapture) range.add(`${m.to.row},${m.to.col}`);
     }
   }
   return range;
@@ -373,8 +379,9 @@ export function paladinCleanse(board: Board, player: Player, pos: Position): Boa
 // 巨鲸移动后清除效果
 // ============================================================
 
-/** 巨鲸移动后清除前缘3格中的敌方棋子
+/** 巨鲸移动后清除前缘3格中的敌方棋子（含王：吃王即赢）
  *  巨鲸是3×3大棋子，从from移到to后，3个前缘格中的敌方棋子被清除。
+ *  设计确认：巨鲸可以吃王，吃掉对方王（K/G）直接判赢，见 engine.finalizeMove。
  */
 export function whaleCleanse(board: Board, player: Player, from: Position, to: Position): Board {
   const newBoard = cloneBoard(board);

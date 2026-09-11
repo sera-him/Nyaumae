@@ -22,11 +22,16 @@
     <meta name="twitter:description" content="从故事、角色与世界观出发，探索可玩游戏、数学、创作和站内对话。" />
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
+    <link rel="alternate" type="application/rss+xml" title="Neural Connection RSS" href="/feed.xml" />
     <link rel="icon" href="/icons/icon-192x192.png" />
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&family=Quicksand:wght@400;600;700&family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <!-- Self-hosted fonts, loaded async so the unicode-range @font-face sheet never blocks first paint. -->
+    <link rel="preload" as="style" href="/fonts.css" />
+    <!-- Portal hero is the home-page LCP; media-matched preloads mirror the CSS image-set in PortalAurora.css. -->
+    <link rel="preload" as="image" href="/optimized/hero-bg-1280.avif" media="(min-width: 769px)" />
+    <link rel="preload" as="image" href="/optimized/hero-bg-640.avif" media="(max-width: 768px)" />
+    <link rel="stylesheet" href="/fonts.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="/fonts.css"></noscript>
   </head>
   <body>
     <div id="root"></div>

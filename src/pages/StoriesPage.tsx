@@ -1,23 +1,14 @@
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { stories } from '@/data/stories';
 import { Link } from 'react-router';
-import { ArrowRight, BookOpen } from 'lucide-react';
+import { ArrowRight, BookOpen, Shuffle } from 'lucide-react';
 import SmartImage from '@/components/SmartImage';
 import RotatingImage from '@/components/RotatingImage';
 import '../styles/stories-index.css'
-import { getLatestReadingProgress } from '@/lib/readingState';
-
-function getStoryCovers(storyId: string): string[] {
-  const coverMap: Record<string, string[]> = {
-    'mia-world': ['/story-mia-world-1.jpg'],
-    'fox-penguin': ['/story-fox-penguin.jpg'],
-    'agi-land': ['/story-agi-land.jpg'],
-    'zhenhai-refining': ['/story-zhenhai-refining.png'],
-    'little-girl-in-giant-country': ['/story-miia-dream-generated.png'],
-  };
-  return coverMap[storyId] || [`/story-${storyId}.jpg`];
-}
+import { getLatestReadingProgress, getReadingProgressMap } from '@/lib/readingState';
+import { getStoryCovers } from '@/data/storyCovers';
 
 function getStoryThemeClass(storyId: string): string {
   const map: Record<string, string> = {
@@ -44,6 +35,15 @@ function getStoryDotColor(storyId: string): string {
 export default function StoriesPage() {
   const { ref, isVisible } = useScrollReveal();
   const latestProgress = getLatestReadingProgress();
+  const progressMap = getReadingProgressMap();
+  const totalChapters = stories.reduce((sum, story) => sum + (story.chapterCount ?? story.chapters.length), 0);
+  // Stable per visit: one random chapter door into the library.
+  const randomTarget = useMemo(() => {
+    const story = stories[Math.floor(Math.random() * stories.length)];
+    const count = story.chapterCount ?? story.chapters.length;
+    const chapter = 1 + Math.floor(Math.random() * count);
+    return { story, chapter, href: `/stories/${story.id}/chapters/${chapter}` };
+  }, []);
 
   return (
     <div className="aurora-ui aurora-generic-page stories-aurora-page" data-aurora-accent="stories">
@@ -70,6 +70,7 @@ export default function StoriesPage() {
             </Link>
           )}
 
+          <h2 className="sr-only">故事目录</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {stories.map((story, i) => {
               const covers = getStoryCovers(story.id);
@@ -114,17 +115,38 @@ export default function StoriesPage() {
                       )}
                     </div>
                   </div>
-                  <div className="story-card-footer p-4 flex items-center justify-between">
-                    <span className="flex items-center text-xs text-nc-text-muted">
+                  <div className="story-card-footer p-4 flex items-center justify-between gap-3">
+                    <span className="flex items-center text-xs text-nc-text-muted shrink-0">
                       <span className="story-theme-dot" style={{ backgroundColor: getStoryDotColor(story.id) }} />
                       {story.chapterCount ?? story.chapters.length} 章节
                     </span>
-                    <ArrowRight className="story-card-arrow w-4 h-4 text-nc-text-muted group-hover:text-nc-cyan transition-all" />
+                    {progressMap[story.id] && (
+                      <span className="story-card-progress" title={`读到：${progressMap[story.id].chapterTitle}`}>
+                        读到 {progressMap[story.id].chapterTitle}
+                      </span>
+                    )}
+                    <ArrowRight className="story-card-arrow w-4 h-4 text-nc-text-muted group-hover:text-nc-cyan transition-all shrink-0" />
                   </div>
                 </Link>
                 </motion.div>
               );
             })}
+          </div>
+
+          <div className="stories-footer-band">
+            <div className="stories-footer-stat">
+              <small>UNIVERSES / 叙事宇宙</small>
+              <strong>{stories.length}</strong>
+            </div>
+            <div className="stories-footer-stat">
+              <small>CHAPTERS / 总章节</small>
+              <strong>{totalChapters}</strong>
+            </div>
+            <Link to={randomTarget.href} className="stories-random-card" aria-label={`随机一章：${randomTarget.story.title} 第 ${randomTarget.chapter} 章`}>
+              <Shuffle />
+              <div><small>SERENDIPITY / 随机一章</small><strong>{randomTarget.story.title}</strong><p>第 {randomTarget.chapter} 章，随手翻开</p></div>
+              <ArrowRight />
+            </Link>
           </div>
         </div>
       </section>

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ImageOff, RotateCcw } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { imageHostMap } from '../lib/imageHostMap';
-import ResponsiveImage, { CARD_IMAGE_WIDTHS } from './ResponsiveImage';
+import ResponsiveImage, { CARD_IMAGE_WIDTHS, DEFAULT_BACKUP_SRC } from './ResponsiveImage';
 
 interface SmartImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   localSrc: string;
@@ -19,7 +19,7 @@ export default function SmartImage({
   skeletonClassName = 'bg-nc-bg-tertiary',
   containerClassName = '',
   responsiveWidths = CARD_IMAGE_WIDTHS,
-  backupSrc = '/hero-bg.jpg',
+  backupSrc = DEFAULT_BACKUP_SRC,
   className: imgClassName = '',
   style,
   onLoad,

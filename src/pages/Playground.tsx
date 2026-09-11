@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { ExternalLink, ArrowLeft, CircleHelp, LoaderCircle, LogOut, Pause, Play, RotateCcw, Save, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import '@/styles/playground-lab.css';
 const LazyChessRules = lazy(() => import('@/sections/ChessRules'));
 const LazySkillTicTacToe = lazy(() => import('@/sections/SkillTicTacToe'));
 const LazyProblems = lazy(() => import('@/sections/Problems'));
@@ -11,6 +12,7 @@ const LazyHellMaze = lazy(() => import('@/sections/HellMaze'));
 const LazyThreeHoles = lazy(() => import('@/sections/ThreeHoles'));
 const LazySpaceGame = lazy(() => import('@/sections/SpaceGame'));
 const LazyFractalEcho = lazy(() => import('@/sections/FractalEcho'));
+const LazyGiantCatch = lazy(() => import('@/sections/GiantCatch'));
 const LazyNeuralEcho = lazy(() => import('@/sections/NeuralEcho'));
 const LazyCatMachine = lazy(() => import('@/sections/CatMachine'));
 const LazyNeuralClash = lazy(() => import('@/pages/NeuralClash'));
@@ -119,6 +121,12 @@ const games: GameEntry[] = [
     desc: '连续平面上的非对称追逐。诱饵骗术、真实气味、疾跑与终局封锁。支持双阵营实战与完整复盘。',
     category: 'games', icon: '🐱', color: '#9d7df6',
     component: LazyCatMouseGame,
+  },
+  {
+    id: 'giant-catch', name: '大人国抓小人',
+    desc: '停车场石灰格子上的非对称追逐。喵呜用冲刺甩开小满的指尖，小满每两回合郑重地伸一次手指。双阵营可玩。',
+    category: 'games', icon: '👆', color: '#f0a4c0',
+    component: LazyGiantCatch, sessionNote: '当前局仅在本页保留',
   },
 
   /* ─── Scratch games ─── */

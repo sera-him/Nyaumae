@@ -11,6 +11,7 @@ import Dictionary from '@/sections/Dictionary';
 import PrimeFocus from '@/sections/PrimeFocus';
 import PacificIslands from '@/sections/PacificIslands';
 import { AuroraPage, AuroraPanel, AuroraStat } from '@/components/aurora';
+import '@/styles/world-textures.css';
 
 const tabs = [
   { key: 'overview', label: '概览', icon: Globe, component: WorldOverview },

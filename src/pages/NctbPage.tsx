@@ -38,7 +38,7 @@ import {
   YAxis,
 } from 'recharts';
 import { levelSystem } from '@/conversation/levelSystem';
-import { getNctbDimension, NCTB_DIMENSIONS } from '@/nctb/catalog';
+import { getNctbDimension, NCTB_DIMENSIONS, questionsRequiredForDimension } from '@/nctb/catalog';
 import { getNctbQuestion } from '@/nctb/questionBank';
 import { reportToCsv, scoreNctbSession } from '@/nctb/scoring';
 import {
@@ -188,7 +188,7 @@ function Dashboard({
               <span className="nctb-part-index">{dimension.index}</span>
               <span className="nctb-part-status">{result ? <Check size={14} /> : <CircleHelp size={14} />}</span>
               <strong>{dimension.title}</strong><small>{dimension.english} / {dimension.skill}</small><p>{dimension.description}</p>
-              <footer><span>{result ? `${result.score} 分 · CI ${result.ciLow}–${result.ciHigh}` : '等待数据'}</span><span>考试题 5 道</span></footer>
+              <footer><span>{result ? `${result.score} 分 · CI ${result.ciLow}–${result.ciHigh}` : '等待数据'}</span><span>考试题 {questionsRequiredForDimension(dimension.id, 'all', 'formal')} 道</span></footer>
             </article>;
           })}
         </div>
@@ -206,6 +206,7 @@ function SetupView({ session, onChange, onStart, onCancel }: {
   onCancel: () => void;
 }) {
   const required = session.dimensionOrder.reduce((total, id) => total + requiredQuestionsForSessionDimension(session, id), 0);
+  const perDimension = questionsRequiredForDimension('pattern', 'all', 'formal');
   return (
     <section className="nctb-setup" aria-labelledby="nctb-setup-title">
       <button type="button" className="nctb-back-button" onClick={onCancel}><ArrowLeft size={15} />返回实验室</button>
@@ -222,7 +223,7 @@ function SetupView({ session, onChange, onStart, onCancel }: {
 
       <div className="nctb-setup-options">
         {session.strategy === 'fixed' && <label><span>固定难度</span><div className="nctb-difficulty-picker">{([1, 2, 3, 4, 5] as const).map((difficulty) => <button type="button" key={difficulty} className={session.fixedDifficulty === difficulty ? 'is-active' : ''} onClick={() => onChange({ fixedDifficulty: difficulty })}>{difficulty}</button>)}</div><small>1 为入门，5 为最高。报告会记录实际题目难度。</small></label>}
-        <label className="nctb-friendly-option"><span>友好停靠模式</span><button type="button" role="switch" disabled aria-checked={false}><i /></button><small>考试按每维 5 道题完整进行；友好停靠仍会在规则成熟后再开放。</small></label>
+        <label className="nctb-friendly-option"><span>友好停靠模式</span><button type="button" role="switch" disabled aria-checked={false}><i /></button><small>考试按每维 {perDimension} 道题完整进行；友好停靠仍会在规则成熟后再开放。</small></label>
       </div>
 
       <div className="nctb-protocol-card"><ShieldCheck size={22} /><div><strong>开始前须知</strong><ul><li>只记录页面可见且会话处于 active 时的有效用时；暂停、切到后台和刷新等待不累计。</li><li>标准考试完成前不反馈单题对错，也不会显示提示或允许重新作答。</li><li>当前是纯前端本地评分，答案键仍可能被高级用户从客户端资源读取；“标准考试”不代表保密考试。</li><li>结果是本地探索指标，不提供医疗、心理、智力或教育诊断。</li></ul></div></div>

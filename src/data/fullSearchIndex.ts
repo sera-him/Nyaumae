@@ -147,7 +147,7 @@ for (const story of stories) {
   add(`story_${story.id}`, story.title, `${story.subtitle ?? ''} ${chapterText}`, '故事', '#stories');
 }
 if (storyText) {
-  add('story_1-txt', '大人国的小女孩正文', storyText, '故事', '#stories');
+  add('storytext_little-girl-in-giant-country', '大人国的小女孩正文', storyText, '故事', '/stories/little-girl-in-giant-country');
 }
 for (const hint of gameHintTexts) {
   add(`game-hint_${hint.game}`, hint.name, hint.texts.join(' '), '游戏', hint.href);
@@ -168,7 +168,7 @@ for (const [id, entry] of [
   ['fos-story', fosStory],
   ['gao-kai-story', gaoKaiStory],
 ] as const) {
-  add(`story_${id}`, typeof entry === 'object' && entry !== null && 'title' in entry ? entry.title : id, entry, '故事', '#extra-stories');
+  add(`extra_${id}`, typeof entry === 'object' && entry !== null && 'title' in entry ? entry.title : id, entry, '故事', '#extra-stories');
 }
 add('extra-chapter-index', '章节索引', chapterIndex, '故事', '#extra-stories');
 add('extra-wish-section', '愿望区块', wishSection, '故事', '#extra-stories');
@@ -270,7 +270,8 @@ add('miia-mapping', '映射区块', mappingBlock, '设定', '#miia-world');
 
 for (const [index, entry] of worldviewStats.entries()) add(`worldview-stat_${index}`, entry.label, entry, '设定', '#worldview');
 add('region-fsiii-stats', '区域 FSIII 统计', regionFsiiiStats, '设定', '#worldview');
-for (const entry of fsiiiRankings) add(`fsiii_${entry.rank}`, entry.name, entry, '设定', '#math');
+// 并列名次会产生相同的 rank，追加索引保证 id 唯一（随机发现等处用 id 作 React key）
+for (const [index, entry] of fsiiiRankings.entries()) add(`fsiii_${entry.rank}_${index}`, entry.name, entry, '设定', '#math');
 for (const [index, entry] of heightWeightModel.entries()) add(`height-weight_${index}`, `身高 ${entry.height}`, entry, '设定', '#math');
 add('worldview-info', '世界观信息', worldviewInfo, '设定', '#worldview');
 add('world-land-allocation', LAND_ALLOCATION_META.title, LAND_ALLOCATION_SEARCH_TEXT, '设定', '/world/settings');
@@ -302,6 +303,7 @@ const gameRecords: Array<[string, string, string, string]> = [
   ['game-neural-echo', '神经回响', '分支生长 剪枝 双人策略 神经网络', '/playground/games/neural-echo'],
   ['game-neural-clash', '神经交锋', 'Neural Clash 100节点 666突触 神经核 强化突触 脉冲', '/playground/games/neural-clash'],
   ['game-cat-mouse', '猫鼠迷踪', '非对称追逐 诱饵 真实气味 疾跑 复盘', '/playground/games/cat-mouse'],
+  ['game-giant-catch', '大人国抓小人', '停车场 石灰格子 非对称追逐 喵呜 小满的指尖 冲刺 温柔抓捕 双阵营', '/playground/games/giant-catch'],
   ['game-quiz', '题目', '烧脑挑战 填空 选择题 二维码 提交答案', '/playground/games/quiz'],
   ['scratch-dont-touch-cat-2', '别碰另一只猫和边缘2', 'Scratch 小游戏', '/playground/scratch/dont-touch-cat-2'],
   ['scratch-knife-vs-archer', 'Knife V.S Archer', 'Scratch 小游戏', '/playground/scratch/knife-vs-archer'],

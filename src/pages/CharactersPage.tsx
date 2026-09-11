@@ -125,6 +125,7 @@ export default function CharactersPage() {
             <div className="characters-era-note"><Sparkles /><span><strong>双纪年基准：</strong>公元 2026 年 = 大人国 169 年；大人国纪年 = 公元纪年 − 1857。</span></div>
           </AuroraPanel>
 
+          <h2 className="sr-only">角色列表</h2>
           <div className="characters-aurora-grid">
             <AnimatePresence mode="popLayout" initial={false}>
               {filtered.map((char, i) => (
@@ -143,7 +144,7 @@ export default function CharactersPage() {
                   >
                     <div className="aspect-square relative overflow-hidden">
                       {(() => {
-                        const locSrc = getCharacterCardImageLocal(char.id) || '/characters/miia-generated.png';
+                        const locSrc = getCharacterCardImageLocal(char.id);
                         const localImages = getCharacterImageSetLocal(char.id);
                         return localImages && localImages.length > 1 ? (
                           <RotatingImage
@@ -152,13 +153,17 @@ export default function CharactersPage() {
                             containerClassName="absolute inset-0"
                             className="character-card-image object-cover"
                           />
-                        ) : (
+                        ) : locSrc ? (
                           <SmartImage
                             localSrc={locSrc}
                             alt={char.name}
                             containerClassName="absolute inset-0"
                             className="character-card-image object-cover"
                           />
+                        ) : (
+                          <div className={`absolute inset-0 bg-gradient-to-br ${char.color} flex items-center justify-center`}>
+                            <span className="text-4xl font-bold text-white/80">{char.name.slice(0, 1)}</span>
+                          </div>
                         );
                       })()}
                       <div className={`absolute inset-0 bg-gradient-to-t ${groupColors[char.group]} opacity-0 group-hover:opacity-20 group-focus-visible:opacity-20 transition-opacity`} />
@@ -223,7 +228,7 @@ export default function CharactersPage() {
                       </div>
                       <div className="character-aurora-card-copy">
                         <div className="flex items-center justify-between mb-1">
-                          <h4 className="text-sm font-semibold text-nc-text truncate">{char.name}</h4>
+                          <h3 className="text-sm font-semibold text-nc-text truncate">{char.name}</h3>
                           {char.fsiii && (
                             <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${getTierStyle(char.fsiii).rankBadgeClass}`}>
                               {char.fsiii}

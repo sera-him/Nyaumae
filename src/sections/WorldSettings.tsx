@@ -66,7 +66,7 @@ function get4dResultColor(index: number, total: number): string {
 function get4dResultBg(index: number, total: number): string {
   // No.16 滚滚滚滚 — 特殊红色背景
   if (index === total - 1) return 'bg-red-500/10 border-red-500/20';
-  return RESULT_BG_COLORS[index] || 'bg-[#1A1025]';
+  return RESULT_BG_COLORS[index] || 'bg-[var(--aurora-brand-bg-raised)]';
 }
 
 // Music follows overload state (manual control only)
@@ -182,7 +182,7 @@ function FourDimensionTestQuiz() {
   if (resultIndex !== null) {
     const r = fourDimensionTest.results[resultIndex];
     return (
-      <div className="world-test-result bg-[#1A1025] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6">
+      <div className="world-test-result bg-[var(--aurora-brand-bg-raised)] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6">
         <div className={`text-center p-6 rounded-lg ${get4dResultBg(resultIndex, fourDimensionTest.results.length)}`}>
           <p className="text-sm text-nc-text-secondary mb-2">{timedOut ? '……你人呢？' : '你的四维测试结果'}</p>
           <h4 className={`text-4xl font-bold font-mono mb-3 ${get4dResultColor(resultIndex, fourDimensionTest.results.length)}`}>
@@ -191,7 +191,7 @@ function FourDimensionTestQuiz() {
           <p className="text-base text-nc-text leading-relaxed mb-4">{cowCatHighlight(r.desc)}</p>
           <button
             onClick={reset}
-            className="px-5 py-2 bg-[#8B5CF6]/20 hover:bg-[#8B5CF6]/30 border border-[#8B5CF6]/30 rounded-lg text-sm text-[#A78BFA] transition-all"
+            className="px-5 py-2 bg-[#8B5CF6]/20 hover:bg-[#8B5CF6]/30 border border-[#8B5CF6]/30 rounded-lg text-sm text-[var(--aurora-brand-violet-soft)] transition-all"
           >
             再测一次
           </button>
@@ -207,14 +207,14 @@ function FourDimensionTestQuiz() {
     const dimQuestionsDone = answers.filter((_, i) => shuffledQuestions[i].dim === q.dim).length + 1;
 
     return (
-      <div className="world-test-question bg-[#1A1025] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6">
+      <div className="world-test-question bg-[var(--aurora-brand-bg-raised)] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6">
         {/* Progress bar: 12 segments */}
         <div className="flex gap-0.5 mb-3">
           {Array.from({ length: 12 }, (_, i) => (
             <div
               key={i}
               className={`h-1.5 flex-1 rounded-full transition-all ${
-                i < currentQ ? 'bg-[#8B5CF6]' : i === currentQ ? 'bg-[#8B5CF6]/60' : 'bg-[#8B5CF6]/10'
+                i < currentQ ? 'bg-[var(--aurora-brand-violet)]' : i === currentQ ? 'bg-[#8B5CF6]/60' : 'bg-[#8B5CF6]/10'
               }`}
             />
           ))}
@@ -246,11 +246,11 @@ function FourDimensionTestQuiz() {
 
   // Start screen (no easter egg hint!)
   return (
-    <div className="world-test-start bg-[#1A1025] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6 text-center">
+    <div className="world-test-start bg-[var(--aurora-brand-bg-raised)] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6 text-center">
       <p className="text-nc-text-secondary mb-4">12个问题，测出你的牛马/猫咪属性</p>
       <button
         onClick={startQuiz}
-        className="px-8 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-lg font-medium transition-all inline-flex items-center gap-2"
+        className="px-8 py-3 bg-[var(--aurora-brand-violet)] hover:bg-[var(--aurora-brand-violet-deep)] text-white rounded-lg font-medium transition-all inline-flex items-center gap-2"
       >
         <span>🐮</span>
         <span>开始测试</span>
@@ -272,9 +272,9 @@ export default function WorldSettings() {
         </div>
 
         {/* Notes — 简短，保持展开 */}
-        <div id="setting-worldview" className="bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 mb-8 scroll-mt-[100px]">
+        <div id="setting-worldview" className="bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 mb-8 scroll-mt-[100px]">
           <h3 className="text-base font-semibold text-nc-text mb-3 flex items-center gap-2">
-            <Settings className="w-4 h-4 text-[#8B5CF6]" />
+            <Settings className="w-4 h-4 text-[var(--aurora-brand-violet)]" />
             世界观说明
           </h3>
           {worldviewNotes.map((n, i) => (
@@ -287,34 +287,34 @@ export default function WorldSettings() {
           id="setting-land-allocation"
           title={semanticHighlight("公平随机土地分配制度（修订稿）")}
           summary={semanticHighlight("每个人拥有同样的、不可交易的土地竞争权重，可以自主选择土地；多人竞争时按照相对权重公开随机抽签。")}
-          icon={<Scale className="w-5 h-5 text-[#00E5CC]" />}
+          icon={<Scale className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
           borderColor="border-[#00E5CC]/20"
-          titleColor="text-[#00E5CC]"
+          titleColor="text-[var(--aurora-brand-cyan)]"
         >
           <LandAllocationPolicy embedded />
         </CollapsibleCard>
 
         {/* Miya Circle, MuGuang, Xinyuan — 三张小卡片，简短，保持展开 */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <div id="setting-miya-circle" className="bg-[#100A1A] border border-[#F472B6]/15 rounded-xl p-5 scroll-mt-[100px]">
-            <h4 className="text-sm font-semibold text-[#F472B6] mb-2">{semanticHighlight("米雅朋友圈")}</h4>
+          <div id="setting-miya-circle" className="bg-[var(--aurora-brand-bg)] border border-[#F472B6]/15 rounded-xl p-5 scroll-mt-[100px]">
+            <h4 className="text-sm font-semibold text-[var(--aurora-brand-pink)] mb-2">{semanticHighlight("米雅朋友圈")}</h4>
             <p className="text-sm text-nc-text-secondary">{semanticHighlight(miyaCircle)}</p>
           </div>
-          <div id="setting-muguang" className="bg-[#100A1A] border border-[#00E5CC]/15 rounded-xl p-5 scroll-mt-[100px]">
-            <h4 className="text-sm font-semibold text-[#00E5CC] mb-2">{semanticHighlight("沐光计划")}</h4>
+          <div id="setting-muguang" className="bg-[var(--aurora-brand-bg)] border border-[#00E5CC]/15 rounded-xl p-5 scroll-mt-[100px]">
+            <h4 className="text-sm font-semibold text-[var(--aurora-brand-cyan)] mb-2">{semanticHighlight("沐光计划")}</h4>
             <p className="text-sm text-nc-text-secondary">{semanticHighlight(muGuangPlan)}</p>
           </div>
-          <div id="setting-xinyuan" className="bg-[#100A1A] border border-[#8B5CF6]/15 rounded-xl p-5 scroll-mt-[100px]">
-            <h4 className="text-sm font-semibold text-[#8B5CF6] mb-2">{semanticHighlight("心渊日志")}</h4>
+          <div id="setting-xinyuan" className="bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/15 rounded-xl p-5 scroll-mt-[100px]">
+            <h4 className="text-sm font-semibold text-[var(--aurora-brand-violet)] mb-2">{semanticHighlight("心渊日志")}</h4>
             <p className="text-sm text-nc-text-secondary">{semanticHighlight(xinyuanLog)}</p>
           </div>
         </div>
 
         {/* 心界 VRlog 实景记录 */}
-        <div className="mb-8 rounded-2xl border border-[#8B5CF6]/15 bg-[#100A1A] p-4 sm:p-6">
+        <div className="mb-8 rounded-2xl border border-[#8B5CF6]/15 bg-[var(--aurora-brand-bg)] p-4 sm:p-6">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-[#22C55E]">
+              <h3 className="text-xl font-semibold text-[var(--aurora-brand-green)]">
                 {semanticHighlight("海岛实景记录")}
               </h3>
             </div>
@@ -324,7 +324,7 @@ export default function WorldSettings() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <figure className="group overflow-hidden rounded-xl border border-[#F472B6]/15 bg-[#0D0614]">
+            <figure className="group overflow-hidden rounded-xl border border-[#F472B6]/15 bg-[var(--aurora-brand-bg-deep)]">
               <SmartImage
                 localSrc="/xinjie-vr-rainbow-drive.png"
                 alt="海岛实景记录：彩虹花田场景中的玉桂狗主题座驾"
@@ -333,12 +333,12 @@ export default function WorldSettings() {
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
               <figcaption className="flex items-center justify-between gap-4 px-4 py-3">
-                <span className="text-sm font-medium text-[#F0E6FF]">彩虹花田</span>
-                <span className="font-mono text-[10px] tracking-[0.18em] text-[#22C55E]">VRLOG 01</span>
+                <span className="text-sm font-medium text-[var(--aurora-brand-text)]">彩虹花田</span>
+                <span className="font-mono text-[10px] tracking-[0.18em] text-[var(--aurora-brand-green)]">VRLOG 01</span>
               </figcaption>
             </figure>
 
-            <figure className="group overflow-hidden rounded-xl border border-[#00E5CC]/15 bg-[#0D0614]">
+            <figure className="group overflow-hidden rounded-xl border border-[#00E5CC]/15 bg-[var(--aurora-brand-bg-deep)]">
               <SmartImage
                 localSrc="/xinjie-vr-duck-island.png"
                 alt="海岛实景记录：鸭鸭乐园场景中的玉桂狗主题座驾"
@@ -347,8 +347,8 @@ export default function WorldSettings() {
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
               <figcaption className="flex items-center justify-between gap-4 px-4 py-3">
-                <span className="text-sm font-medium text-[#F0E6FF]">鸭鸭乐园</span>
-                <span className="font-mono text-[10px] tracking-[0.18em] text-[#22C55E]">VRLOG 02</span>
+                <span className="text-sm font-medium text-[var(--aurora-brand-text)]">鸭鸭乐园</span>
+                <span className="font-mono text-[10px] tracking-[0.18em] text-[var(--aurora-brand-green)]">VRLOG 02</span>
               </figcaption>
             </figure>
           </div>
@@ -359,12 +359,12 @@ export default function WorldSettings() {
           id="setting-p2r"
           title={semanticHighlight("亲缘距离公式 p₂r")}
           summary={semanticHighlight("角色之间亲密度由公式 p₂r = Σ(互动强度 × 情感共鸣) / Σ(时间衰减) 计算，例：墨璇玥.iv 与咪呀 p₂r=1.498")}
-          icon={<HeartPulse className="w-5 h-5 text-[#00E5CC]" />}
+          icon={<HeartPulse className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
           titleColor="text-nc-text"
           borderColor="border-[#8B5CF6]/10"
         >
           <div className="p-6">
-            <code className="font-mono text-lg text-[#00E5CC]">{p2rDefinition}</code>
+            <code className="font-mono text-lg text-[var(--aurora-brand-cyan)]">{p2rDefinition}</code>
             <p className="text-sm text-nc-text-secondary mt-2">
               {semanticHighlight("例：墨璇玥.iv 与咪呀 p₂r=1.498，与 Mia p₂r=0.970，与米娅 p₂r=0.970")}
             </p>
@@ -376,17 +376,17 @@ export default function WorldSettings() {
           id="setting-qet"
           title={semanticHighlight("QET 详细规则")}
           summary={semanticHighlight("笔试 500 分 + 机试 500 分，最高 65536 人报考，笔试通过率 256/65536，机试通过率 16/256，含 ICPC 赛制 Penalty 规则")}
-          icon={<GraduationCap className="w-5 h-5 text-[#F59E0B]" />}
+          icon={<GraduationCap className="w-5 h-5 text-[var(--aurora-brand-amber)]" />}
           titleColor="text-nc-text"
           borderColor="border-[#F59E0B]/15"
         >
           <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#8B5CF6]/10">
             <div className="p-5">
-              <p className="text-xs font-mono text-[#F59E0B] mb-2">笔试 {qetWritten.score} 分</p>
+              <p className="text-xs font-mono text-[var(--aurora-brand-amber)] mb-2">笔试 {qetWritten.score} 分</p>
               <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlight(qetWritten.rules)}</p>
             </div>
             <div className="p-5">
-              <p className="text-xs font-mono text-[#F59E0B] mb-2">机试 {qetPractical.score} 分</p>
+              <p className="text-xs font-mono text-[var(--aurora-brand-amber)] mb-2">机试 {qetPractical.score} 分</p>
               <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlight(qetPractical.rules)}</p>
             </div>
           </div>
@@ -397,7 +397,7 @@ export default function WorldSettings() {
           id="setting-4d"
           title={semanticHighlight("四维测试：牛马人格 vs 猫咪喵格")}
           summary={semanticHighlight("12 道互动题测出你的四维人格（获取/休息/努力/社交），判断牛属性还是猫属性，共 17 种结果")}
-          icon={<Cat className="w-5 h-5 text-[#00E5CC]" />}
+          icon={<Cat className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
           titleColor="text-nc-text"
           borderColor="border-[#8B5CF6]/15"
         >
@@ -405,7 +405,7 @@ export default function WorldSettings() {
             <div className="grid sm:grid-cols-2 gap-4 mb-6">
               {fourDimensionTest.dimensions.map((dim, i) => (
                 <div key={i} className="border border-[#8B5CF6]/10 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold text-[#00E5CC] mb-2">{semanticHighlight(dim.name)}</h4>
+                  <h4 className="text-sm font-semibold text-[var(--aurora-brand-cyan)] mb-2">{semanticHighlight(dim.name)}</h4>
                   <p className="text-sm text-nc-text-secondary mb-1">
                     <span className="mr-1">🐮</span>
                     <span className="text-orange-400/80">{cowCatHighlight(dim.human)}</span>
@@ -448,7 +448,7 @@ export default function WorldSettings() {
           id="setting-moral"
           title={semanticHighlight("哲学原则")}
           summary={semanticHighlight("包括灾难性伤害原则、权利不可侵犯原则、道德普遍化、责任连带原则、自由化约原则等 6 条核心准则")}
-          icon={<Scale className="w-5 h-5 text-[#8B5CF6]" />}
+          icon={<Scale className="w-5 h-5 text-[var(--aurora-brand-violet)]" />}
           titleColor="text-nc-text"
           borderColor="border-[#8B5CF6]/15"
         >
@@ -473,13 +473,13 @@ export default function WorldSettings() {
           id="nyaumaeism"
           title={"nyaumæism"}
           summary={"nyaumæ 是一名 2 年级学生提出的哲学体系"}
-          icon={<BookMarked className="w-4 h-4 text-[#00E5CC]" />}
+          icon={<BookMarked className="w-4 h-4 text-[var(--aurora-brand-cyan)]" />}
           borderColor="border-[#00E5CC]/20"
-          titleColor="text-[#00E5CC]"
+          titleColor="text-[var(--aurora-brand-cyan)]"
           defaultExpanded={false}
         >
           <div className="p-6 space-y-4">
-            <p className="text-xs text-[#00E5CC] italic border-l-2 border-[#00E5CC]/20 pl-3">
+            <p className="text-xs text-[var(--aurora-brand-cyan)] italic border-l-2 border-[#00E5CC]/20 pl-3">
               nyaumæ 是一名 2 年级学生。以下是这名学生提出的七条哲学原则。
             </p>
             {nyaumaeismPrinciples.map((p) => (
@@ -493,12 +493,12 @@ export default function WorldSettings() {
 
         {/* Sensory Overload Zone - auto-triggers on scroll */}
         <OverloadMusicSync />
-        <section id="overload" className="relative bg-[#0A0510] border border-[#EF4444]/20 rounded-xl overflow-hidden mb-8" data-motion-loop>
+        <section id="overload" className="relative bg-[var(--aurora-brand-bg-plum)] border border-[#EF4444]/20 rounded-xl overflow-hidden mb-8" data-motion-loop>
           <OverloadCanvas />
           <div className="relative z-10 p-6 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <Zap className="w-5 h-5 text-[#EF4444]" />
+                <Zap className="w-5 h-5 text-[var(--aurora-brand-red)]" />
                 <h3 className="text-lg font-semibold text-nc-text">
                   <GlitchText text="Info Overload · 感官过载区域" />
                 </h3>
@@ -514,15 +514,15 @@ export default function WorldSettings() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="bg-[#100A1A]/80 border border-[#8B5CF6]/10 rounded-lg p-3">
-                  <p className="text-xs text-[#8B5CF6] font-bold mb-1">视觉干扰</p>
+                  <p className="text-xs text-[var(--aurora-brand-violet)] font-bold mb-1">视觉干扰</p>
                   <p className="text-sm text-nc-text-secondary">{'扫描线闪烁、随机条纹、画面扭曲'}</p>
                 </div>
                 <div className="bg-[#100A1A]/80 border border-[#00E5CC]/10 rounded-lg p-3">
-                  <p className="text-xs text-[#00E5CC] font-bold mb-1">文字故障</p>
+                  <p className="text-xs text-[var(--aurora-brand-cyan)] font-bold mb-1">文字故障</p>
                   <p className="text-sm text-nc-text-secondary">{'字符错位、重影、随机替换'}</p>
                 </div>
                 <div className="bg-[#100A1A]/80 border border-[#EF4444]/10 rounded-lg p-3">
-                  <p className="text-xs text-[#EF4444] font-bold mb-1">信息轰炸</p>
+                  <p className="text-xs text-[var(--aurora-brand-red)] font-bold mb-1">信息轰炸</p>
                   <p className="text-sm text-nc-text-secondary">{'碎片文字高速飞入飞出'}</p>
                 </div>
               </div>
@@ -532,8 +532,8 @@ export default function WorldSettings() {
             </div>
           </div>
         </section>
-        <div className="bg-[#100A1A] border border-[#F472B6]/15 rounded-xl p-6 sm:p-8">
-          <h3 className="text-base font-semibold text-[#F472B6] mb-3 flex items-center gap-2">
+        <div className="bg-[var(--aurora-brand-bg)] border border-[#F472B6]/15 rounded-xl p-6 sm:p-8">
+          <h3 className="text-base font-semibold text-[var(--aurora-brand-pink)] mb-3 flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
             《复数域公主梦》
           </h3>

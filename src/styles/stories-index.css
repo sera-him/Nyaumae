@@ -25,6 +25,114 @@
 .story-card-giant:hover { border-color: #93c9ff; box-shadow: 0 0 30px rgba(147,201,255,0.08); }
 
 .story-aurora-card h3 {
-  color: color-mix(in srgb, var(--story-accent, #ff8fc7) 82%, white);
-  text-shadow: 0 0 20px color-mix(in srgb, var(--story-accent, #ff8fc7) 22%, transparent);
+  color: color-mix(in srgb, var(--story-accent, var(--aurora-pink)) 82%, white);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--story-accent, var(--aurora-pink)) 22%, transparent);
+}
+
+/* Reading progress chip on story cards */
+.story-card-progress {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  font-size: 11px;
+  color: var(--aurora-cyan, #67e8da);
+  opacity: 0.85;
+}
+
+/* Footer band: library stats + serendipity door */
+.stories-footer-band {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 140px)) 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.stories-footer-stat {
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  display: grid;
+  gap: 8px;
+  align-content: center;
+}
+
+.stories-footer-stat small {
+  color: var(--nc-text-muted, #8b84a0);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.stories-footer-stat strong {
+  font-size: 28px;
+  line-height: 1;
+  color: var(--nc-text, #f2eefc);
+  font-weight: 650;
+}
+
+.stories-random-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  border: 1px solid rgba(255, 143, 199, 0.18);
+  border-radius: 16px;
+  background: linear-gradient(120deg, rgba(255, 143, 199, 0.06), rgba(166, 133, 255, 0.05) 60%, rgba(102, 233, 218, 0.05));
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stories-random-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 143, 199, 0.4);
+}
+
+.stories-random-card > svg {
+  width: 22px;
+  height: 22px;
+  color: var(--aurora-pink, #ff8fc7);
+  flex-shrink: 0;
+}
+
+.stories-random-card > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.stories-random-card small {
+  display: block;
+  color: var(--nc-text-muted, #8b84a0);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  margin-bottom: 4px;
+}
+
+.stories-random-card strong {
+  display: block;
+  color: var(--nc-text, #f2eefc);
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.stories-random-card p {
+  margin: 0;
+  color: var(--nc-text-secondary, #b6aed0);
+  font-size: 12px;
+}
+
+.stories-random-card > svg:last-child {
+  color: var(--nc-text-muted, #8b84a0);
+}
+
+@media (max-width: 720px) {
+  .stories-footer-band {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stories-random-card {
+    grid-column: 1 / -1;
+  }
 }

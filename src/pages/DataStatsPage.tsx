@@ -93,6 +93,9 @@ const TOOLTIP_STYLE = {
   fontSize: 12,
 };
 
+// recharts 的悬停条目默认继承系列色，环形图取不到系列色时会回退成黑色，必须显式指定亮色
+const TOOLTIP_ITEM_STYLE = { color: '#eafffb' };
+
 function formatDuration(milliseconds: number): string {
   const seconds = Math.max(0, Math.round(milliseconds / 1_000));
   if (seconds < 60) return `${seconds} 秒`;
@@ -321,6 +324,12 @@ export default function DataStatsPage() {
 
   const summary = useMemo(() => summarize(data, range), [data, range]);
 
+  const isFreshUser = summary.totalDurationMs === 0
+    && summary.visits.length === 0
+    && summary.uniquePages === 0
+    && summary.activeDays === 0
+    && data.searches.length === 0;
+
   const handleDownload = () => {
     const filename = downloadArchive();
     setLastExportFilename(filename);
@@ -387,23 +396,35 @@ export default function DataStatsPage() {
           </div>
         </section>
 
+        {isFreshUser ? (
+          <section className="analytics-fresh-panel" aria-label="新手引导">
+            <h2>这里还是一张白纸</h2>
+            <p>在这个宇宙里读几章故事、认识几位角色、玩几局游戏之后，你的本机观察报告就会长出来。</p>
+            <div className="analytics-fresh-actions">
+              <Link to="/stories">去读故事<ArrowRight size={14} /></Link>
+              <Link to="/characters">认识角色<ArrowRight size={14} /></Link>
+              <Link to="/playground/games">去游戏实验场<ArrowRight size={14} /></Link>
+            </div>
+          </section>
+        ) : (
+          <>
         <section className="analytics-chart-grid" aria-label="浏览图表">
           <article className="analytics-card analytics-chart-card">
             <header><div><p className="analytics-eyebrow">TIME SHARE</p><h2>时间都去了哪里</h2></div><span>按内容分类</span></header>
             {summary.categoryData.length === 0 ? <EmptyChart message="开始浏览几个页面后，这里会出现时间饼图。" /> : <div className="analytics-pie-layout">
-              <div className="analytics-pie"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={summary.categoryData} dataKey="minutes" nameKey="name" innerRadius="54%" outerRadius="82%" paddingAngle={2} stroke="none">{summary.categoryData.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}</Pie><Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value: number) => [`${value.toFixed(1)} 分钟`, '停留时间']} /></PieChart></ResponsiveContainer></div>
+              <div className="analytics-pie" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={summary.categoryData} dataKey="minutes" nameKey="name" innerRadius="54%" outerRadius="82%" paddingAngle={2} stroke="none">{summary.categoryData.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}</Pie><Tooltip contentStyle={TOOLTIP_STYLE} itemStyle={TOOLTIP_ITEM_STYLE} formatter={(value: number) => [`${value.toFixed(1)} 分钟`, '停留时间']} /></PieChart></ResponsiveContainer></div>
               <ul className="analytics-legend">{summary.categoryData.map((entry) => <li key={entry.name}><span style={{ background: entry.fill }} /><div><strong>{entry.name}</strong><small>{entry.minutes.toFixed(1)} 分钟 · {entry.visits} 次</small></div></li>)}</ul>
             </div>}
           </article>
 
           <article className="analytics-card analytics-chart-card">
             <header><div><p className="analytics-eyebrow">DAILY FLOW</p><h2>每日浏览趋势</h2></div><span>分钟 / 次数</span></header>
-            <div className="analytics-chart"><ResponsiveContainer width="100%" height="100%"><AreaChart data={summary.trendData} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}><defs><linearGradient id="analytics-time-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#78e1d5" stopOpacity={0.35} /><stop offset="100%" stopColor="#78e1d5" stopOpacity={0} /></linearGradient></defs><CartesianGrid stroke="rgba(255,255,255,.08)" strokeDasharray="4 4" /><XAxis dataKey="label" tick={{ fill: '#8ea9aa', fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis tick={{ fill: '#8ea9aa', fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} /><Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value: number, name: string) => [name === 'minutes' ? `${value} 分钟` : `${value} 次`, name === 'minutes' ? '浏览时间' : '访问次数']} /><Area type="monotone" dataKey="minutes" stroke="#78e1d5" fill="url(#analytics-time-fill)" strokeWidth={2.2} /></AreaChart></ResponsiveContainer></div>
+            <div className="analytics-chart"><ResponsiveContainer width="100%" height="100%"><AreaChart data={summary.trendData} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}><defs><linearGradient id="analytics-time-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#78e1d5" stopOpacity={0.35} /><stop offset="100%" stopColor="#78e1d5" stopOpacity={0} /></linearGradient></defs><CartesianGrid stroke="rgba(255,255,255,.08)" strokeDasharray="4 4" /><XAxis dataKey="label" tick={{ fill: '#8ea9aa', fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis tick={{ fill: '#8ea9aa', fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} /><Tooltip contentStyle={TOOLTIP_STYLE} itemStyle={TOOLTIP_ITEM_STYLE} formatter={(value: number, name: string) => [name === 'minutes' ? `${value} 分钟` : `${value} 次`, name === 'minutes' ? '浏览时间' : '访问次数']} /><Area type="monotone" dataKey="minutes" stroke="#78e1d5" fill="url(#analytics-time-fill)" strokeWidth={2.2} /></AreaChart></ResponsiveContainer></div>
           </article>
 
           <article className="analytics-card analytics-chart-card analytics-chart-card-wide">
             <header><div><p className="analytics-eyebrow">DAY PART</p><h2>你通常什么时候来</h2></div><span>按进入页面的小时统计</span></header>
-            <div className="analytics-hour-chart"><ResponsiveContainer width="100%" height="100%"><BarChart data={summary.hourlyData} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}><CartesianGrid stroke="rgba(255,255,255,.07)" vertical={false} /><XAxis dataKey="hour" interval={2} tick={{ fill: '#8ea9aa', fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis allowDecimals={false} tick={{ fill: '#8ea9aa', fontSize: 10 }} tickLine={false} axisLine={false} /><Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value: number) => [`${value} 次`, '访问']} /><Bar dataKey="visits" fill="#b8a6ff" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div>
+            <div className="analytics-hour-chart"><ResponsiveContainer width="100%" height="100%"><BarChart data={summary.hourlyData} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}><CartesianGrid stroke="rgba(255,255,255,.07)" vertical={false} /><XAxis dataKey="hour" interval={2} tick={{ fill: '#8ea9aa', fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis allowDecimals={false} tick={{ fill: '#8ea9aa', fontSize: 10 }} tickLine={false} axisLine={false} /><Tooltip contentStyle={TOOLTIP_STYLE} itemStyle={TOOLTIP_ITEM_STYLE} formatter={(value: number) => [`${value} 次`, '访问']} /><Bar dataKey="visits" fill="#b8a6ff" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div>
           </article>
         </section>
 
@@ -428,6 +449,8 @@ export default function DataStatsPage() {
             {summary.searchSummaries.length === 0 ? <EmptyChart message="使用全站搜索后，关键词会出现在这里。" /> : <div className="analytics-search-list">{summary.searchSummaries.map((search) => <div key={search.query}><span><Search size={13} /><strong>{search.query}</strong><small>{search.count} 次 · 最近 {formatDate(search.lastAt)}</small></span><em>{search.resultCount} 结果</em></div>)}</div>}
           </article>
         </section>
+          </>
+        )}
 
         <section className="analytics-data-section" aria-labelledby="analytics-data-title">
           <div className="analytics-section-heading"><div><p className="analytics-eyebrow">ARCHIVE / RESTORE / EMAIL</p><h2 id="analytics-data-title">存档、读档与上传数据</h2></div><Archive size={25} /></div>
@@ -436,7 +459,7 @@ export default function DataStatsPage() {
               <div className="analytics-data-icon"><Archive size={20} /></div>
               <h3>存档与读档</h3>
               <p>导出浏览统计、搜索记录以及其他可迁移的本机站点数据。读取存档会覆盖同名记录，但保留当前未包含的数据。</p>
-              <div className="analytics-button-row"><button type="button" className="analytics-primary-action" onClick={handleDownload}><Download size={15} />下载存档</button><button type="button" className="analytics-secondary-action" onClick={() => fileInputRef.current?.click()}><FileUp size={15} />读取存档</button><input ref={fileInputRef} className="analytics-visually-hidden" type="file" accept="application/json,.json" onChange={handleArchiveChange} /></div>
+              <div className="analytics-button-row"><button type="button" className="analytics-primary-action" onClick={handleDownload}><Download size={15} />下载存档</button><button type="button" className="analytics-secondary-action" onClick={() => fileInputRef.current?.click()}><FileUp size={15} />读取存档</button><input ref={fileInputRef} className="analytics-visually-hidden" type="file" accept="application/json,.json" onChange={handleArchiveChange} aria-label="读取统计数据存档文件" /></div>
             </article>
 
             <article className="analytics-card analytics-archive-card">

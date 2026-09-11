@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useParams, Link, useLocation } from 'react-rou
 import PageState from '@/components/PageState';
 import {
   getPlaygroundItemCategory,
-  initializeCharacterIds,
   isKnownCharacterFilter,
   isKnownCharacterId,
   isKnownMathSection,
@@ -13,15 +12,11 @@ import {
   isKnownWorldSection,
   resolveAlias,
 } from '@/lib/routeManifest';
+import { storyGuardData } from '@/lib/generated/routeGuardData.generated';
 import { routeLoaders } from '@/lib/routePreload';
 import { clearAsyncModuleRecoveryMarker } from '@/lib/asyncModuleRecovery';
 import RouteErrorBoundary, { type RouteArea } from '@/components/RouteErrorBoundary';
-import { characters } from '@/data/characters';
-import { extraCharacters } from '@/data/extraCharacters';
-import { stories } from '@/data/stories';
 import './pages/routes-polish.css';
-
-initializeCharacterIds([...characters, ...extraCharacters].map(({ id }) => id));
 
 const Portal = lazy(routeLoaders.portal);
 const CharactersPage = lazy(routeLoaders.characters);
@@ -133,7 +128,7 @@ function isPositiveInteger(value: string | undefined): value is string {
 
 function StoriesGuard() {
   const { storyId, chapterId, partId } = useParams<{ storyId?: string; chapterId?: string; partId?: string }>();
-  const story = stories.find((entry) => entry.id === storyId);
+  const story = storyGuardData.find((entry) => entry.id === storyId);
 
   if (!story) {
     return <NotFoundPage domain="故事" message={`故事未找到 "${storyId ?? ''}"`} />;
@@ -143,7 +138,7 @@ function StoriesGuard() {
     return <NotFoundPage domain="故事" message="章节路径无效" />;
   }
 
-  if (!story.contentSource && (partId || (chapterId && Number(chapterId) > story.chapters.length))) {
+  if (!story.contentSource && (partId || (chapterId && Number(chapterId) > story.chapterTitles.length))) {
     return <NotFoundPage domain="故事" message="未找到该章节" />;
   }
 

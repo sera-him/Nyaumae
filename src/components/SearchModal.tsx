@@ -97,7 +97,7 @@ function resolveRoute(item: FullSearchItem): string {
       'math': '/math/fsiii', 'math-models': '/math/fsiii',
       'chess': '/playground/games/compound-chess', 'chess-rules': '/playground/games/compound-chess',
       'skill-ttt': '/playground/games/skill-tic-tac-toe', 'skill-tic-tac-toe': '/playground/games/skill-tic-tac-toe',
-      'problems': '/playground/games/quiz', 'overload': '/world/settings',
+      'problems': '/playground/games', 'overload': '/world/settings',
     };
     if (pageMap[target]) return pageMap[target];
   }
@@ -113,7 +113,7 @@ function resolveRoute(item: FullSearchItem): string {
     'math': '/math/fsiii', 'math-models': '/math/fsiii',
     'chess': '/playground/games/compound-chess', 'chess-rules': '/playground/games/compound-chess',
     'skill-ttt': '/playground/games/skill-tic-tac-toe', 'skill-tic-tac-toe': '/playground/games/skill-tic-tac-toe',
-    'problems': '/playground/games/quiz', 'overload': '/world/settings',
+    'problems': '/playground/games', 'overload': '/world/settings',
   };
   if (anchorMap[anchor]) return anchorMap[anchor];
 
@@ -220,7 +220,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) onClose();
+      // 输入法组词期间按 Escape 是取消组词，不应关闭搜索弹窗
+      if (e.key === 'Escape' && isOpen && !e.isComposing && e.keyCode !== 229) onClose();
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);

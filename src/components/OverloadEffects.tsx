@@ -202,7 +202,7 @@ export function OverloadToggle() {
       onClick={handleToggle}
       className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all duration-300 ${
         active
-          ? 'bg-[#EF4444]/20 border-[#EF4444] text-[#EF4444] animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.3)]'
+          ? 'bg-[#EF4444]/20 border-[var(--aurora-brand-red)] text-[var(--aurora-brand-red)] animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.3)]'
           : 'bg-nc-bg-tertiary border-nc-violet/20 text-nc-text hover:border-nc-violet/40'
       }`}
     >

@@ -15,6 +15,7 @@ const rawCharacterImages: Record<string, string> = {
   xiulan: 'characters/xiulan-generated.jpg',
   zhouji: 'characters/zhouji-generated.jpg',
   'delivery-rider': 'characters/delivery-rider-generated.jpg',
+  retina: 'characters/retina.jpg',
   miia: 'characters/miia-generated.png',
   mia: 'characters/mia-generated.png',
   miya: 'characters/miya-generated.png',

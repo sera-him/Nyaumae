@@ -1,3 +1,6 @@
+import { request as httpRequest } from 'node:http';
+import { request as httpsRequest } from 'node:https';
+
 const DEFAULT_BASE_URL = 'http://127.0.0.1:4173';
 const REQUEST_TIMEOUT_MS = 8_000;
 
@@ -63,18 +66,70 @@ function routeUrl(baseUrl, routePath) {
   return url;
 }
 
-async function fetchWithTimeout(url) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-  try {
-    return await fetch(url, {
-      headers: { accept: 'text/html' },
-      signal: controller.signal,
+/**
+ * Uses node:http/https instead of the global fetch on purpose:
+ * - the global fetch honours `HTTP_PROXY`, and dev shells here export a proxy
+ *   that turns every loopback call into a 502;
+ * - node:http auto-selects the address family, so a preview server bound to
+ *   IPv6-only `[::1]` (the default for `vite preview`) is still reachable.
+ */
+function requestOnce(url, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const send = url.protocol === 'https:' ? httpsRequest : httpRequest;
+    const request = send(url, { headers: { accept: 'text/html', 'user-agent': 'site-smoke' } }, (response) => {
+      const chunks = [];
+      response.on('data', (chunk) => { chunks.push(chunk); });
+      response.on('end', () => {
+        const body = Buffer.concat(chunks).toString('utf-8');
+        resolve({
+          status: response.statusCode ?? 0,
+          ok: response.statusCode === 200,
+          headers: { get: (name) => response.headers[String(name).toLowerCase()] ?? null },
+          text: async () => body,
+        });
+      });
     });
-  } finally {
-    clearTimeout(timeout);
+    request.setTimeout(timeoutMs, () => {
+      request.destroy(new Error(`请求超过 ${timeoutMs}ms`));
+    });
+    request.on('error', reject);
+    request.end();
+  });
+}
+
+async function fetchWithTimeout(url) {
+  return requestOnce(url, REQUEST_TIMEOUT_MS);
+}
+
+/** Loopback spellings to try, so 127.0.0.1 / [::1] / localhost all work. */
+function loopbackCandidates(baseUrl) {
+  if (!['127.0.0.1', '::1', 'localhost'].includes(baseUrl.hostname)) return [baseUrl];
+  const spellings = [baseUrl.hostname, '127.0.0.1', '[::1]', 'localhost'];
+  const seen = new Set();
+  const candidates = [];
+  for (const spelling of spellings) {
+    const candidate = new URL(baseUrl);
+    candidate.host = `${spelling}${baseUrl.port ? `:${baseUrl.port}` : ''}`;
+    if (seen.has(candidate.origin)) continue;
+    seen.add(candidate.origin);
+    candidates.push(candidate);
   }
+  return candidates;
+}
+
+async function pickReachableBase(baseUrl) {
+  const candidates = loopbackCandidates(baseUrl);
+  let lastError = null;
+  for (const candidate of candidates) {
+    try {
+      await requestOnce(routeUrl(candidate, '/'), REQUEST_TIMEOUT_MS);
+      return candidate;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  const tried = candidates.map((candidate) => candidate.origin).join('、');
+  throw new Error(`${lastError?.message ?? '无法连接'}（已尝试 ${tried}；用 vite preview 时请加 --host 127.0.0.1 启动）`);
 }
 
 async function checkRoute(baseUrl, route) {
@@ -116,10 +171,13 @@ async function checkRoute(baseUrl, route) {
 }
 
 async function main() {
-  const baseUrl = parseBaseUrl(process.argv.slice(2));
-  if (!baseUrl) return;
+  const requestedUrl = parseBaseUrl(process.argv.slice(2));
+  if (!requestedUrl) return;
 
-  console.log(`Site smoke: ${baseUrl.origin}`);
+  const baseUrl = await pickReachableBase(requestedUrl);
+  const fallbackNote = baseUrl.origin === requestedUrl.origin ? '' : `（已从 ${requestedUrl.origin} 回退）`;
+
+  console.log(`Site smoke: ${baseUrl.origin}${fallbackNote}`);
   console.log('检查应用壳、主要 HashRouter 路由和客户端 404 路由的 HTTP 200 响应。');
 
   const results = [];

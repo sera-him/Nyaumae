@@ -502,25 +502,46 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
     const isJumpMove = (Math.abs(dr) === 2 && Math.abs(dc) === 1) || (dr === 0 && Math.abs(dc) === 2);
 
     const move: Move = { from: selectedPos, to };
+    const wasJump = isJumpMove;
+    const movedType = piece.type;
+    const mover = piece.owner;
     const newState = executeMoveWithClock(gameState, move);
 
-    // 天线跳跃走法后检查是否有可推棋子
-    if (piece.type === 'A' && isJumpMove && newState.board[to.row][to.col] !== null) {
-      const nowPiece = newState.board[to.row][to.col];
-      if (nowPiece && (nowPiece as Piece).type === 'A') {
-        const pushTargets = getAntennaPushTargets(newState.board, to);
-        if (pushTargets.length > 0) {
-          set({
-            gameState: newState,
-            selectedPos: to,
-            legalMoves: [],
-            antennaPushMode: true,
-            antennaPushTargets: pushTargets,
-            antennaPushPlayer: piece.owner,
-            clockRunning: true,
-          });
-          return;
+    // 天线规则：每次移动完白送一次推子（原仅天线跳跃触发，现所有走子后都触发）
+    // 收集走子方所有天线的可推目标，仍为单次免费，不消耗回合（回合已在 executeMove 中切换）
+    {
+      const antennas: Position[] = [];
+      for (let row = 0; row < newState.board.length; row++) {
+        for (let col = 0; col < newState.board[row].length; col++) {
+          const p = getPiece(newState.board, { row, col });
+          if (p && p.owner === mover && p.type === 'A') antennas.push({ row, col });
         }
+      }
+      const allTargets: { from: Position; to: Position; piece: Piece }[] = [];
+      for (const aPos of antennas) {
+        allTargets.push(...getAntennaPushTargets(newState.board, aPos));
+      }
+      // 去重（同一棋子被多天线同时可推只保留一次）
+      const seen = new Set<string>();
+      const pushTargets = allTargets.filter((t) => {
+        const k = `${t.from.row},${t.from.col}->${t.to.row},${t.to.col}`;
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+      if (pushTargets.length > 0) {
+        set({
+          gameState: newState,
+          selectedPos: to,
+          legalMoves: [],
+          antennaPushMode: true,
+          antennaPushTargets: pushTargets,
+          antennaPushPlayer: mover,
+          clockRunning: true,
+        });
+        void wasJump;
+        void movedType;
+        return;
       }
     }
 
@@ -620,13 +641,18 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
     const piece = getPiece(gameState.board, selectedPos);
     if (!piece || (piece.type !== 'W' && piece.type !== 'IW') || piece.owner !== gameState.currentPlayer) return;
     const board = gameState.board;
-    // 检查左右格是否可放置
+    // 与引擎一致：左右各放一个，有空就放（单侧可爆）。仅当两侧都越界才拒绝。
     const leftPos = { row: selectedPos.row, col: selectedPos.col - 1 };
     const rightPos = { row: selectedPos.row, col: selectedPos.col + 1 };
-    if (!inBounds(leftPos) || !inBounds(rightPos)) return;
-    if (!isEmpty(board, leftPos) || !isEmpty(board, rightPos)) return;
+    const leftIn = inBounds(leftPos);
+    const rightIn = inBounds(rightPos);
+    if (!leftIn && !rightIn) return;
     const whaleZones = getWhaleZones(board);
-    if (whaleZones.has(`${leftPos.row},${leftPos.col}`) || whaleZones.has(`${rightPos.row},${rightPos.col}`)) return;
+    const leftOk = leftIn && isEmpty(board, leftPos) && !whaleZones.has(`${leftPos.row},${leftPos.col}`);
+    const rightOk = rightIn && isEmpty(board, rightPos) && !whaleZones.has(`${rightPos.row},${rightPos.col}`);
+    // 即使两侧都被堵，变身本身仍生效（引擎会执行 W->Z），允许弹窗确认
+    void leftOk;
+    void rightOk;
     set({ skillConfirmTarget: selectedPos });
   },
 
@@ -683,12 +709,76 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
     );
     if (!target) return;
 
-    // 直接在棋盘上执行推子
+    // 免费推子：记历史、可撤销；带毒一起搬；被控老鼠键跟随；判吃王胜负；不二次切换回合
+    const boardBefore = gameState.board.map(row => [...row]);
+    const poisonBefore = { ...gameState.poison };
     const newBoard = gameState.board.map(row => [...row]);
     newBoard[target.to.row][target.to.col] = target.piece;
     newBoard[target.from.row][target.from.col] = null;
 
-    const newState = { ...gameState, board: newBoard };
+    const newPoison: Record<string, number> = { ...gameState.poison };
+    const oldKey = pieceKey(target.piece, target.from);
+    const newKey = pieceKey(target.piece, target.to);
+    if (newPoison[oldKey]) {
+      newPoison[newKey] = (newPoison[newKey] || 0) + newPoison[oldKey];
+      delete newPoison[oldKey];
+    }
+    let newMouseKey = gameState.blueCheeseMouseKey;
+    if (newMouseKey !== null && newMouseKey === oldKey) newMouseKey = newKey;
+
+    // 吃王判胜（含被推子撞掉王的极端情况）：沿用终局规则
+    let phase = gameState.phase;
+    {
+      let whiteKing = false;
+      let blackKing = false;
+      for (let r = 0; r < newBoard.length; r++) {
+        for (let c = 0; c < newBoard[r].length; c++) {
+          const cell = newBoard[r][c];
+          if (cell && typeof cell === 'object' && 'type' in cell) {
+            const p = cell as Piece;
+            if (p.type === 'K' || p.type === 'G') {
+              if (p.owner === 'white') whiteKing = true;
+              else blackKing = true;
+            }
+          }
+        }
+      }
+      if (!whiteKing && !blackKing) phase = 'draw';
+      else if (!whiteKing) phase = 'black_wins';
+      else if (!blackKing) phase = 'white_wins';
+    }
+
+    const newState = {
+      ...gameState,
+      board: newBoard,
+      poison: newPoison,
+      blueCheeseMouseKey: newMouseKey,
+      phase,
+      history: [
+        ...gameState.history,
+        {
+          move: { from: target.from, to: target.to },
+          boardBefore,
+          poisonBefore,
+          fearsBefore: { ...gameState.fears },
+          hasOstrichBefore: { ...gameState.hasOstrich },
+          rocketPosBefore: {
+            white: gameState.rocketPos.white ? { ...gameState.rocketPos.white } : null,
+            black: gameState.rocketPos.black ? { ...gameState.rocketPos.black } : null,
+          },
+          decryptionActiveBefore: gameState.decryptionActive,
+          decryptionStepBefore: gameState.decryptionStep,
+          blueCheeseControlBefore: gameState.blueCheeseControl,
+          blueCheeseMouseKeyBefore: gameState.blueCheeseMouseKey,
+          sacrificeCountBefore: { ...gameState.sacrificeCount },
+          clockBefore: { ...gameState.clock },
+          clockAccelStepBefore: { ...gameState.clockAccelStep },
+          clockPoolMsBefore: gameState.clockPoolMs,
+          clockPerMoveMsBefore: gameState.clockPerMoveMs,
+          clockBountyCellsBefore: { ...gameState.clockBountyCells },
+        },
+      ],
+    };
     set({
       gameState: newState,
       antennaPushMode: false,
@@ -765,6 +855,8 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
     if (!selectedPos || !starshipDeployTarget) return;
     const piece = getPiece(gameState.board, selectedPos);
     if (!piece || piece.type !== 'S') return;
+    // 星舰只能部署非关键子：禁 K/G/U/S/X，与引擎一致
+    if ((['K', 'G', 'U', 'S', 'X'] as PieceType[]).includes(type)) return;
 
     const move: Move = {
       from: selectedPos,

@@ -170,7 +170,7 @@ export const activeSkills: Skill[] = [
     name: 'Mind Maze',
     type: 'Active',
     spCost: '12',
-    effect: '对手下一回合只能从随机的半数（向上取整）空格中选择',
+    effect: '对手下次落子只能从随机的半数（向上取整）空格中选择（至多半数，还受封印/改写影响；跳过不耗，必须吃一次限选）',
   },
   {
     name: 'Spatial Seal',

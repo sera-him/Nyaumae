@@ -64,7 +64,7 @@ export default function WorldOverview() {
               transition={{ duration: 0.6, delay: 0.2 + i * 0.1 }}
               className="world-stat-motion bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-5 hover:border-nc-cyan/30 transition-all duration-300"
             >
-              <div className="font-mono text-2xl sm:text-3xl font-bold text-nc-cyan mb-1">
+              <div className="font-mono text-xl sm:text-2xl xl:text-3xl font-bold text-nc-cyan mb-1 whitespace-nowrap tracking-tight">
                 {stat.value}
               </div>
               <div className="text-sm text-nc-text-muted">

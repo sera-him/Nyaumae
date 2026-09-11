@@ -69,23 +69,6 @@ export default function Problems() {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    const missingQr = qrAnswers
-      .map((answer, index) => answer.trim() ? -1 : index)
-      .filter((index) => index >= 0);
-    const missingRef = refAnswers
-      .map((answer, index) => answer.trim() ? -1 : index)
-      .filter((index) => index >= 0);
-    const missingCount = missingQr.length + missingRef.length;
-    if (missingCount > 0) {
-      setHasResult(false);
-      setValidationMessage(`还有 ${missingCount} 个答案未填写，请完成后再提交。`);
-      const firstKey = missingQr.length > 0 ? `qr-${missingQr[0]}` : `ref-${missingRef[0]}`;
-      window.requestAnimationFrame(() => {
-        document.querySelector<HTMLElement>(`[data-answer-key="${firstKey}"]`)?.focus();
-      });
-      return;
-    }
-
     setValidationMessage('');
     setComputing(true);
     try {
@@ -126,8 +109,6 @@ export default function Problems() {
         onChange={(e) => onChange(slotIdx, e.target.value)}
         data-answer-key={`qr-${slotIdx}`}
         aria-label={`答案 ${slot.id}`}
-        aria-invalid={validationMessage !== '' && !(values[slotIdx] || '').trim()}
-        aria-describedby={validationMessage ? 'problems-validation' : undefined}
         placeholder={slot.placeholder || '?'}
         className={`align-middle mx-0.5 px-1.5 py-0.5 text-sm font-mono
           bg-nc-bg-tertiary border-b-2 outline-none transition-colors
@@ -154,11 +135,9 @@ export default function Problems() {
       return (
         <span
           key={slot.id}
-          className="inline-flex gap-1.5 align-middle"
+          className="inline-flex flex-wrap gap-1.5 align-middle"
           role="group"
           aria-label={`答案 ${slot.id}`}
-          aria-invalid={validationMessage !== '' && !(refAnswers[slotIdx] || '').trim()}
-          aria-describedby={validationMessage ? 'problems-validation' : undefined}
         >
           {slot.options.map((opt) => {
             const selected = (refAnswers[slotIdx] || '').includes(opt);
@@ -169,7 +148,7 @@ export default function Problems() {
                 onClick={() => handleRefCheckboxChange(slotIdx, opt, !selected)}
                 data-answer-key={`ref-${slotIdx}`}
                 aria-pressed={selected}
-                className={`w-7 h-7 rounded text-xs font-mono font-bold transition-all
+                className={`h-10 w-10 text-sm sm:h-7 sm:w-7 sm:text-xs rounded font-mono font-bold transition-all
                   ${selected
                     ? 'bg-nc-cyan/30 text-nc-cyan border border-nc-cyan/50 shadow-[0_0_6px_rgba(0,229,204,0.3)]'
                     : 'bg-nc-bg-tertiary text-nc-text-muted border border-nc-cyan/10 hover:border-nc-cyan/30'
@@ -191,8 +170,6 @@ export default function Problems() {
         onChange={(e) => handleRefAnswerChange(slotIdx, e.target.value)}
         data-answer-key={`ref-${slotIdx}`}
         aria-label={`答案 ${slot.id}`}
-        aria-invalid={validationMessage !== '' && !(refAnswers[slotIdx] || '').trim()}
-        aria-describedby={validationMessage ? 'problems-validation' : undefined}
         placeholder={slot.placeholder || '?'}
         size={slot.size || undefined}
         style={{ width: slot.size ? undefined : (slot.width || undefined) }}
@@ -230,7 +207,7 @@ export default function Problems() {
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold mb-3">题目</h2>
           <p className="text-nc-text-secondary max-w-2xl mx-auto text-sm leading-relaxed">
-            完成以下全部 24 道题目，提交后将基于你的答案计算生成二维码。
+            提交后将基于你当前填写的答案计算生成二维码，无需全部填完；答案全部正确时才能得到有效的二维码。
           </p>
         </motion.div>
 

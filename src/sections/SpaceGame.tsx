@@ -67,6 +67,10 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef(createInput());
   const activeBattleRef = useRef(battle);
+  // battle prop 变化时同步 ref，否则换局后暂停按钮切的是旧对象
+  useEffect(() => {
+    activeBattleRef.current = battle;
+  }, [battle]);
   const frameRef = useRef(0);
   const endedRef = useRef(false);
   const { ref: arenaRef, isMotionActive } = useMotionActivity<HTMLDivElement>(
@@ -188,7 +192,7 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
   };
 
   return (
-    <div ref={arenaRef} className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#06030d] shadow-2xl shadow-violet-950/40" data-motion-kind="functional" data-motion-running={isMotionActive ? 'true' : 'false'}>
+    <div ref={arenaRef} className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-[var(--aurora-brand-bg-pitch)] shadow-2xl shadow-violet-950/40" data-motion-kind="functional" data-motion-running={isMotionActive ? 'true' : 'false'}>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] bg-black/35 px-4 py-3 font-mono text-xs">
         <div className="flex items-center gap-4">
           <span className="text-cyan-300">STAGE {battle.stageId}</span>
@@ -358,7 +362,7 @@ export default function SpaceGame() {
   const selectedWeaponData = weaponInventory.find((weapon) => weapon.id === selectedWeapon) ?? null;
 
   return (
-    <section className="relative isolate min-h-[720px] overflow-hidden rounded-3xl border border-white/[0.06] bg-[#07040e] text-white">
+    <section className="relative isolate min-h-[720px] overflow-hidden rounded-3xl border border-white/[0.06] bg-[var(--aurora-brand-bg-abyss)] text-white">
       <div className="pointer-events-none absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_20%_10%,rgba(0,229,204,.12),transparent_30%),radial-gradient(circle_at_80%_35%,rgba(139,92,246,.16),transparent_34%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(139,92,246,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,.12)_1px,transparent_1px)] [background-size:44px_44px]" />
 
@@ -403,7 +407,7 @@ export default function SpaceGame() {
               })}
             </div>
 
-            <button type="button" onClick={beginCampaign} className="group mt-9 flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-300 px-7 py-3.5 text-sm font-bold text-[#06100f] shadow-lg shadow-cyan-500/15 transition hover:scale-[1.02]">
+            <button type="button" onClick={beginCampaign} className="group mt-9 flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-300 px-7 py-3.5 text-sm font-bold text-[var(--aurora-brand-bg-teal)] shadow-lg shadow-cyan-500/15 transition hover:scale-[1.02]">
               <Play className="h-4 w-4 fill-current" /> {maxCleared > 0 ? `继续 Stage ${maxUnlocked}` : '开始战线'} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </button>
             <div className="mt-4 text-[10px] text-white/25">进度保存在当前浏览器中</div>
@@ -503,7 +507,7 @@ export default function SpaceGame() {
                   <Sparkles className="mr-2 inline h-3.5 w-3.5 text-violet-300" />
                   先用武器 A 命中，切至武器 B 后在 1.5 秒内造成弱点伤害，即可累积 Flow。
                 </div>
-                <button type="button" onClick={startBattle} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-3.5 text-sm font-bold text-[#06100f] transition hover:bg-cyan-200">
+                <button type="button" onClick={startBattle} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-3.5 text-sm font-bold text-[var(--aurora-brand-bg-teal)] transition hover:bg-cyan-200">
                   <Crosshair className="h-4 w-4" /> 进入战场
                 </button>
               </div>
@@ -534,7 +538,7 @@ export default function SpaceGame() {
             )}
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <button type="button" onClick={startBattle} className="flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-xs text-white/60 hover:bg-white/5 hover:text-white"><RotateCcw className="h-3.5 w-3.5" /> 再来一次</button>
-              <button type="button" onClick={() => { setSelectedStage(Math.min(maxUnlocked, selectedStage + 1)); setView('loadout'); }} className="flex items-center gap-2 rounded-full bg-cyan-300 px-5 py-2.5 text-xs font-bold text-[#06100f]">{view === 'victory' ? '下一战区' : '调整配装'} <ArrowRight className="h-3.5 w-3.5" /></button>
+              <button type="button" onClick={() => { setSelectedStage(Math.min(maxUnlocked, selectedStage + 1)); setView('loadout'); }} className="flex items-center gap-2 rounded-full bg-cyan-300 px-5 py-2.5 text-xs font-bold text-[var(--aurora-brand-bg-teal)]">{view === 'victory' ? '下一战区' : '调整配装'} <ArrowRight className="h-3.5 w-3.5" /></button>
             </div>
           </div>
         )}

@@ -18,6 +18,8 @@ interface PrimaryItem {
   to: string;
   icon: React.ElementType;
   paths?: string[];
+  /** Directory-panel description, surfaced as a tooltip/accessible name. */
+  description?: string;
 }
 
 const groupIconMap: Record<(typeof NAVIGATION_GROUPS)[number]['id'], React.ElementType> = {
@@ -43,6 +45,7 @@ const primaryItems: PrimaryItem[] = navigationGroups.map((group) => ({
   to: group.root,
   icon: groupIconMap[group.id],
   paths: [group.root, ...group.items.map((item) => item.to)],
+  description: group.description,
 }));
 
 const navigationGroupCount = navigationGroups.length;
@@ -124,10 +127,10 @@ export default function Navigation({ onSearchClick, onSearchIntent }: Navigation
         <div className="aurora-nav-inner">
           <Link to="/" className="aurora-brand" aria-label="Neural Connection 主页"><span className="aurora-brand-mark"><BookOpen /></span><span className="aurora-brand-copy"><strong>NEURAL CONNECTION</strong><small>ACTIVE SPACE / {activeArea}</small></span></Link>
           <div className="aurora-primary-links" aria-label={`${navigationGroupCount}个空间导航`}>
-            {primaryItems.map(({ label, to, icon: Icon, paths }) => { const isActive = routeIsActive(location.pathname, to, paths); return <Link key={to} to={to} className={isActive ? 'is-active' : ''} aria-current={isActive ? 'page' : undefined}><Icon /><span>{label}</span>{isActive && <motion.span className="aurora-nav-active-indicator" layoutId="aurora-nav-active-indicator" transition={{ type: 'spring', stiffness: 420, damping: 34 }} aria-hidden="true" />}</Link>; })}
+            {primaryItems.map(({ label, to, icon: Icon, paths, description }) => { const isActive = routeIsActive(location.pathname, to, paths); return <Link key={to} to={to} className={isActive ? 'is-active' : ''} aria-current={isActive ? 'page' : undefined} title={description ? `${label} · ${description}` : undefined} aria-label={description ? `${label}：${description}` : undefined}><Icon /><span>{label}</span>{isActive && <motion.span className="aurora-nav-active-indicator" layoutId="aurora-nav-active-indicator" transition={{ type: 'spring', stiffness: 420, damping: 34 }} aria-hidden="true" />}</Link>; })}
           </div>
           <div className="aurora-nav-actions">
-            <button type="button" onClick={onSearchClick} onPointerEnter={onSearchIntent} onFocus={onSearchIntent} className="aurora-nav-search" data-motion-ripple="true" aria-label="搜索全站"><Search /><span>搜索</span><kbd>Ctrl K</kbd></button>
+            <button type="button" onClick={onSearchClick} onPointerEnter={onSearchIntent} onFocus={onSearchIntent} className="aurora-nav-search" data-motion-ripple="true" aria-label="搜索全站"><Search /><span>搜索</span><kbd>/</kbd></button>
             <Link to="/settings/ai" className="aurora-icon-button" aria-label="设置" title="设置"><UserRound /></Link>
             <button ref={menuButtonRef} type="button" onClick={() => setMenuOpen((open) => !open)} className={`aurora-menu-button ${menuOpen ? 'is-active' : ''}`} data-motion-ripple="true" aria-label={menuOpen ? '关闭全站导航' : '打开全站导航'} aria-expanded={menuOpen} aria-controls="aurora-navigation-panel" aria-haspopup="dialog"><span>{menuOpen ? '关闭' : '导航'}</span>{menuOpen ? <X /> : <Menu />}</button>
           </div>

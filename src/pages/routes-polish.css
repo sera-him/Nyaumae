@@ -29,7 +29,7 @@
   display: grid;
   place-items: center;
   color: #fff;
-  background: linear-gradient(135deg, #66e9da 0%, #a685ff 52%, #ff8fc7 100%);
+  background: linear-gradient(135deg, var(--aurora-cyan) 0%, var(--aurora-violet) 52%, var(--aurora-pink) 100%);
   box-shadow:
     0 16px 48px rgba(166, 133, 255, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.35);
@@ -61,7 +61,7 @@
   left: 0;
   width: 38%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #66e9da, #a685ff, #ff8fc7);
+  background: linear-gradient(90deg, var(--aurora-cyan), var(--aurora-violet), var(--aurora-pink));
   animation: aurora-loader-sweep 1.35s ease-in-out infinite;
 }
 

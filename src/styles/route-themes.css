@@ -18,9 +18,9 @@
   --site-theme-text-muted: #b8aec4;
   --site-theme-border: rgba(255, 255, 255, 0.16);
   --site-theme-border-strong: rgba(255, 255, 255, 0.24);
-  --site-theme-accent: #a685ff;
+  --site-theme-accent: var(--aurora-violet);
   --site-theme-accent-rgb: 166, 133, 255;
-  --site-theme-accent-secondary: #66e9da;
+  --site-theme-accent-secondary: var(--aurora-cyan);
   --site-theme-accent-secondary-rgb: 102, 233, 218;
   --site-theme-environment-one-rgb: 102, 233, 218;
   --site-theme-environment-two-rgb: 166, 133, 255;
@@ -61,7 +61,7 @@
   --site-theme-text-muted: #a9cdc7;
   --site-theme-border: rgba(136, 237, 222, 0.17);
   --site-theme-border-strong: rgba(136, 237, 222, 0.29);
-  --site-theme-accent: #66e9da;
+  --site-theme-accent: var(--aurora-cyan);
   --site-theme-accent-rgb: 102, 233, 218;
   --site-theme-accent-secondary: #79a9ff;
   --site-theme-accent-secondary-rgb: 121, 169, 255;
@@ -107,7 +107,7 @@
   --site-theme-text-muted: #c9aaba;
   --site-theme-border: rgba(255, 157, 205, 0.17);
   --site-theme-border-strong: rgba(255, 157, 205, 0.29);
-  --site-theme-accent: #ff8fc7;
+  --site-theme-accent: var(--aurora-pink);
   --site-theme-accent-rgb: 255, 143, 199;
   --site-theme-accent-secondary: #ffc76b;
   --site-theme-accent-secondary-rgb: 255, 199, 107;
@@ -180,7 +180,7 @@
   --site-theme-border-strong: rgba(130, 178, 255, 0.31);
   --site-theme-accent: #79a9ff;
   --site-theme-accent-rgb: 121, 169, 255;
-  --site-theme-accent-secondary: #a685ff;
+  --site-theme-accent-secondary: var(--aurora-violet);
   --site-theme-accent-secondary-rgb: 166, 133, 255;
   --site-theme-environment-one-rgb: 121, 169, 255;
   --site-theme-environment-two-rgb: 166, 133, 255;
@@ -223,10 +223,10 @@
   --site-theme-panel-strong-rgb: 17, 45, 59;
   --site-theme-text: #f5fbfb;
   --site-theme-text-secondary: #bdd3d5;
-  --site-theme-text-muted: #a2c1c4;
+  --site-theme-text-muted: var(--aurora-text-frost);
   --site-theme-border: rgba(120, 225, 213, 0.18);
   --site-theme-border-strong: rgba(120, 225, 213, 0.31);
-  --site-theme-accent: #78e1d5;
+  --site-theme-accent: var(--aurora-cyan-dim);
   --site-theme-accent-rgb: 120, 225, 213;
   --site-theme-accent-secondary: #9f9cff;
   --site-theme-accent-secondary-rgb: 159, 156, 255;

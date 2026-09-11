@@ -12,9 +12,8 @@ import {
   isKnownWorldSection,
   resolveAlias,
 } from '@/lib/routeManifest';
-import { characters } from '@/data/characters';
-import { extraCharacters } from '@/data/extraCharacters';
-import { stories } from '@/data/stories';
+import { characterGuardData, storyGuardData } from '@/lib/generated/routeGuardData.generated';
+import { getStoryCover } from '@/data/storyCovers';
 
 const SITE_NAME = 'Neural Connection';
 const SITE_TITLE = 'Neural Connection — nyaumæ 的故事宇宙';
@@ -25,6 +24,8 @@ interface PageMetadata {
   description: string;
   canonicalPath: string;
   noIndex?: boolean;
+  /** Route-specific social share image (path relative to the site root). */
+  image?: string;
 }
 
 const WORLD_SECTION_LABELS: Record<string, string> = {
@@ -59,7 +60,7 @@ const CHARACTER_FILTER_LABELS: Record<string, string> = {
   other: '其他角色',
 };
 
-const charactersById = new Map([...characters, ...extraCharacters].map((character) => [character.id, character]));
+const charactersById = new Map(characterGuardData.map((character) => [character.id, character]));
 
 function page(title: string, description: string, canonicalPath: string): PageMetadata {
   return {
@@ -81,16 +82,19 @@ function isPositiveInteger(value: string | undefined): value is string {
 function getStoryMetadata(canonicalPath: string): PageMetadata {
   const segments = canonicalPath.split('/').filter(Boolean);
   const storyId = segments[1];
-  const story = stories.find((entry) => entry.id === storyId);
+  const story = storyGuardData.find((entry) => entry.id === storyId);
   if (!story) return notFound(canonicalPath);
 
   const storyTitle = `《${story.title}》`;
   if (segments.length === 2) {
-    return page(
-      `${story.title}｜故事阅读`,
-      `阅读 ${storyTitle}${story.subtitle ? `：${story.subtitle}` : ''}。`,
-      canonicalPath,
-    );
+    return {
+      ...page(
+        `${story.title}｜故事阅读`,
+        `阅读 ${storyTitle}${story.subtitle ? `：${story.subtitle}` : ''}。`,
+        canonicalPath,
+      ),
+      image: getStoryCover(storyId),
+    };
   }
 
   let partId: string | undefined;
@@ -120,11 +124,11 @@ function getStoryMetadata(canonicalPath: string): PageMetadata {
 
   const chapterNumber = Number(chapterId);
   if (!story.contentSource) {
-    if (partId || chapterNumber > story.chapters.length) return notFound(canonicalPath);
-    const chapter = story.chapters[chapterNumber - 1];
+    if (partId || chapterNumber > story.chapterTitles.length) return notFound(canonicalPath);
+    const chapterTitle = story.chapterTitles[chapterNumber - 1];
     return page(
-      `${story.title}｜${chapter.title}`,
-      `阅读 ${storyTitle}第 ${chapterNumber} 章「${chapter.title}」。`,
+      `${story.title}｜${chapterTitle}`,
+      `阅读 ${storyTitle}第 ${chapterNumber} 章「${chapterTitle}」。`,
       canonicalPath,
     );
   }
@@ -168,7 +172,38 @@ function getPlaygroundMetadata(canonicalPath: string): PageMetadata {
   );
 }
 
-function getPageMetadata(pathname: string, search = ''): PageMetadata {
+// Section-level social share images, applied to every route under the given
+// prefix unless the route already resolved its own image (e.g. story covers).
+// First match wins, so keep the more specific prefixes above the general ones.
+/** Game ids that have a generated card in public/og/ (`npm run og:generate`). */
+const GAME_SHARE_CARDS = [
+  'city-builder', 'stellar', 'compound-chess', 'box-battle', 'super-24',
+  'skill-tic-tac-toe', 'hell-maze-vi', 'cunning-rabbit', 'quiz', 'fractal-echo',
+  'neural-echo', 'neural-clash', 'cat-mouse', 'giant-catch',
+];
+
+const SECTION_IMAGE_RULES: Array<{ prefix: string; image: string }> = [
+  // The cat-machine card is a hand-made illustration, so it wins over the
+  // generated set for that one game.
+  { prefix: '/playground/games/cat-machine', image: '/cat-machine-og.png' },
+  ...GAME_SHARE_CARDS.map((id) => ({ prefix: `/playground/games/${id}`, image: `/og/${id}.png` })),
+  { prefix: '/world', image: '/star-pavilion.jpg' },
+  { prefix: '/miia', image: '/story-mia-world-1.jpg' },
+  { prefix: '/stories', image: '/story-fox-penguin.jpg' },
+  { prefix: '/nctb', image: '/qet-card.jpg' },
+];
+
+// Exported so the build-time SEO generator (scripts/generate-seo-files.mjs)
+// reuses the exact same per-route metadata as the running app.
+// eslint-disable-next-line react-refresh/only-export-components
+export function getPageMetadata(pathname: string, search = ''): PageMetadata {
+  const metadata = resolvePageMetadata(pathname, search);
+  if (metadata.image) return metadata;
+  const rule = SECTION_IMAGE_RULES.find((entry) => metadata.canonicalPath.startsWith(entry.prefix));
+  return rule ? { ...metadata, image: rule.image } : metadata;
+}
+
+function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
   const normalizedPath = normalizePath(pathname);
   const redirectedPath = normalizedPath === '/cat-mouse'
     ? '/playground/games/cat-mouse'
@@ -228,11 +263,7 @@ function getPageMetadata(pathname: string, search = ''): PageMetadata {
     }
     const character = charactersById.get(id);
     if (!character) return notFound(canonicalPath);
-    const role = 'title' in character && character.title
-      ? character.title
-      : 'category' in character
-        ? character.category
-        : '角色';
+    const role = character.title ?? character.category ?? '角色';
     return page(
       `${character.name}｜角色档案`,
       `阅读 ${character.name} 的角色档案：${role}。${character.bio}`,
@@ -361,7 +392,7 @@ function getPageMetadata(pathname: string, search = ''): PageMetadata {
 function notFound(canonicalPath: string): PageMetadata {
   return {
     title: '页面未找到 — Neural Connection',
-    description: '这条内容路径不存在。请返回首页，或按 Ctrl+K 打开全站搜索。',
+    description: '这条内容路径不存在。请返回首页，或按 / 打开全站搜索。',
     canonicalPath,
     noIndex: true,
   };
@@ -389,13 +420,13 @@ function upsertCanonical(href: string): void {
 }
 
 function getCanonicalUrl(pathname: string): string {
-  // This app intentionally uses HashRouter. Keep the route in the canonical
-  // URL's hash so metadata never advertises a clean path that the server would
-  // serve as the homepage instead of the requested client-side route.
+  // Clean-URL routing (BrowserRouter): canonical URLs advertise the real path,
+  // which the host serves for deep links via its SPA fallback.
   const routePath = pathname === '/' ? '/' : pathname;
   const url = new URL(window.location.href);
   url.search = '';
-  url.hash = `#${routePath}`;
+  url.hash = '';
+  url.pathname = routePath;
   return url.toString();
 }
 
@@ -411,6 +442,8 @@ export default function RouteMetadata() {
     upsertMeta('property', 'og:title', metadata.title);
     upsertMeta('property', 'og:description', metadata.description);
     upsertMeta('property', 'og:url', canonicalUrl);
+    upsertMeta('property', 'og:image', `${window.location.origin}${metadata.image ?? '/icons/icon-512x512.png'}`);
+    upsertMeta('name', 'twitter:image', `${window.location.origin}${metadata.image ?? '/icons/icon-512x512.png'}`);
     upsertMeta('name', 'twitter:title', metadata.title);
     upsertMeta('name', 'twitter:description', metadata.description);
     upsertMeta('name', 'robots', metadata.noIndex ? 'noindex,follow' : 'index,follow');

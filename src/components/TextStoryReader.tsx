@@ -408,27 +408,6 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
           </aside>
 
           <div className="story-reader-content">
-          {story.video && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08, duration: 0.45 }}
-            className="story-reader-video"
-          >
-            <video
-              src={story.video}
-              poster={story.videoPoster}
-              controls
-              playsInline
-              preload="metadata"
-              className="block max-h-[75vh] w-full bg-black object-contain"
-              aria-label={`${story.title} 视频`}
-            >
-              您的浏览器暂不支持视频播放。
-            </video>
-          </motion.div>
-        )}
-
           <AnimatePresence mode="wait" initial={false}>
               <motion.article
                 key={`${validPartIndex}-${validChapterIndex}`}

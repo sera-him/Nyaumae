@@ -152,7 +152,7 @@ html[data-motion-page='hidden'] *::after,
 
 /* Timeline: one rail draw, quiet nodes, image depth without perpetual motion. */
 .timeline-motion {
-  --timeline-accent: var(--aurora-cyan, #66e9da);
+  --timeline-accent: var(--aurora-cyan, var(--aurora-cyan));
 }
 
 .timeline-motion-gallery > div {

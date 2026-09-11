@@ -7,6 +7,7 @@ import {
 } from '@/game/neuralClash/engine';
 import './NeuralClash.css';
 import { confirmAction } from '@/lib/confirmAction';
+import '@/styles/playground-lab.css';
 
 const OWNER_COLOR: Record<Owner, string> = {
   neutral: '#8390a3', blue: '#4dc7ff', red: '#ff557d', dead: '#343a46',

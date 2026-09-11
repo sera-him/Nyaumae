@@ -329,7 +329,7 @@ export default function FractalEcho() {
 
       <div className="re-sync-note">
         <Zap size={15} />
-        <span><strong>本局已应用：</strong>{modeOption.turns} 次行动，对半分配给蓝/橙；行动方由 <code>popcount(r−1) mod 2</code> 决定。{aiTerrainText}。</span>
+        <span><strong>本局规则：</strong>共 {modeOption.turns} 次行动，蓝/橙各半；第 r 次行动方由 <code>popcount(r−1) mod 2</code> 决定（r 从 1 起：0 为蓝，1 为橙），所有模式共用同一条序列的前缀。{aiTerrainText}。</span>
       </div>
 
       <div className="re-score-row">

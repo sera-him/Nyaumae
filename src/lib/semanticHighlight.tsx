@@ -790,9 +790,9 @@ export function posColorHighlight(text: string, posTag: string): React.ReactNode
 // ═══════════════════════════════════════════════════════════════
 
 const OVERLOAD_COLORS = [
-  'text-[#EF4444]', 'text-[#F59E0B]', 'text-[#00E5CC]', 'text-[#8B5CF6]',
-  'text-[#F472B6]', 'text-[#6366F1]', 'text-[#EC4899]', 'text-[#14B8A6]',
-  'text-[#A855F7]', 'text-[#F97316]', 'text-[#06B6D4]', 'text-[#EAB308]',
+  'text-[var(--aurora-brand-red)]', 'text-[var(--aurora-brand-amber)]', 'text-[var(--aurora-brand-cyan)]', 'text-[var(--aurora-brand-violet)]',
+  'text-[var(--aurora-brand-pink)]', 'text-[var(--aurora-brand-indigo)]', 'text-[var(--aurora-brand-rose)]', 'text-[var(--aurora-brand-teal)]',
+  'text-[var(--aurora-brand-purple)]', 'text-[var(--aurora-brand-orange)]', 'text-[var(--aurora-brand-cyan-deep)]', 'text-[var(--aurora-brand-yellow)]',
 ];
 
 export function getRandomOverloadColor(): string {

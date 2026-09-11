@@ -16,10 +16,23 @@ vite*.log
 server*.log
 .pnpm-store
 .tmp
-tmp
+tmp/
+tmp_check*.mjs
+tmp_check*.py
+convert_sep.py
 output
+output_*.txt
+output_sep*.txt
+temp_log.txt
+1.txt
+bench*.ts
+debug*.ts
 .wrangler
 .agents
+
+# Generated self-hosted font assets (scripts/generate-font-css.mjs)
+public/fonts.css
+public/fonts/
 
 # Editor directories and files
 .vscode/*

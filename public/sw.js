@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'neural-connection-';
-const CACHE_VERSION = 'v11';
+const CACHE_VERSION = 'v12';
 const PRECACHE_NAME = `${CACHE_PREFIX}precache-${CACHE_VERSION}`;
 const STATIC_CACHE_NAME = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const CURRENT_CACHE_NAMES = [PRECACHE_NAME, STATIC_CACHE_NAME];
@@ -120,6 +120,11 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(networkFirstNavigation(event));
+    return;
+  }
+
+  if (MEDIA_ASSET_PATTERN.test(new URL(request.url).pathname)) {
+    event.respondWith(staleWhileRevalidateMedia(event));
     return;
   }
 

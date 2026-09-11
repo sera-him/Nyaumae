@@ -18,7 +18,7 @@ interface LazyCollapsibleSectionProps {
   borderColor?: string;
   /** Custom title color class (default: text-nc-text) */
   titleColor?: string;
-  /** Custom background color class (default: bg-[#100A1A]) */
+  /** Custom background color class (default: bg-[var(--aurora-brand-bg)]) */
   bgColor?: string;
   /**
    * Additional IDs that should trigger expansion of this section.
@@ -37,7 +37,7 @@ export default function LazyCollapsibleSection({
   defaultExpanded = false,
   borderColor = 'border-[#8B5CF6]/15',
   titleColor = 'text-nc-text',
-  bgColor = 'bg-[#100A1A]',
+  bgColor = 'bg-[var(--aurora-brand-bg)]',
   expandMatchIds,
 }: LazyCollapsibleSectionProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);

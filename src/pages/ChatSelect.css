@@ -23,9 +23,17 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  /* 用优化变体而不是原图：带变体的原图会从 dist 剪除，直接引用原图会 404。
+     先写普通声明兜底，支持 image-set 的浏览器再覆盖拿到 AVIF。 */
   background-image:
     linear-gradient(180deg, rgba(7, 10, 28, .86), rgba(7, 10, 28, .94)),
-    url('/chat-themes/aurora-night.png');
+    url('/optimized/chat-themes/aurora-night-1280.webp');
+  background-image:
+    linear-gradient(180deg, rgba(7, 10, 28, .86), rgba(7, 10, 28, .94)),
+    image-set(
+      url('/optimized/chat-themes/aurora-night-1280.avif') type('image/avif'),
+      url('/optimized/chat-themes/aurora-night-1280.webp') type('image/webp')
+    );
   background-position: center, center 22%;
   background-size: cover;
   opacity: .18;

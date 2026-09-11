@@ -26,6 +26,43 @@ import {
   maineCoonFear,
   isPoisonedRemoved,
 } from './rules';
+import type { PieceType } from './types';
+
+/** 变身保留毒：同格同主，旧类型 key 的毒搬到新类型 key（免疫子也可带毒） */
+function migratePoisonOnTypeChange(
+  poison: Record<string, number>,
+  player: Player,
+  pos: Position,
+  fromType: PieceType,
+  toType: PieceType,
+): void {
+  if (fromType === toType) return;
+  const oldKey = `${player}_${fromType}_${pos.row}_${pos.col}`;
+  const count = poison[oldKey];
+  if (!count) return;
+  const newKey = `${player}_${toType}_${pos.row}_${pos.col}`;
+  poison[newKey] = (poison[newKey] || 0) + count;
+  delete poison[oldKey];
+}
+
+/** 整盘扫描迁移：K<->G、Q<->O 变身后保留毒 */
+function migrateBoardTransformPoison(
+  oldBoard: Board,
+  newBoard: Board,
+  poison: Record<string, number>,
+): void {
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const before = getPiece(oldBoard, { row, col });
+      const after = getPiece(newBoard, { row, col });
+      if (!before || !after) continue;
+      if (before.owner !== after.owner) continue;
+      if (before.type !== after.type) {
+        migratePoisonOnTypeChange(poison, before.owner, { row, col }, before.type, after.type);
+      }
+    }
+  }
+}
 
 // ============================================================
 // 自将军检测：执行某走法后是否己方被将军
@@ -70,7 +107,7 @@ function isKingSafeAfterMove(
   const criticals = findCriticalPieces(simBoard, player);
   if (criticals.length === 0) return false; // 没有关键棋子 = 已被将死
 
-  const enemyRange = getAttackRange(simBoard, opponent(player));
+  const enemyRange = getAttackRange(simBoard, opponent(player), poisonMap);
 
   for (const cPos of criticals) {
     if (enemyRange.has(`${cPos.row},${cPos.col}`)) {
@@ -133,10 +170,10 @@ export function getLegalMoves(
 // 将军检测
 // ============================================================
 
-export function isCheck(board: Board, player: Player): boolean {
+export function isCheck(board: Board, player: Player, poisonMap?: Record<string, number>): boolean {
   const criticals = findCriticalPieces(board, player);
   if (criticals.length === 0) return true; // 没有关键棋子就是被将死
-  const enemyRange = getAttackRange(board, opponent(player));
+  const enemyRange = getAttackRange(board, opponent(player), poisonMap);
   return criticals.some(cPos => enemyRange.has(`${cPos.row},${cPos.col}`));
 }
 
@@ -156,12 +193,12 @@ export function hasNoLegalMoves(state: GameState, player: Player): boolean {
 
 /** 将死：无合法走法 + 被将军 */
 export function isCheckmate(state: GameState, player: Player): boolean {
-  return hasNoLegalMoves(state, player) && isCheck(state.board, player);
+  return hasNoLegalMoves(state, player) && isCheck(state.board, player, state.poison);
 }
 
 /** 逼和：无合法走法 + 未被将军 */
 export function isStalemate(state: GameState, player: Player): boolean {
-  return hasNoLegalMoves(state, player) && !isCheck(state.board, player);
+  return hasNoLegalMoves(state, player) && !isCheck(state.board, player, state.poison);
 }
 
 /**
@@ -169,6 +206,23 @@ export function isStalemate(state: GameState, player: Player): boolean {
  * 供 executeMove 中正常走子/女巫技能共用
  */
 function finalizeMove(newState: GameState, oldState: GameState): GameState {
+  // 吃王即赢（含巨鲸清除吃掉王）：谁先让对方无关键子（K/G），谁直接赢
+  const whiteCriticals = findCriticalPieces(newState.board, 'white');
+  const blackCriticals = findCriticalPieces(newState.board, 'black');
+  if (whiteCriticals.length === 0 && blackCriticals.length === 0) {
+    newState.phase = 'draw';
+  } else if (whiteCriticals.length === 0) {
+    newState.phase = 'black_wins';
+  } else if (blackCriticals.length === 0) {
+    newState.phase = 'white_wins';
+  }
+  if (newState.phase !== 'playing') {
+    // 已终局仍记哈希后返回
+    const prevHashes = oldState.stateHashes || [];
+    const hash = computeStateHash(newState);
+    newState.stateHashes = [...prevHashes, hash];
+    return newState;
+  }
   const nextPlayer = newState.currentPlayer;
   if (isCheckmate(newState, nextPlayer)) {
     newState.phase = nextPlayer === 'white' ? 'black_wins' : 'white_wins';
@@ -244,7 +298,8 @@ export function executeMove(state: GameState, move: Move): GameState {
       clockBountyCellsBefore: { ...state.clockBountyCells },
     };
     newState.history.push(dEntry);
-    return newState;
+    // 破译也要过终局判定（重复局面/将死），与女巫/变身分支一致
+    return finalizeMove(newState, state);
   }
 
   // ---- 女巫技能 ----
@@ -312,6 +367,8 @@ export function executeMove(state: GameState, move: Move): GameState {
   // ---- 后变鸵鸟 ----
   if (move.isQueenToOstrich && piece.type === 'Q') {
     newState.board[from.row][from.col] = { type: 'O', owner: player };
+    // Q->O 变身保留毒（免疫子也可带毒）
+    migratePoisonOnTypeChange(newState.poison, player, from, 'Q', 'O');
     newState.currentPlayer = opponent(currentPlayer);
     newState.moveCount++;
     const qEntry: HistoryEntry = {
@@ -334,18 +391,26 @@ export function executeMove(state: GameState, move: Move): GameState {
     };
     newState.history.push(qEntry);
 
-    // ---- 猫娘规则：Q→O 后触发 ----
+    // ---- 猫娘规则：Q→O 后触发（保留毒） ----
     const hasO = hasOwnOstrich(newState.board, 'white');
     const hasOb = hasOwnOstrich(newState.board, 'black');
     if (hasO && !newState.hasOstrich.white) {
+      const before = cloneBoard(newState.board);
       newState.board = transformKingToCatgirl(newState.board, 'white');
+      migrateBoardTransformPoison(before, newState.board, newState.poison);
     } else if (!hasO && newState.hasOstrich.white) {
+      const before = cloneBoard(newState.board);
       newState.board = transformCatgirlToKing(newState.board, 'white');
+      migrateBoardTransformPoison(before, newState.board, newState.poison);
     }
     if (hasOb && !newState.hasOstrich.black) {
+      const before = cloneBoard(newState.board);
       newState.board = transformKingToCatgirl(newState.board, 'black');
+      migrateBoardTransformPoison(before, newState.board, newState.poison);
     } else if (!hasOb && newState.hasOstrich.black) {
+      const before = cloneBoard(newState.board);
       newState.board = transformCatgirlToKing(newState.board, 'black');
+      migrateBoardTransformPoison(before, newState.board, newState.poison);
     }
     newState.hasOstrich = { white: hasO, black: hasOb };
 
@@ -355,17 +420,22 @@ export function executeMove(state: GameState, move: Move): GameState {
   // ---- 鸵鸟变回后 ----
   if (move.isOstrichToQueen && piece.type === 'O') {
     newState.board[from.row][from.col] = { type: 'Q', owner: player };
+    migratePoisonOnTypeChange(newState.poison, player, from, 'O', 'Q');
     newState.currentPlayer = opponent(currentPlayer);
     newState.moveCount++;
 
-    // 猫娘同步变回王
+    // 猫娘同步变回王（保留毒）
     const hasO = hasOwnOstrich(newState.board, 'white');
     const hasOb = hasOwnOstrich(newState.board, 'black');
     if (!hasO && newState.hasOstrich.white) {
+      const before = cloneBoard(newState.board);
       newState.board = transformCatgirlToKing(newState.board, 'white');
+      migrateBoardTransformPoison(before, newState.board, newState.poison);
     }
     if (!hasOb && newState.hasOstrich.black) {
+      const before = cloneBoard(newState.board);
       newState.board = transformCatgirlToKing(newState.board, 'black');
+      migrateBoardTransformPoison(before, newState.board, newState.poison);
     }
     newState.hasOstrich = { white: hasO, black: hasOb };
 
@@ -391,9 +461,10 @@ export function executeMove(state: GameState, move: Move): GameState {
     return finalizeMove(newState, state);
   }
 
-  // ---- 星舰部署（不移动星舰，在目标空格放置非关键棋子） ----
+  // ---- 星舰部署（不移动星舰，在目标空格放置非关键棋子，禁 K/G/U/S/X） ----
   if (move.isStarshipDeploy && piece.type === 'S' && move.starshipDeployType) {
-    if (isEmpty(newState.board, to)) {
+    const forbidden: PieceType[] = ['K', 'G', 'U', 'S', 'X'];
+    if (!forbidden.includes(move.starshipDeployType) && isEmpty(newState.board, to)) {
       newState.board[to.row][to.col] = { type: move.starshipDeployType, owner: player };
     }
     newState.currentPlayer = opponent(currentPlayer);
@@ -420,9 +491,10 @@ export function executeMove(state: GameState, move: Move): GameState {
     return finalizeMove(newState, state);
   }
 
-  // ---- 太空人合成星舰 ----
+  // ---- 太空人合成星舰（保留毒：免疫子也可带毒） ----
   if (move.isSpacemanToStarship && piece.type === 'U') {
     newState.board[from.row][from.col] = { type: 'S', owner: player };
+    migratePoisonOnTypeChange(newState.poison, player, from, 'U', 'S');
     newState.currentPlayer = opponent(currentPlayer);
     newState.moveCount++;
     const uEntry: HistoryEntry = {
@@ -471,12 +543,19 @@ export function executeMove(state: GameState, move: Move): GameState {
   newState.board[to.row][to.col] = piece;
   newState.board[from.row][from.col] = null;
 
-  // 转移中毒次数到新位置
+  // 转移中毒次数到新位置（免疫子也可带毒，一并搬运）
   const newKey = pieceKey(piece, to);
   const totalTransferred = oldPoisonCount + inheritedPoison;
   if (totalTransferred > 0) {
     newState.poison[newKey] = (newState.poison[newKey] || 0) + totalTransferred;
     delete newState.poison[key];
+  } else if (oldPoisonCount === 0 && key in newState.poison) {
+    // 免疫子带 0 也要搬 key，避免旧 key 残留
+    delete newState.poison[key];
+  }
+  // 蓝奶酪被控老鼠移动后，控制键跟到新位置（否则一动就失配）
+  if (state.blueCheeseMouseKey !== null && state.blueCheeseMouseKey === key) {
+    newState.blueCheeseMouseKey = newKey;
   }
 
   // ---- 处理升变（E→E 时不重复转移中毒，避免同键删除） ----
@@ -511,8 +590,9 @@ export function executeMove(state: GameState, move: Move): GameState {
   if (captured && captured.type === 'X') {
     const isKingOwnRocket = movedPiece && movedPiece.type === 'K' && captured.owner === player;
     if (isKingOwnRocket) {
-      // 王吃己方火箭 → 合成太空人
+      // 王吃己方火箭 → 合成太空人（保留毒）
       newState.board[to.row][to.col] = { type: 'U', owner: player };
+      migratePoisonOnTypeChange(newState.poison, player, to, 'K', 'U');
       newState.rocketPos = { ...state.rocketPos, [player]: null };
     } else {
       // 任意其他棋子吃火箭 → 吃子方一并被移除（同归于尽）
@@ -529,20 +609,27 @@ export function executeMove(state: GameState, move: Move): GameState {
   // 此功能需要 UI 交互支持，通过 move 中的特殊标记实现
   // 简化处理：在 UI 中提供按钮
 
-  // ---- 检测是否有鸵鸟（影响猫娘规则） ----
+  // ---- 检测是否有鸵鸟（影响猫娘规则，变身保留毒） ----
   const hasO = hasOwnOstrich(newState.board, 'white');
   const hasOb = hasOwnOstrich(newState.board, 'black');
 
-  // ---- 猫娘规则：有鸵鸟→王变猫娘；无鸵鸟→猫娘变王 ----
   if (hasO && !newState.hasOstrich.white) {
+    const before = cloneBoard(newState.board);
     newState.board = transformKingToCatgirl(newState.board, 'white');
+    migrateBoardTransformPoison(before, newState.board, newState.poison);
   } else if (!hasO && newState.hasOstrich.white) {
+    const before = cloneBoard(newState.board);
     newState.board = transformCatgirlToKing(newState.board, 'white');
+    migrateBoardTransformPoison(before, newState.board, newState.poison);
   }
   if (hasOb && !newState.hasOstrich.black) {
+    const before = cloneBoard(newState.board);
     newState.board = transformKingToCatgirl(newState.board, 'black');
+    migrateBoardTransformPoison(before, newState.board, newState.poison);
   } else if (!hasOb && newState.hasOstrich.black) {
+    const before = cloneBoard(newState.board);
     newState.board = transformCatgirlToKing(newState.board, 'black');
+    migrateBoardTransformPoison(before, newState.board, newState.poison);
   }
   newState.hasOstrich = { white: hasO, black: hasOb };
 

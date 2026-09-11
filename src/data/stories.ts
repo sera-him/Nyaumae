@@ -9,8 +9,6 @@ export interface Story {
   id: string;
   title: string;
   subtitle?: string;
-  video?: string;
-  videoPoster?: string;
   contentSource?: string;
   chapterCount?: number;
   chapters: StoryChapter[];
@@ -432,9 +430,7 @@ tourist 依然在我之上，
     id: 'little-girl-in-giant-country',
     title: '大人国的小女孩',
     subtitle: '第一卷 · 小满来到这里的三十天',
-    video: '/videos/little-girl-in-giant-country.mp4',
-    videoPoster: '/story-giant-part-1.png',
-    contentSource: '/1.txt',
+    contentSource: '/stories-content/little-girl-in-giant-country.txt',
     chapterCount: 65,
     chapters: [],
   },

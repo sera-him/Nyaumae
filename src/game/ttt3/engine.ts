@@ -239,10 +239,27 @@ export function applyAssassinBonus(state: TTT3GameState, player: TTT3Player): vo
 
 /** 回合开始 */
 export function startOfTurn(state: TTT3GameState, player: TTT3Player): TTT3GameState {
-  const newState = { ...state };
+  const newState = deepCloneState(state);
   // 深拷贝可变数组
   newState.skillUsedTurn = [ { ...state.skillUsedTurn[0] }, { ...state.skillUsedTurn[1] } ];
   newState.skillUsedTurn[player] = {};
+  // 心灵迷宫：按当前空格重抽（数量=施放时的半数），避免快照过期：
+  // 施放后同回合若接 Collapse/Thunder 改了棋盘，旧名单会有占用格、新空格反而不让下
+  if (newState.mindMaze[player] > 0 && newState.mazeAllowed[player]) {
+    const keep = newState.mazeAllowed[player]!.length;
+    const empty: number[] = [];
+    for (let i = 0; i < 9; i++) if (newState.board[i] === 0) empty.push(i);
+    if (empty.length === 0) {
+      newState.mazeAllowed[player] = [];
+    } else {
+      for (let i = empty.length - 1; i > 0; i--) {
+        const j = randMod(i + 1);
+        [empty[i], empty[j]] = [empty[j], empty[i]];
+      }
+      newState.mazeAllowed[player] = empty.slice(0, Math.min(keep, empty.length));
+    }
+    logAction(newState, `心灵迷宫生效！本回合只能选 ${newState.mazeAllowed[player]!.length} 个格子：${newState.mazeAllowed[player]!.map(x => x + 1).join(', ')}`);
+  }
 
   // 记录回合开始时的 seal 位置（C++ prev_seal 机制）
   newState.prevSealPos = state.spatialSealPos;
@@ -308,9 +325,22 @@ export function placePiece(
   player: TTT3Player,
   move: number,
 ): { state: TTT3GameState; success: boolean; log: string; gamblerRetry?: boolean } {
+  // 心灵迷宫引擎层真拦：禁选格直接失败且不消耗迷宫（与 getLegalMoves/Store 一致）
+  if (state.mindMaze[player] > 0 && state.mazeAllowed[player] && !state.mazeAllowed[player]!.includes(move)) {
+    return { state: deepCloneState(state), success: false, log: `心灵迷宫限制：本回合只能选 ${state.mazeAllowed[player]!.map(x => x + 1).join(', ')}` };
+  }
   const newState = deepCloneState(state);
   const pName = player === 0 ? 'O' : 'X';
   const opp = 1 - player as TTT3Player;
+
+  // 合法落子尝试即消耗迷宫（成功失败都耗；跳过/虹吸等不落子则不耗，防跳过躲限选）
+  // 赌徒重试是同回合再选，重试时保留迷宫（见下方 retry 分支恢复）
+  const hadMaze = newState.mindMaze[player] > 0;
+  const hadAllowed = hadMaze ? newState.mazeAllowed[player] : null;
+  if (hadMaze) {
+    newState.mindMaze[player] = 0;
+    newState.mazeAllowed[player] = null;
+  }
 
   const finalProb = computeFinalProb(newState, player, move);
   // probSurge 在计算最终概率后立即消耗（无论成功失败）
@@ -361,8 +391,12 @@ export function placePiece(
       newState.venture[player] = false;
     }
 
-    // Gambler: 20% 重试（与 C++ 一致：重新选择位置）
+    // Gambler: 20% 重试（与 C++ 一致：重新选择位置），重试仍吃迷宫限选
     if (hasProf(newState, player, ProfessionEnum.GAMBLER) && randMod(5) === 0) {
+      if (hadMaze) {
+        newState.mindMaze[player] = 1;
+        newState.mazeAllowed[player] = hadAllowed;
+      }
       logAction(newState, `赌徒触发了重试！`);
       return { state: newState, success: false, log: `赌徒触发了重试！`, gamblerRetry: true };
     }
@@ -600,20 +634,8 @@ export function applySkill(
     }
 
     case SkillEnum.TYRANT_GRIP: {
-      const cost = getSkillCost(newState, skill, player);
-      if (cost > 0 && newState.sp[player] < cost) {
-        return { state: newState, success: false, log: 'SP 不足' };
-      }
-      if (cost > 0) {
-        newState.sp[player] -= cost;
-        if (hasProf(newState, opp, ProfessionEnum.CAPITALIST)) {
-          const gain = Math.round(cost * 0.1);
-          if (gain > 0 && newState.skipPunishTurns[opp] <= 0) {
-            newState.sp[opp] += gain;
-            if (newState.sp[opp] > newState.maxSp[opp]) newState.sp[opp] = newState.maxSp[opp];
-          }
-        }
-      }
+      // 费用已在通用扣费处扣除（含资本家返利），此处只生效，不二次扣费
+      // canUseSkill 已校验 SP 充足，直接生效即可
       newState.skillUsedTurn[player][skill] = (newState.skillUsedTurn[player][skill] || 0) + 1;
       newState.tyrantCost[player] += 5;
       newState.tyrantActive[opp] = true;
@@ -1016,6 +1038,10 @@ function skillMindMaze(state: TTT3GameState, player: TTT3Player): { state: TTT3G
   const opp = 1 - player as TTT3Player;
   const empty: number[] = [];
   for (let i = 0; i < 9; i++) if (newState.board[i] === 0) empty.push(i);
+  // 无空格时不可施放，避免发空名单锁死对手一回合
+  if (empty.length === 0) {
+    return { state: deepCloneState(state), success: false, log: '棋盘已满，无空格可限' };
+  }
   const half = Math.floor((empty.length + 1) / 2);
 
   // Fisher-Yates shuffle
@@ -1030,7 +1056,8 @@ function skillMindMaze(state: TTT3GameState, player: TTT3Player): { state: TTT3G
   return {
     state: newState,
     success: true,
-    log: `心灵迷宫！对手下回合只能选 ${half} 个格子：${newState.mazeAllowed[opp]!.map(x => x + 1).join(', ')}`,
+    // 名单在对手回合开始按当前空格重抽，这里只报数量，实际名单以对手回合开始为准
+    log: `心灵迷宫！对手下次落子只能从随机的 ${half} 个空格中选择`,
   };
 }
 
@@ -1187,13 +1214,9 @@ export function endTurn(state: TTT3GameState): TTT3GameState {
   const newState = deepCloneState(state);
   const prevPlayer = newState.currentPlayer;
 
-  // Mind Maze 递减
-  if (newState.mindMaze[prevPlayer] > 0) {
-    newState.mindMaze[prevPlayer]--;
-    if (newState.mindMaze[prevPlayer] === 0) {
-      newState.mazeAllowed[prevPlayer] = null;
-    }
-  }
+  // Mind Maze 改为落子消耗制（placePiece 中清除），回合结束不再自动清：
+  // 对手用 Siphon/Skip/Capacitor 空过不再能躲掉限选，必须吃一次限选落子才消
+  void prevPlayer;
 
   // Spatial Seal 清除（C++ prev_seal 机制）
   // 回合开始时有 seal，且该位置未被新 seal 覆盖，则在当前回合结束后清除

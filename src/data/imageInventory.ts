@@ -223,7 +223,6 @@ export const IMAGE_INVENTORY: ImageAsset[] = [
     src: '/story-giant-part-1.png',
     usedIn: [
       'src/components/TextStoryReader.tsx (partImages[0])',
-      'src/data/stories.ts (videoPoster for little-girl-in-giant-country)',
       'src/lib/storyThemeConfig.ts (giant coverImage)',
     ],
     type: 'chapter',

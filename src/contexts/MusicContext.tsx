@@ -1,5 +1,13 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { Howl } from 'howler';
+import type { Howl } from 'howler';
+
+// howler is ~30KB gzipped but music is opt-in (muted by default), so load it
+// lazily on first unmute instead of shipping it in the initial bundle.
+let howlerLoader: Promise<typeof import('howler').Howl> | null = null;
+function loadHowler() {
+  howlerLoader ||= import('howler').then((m) => m.Howl);
+  return howlerLoader;
+}
 
 interface MusicContextType {
   isPlaying: boolean;
@@ -96,28 +104,37 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
-    try {
-      const howl = new Howl({
-        src: [currentTrack],
-        loop: true,
-        volume: 0.35,
-        html5: true,
-        onplay: () => {
-          if (active) setIsPlaying(true);
-        },
-        onpause: markStopped,
-        onstop: markStopped,
-        onend: markStopped,
-        onloaderror: markStopped,
+    let cancelled = false;
+    loadHowler()
+      .then((HowlCtor) => {
+        if (cancelled || !active) return;
+        try {
+          const howl = new HowlCtor({
+            src: [currentTrack],
+            loop: true,
+            volume: 0.35,
+            html5: true,
+            onplay: () => {
+              if (active) setIsPlaying(true);
+            },
+            onpause: markStopped,
+            onstop: markStopped,
+            onend: markStopped,
+            onloaderror: markStopped,
+          });
+          howlRef.current = howl;
+          howl.play();
+        } catch {
+          queueMicrotask(markStopped);
+        }
+      })
+      .catch(() => {
+        queueMicrotask(markStopped);
       });
-      howlRef.current = howl;
-      howl.play();
-    } catch {
-      queueMicrotask(markStopped);
-    }
 
     return () => {
       active = false;
+      cancelled = true;
     };
   }, [currentTrack, isMuted, safeUnload]);
 

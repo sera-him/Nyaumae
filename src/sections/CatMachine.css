@@ -40,8 +40,10 @@
   box-shadow: 0 0 0 6px rgba(248, 121, 111, 0.72);
 }
 
+/* 纯装饰光斑：锚定视口而非容器。容器高度在「引导弹窗 → 游戏界面」切换时
+   会变化，absolute 定位会让它们整体位移，实测贡献 0.44 的 CLS。 */
 .cm-ambient {
-  position: absolute;
+  position: fixed;
   z-index: -1;
   width: 440px;
   height: 440px;

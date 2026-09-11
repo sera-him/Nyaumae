@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { NCTB_DIMENSION_IDS } from '../../src/nctb/catalog.ts';
+import { NCTB_DIMENSION_IDS, questionsRequiredForDimension } from '../../src/nctb/catalog.ts';
 import { estimateTargetMs } from '../../src/nctb/difficulty.ts';
 import { buildGenerationPrompt } from '../../src/nctb/generation/prompts.ts';
 import { freezeReviewedCandidate } from '../../src/nctb/generation/freeze.ts';
@@ -106,10 +106,14 @@ function completeAllCorrect(mode: NctbMode): NctbSession {
 }
 
 const completedFormal = completeAllCorrect('formal');
-assert.equal(effectiveResponses(completedFormal).length, 50, 'The complete exam must administer all 50 items.');
+const expectedFormalItems = NCTB_DIMENSION_IDS.reduce(
+  (total, dimensionId) => total + questionsRequiredForDimension(dimensionId, 'all', 'formal'),
+  0,
+);
+assert.equal(effectiveResponses(completedFormal).length, expectedFormalItems, 'The complete exam must administer every required item.');
 const formalReport = scoreNctbSession(completedFormal);
 assert.equal(formalReport.dimensions.length, 10, 'A completed formal report must cover ten dimensions.');
-assert.equal(formalReport.totalCorrect, 50, 'Scoring API must retain all correct exam responses.');
+assert.equal(formalReport.totalCorrect, expectedFormalItems, 'Scoring API must retain all correct exam responses.');
 
 assert.equal(DIMENSION_SPECS.length, 10, 'Exactly ten dimension specifications are required.');
 for (const spec of DIMENSION_SPECS) assert.ok(spec.itemFamilies.length >= 6, `${spec.id} spec must define at least six families.`);

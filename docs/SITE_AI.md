@@ -25,7 +25,7 @@
 | 模型适配 | `src/conversation/modelAdapters.ts` |
 | BYOK 安全处理 | `src/conversation/privacy.ts` |
 | 本地状态与迁移入口 | `src/conversation/storage.ts` |
-| 对话界面 | `src/pages/ConversationWorkbench.tsx` |
+| 对话界面 | `src/pages/ThemedChat.tsx`（`/chat/ocean`、`/chat/sweetdream`、`/chat/aurora` 三个主题共用） |
 | AI 设置 | `src/pages/AISettingsPage.tsx` |
 
 ## 知识检索与引用
@@ -77,7 +77,7 @@ API 文档页 `/api` 只提供服务商格式参考，不连接服务商账户�
 - 对话与配置默认保存在浏览器本地，没有跨设备同步或服务端持久化。
 - 不同服务商对 OpenAI 兼容流式格式的兼容程度可能不同，连接测试应在实际模型上执行。
 - 站内资料的正史状态来自现有数据；模型推断不会自动写入正式正史。
-- 第 3 项 NCTB 仅保留 Prompt 类型和数据接口预留，不属于本阶段交付。
+- NCTB（第 3 项）现已独立交付：`/nctb` 十维度题库共 120 题（每维 12 题池、每场 8 题），由 `src/nctb/` 与 `scripts/nctb/` 维护，不属于本模块。
 
 ## 验证
 

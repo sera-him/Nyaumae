@@ -1,3 +1,5 @@
+import { characterGuardData } from './generated/routeGuardData.generated';
+
 export type RouteDomain = 'root' | 'world' | 'characters' | 'stories' | 'miia' | 'math' | 'playground' | 'api' | 'chat' | 'settings' | 'codex' | 'analytics';
 
 export interface RouteInfo {
@@ -59,6 +61,7 @@ const canonicalRoutes: Record<string, RouteInfo> = {
   '/playground/games': { canonical: '/playground/games', domain: 'playground', kind: 'section', label: '可玩游戏' },
   '/playground/games/cat-machine': { canonical: '/playground/games/cat-machine', domain: 'playground', kind: 'detail', label: '猫咪机' },
   '/playground/games/city-builder': { canonical: '/playground/games/city-builder', domain: 'playground', kind: 'detail', label: '建设城市' },
+  '/playground/games/giant-catch': { canonical: '/playground/games/giant-catch', domain: 'playground', kind: 'detail', label: '大人国抓小人' },
   '/playground/scratch': { canonical: '/playground/scratch', domain: 'playground', kind: 'section', label: 'Scratch 小游戏' },
   '/api': { canonical: '/api', domain: 'api', kind: 'page', label: 'API 目录' },
   '/chat': { canonical: '/chat', domain: 'chat', kind: 'page', label: '星海甜梦舱' },
@@ -227,7 +230,7 @@ const aliasMap: Record<string, string> = {
   '/playground/space': '/playground/games/stellar',
 };
 
-const knownCharacterIds = new Set<string>();
+const knownCharacterIds = new Set(characterGuardData.map((character) => character.id));
 const providerLabels: Record<string, string> = {
   deepseek: 'DeepSeek',
   openai: 'OpenAI',
@@ -269,6 +272,7 @@ const playgroundItems: Record<string, PlaygroundItem> = {
   'neural-echo': { category: 'games', label: '神经回响' },
   'neural-clash': { category: 'games', label: '神经交锋' },
   'cat-mouse': { category: 'games', label: '猫鼠迷踪' },
+  'giant-catch': { category: 'games', label: '大人国抓小人' },
   'dont-touch-cat-2': { category: 'scratch', label: '别碰另一只猫和边缘2' },
   'knife-vs-archer': { category: 'scratch', label: 'Knife V.S Archer' },
   'royal-chess': { category: 'scratch', label: '皇家战棋' },
@@ -337,8 +341,4 @@ export function getCanonicalInfo(pathname: string): RouteInfo | null {
 
 export function exportRouteManifest(): Record<string, RouteInfo> {
   return { ...canonicalRoutes };
-}
-
-export function initializeCharacterIds(ids: string[]): void {
-  ids.forEach(id => knownCharacterIds.add(id));
 }

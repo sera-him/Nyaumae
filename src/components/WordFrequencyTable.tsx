@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { getWordDocumentCount, type WordFreq } from '@/data/wordFrequency';
 import './WordFrequencyTable.css';
+
+// Progressive rendering: thousands of dense cells stall the first paint.
+const PAGE_ROWS = 200;
+const PAGE_STEP = 500;
 
 interface WordFrequencyTableProps {
   entries: WordFreq[];
@@ -14,10 +18,11 @@ interface FrequencyRow {
   index: number;
 }
 
-export default function WordFrequencyTable({ entries }: WordFrequencyTableProps) {
+function WordFrequencyTable({ entries }: WordFrequencyTableProps) {
   const [query, setQuery] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('count');
   const [packColumns, setPackColumns] = useState(18);
+  const [rowLimit, setRowLimit] = useState(PAGE_ROWS);
 
   useEffect(() => {
     const updatePackColumns = () => {
@@ -63,8 +68,12 @@ export default function WordFrequencyTable({ entries }: WordFrequencyTableProps)
     return rows;
   }, [filteredEntries, packColumns]);
 
+  const visibleRows = useMemo(() => packedRows.slice(0, rowLimit), [packedRows, rowLimit]);
+  const hiddenRows = packedRows.length - visibleRows.length;
+  const hiddenEntries = Math.max(0, filteredEntries.length - visibleRows.length * packColumns);
+
   const downloadCsv = () => {
-    const csv = ['词语,出现次数,文档数', ...filteredEntries.map((entry) => `${JSON.stringify(entry.word)},${entry.count},${getWordDocumentCount(entry.word)}`)].join('\n');
+    const csv = ['词语,出现次数,文档数', ...filteredEntries.map((entry) => `${JSON.stringify(entry.word)},${entry.count.toFixed(1)},${getWordDocumentCount(entry.word)}`)].join('\n');
     const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
     const link = document.createElement('a');
     link.download = 'word-frequency.csv';
@@ -122,7 +131,7 @@ export default function WordFrequencyTable({ entries }: WordFrequencyTableProps)
             </tr>
           </thead>
           <tbody>
-            {packedRows.map((row, rowIndex) => (
+            {visibleRows.map((row, rowIndex) => (
               <tr key={`row-${rowIndex}`}>
                 {Array.from({ length: packColumns }, (_, columnIndex) => {
                   const item = row[columnIndex];
@@ -146,8 +155,20 @@ export default function WordFrequencyTable({ entries }: WordFrequencyTableProps)
             ))}
           </tbody>
         </table>
+        {hiddenRows > 0 && (
+          <div className="word-frequency-more">
+            <button type="button" onClick={() => setRowLimit((n) => n + PAGE_STEP)}>
+              加载更多（还有约 {hiddenEntries.toLocaleString('zh-CN')} 项）
+            </button>
+            <button type="button" onClick={() => setRowLimit(packedRows.length)}>
+              显示全部
+            </button>
+          </div>
+        )}
         {filteredEntries.length === 0 && <p className="word-frequency-table-empty">没有匹配的词语。</p>}
       </div>
     </section>
   );
 }
+
+export default memo(WordFrequencyTable);

@@ -126,6 +126,36 @@ export default function NeuralEcho() {
     });
   }, [tip, usingEcho, lastPattern, player]);
 
+  /**
+   * 触摸设备上的邻近点击：棋盘里的生长点本身很小（约 8px），手指点不准。
+   * 点在棋盘空白处时，选择「手指附近最近的己方生长点」，等效热区约 80px。
+   * 点在小圆点或子枝预览上时仍走原有精确逻辑。
+   */
+  const handleBoardPointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
+    if (finished) return;
+    const target = event.target as Element | null;
+    if (target?.closest('.fractal-preview') || target?.closest('.fractal-tip')) return;
+
+    const board = event.currentTarget;
+    const rect = board.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const scale = rect.width / WIDTH;
+    const x = (event.clientX - rect.left) / scale;
+    const y = (event.clientY - rect.top) / scale;
+
+    let nearest: Branch | null = null;
+    let nearestDistance = Infinity;
+    for (const branch of branches) {
+      if (!branch.active || branch.owner !== player) continue;
+      const distance = Math.hypot(branch.x2 - x, branch.y2 - y);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearest = branch;
+      }
+    }
+    if (nearest && nearestDistance <= 90) selectTip(nearest);
+  };
+
   const selectTip = (branch: Branch) => {
     if (finished || branch.owner !== player || !branch.active) return;
     const remainingCapacity = 16 - (activeCounts[player] - 1);
@@ -267,7 +297,13 @@ export default function NeuralEcho() {
       {showRules && <div className="fractal-rules"><p><b>当前阶段 · {phase.name}</b> {phase.note}</p><p>每次点击一个己方生长点，生成三根计分子枝；第17轮起最多保留一根新生长枝。新枝端点距对手枝条不足6px时剪去该枝及后代。</p><p>每人最多16个有效生长点。回声在第9、17、25轮补充1次，最多储存2次；它会复刻对手最近一次的保留节奏。</p></div>}
 
       <div className="fractal-board-shell">
-        <svg className="fractal-board" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label="神经回响游戏棋盘">
+        <svg
+          className="fractal-board"
+          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          role="img"
+          aria-label="神经回响游戏棋盘"
+          onPointerDown={handleBoardPointerDown}
+        >
           <defs>
             <filter id="neural-echo-branch-glow"><feGaussianBlur stdDeviation="2.8" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
             <pattern id="neural-echo-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,.035)" strokeWidth="1" /></pattern>

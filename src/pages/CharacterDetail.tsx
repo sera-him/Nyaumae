@@ -4,13 +4,15 @@ import { characters, type Character } from '@/data/characters';
 import { extraCharacters } from '@/data/extraCharacters';
 import { characterRelations, relationLabels, relationColors } from '@/data/relationships';
 import { stories } from '@/data/stories';
+import { getStoryCover } from '@/data/storyCovers';
 import { getCharacterImageLocal, getCharacterImageSetLocal } from '@/data/characterImages';
 import SmartImage from '@/components/SmartImage';
 import RotatingImage from '@/components/RotatingImage';
 import { semanticHighlight } from '@/lib/semanticHighlight';
 import { getTierStyle, getPositionPercent } from '@/lib/fsiiiTiers';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Network, BookOpen, User, FolderKanban, X, EyeOff, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Network, BookOpen, User, FolderKanban, X, EyeOff, ChevronDown, Images, Fingerprint } from 'lucide-react';
+import './CharacterDetail.css';
 import WordFrequencyCloud from '@/components/WordFrequencyCloud';
 import WordFrequencyTable from '@/components/WordFrequencyTable';
 import WordFrequencyDetailedList from '@/components/WordFrequencyDetailedList';
@@ -18,18 +20,29 @@ import { frequencyMeta, getWordFrequencyClouds, getWordFrequencyDetailed, loadWo
 
 const DEFAULT_WORD_CLOUD_ALPHA = 1.35;
 
+function isDeepArchiveUrl(id: string | undefined, search: string, hash: string): boolean {
+  if (id !== 'miia') return false;
+  return new URLSearchParams(search).get('archive') === '1' || hash === '#deep-archive';
+}
+
 
 export default function CharacterDetail() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const all = [...characters, ...extraCharacters] as (Character | typeof extraCharacters[0])[];
   const char = all.find((c) => c.id === id);
+  const archiveUrl = isDeepArchiveUrl(id, location.search, location.hash);
   const [showArchive, setShowArchive] = useState(() => {
-    if (id !== 'miia') return false;
     if (typeof window === 'undefined') return false;
-    const params = new URLSearchParams(location.search);
-    return params.get('archive') === '1' || location.hash === '#deep-archive';
+    return archiveUrl;
   });
+  // Open the archive when the URL starts asking for it (e.g. ?archive=1#deep-archive)
+  // while this page stays mounted; re-render adjustment instead of a setState effect.
+  const [prevArchiveUrl, setPrevArchiveUrl] = useState(archiveUrl);
+  if (archiveUrl !== prevArchiveUrl) {
+    setPrevArchiveUrl(archiveUrl);
+    if (archiveUrl) setShowArchive(true);
+  }
   const [frequencyClouds, setFrequencyClouds] = useState(getWordFrequencyClouds);
   const [frequencyDetailed, setFrequencyDetailed] = useState<WordFreqDetailed[]>(() => getWordFrequencyDetailed());
   const [freqMode, setFreqMode] = useState<'simple' | 'detailed'>('simple');
@@ -54,12 +67,6 @@ export default function CharacterDetail() {
     setAlpha(nextAlpha);
     setAlphaText(String(nextAlpha));
   };
-
-  useEffect(() => {
-    if (id !== 'miia') return;
-    const params = new URLSearchParams(location.search);
-    if (params.get('archive') === '1' || location.hash === '#deep-archive') setShowArchive(true);
-  }, [id, location.hash, location.search]);
 
   useEffect(() => {
     if (!showArchive) return;
@@ -102,7 +109,7 @@ export default function CharacterDetail() {
       <div className="aurora-container aurora-generic-inner max-w-[900px]">
       <Link
         to="/characters"
-        className="inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors"
+        className="tap-safe inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> 返回角色总览
       </Link>
@@ -110,12 +117,23 @@ export default function CharacterDetail() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="aurora-detail-hero flex flex-col md:flex-row gap-8 mb-12"
+        className="char-hero mb-10"
       >
-        <div className="shrink-0">
-          <div className="aurora-detail-portrait character-detail-portrait-motion w-48 h-48 rounded-2xl overflow-hidden flex items-center justify-center relative">
-            {(() => {
-              return localImages && localImages.length > 1 ? (
+        {localSrc && (
+          <div className="char-hero-backdrop" aria-hidden="true">
+            <SmartImage
+              localSrc={localSrc}
+              alt=""
+              containerClassName="w-full h-full"
+              className="object-cover"
+              loading="eager"
+            />
+          </div>
+        )}
+        <div className="char-hero-content">
+          <div className="shrink-0">
+            <div className="char-portrait character-detail-portrait-motion">
+              {localImages && localImages.length > 1 ? (
                 <RotatingImage
                   localImages={localImages}
                   alt={char.name}
@@ -128,21 +146,26 @@ export default function CharacterDetail() {
                   alt={char.name}
                   containerClassName="w-full h-full"
                   className="object-cover"
+                  loading="eager"
                 />
               ) : (
                 <User className="w-16 h-16 text-nc-text-muted opacity-30" />
-              );
-            })()}
+              )}
+            </div>
+            <p className="text-xs text-nc-text-muted mt-2 text-center">示意图，非立绘</p>
           </div>
-          <p className="text-xs text-nc-text-muted mt-1 text-center">示意图，非立绘</p>
-        </div>
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-nc-text mb-1">
-            {semanticHighlight(char.name)}
-            {mainChar?.pinyin && (
-              <span className="text-lg font-normal text-nc-text-muted ml-2">{mainChar.pinyin}</span>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-3xl font-bold text-nc-text mb-1">
+              {semanticHighlight(char.name)}
+              {mainChar?.pinyin && (
+                <span className="text-lg font-normal text-nc-text-muted ml-2">{mainChar.pinyin}</span>
+              )}
+            </h1>
+            {(mainChar?.title || char.alias) && (
+              <p className="text-sm text-nc-text-muted mb-3">
+                {[mainChar?.title, char.alias && char.alias !== char.name ? char.alias : null].filter(Boolean).join(' · ')}
+              </p>
             )}
-          </h1>
           <div className="flex flex-wrap gap-2 mb-4">
             {mainChar && (
               <>
@@ -207,23 +230,35 @@ export default function CharacterDetail() {
               </span>
             )}
           </div>
-          <p className="text-nc-text-secondary leading-relaxed mb-4">{char.bio.replaceAll('巨人国', '大人国')}</p>
-          {mainChar?.profile && mainChar.profile.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
-              {mainChar.profile.map((item, index) => (
-                <motion.div
-                  key={item.label}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.12 + Math.min(index * 0.045, 0.28), duration: 0.35 }}
-                  className="character-profile-item rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2.5"
-                >
-                  <p className="text-[11px] text-nc-text-muted mb-0.5">{item.label.replaceAll('巨人国', '大人国')}</p>
-                  <p className="text-sm text-nc-text font-medium">{item.value.replaceAll('巨人国', '大人国')}</p>
-                </motion.div>
-              ))}
-            </div>
-          )}
+          <p className="text-nc-text-secondary leading-relaxed">{char.bio.replaceAll('巨人国', '大人国')}</p>
+          </div>
+        </div>
+      </motion.div>
+
+      {mainChar?.profile && mainChar.profile.length > 0 && (
+        <section className="char-section">
+          <h2 className="char-section-title">
+            <Fingerprint className="w-5 h-5 text-nc-cyan" /> 档案
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            {mainChar.profile.map((item, index) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 + Math.min(index * 0.04, 0.28), duration: 0.35 }}
+                className="character-profile-item rounded-xl border border-white/[0.06] bg-white/[0.025] px-3.5 py-3"
+              >
+                <p className="text-[11px] text-nc-text-muted mb-1">{item.label.replaceAll('巨人国', '大人国')}</p>
+                <p className="text-sm text-nc-text font-medium">{item.value.replaceAll('巨人国', '大人国')}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {(id === 'miia' || mainChar?.extra || extraCharacters.find((c) => c.id === id)?.hidden) && (
+        <section className="char-section">
           {id === 'miia' && (
             <button
               onClick={() => setShowArchive(!showArchive)}
@@ -247,35 +282,70 @@ export default function CharacterDetail() {
             if (!extra?.hidden) return null;
             return <AsiHiddenLog title="系统日志" content={extra.hidden} />;
           })()}
-        </div>
-      </motion.div>
+        </section>
+      )}
+
+      {localImages && localImages.length > 1 && (
+        <section className="char-section">
+          <h2 className="char-section-title">
+            <Images className="w-5 h-5 text-nc-violet" /> 形象图集
+          </h2>
+          <div className="char-gallery-grid">
+            {localImages.map((src, i) => (
+              <div key={src} className="char-gallery-item">
+                <SmartImage
+                  localSrc={src}
+                  alt={`${char.name} 形象 ${i + 1}`}
+                  containerClassName="w-full h-full"
+                  className="object-cover w-full h-full"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {related.length > 0 && (
-        <section className="mb-12">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-nc-text mb-4">
+        <section className="char-section">
+          <h2 className="char-section-title">
             <Network className="w-5 h-5 text-nc-violet" /> 关联
           </h2>
-          <div className="flex flex-wrap gap-3">
+          <div className="char-relation-grid">
             {related.map((r, i) => {
               const otherId = r.from === id ? r.to : r.from;
               const other = all.find((c) => c.id === otherId);
               if (!other) return null;
+              const otherImage = getCharacterImageLocal(otherId);
               return (
                 <Link
                   key={i}
                   to={`/characters/${otherId}`}
-                  className="character-relation-link motion-signal-card flex items-center gap-2 rounded-xl liquid-glass-subtle border border-white/[0.06] px-3 py-2 hover:border-cyan-400/20 transition-all"
+                  className="char-relation-card"
                   data-motion-interactive="true"
                 >
-                  <span className="text-sm text-nc-text">{semanticHighlight(other.name)}</span>
-                  <span
-                    className="text-xs px-1.5 py-0.5 rounded-full"
-                    style={{
-                      backgroundColor: relationColors[r.type] + '20',
-                      color: relationColors[r.type],
-                    }}
-                  >
-                    {relationLabels[r.type]}
+                  <span className="char-relation-avatar">
+                    {otherImage ? (
+                      <SmartImage
+                        localSrc={otherImage}
+                        alt={other.name}
+                        containerClassName="w-full h-full"
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <User className="w-5 h-5 text-nc-text-muted opacity-40" />
+                    )}
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm text-nc-text truncate">{semanticHighlight(other.name)}</span>
+                    <span
+                      className="inline-block mt-1 text-[11px] px-1.5 py-0.5 rounded-full"
+                      style={{
+                        backgroundColor: relationColors[r.type] + '20',
+                        color: relationColors[r.type],
+                      }}
+                    >
+                      {relationLabels[r.type]}
+                    </span>
                   </span>
                 </Link>
               );
@@ -285,22 +355,35 @@ export default function CharacterDetail() {
       )}
 
       {charStories.length > 0 && (
-        <section>
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-nc-text mb-4">
+        <section className="char-section">
+          <h2 className="char-section-title">
             <BookOpen className="w-5 h-5 text-nc-cyan" /> 出场故事
           </h2>
-          <div className="space-y-3">
-            {charStories.map((s) => (
-              <Link
-                key={s.id}
-                to={`/stories/${s.id}`}
-                className="character-story-link motion-signal-card block rounded-xl liquid-glass-subtle border border-white/[0.06] p-4 hover:border-cyan-400/20 transition-all"
-                data-motion-interactive="true"
-              >
-                <h3 className="text-base font-medium text-nc-text mb-1">{s.title}</h3>
-                {s.subtitle && <p className="text-sm text-nc-text-secondary">{s.subtitle}</p>}
-              </Link>
-            ))}
+          <div className="char-story-grid">
+            {charStories.map((s) => {
+              const cover = getStoryCover(s.id);
+              return (
+                <Link
+                  key={s.id}
+                  to={`/stories/${s.id}`}
+                  className="char-story-card"
+                  data-motion-interactive="true"
+                >
+                  {cover && (
+                    <SmartImage
+                      localSrc={cover}
+                      alt={s.title}
+                      containerClassName="char-story-cover"
+                      className="object-cover w-full h-full"
+                    />
+                  )}
+                  <span className="char-story-body block">
+                    <h3 className="text-base font-medium text-nc-text mb-1">{s.title}</h3>
+                    {s.subtitle && <p className="text-sm text-nc-text-secondary">{s.subtitle}</p>}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

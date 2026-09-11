@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import type { WordFreq } from '@/data/wordFrequency';
 import './WordFrequencyCloud.css';
 
@@ -815,7 +815,7 @@ function serializeSvg(svg: SVGSVGElement): string {
     : serialized.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
 }
 
-export default function WordFrequencyCloud({
+function WordFrequencyCloud({
   id,
   title,
   entries,
@@ -968,3 +968,5 @@ export default function WordFrequencyCloud({
     </section>
   );
 }
+
+export default memo(WordFrequencyCloud);

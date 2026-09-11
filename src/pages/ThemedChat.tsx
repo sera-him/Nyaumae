@@ -660,12 +660,12 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLocaleLowerCase() === 'o') {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === 'k') {
         event.preventDefault();
         newConversation();
         return;
       }
-      if (event.key !== 'Escape') return;
+      if (event.key !== 'Escape' || event.isComposing || event.keyCode === 229) return;
       if (confirmation) setConfirmation(null);
       else if (showStickers) setShowStickers(false);
       else if (showControls) setShowControls(false);
@@ -712,7 +712,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
           <button type="button" onClick={() => setSidebarOpen(false)} aria-label="收起侧栏"><Menu /></button>
         </div>
         <button type="button" className={`${p}-new-chat`} onClick={newConversation}>
-          <Plus /><span>新建对话</span><kbd>Ctrl Shift O</kbd>
+          <Plus /><span>新建对话</span><kbd>Ctrl K</kbd>
         </button>
         <label className={`${p}-search`}>
           <Search /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索对话" aria-label="搜索对话" />
@@ -728,7 +728,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
         </div>
         <div className={`${p}-voyage-card`}>
           <div><Compass /><span>{LEVEL_NAMES[profile.aiLevel] ?? '世界探索'}</span><strong>旅程等级 {profile.aiLevel}</strong></div>
-          <div className={`${p}-voyage-track`} aria-label={`当前等级进度 ${levelProgress}%`}><span style={{ width: `${levelProgress}%` }} /></div>
+          <div className={`${p}-voyage-track`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={levelProgress} aria-label={`当前等级进度 ${levelProgress}%`}><span style={{ width: `${levelProgress}%` }} /></div>
           <small>{nextRule ? `再获得 ${pointsToNextLevel} 点星光解锁 ${LEVEL_NAMES[nextRule.level] ?? `等级 ${nextRule.level}`}` : '全部旅程等级已解锁'}</small>
         </div>
         <div className={`${p}-profile`}>
@@ -851,7 +851,8 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
           <form className={`${p}-composer`} onSubmit={(event) => void send(event)} aria-busy={isGenerating}>
             <button ref={stickerButtonRef} type="button" onClick={() => setShowStickers((value) => !value)} aria-label="打开猫猫表情" title="猫猫表情" aria-expanded={showStickers} disabled={isGenerating}><SmilePlus /></button>
             <textarea ref={composerRef} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => {
-              if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void send(); }
+              // 输入法组词期间按 Enter 是上屏候选词，不能当作发送
+              if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.nativeEvent.keyCode !== 229) { event.preventDefault(); void send(); }
             }} placeholder={activeMode === 'character' && !selectedCharacter ? '先从对话设置中选择角色…' : '在星海里说点什么…'} rows={1} maxLength={MAX_INPUT_LENGTH} aria-label="聊天消息" />
             <button type="button" className={`${p}-tool`} onClick={() => setShowContext((value) => !value)} aria-label="查看来源与记忆"><Shield />{memoryRecords.length ? `${memoryRecords.length} 条记忆` : '隐私上下文'}</button>
             {isGenerating

@@ -28,24 +28,31 @@ const ROUTE_BY_ANCHOR: Record<string, string> = {
   '#characters': '/characters',
   '#extra-characters': '/characters?group=other',
   '#stories': '/stories',
-  '#extra-stories': '/stories',
+  '#extra-stories': '/miia/world',
   '#timeline': '/world/timeline',
   '#organizations': '/world/organizations',
   '#dictionary': '/world/dictionary',
   '#character-network': '/characters',
   '#miia-world': '/miia/world',
+  '#miia-math-notes': '/miia/math',
+  '#world-settings': '/world/settings',
+  '#prime-focus': '/world/prime-focus',
   '#math': '/math/fsiii',
   '#problems': '/playground/games',
   '#chess': '/playground/games/compound-chess',
+  '#skill-ttt': '/playground/games/skill-tic-tac-toe',
 };
+
+/** story_ 条目来自 stories 目录，storytext_ 是整本长文的全文文档，两者都按故事处理（剧透分级等）。 */
+function isStoryDocId(id: string): boolean {
+  return id.startsWith('story_') || id.startsWith('storytext_');
+}
 
 function routeForItem(id: string, href: string): string {
   if (id.startsWith('char_')) return `/characters/${id.slice('char_'.length)}`;
   if (id.startsWith('extra_char_')) return `/characters?group=other`;
-  if (id === 'story_mia-world') return '/stories/mia-world/chapters/1';
-  if (id === 'story_fox-penguin') return '/stories/fox-penguin/chapters/1';
-  if (id === 'story_zhenhai-refining') return '/stories/zhenhai-refining/chapters/1';
-  if (id === 'story_little-girl-in-giant-country') return '/stories/little-girl-in-giant-country/chapters/1';
+  if (id.startsWith('story_')) return `/stories/${id.slice('story_'.length)}/chapters/1`;
+  if (href.startsWith('/')) return href;
   return ROUTE_BY_ANCHOR[href] ?? '/';
 }
 
@@ -54,7 +61,7 @@ function relatedIdsForItem(item: SearchIndexItem): string[] {
   if (item.id.startsWith('char_')) return [item.id.slice('char_'.length)];
   if (item.id.startsWith('extra_char_')) return [item.id.slice('extra_char_'.length)];
   if (item.id.startsWith('relation_')) return item.id.slice('relation_'.length).split('_').filter(Boolean);
-  if (item.id.startsWith('story_') || item.id.startsWith('poem_')) return [item.id];
+  if (isStoryDocId(item.id) || item.id.startsWith('poem_')) return [item.id];
   return [];
 }
 
@@ -68,7 +75,7 @@ function allowedForCharacter(document: KnowledgeDocument, characterId?: string):
 function typeForItem(id: string, category: string): KnowledgeDocument['type'] {
   if (id.startsWith('char_') || id.startsWith('extra_char_')) return 'character';
   if (id.startsWith('relation_')) return 'relationship';
-  if (id.startsWith('story_') || id.startsWith('poem_')) return 'story';
+  if (isStoryDocId(id) || id.startsWith('poem_')) return 'story';
   if (id.startsWith('timeline_')) return 'timeline';
   if (id.startsWith('org_') || id.startsWith('class_')) return 'organization';
   if (id.startsWith('page_')) return 'feature';
@@ -86,7 +93,7 @@ function documentFromIndexItem(item: SearchIndexItem): KnowledgeDocument {
     route: routeForItem(item.id, item.href),
     relatedIds: relatedIdsForItem(item),
     canonStatus: item.canonStatus ?? 'inferred',
-    spoilerLevel: item.spoilerLevel ?? (item.id.startsWith('story_') || item.id.startsWith('poem_') ? 2 : 0),
+    spoilerLevel: item.spoilerLevel ?? (isStoryDocId(item.id) || item.id.startsWith('poem_') ? 2 : 0),
     updatedAt: new Date().toISOString(),
     searchableText: `${item.title} ${item.content}`,
   };

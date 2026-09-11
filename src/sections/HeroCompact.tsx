@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import Particles, { initParticlesEngine } from '@tsparticles/react';
-import { loadSlim } from '@tsparticles/slim';
+// tsparticles (~45KB gzipped) is pure eye-candy — load the React wrapper and
+// the slim engine as separate lazy chunks only when motion is active.
+const Particles = lazy(() => import('@tsparticles/react').then((m) => ({ default: m.Particles })));
 import { AnimatedWorldStatsHero } from '@/components/AnimatedStats';
 import { Link } from 'react-router';
 import SmartImage from '@/components/SmartImage';
@@ -31,11 +32,20 @@ export default function HeroCompact() {
   }, [isMotionActive]);
 
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => {
-      setParticlesLoaded(true);
-    });
+    let cancelled = false;
+    Promise.all([import('@tsparticles/react'), import('@tsparticles/slim')])
+      .then(async ([reactModule, slimModule]) => {
+        await reactModule.initParticlesEngine(async (engine) => {
+          await slimModule.loadSlim(engine);
+        });
+        if (!cancelled) setParticlesLoaded(true);
+      })
+      .catch(() => {
+        // particles are decorative — stay without them on load failure
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -52,6 +62,7 @@ export default function HeroCompact() {
 
       {particlesLoaded && isMotionActive && (
         <div className="absolute inset-0 z-[1] opacity-60">
+          <Suspense fallback={null}>
           <Particles
             id="hero-particles"
             options={{
@@ -93,6 +104,7 @@ export default function HeroCompact() {
             }}
             style={{ position: 'absolute', width: '100%', height: '100%' }}
           />
+          </Suspense>
         </div>
       )}
 
@@ -164,7 +176,7 @@ export default function HeroCompact() {
         >
           <Link
             to="/characters"
-            className="px-6 sm:px-8 py-3 rounded-lg bg-nc-violet text-white font-medium hover:bg-[#7C3AED] transition-all duration-300"
+            className="px-6 sm:px-8 py-3 rounded-lg bg-nc-violet text-white font-medium hover:bg-[var(--aurora-brand-violet-deep)] transition-all duration-300"
           >
             探索角色
           </Link>

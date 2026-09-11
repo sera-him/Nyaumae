@@ -1,6 +1,7 @@
 import type { NctbDimension, NctbDimensionId, NctbDifficulty } from './types.ts';
+import { defaultBankForMode, questionsInBank } from './questionBank.ts';
 
-export const NCTB_BANK_VERSION = 3;
+export const NCTB_BANK_VERSION = 4;
 
 export const NCTB_DIMENSIONS: readonly NctbDimension[] = [
   { id: 'pattern', index: '01', title: '模式识别', english: 'PATTERN', description: '发现重复、变化和结构之间的关系。', skill: '视觉与抽象', accent: '#8deee0', targetQuestionCount: 8 },
@@ -37,8 +38,9 @@ export function getNctbDimension(id: NctbDimensionId): NctbDimension {
 export function questionsRequiredForDimension(
   id: NctbDimensionId,
   _focusDimension: NctbDimensionId | 'all',
-  _mode: 'formal' = 'formal',
+  mode: 'formal' = 'formal',
 ): number {
-  const availableExamItems = 5;
+  const bankId = defaultBankForMode(mode);
+  const availableExamItems = questionsInBank(bankId).filter((question) => question.dimensionId === id).length;
   return Math.min(getNctbDimension(id).targetQuestionCount, availableExamItems);
 }

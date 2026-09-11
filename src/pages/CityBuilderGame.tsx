@@ -200,6 +200,50 @@ function ScoreFormula({ cityCount = 4 }: { cityCount?: number }) {
   );
 }
 
+function SubwayPricingLab() {
+  const [distanceKm, setDistanceKm] = useState(8);
+  const [weeklyRides, setWeeklyRides] = useState(10);
+  const [peakRatio, setPeakRatio] = useState(60);
+
+  const monthlyRides = weeklyRides * 4;
+  const peakCost = monthlyRides * distanceKm * 1;
+  const offPeakCost = monthlyRides * distanceKm * 0.1;
+  const mixedCost = monthlyRides * distanceKm * (peakRatio / 100 + (1 - peakRatio / 100) * 0.1);
+  const saving = peakCost - offPeakCost;
+  const formatYuan = (value: number) => `${value.toLocaleString('zh-CN', { maximumFractionDigits: 1 })} 元`;
+
+  return (
+    <div className="city-subway-lab">
+      <div className="city-subway-controls">
+        <label>
+          <span>单程距离</span>
+          <input type="range" min={1} max={30} value={distanceKm} onChange={(event) => setDistanceKm(Number(event.target.value))} />
+          <strong>{distanceKm} 千米</strong>
+        </label>
+        <label>
+          <span>每周乘车次数</span>
+          <input type="range" min={1} max={14} value={weeklyRides} onChange={(event) => setWeeklyRides(Number(event.target.value))} />
+          <strong>{weeklyRides} 次</strong>
+        </label>
+        <label>
+          <span>高峰时段占比</span>
+          <input type="range" min={0} max={100} step={5} value={peakRatio} onChange={(event) => setPeakRatio(Number(event.target.value))} />
+          <strong>{peakRatio}%</strong>
+        </label>
+      </div>
+      <div className="city-subway-results">
+        <span><i>全高峰（1 元/千米）</i><strong>{formatYuan(peakCost)} / 月</strong></span>
+        <span><i>全低谷（0.1 元/千米）</i><strong>{formatYuan(offPeakCost)} / 月</strong></span>
+        <span><i>按 {peakRatio}% 高峰的混合通勤</i><strong>{formatYuan(mixedCost)} / 月</strong></span>
+      </div>
+      <p>
+        按 4 周估算：同样的通勤，错峰到低谷时段每月能省 {formatYuan(saving)}；
+        混合方案的成本正好落在两端之间，说明该定价主要在为“时间选择”而不是“距离”收费。
+      </p>
+    </div>
+  );
+}
+
 function Rulebook({
   onClose,
   cityCount = 4,
@@ -280,6 +324,7 @@ function Rulebook({
         <article>
           <h3>9. 地铁定价提案</h3>
           <p>高峰期每千米 1 元，低谷期每千米 0.1 元。该提案作为城市交通价格实验，可接入建设城市的交通成本模拟。</p>
+          <SubwayPricingLab />
         </article>
       </div>
 

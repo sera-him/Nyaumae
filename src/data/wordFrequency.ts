@@ -52,6 +52,10 @@ const segmenter = typeof Intl.Segmenter === 'function'
   ? new Intl.Segmenter('zh-CN', { granularity: 'word' })
   : null;
 
+// 大人国 0.1 加权会让 count 出现浮点尾差（如 12.300000000000001），
+// 统计完成后统一保留一位小数，导出/展示都用这个值
+const roundCountToTenth = (value: number): number => Math.round(value * 10) / 10;
+
 export const wordFrequency: WordFreq[] = [];
 
 export const frequencyMeta: FrequencyMeta = {
@@ -89,7 +93,7 @@ function isUsefulWord(word: string): boolean {
 
 function mergeSegmentedWords(text: string): string[] {
   if (!segmenter) {
-    return text.split(/[\s·.,，。！？：；/()（）\-]+/).filter(word => word.length > 0);
+    return text.split(/[\s·.,，。！？：；/()（）-]+/).filter(word => word.length > 0);
   }
   const parts = [...segmenter.segment(text)];
   const words: string[] = [];
@@ -228,7 +232,7 @@ function buildFrequencyIndex(items: readonly SearchIndexItem[]): void {
   const titleTemplates = buildTitleTemplates(items);
 
   const STORY_WEIGHT = 0.1;
-  const isStoryDoc = (index: number): boolean => items[index]?.id === 'story_1-txt';
+  const isStoryDoc = (index: number): boolean => items[index]?.id === 'storytext_little-girl-in-giant-country';
 
   const addSegment = (segment: string, documentIndex: number): void => {
     const segmentKey = normalizeSegment(segment);
@@ -281,7 +285,7 @@ function buildFrequencyIndex(items: readonly SearchIndexItem[]): void {
 
   wordFrequency.push(
     ...[...frequencyMap]
-      .map(([word, count]) => ({ word: displayWordMap.get(word) ?? word, count }))
+      .map(([word, count]) => ({ word: displayWordMap.get(word) ?? word, count: roundCountToTenth(count) }))
       .sort((a, b) => b.count - a.count || b.word.length - a.word.length || a.word.localeCompare(b.word, 'zh-CN')),
   );
 
@@ -305,7 +309,7 @@ function buildFrequencyIndex(items: readonly SearchIndexItem[]): void {
     densityMap.set(key, density);
     wordFrequencyDetailed.push({
       word: displayWord,
-      count: weightedCount,
+      count: roundCountToTenth(weightedCount),
       docCount,
       docRate: sourceItems ? docCount / sourceItems : 0,
       saturation,

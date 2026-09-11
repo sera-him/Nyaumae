@@ -1,0 +1,21 @@
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm.cmd ci
+      - run: npm.cmd run lint
+      - run: npm.cmd run test:unit
+      - run: npm.cmd run test:conversation
+      - run: npm.cmd run build
+      - run: npm.cmd run check:budget
+      - run: npm.cmd run preview -- --port 4173 &
+      - run: Start-Sleep -Seconds 8; npm.cmd run test:site
+        shell: pwsh

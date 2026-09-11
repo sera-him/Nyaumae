@@ -106,6 +106,8 @@ def process_reference(reference: str) -> tuple[str, dict[str, object], int, int]
 
 def main() -> None:
     OUTPUT.mkdir(parents=True, exist_ok=True)
+    generated_dir = ROOT / "src" / "lib" / "generated"
+    generated_dir.mkdir(parents=True, exist_ok=True)
     manifest: dict[str, dict[str, object]] = {}
     generated = 0
     skipped = 0
@@ -117,10 +119,11 @@ def main() -> None:
             generated += generated_count
             skipped += skipped_count
 
-    (OUTPUT / "manifest.json").write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    manifest_text = json.dumps(manifest, ensure_ascii=False, indent=2) + "\n"
+    (OUTPUT / "manifest.json").write_text(manifest_text, encoding="utf-8")
+    # Runtime copy: ResponsiveImage clamps its srcset to widths that actually
+    # exist, so browsers never select a missing (404) srcset candidate.
+    (generated_dir / "imageVariants.json").write_text(manifest_text, encoding="utf-8")
     print(f"responsive images: {generated} generated, {skipped} current, {len(manifest)} sources")
 
 

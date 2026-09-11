@@ -89,3 +89,18 @@
   .neural-echo-game .fractal-sequence > span { grid-row: span 2; }
 }
 @media (prefers-reduced-motion: reduce) { .neural-echo-game .active-tip { animation: none; } }
+
+/* 触摸设备：放大生长点圆点，配合棋盘邻近点击，让手指能看清也点得中 */
+@media (pointer: coarse) {
+  .neural-echo-game .fractal-tip {
+    r: 7;
+  }
+
+  .neural-echo-game .fractal-tip.active-tip {
+    r: 12;
+  }
+
+  .neural-echo-game .fractal-preview circle {
+    r: 12;
+  }
+}

@@ -91,6 +91,14 @@ export const networkNodes: NetworkNode[] = [
   { id: 'xiulan',     name: '秀兰奶奶', group: 'giant', x: 60, y: 16 },
   { id: 'zhouji',     name: '周济',     group: 'giant', x: 74, y: 16 },
   { id: 'high-school-student', name: '陈予安', group: 'giant', x: 68, y: 30 },
+  { id: 'delivery-rider', name: '外卖员', group: 'giant', x: 93, y: 37 },
+
+  // 尚未入网的角色补齐（分组沿用图例语义：GPT=数字生命、其余=独立角色；坐标经渲染几何校验：间距≥10.5、连线不穿节点）
+  { id: 'linmo',      name: '苏珞',     group: 'independent', x: 76, y: 6 },
+  { id: 'gpt',        name: 'GPT',      group: 'ai', x: 56, y: 41 },
+  { id: 'wangshu',    name: '小芽',     group: 'independent', x: 55, y: 10 },
+  { id: 'neon',       name: '霓虹',     group: 'independent', x: 36.5, y: 7 },
+  { id: 'retina',     name: 'Retina',   group: 'independent', x: 65, y: 4 },
 ];
 
 /* ═══════════════════════════════════════════
@@ -106,7 +114,6 @@ export const characterRelations: CharacterRelation[] = [
   { from: 'miia',    to: 'amiya',    type: 'friend' },
   { from: 'miia',    to: 'miya',     type: 'friend' },
   { from: 'mia',     to: 'amiya',    type: 'friend' },
-  { from: 'amiya',   to: 'miya',     type: 'friend' },
   { from: 'miya',    to: 'amiya',    type: 'friend' },
   { from: 'haruka',  to: 'mia',      type: 'friend' },
   { from: 'qicheng', to: 'mia',      type: 'friend' },
@@ -187,4 +194,20 @@ export const characterRelations: CharacterRelation[] = [
   { from: 'zhouji',    to: 'high-school-student', type: 'neighbor' },
   { from: 'miaowu',    to: 'miia',    type: 'friend' },
   { from: 'miaowu',    to: 'mxy',     type: 'friend' },
+
+  // 补全：大人国互助小队（依据角色档案与正文）
+  { from: 'xiaoman',   to: 'xiulan',  type: 'friend' },
+  { from: 'xiaoman',   to: 'zhouji',  type: 'other' },
+  { from: 'xiaoman',   to: 'high-school-student', type: 'friend' },
+  { from: 'delivery-rider', to: 'miaowu',  type: 'friend' },
+  { from: 'delivery-rider', to: 'xiulan',  type: 'friend' },
+  { from: 'delivery-rider', to: 'zhouji',  type: 'friend' },
+  { from: 'delivery-rider', to: 'high-school-student', type: 'friend' },
+
+  // 补全：其他组角色（依据角色档案）
+  { from: 'gpt',       to: 'wangshu', type: 'friend' },
+  { from: 'linmo',     to: 'high-school-student', type: 'other' },
+  { from: 'retina',    to: 'miaowu',  type: 'other' },
+  { from: 'wangshu',   to: 'miaowu',  type: 'friend' },
+  { from: 'neon',      to: 'wangshu', type: 'friend' },
 ];

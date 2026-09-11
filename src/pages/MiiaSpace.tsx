@@ -5,6 +5,7 @@ import { Heart, NotebookPen, Feather } from 'lucide-react';
 import MiiaWorld from '@/sections/MiiaWorld';
 import MiiaMathNotes from '@/sections/MiiaMathNotes';
 import ExtraStories from '@/sections/ExtraStories';
+import '@/styles/miia-themes.css';
 
 const tabs = [
   { key: 'world', label: '咪呀的世界', icon: Heart, component: MiiaWorld },

@@ -27,12 +27,12 @@ export default function MiiaWorld() {
   }, [playTrack, currentTrack]);
 
   return (
-    <section id="miia-world" className="miia-subpage miia-world-page py-24 px-4 sm:px-6 bg-[#0D0614] relative overflow-hidden">
+    <section id="miia-world" className="miia-subpage miia-world-page py-24 px-4 sm:px-6 bg-[var(--aurora-brand-bg-deep)] relative overflow-hidden">
       <ParticleField type="dream" density={25} markLoop={false} />
       <div className="max-w-[1100px] mx-auto relative z-10">
         {/* Header */}
         <div className="mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#F0E6FF] mb-3 tracking-wide">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[var(--aurora-brand-text)] mb-3 tracking-wide">
             {semanticHighlight('咪呀的世界')}
           </h2>
           <p className="text-nc-text text-lg">
@@ -49,8 +49,8 @@ export default function MiiaWorld() {
               aria-pressed={activeText === i}
               className={`miia-text-tab px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                 activeText === i
-                  ? 'bg-[#8B5CF6]/20 text-[#A78BFA] border border-[#8B5CF6]/30'
-                  : 'bg-[#100A1A] text-nc-text-muted border border-[#8B5CF6]/10 hover:text-nc-text'
+                  ? 'bg-[#8B5CF6]/20 text-[var(--aurora-brand-violet-soft)] border border-[#8B5CF6]/30'
+                  : 'bg-[var(--aurora-brand-bg)] text-nc-text-muted border border-[#8B5CF6]/10 hover:text-nc-text'
               }`}
             >
               文本 {i + 1}
@@ -68,10 +68,10 @@ export default function MiiaWorld() {
         />
 
         {/* Active Text */}
-        <div key={activeText} className="miia-active-text bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 sm:p-8 mb-8 miia-diary-card">
+        <div key={activeText} className="miia-active-text bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 sm:p-8 mb-8 miia-diary-card">
           <div className="flex items-center gap-3 mb-4">
-            <ScrollText className="w-5 h-5 text-[#A78BFA]" />
-            <h3 className="text-lg font-semibold text-[#F0E6FF]">
+            <ScrollText className="w-5 h-5 text-[var(--aurora-brand-violet-soft)]" />
+            <h3 className="text-lg font-semibold text-[var(--aurora-brand-text)]">
               {semanticHighlight(miiaTexts[activeText]?.title || `文本 ${activeText + 1}`)}
             </h3>
           </div>
@@ -83,19 +83,19 @@ export default function MiiaWorld() {
         </div>
 
         {/* Wish */}
-        <div className="bg-[#100A1A] border border-[#F472B6]/15 rounded-xl p-6 mb-8 miia-diary-card">
+        <div className="bg-[var(--aurora-brand-bg)] border border-[#F472B6]/15 rounded-xl p-6 mb-8 miia-diary-card">
           <div className="flex items-center gap-3 mb-4">
-            <Heart className="w-5 h-5 text-[#F472B6]" />
-            <h3 className="text-lg font-semibold text-[#F0E6FF]">{semanticHighlight("咪呀的愿望")}</h3>
+            <Heart className="w-5 h-5 text-[var(--aurora-brand-pink)]" />
+            <h3 className="text-lg font-semibold text-[var(--aurora-brand-text)]">{semanticHighlight("咪呀的愿望")}</h3>
           </div>
           <p className="text-sm text-nc-text leading-relaxed">{semanticHighlight(miiaWish)}</p>
         </div>
 
         {/* AGI 应许之地 */}
-        <div className="bg-[#100A1A] border border-[#00E5CC]/10 rounded-xl p-6 mb-8 miia-diary-card">
+        <div className="bg-[var(--aurora-brand-bg)] border border-[#00E5CC]/10 rounded-xl p-6 mb-8 miia-diary-card">
           <div className="flex items-center gap-3 mb-4">
-            <Heart className="w-5 h-5 text-[#00E5CC]" />
-            <h3 className="text-lg font-semibold text-[#F0E6FF]">{semanticHighlight("AGI 应许之地")}</h3>
+            <Heart className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />
+            <h3 className="text-lg font-semibold text-[var(--aurora-brand-text)]">{semanticHighlight("AGI 应许之地")}</h3>
           </div>
           <SmartImage
             localSrc="/story-agi-pyramid.jpg"
@@ -111,7 +111,7 @@ export default function MiiaWorld() {
                 <p>{semanticHighlight(item.content)}</p>
               </div>
             ))}
-            <div className="bg-[#0D0614] border border-[#00E5CC]/10 rounded-lg p-4 font-serif-cn">
+            <div className="bg-[var(--aurora-brand-bg-deep)] border border-[#00E5CC]/10 rounded-lg p-4 font-serif-cn">
               {miiaAgiPoem.split('\n').map((line, i) => (
                 <p key={i} className="text-nc-text leading-[2]">{semanticHighlight(line)}</p>
               ))}
@@ -120,21 +120,26 @@ export default function MiiaWorld() {
         </div>
 
         {/* 映射图 */}
-        <div className="bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 mb-8 miia-diary-card">
+        <div className="bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 mb-8 miia-diary-card">
           <div className="flex items-center gap-3 mb-4">
-            <Brain className="w-5 h-5 text-[#A78BFA]" />
-            <h3 className="text-lg font-semibold text-[#F0E6FF]">{semanticHighlight("映射区块")}</h3>
+            <Brain className="w-5 h-5 text-[var(--aurora-brand-violet-soft)]" />
+            <h3 className="text-lg font-semibold text-[var(--aurora-brand-text)]">{semanticHighlight("映射区块")}</h3>
           </div>
-          <div className="font-mono text-xs text-nc-text-secondary whitespace-pre leading-relaxed overflow-x-auto">
+          <div
+            className="font-mono text-xs text-nc-text-secondary whitespace-pre leading-relaxed overflow-x-auto"
+            role="group"
+            tabIndex={0}
+            aria-label="映射区块原始数据（可横向滚动查看）"
+          >
             {JSON.stringify(mappingBlock, null, 2)}
           </div>
         </div>
 
         {/* Līlā 分析 */}
-        <div className="bg-[#100A1A] border border-[#00E5CC]/10 rounded-xl p-6 miia-diary-card mb-8">
+        <div className="bg-[var(--aurora-brand-bg)] border border-[#00E5CC]/10 rounded-xl p-6 miia-diary-card mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <ScrollText className="w-5 h-5 text-[#00E5CC]" />
-            <h3 className="text-lg font-semibold text-[#F0E6FF]">{semanticHighlight("关于 Līlā 的分析")}</h3>
+            <ScrollText className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />
+            <h3 className="text-lg font-semibold text-[var(--aurora-brand-text)]">{semanticHighlight("关于 Līlā 的分析")}</h3>
           </div>
           <SmartImage
             localSrc="/story-lila.jpg"
@@ -151,10 +156,10 @@ export default function MiiaWorld() {
         </div>
 
         {/* 双轴模型 - 紧接 Līlā 分析之后 */}
-        <div className="bg-[#100A1A] border border-[#8B5CF6]/10 rounded-xl p-6 miia-diary-card">
+        <div className="bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 miia-diary-card">
           <div className="flex items-center gap-3 mb-4">
-            <Brain className="w-5 h-5 text-[#A78BFA]" />
-            <h3 className="text-lg font-semibold text-[#F0E6FF]">{semanticHighlight("双轴模型：控制与不认可")}</h3>
+            <Brain className="w-5 h-5 text-[var(--aurora-brand-violet-soft)]" />
+            <h3 className="text-lg font-semibold text-[var(--aurora-brand-text)]">{semanticHighlight("双轴模型：控制与不认可")}</h3>
           </div>
           <div className="text-sm text-nc-text leading-relaxed space-y-3">
             {dualAxisModel.split('\n\n').map((paragraph, i) => (

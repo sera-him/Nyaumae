@@ -42,3 +42,8 @@ export function recordReadingProgress(entry: Omit<ReadingProgressEntry, 'updated
 export function getLatestReadingProgress(): ReadingProgressEntry | null {
   return Object.values(readProgressMap()).sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0] ?? null;
 }
+
+/** Every story with a recorded reading position, keyed by story id. */
+export function getReadingProgressMap(): Record<string, ReadingProgressEntry> {
+  return readProgressMap();
+}

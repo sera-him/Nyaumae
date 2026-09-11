@@ -65,9 +65,10 @@ function targetDifficulty(session: NctbSession, dimensionId: NctbDimensionId): N
 }
 
 /**
- * New exam sessions administer all five items in each dimension. Older local
- * sessions can have shorter frozen candidate lists, so their original length
- * remains the safe upper bound when they are resumed after the bank migration.
+ * New exam sessions administer up to the configured target per dimension,
+ * bounded by what the current bank can offer. Older local sessions can have
+ * shorter frozen candidate lists, so their original length remains the safe
+ * upper bound when they are resumed after the bank migration.
  */
 export function requiredQuestionsForSessionDimension(session: NctbSession, dimensionId: NctbDimensionId): number {
   const configured = questionsRequiredForDimension(dimensionId, session.focusDimension, session.mode);

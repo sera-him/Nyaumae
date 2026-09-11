@@ -15,7 +15,7 @@
   [role='button'], [role='tab'], [role='link'], [role='menuitem'],
   [role='radio'], [role='checkbox'], [role='switch'], [role='option'],
   [role='listbox'] *:not([aria-hidden='true'])):focus-visible {
-  outline: 2px solid var(--aurora-accent, #a685ff);
+  outline: 2px solid var(--aurora-accent, var(--aurora-violet));
   outline-offset: 3px;
   box-shadow: 0 0 0 5px rgba(var(--aurora-accent-rgb, 166, 133, 255), 0.13);
 }
@@ -220,7 +220,7 @@
   /* Restore gradient tint back for low-vision users via forced border */
   .portal-kicker {
     color: var(--aurora-text, #f8f4ff) !important;
-    border-left: 3px solid var(--aurora-accent, #a685ff);
+    border-left: 3px solid var(--aurora-accent, var(--aurora-violet));
     padding-left: 0.5rem;
   }
 
@@ -232,7 +232,7 @@
 
   .aurora-primary-links a.is-active::after {
     height: 3px;
-    background: var(--aurora-accent, #a685ff);
+    background: var(--aurora-accent, var(--aurora-violet));
   }
 
   /* Increase contrast on glass surfaces */
@@ -246,7 +246,7 @@
   /* Make tab active state more visible */
   .aurora-tab[aria-selected='true'],
   .aurora-tab-active {
-    border: 2px solid var(--aurora-accent, #a685ff) !important;
+    border: 2px solid var(--aurora-accent, var(--aurora-violet)) !important;
     box-shadow: none !important;
   }
 
@@ -457,7 +457,7 @@
 .aurora-tab[aria-selected='true'],
 .aurora-tab-active,
 [role='tab'][aria-selected='true'] {
-  box-shadow: inset 0 -2px 0 var(--aurora-accent, #a685ff) !important;
+  box-shadow: inset 0 -2px 0 var(--aurora-accent, var(--aurora-violet)) !important;
   font-weight: 600;
 }
 
@@ -468,7 +468,7 @@
 
 /* Active menu link — left border as additional indicator */
 .aurora-menu-links a.is-active {
-  border-left: 2px solid var(--aurora-accent, #a685ff);
+  border-left: 2px solid var(--aurora-accent, var(--aurora-violet));
   padding-left: calc(0.65rem - 2px);
 }
 
@@ -608,5 +608,26 @@ video {
   .aurora-primary-links,
   .aurora-nav-actions {
     flex-wrap: wrap;
+  }
+}
+
+/* ── 触摸设备点击目标 ───────────────────────────────
+   独立可点的文字链在手机上只有 20px 高。这里在触摸设备上把它们真正撑到
+   44px（WCAG 2.5.5 建议值）。段落正文里的内联链接按 WCAG 2.5.8 属于豁免，
+   不做处理，避免破坏文字排版。 */
+@media (pointer: coarse) {
+  .tap-safe,
+  .aurora-footer-social,
+  .fsiii-character-link,
+  .nctb-page-footer a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  /* 单字角色名（如「零」）本身只有 14px 宽，给出 AA 级最小宽度 */
+  .fsiii-character-link {
+    justify-content: center;
+    min-width: 24px;
   }
 }

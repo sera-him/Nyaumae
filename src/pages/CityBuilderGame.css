@@ -1863,3 +1863,69 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ── 地铁定价实验（规则书第 9 节）── */
+.city-subway-lab {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--city-line);
+  border-radius: 14px;
+  background: var(--city-panel-soft);
+  display: grid;
+  gap: 12px;
+}
+
+.city-subway-lab .city-subway-controls {
+  display: grid;
+  gap: 10px;
+}
+
+.city-subway-lab .city-subway-controls label {
+  display: grid;
+  grid-template-columns: 7em 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--city-muted);
+}
+
+.city-subway-lab .city-subway-controls input[type='range'] {
+  width: 100%;
+  accent-color: #facc15;
+}
+
+.city-subway-lab .city-subway-controls strong {
+  min-width: 5em;
+  text-align: right;
+  color: var(--city-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.city-subway-lab .city-subway-results {
+  display: grid;
+  gap: 6px;
+}
+
+.city-subway-lab .city-subway-results span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.85rem;
+}
+
+.city-subway-lab .city-subway-results i {
+  font-style: normal;
+  color: var(--city-muted);
+}
+
+.city-subway-lab .city-subway-results strong {
+  color: var(--city-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.city-subway-lab > p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--city-dim);
+}

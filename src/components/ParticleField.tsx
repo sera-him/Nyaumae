@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { useMotionActivity } from '@/hooks/useMotionActivity';
 
 interface Particle {
@@ -37,7 +37,7 @@ const SYMBOLS = [
 
 const MATH_SYMBOLS = ['0', '1', '∞', '∑', '∫', 'π', 'e', '√', 'ln', 'dx', 'dy', '∆', '∀', '∃', '∈', '⊂'];
 
-export default function ParticleField({ type, density = 30, className = '', markLoop = true }: ParticleFieldProps) {
+function ParticleField({ type, density = 30, className = '', markLoop = true }: ParticleFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const destroyedRef = useRef(false);
@@ -174,6 +174,7 @@ export default function ParticleField({ type, density = 30, className = '', mark
     >
       <canvas
         ref={canvasRef}
+        aria-hidden="true"
         className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}
         style={{ opacity: type === 'stars' ? 0.7 : 0.35 }}
       />
@@ -256,3 +257,5 @@ function createParticle(
     life: Math.floor(Math.random() * 100),
   };
 }
+
+export default memo(ParticleField);

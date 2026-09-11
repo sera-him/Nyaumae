@@ -323,6 +323,16 @@ const charactersInSourceOrder: Character[] = [
     bio: '墨奥幂.fc 和墨璇玥.iv 的父亲，哲华学校科照真学院巴别塔班班主任兼教授。研究方向是"生物意识"。话极少，常年待在实验室。和德澜思拓公司合作。年薪 27 万元。',
     extra: ['1978/1983（取决于参考系）', '桌上总有一杯冷掉的茶，杯子上画着一匹骏马'], fsiii: 177, color: 'from-blue-400 to-indigo-400',
   },
+  {
+    id: 'retina', name: 'Retina', alias: 'retina', birthYear: 2019, age: 7,
+    group: 'other', groupLabel: '其他', title: 'Pupil · 小学生',
+    bio: '字面意义上的"pupil"——一名小学生。背书包、写作业、上课举手发言，是人群里最常见的那种小学生。',
+    profile: [
+      { label: '身份', value: '小学生（Pupil）' },
+      { label: '阵营', value: '其他' },
+    ],
+    color: 'from-sky-400 to-indigo-500',
+  },
 ];
 
 const sourceOrder = new Map(charactersInSourceOrder.map((character, index) => [character.id, index]));

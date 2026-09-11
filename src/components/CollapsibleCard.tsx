@@ -18,7 +18,7 @@ interface CollapsibleCardProps {
   borderColor?: string;
   /** Custom title color class (default: text-nc-text) */
   titleColor?: string;
-  /** Custom background color class (default: bg-[#100A1A]) */
+  /** Custom background color class (default: bg-[var(--aurora-brand-bg)]) */
   bgColor?: string;
 }
 
