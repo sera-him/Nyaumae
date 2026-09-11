@@ -262,7 +262,7 @@ add('nav-groups', '导航分组', 'MIIA 世界 世界观 编年史 组织 词典
 add('game-session-rules', '游戏通用规则', '玩法说明 游戏内专用按键 暂停后页面拦截不可操作 继续游戏 规则说明 100节点666突触神经核强化突触脉冲 非对称追逐诱饵真实气味疾跑复盘', '游戏', '/playground/games');
 
 for (const text of miiaTexts) add(`miia_${text.id}`, text.title, text, '故事', '#miia-world');
-add('miia-wish', '米娅的愿望', miiaWish, '故事', '#miia-world');
+add('miia-wish', '咪呀的愿望', miiaWish, '故事', '#miia-world');
 add('miia-agi-land', 'AGI Land', miiaAgiLand, '故事', '#miia-world');
 add('miia-agi-poem', 'AGI 诗', miiaAgiPoem, '故事', '#miia-world');
 add('miia-lila-analysis', 'Lila 分析', lilaAnalysis, '设定', '#miia-world');
@@ -282,7 +282,7 @@ const pageRecords: Array<[string, string, string, string]> = [
   ['page-world', '世界观', '世界档案 QET 时间线 组织机构 世界设定', '#worldview'],
   ['page-characters', '角色档案', '角色 补充角色 关系网络', '#characters'],
   ['page-stories', '故事章节', '故事 阅读器', '#stories'],
-  ['page-miia', '米娅空间', '米娅的世界 数学笔记 诗歌碎片', '#miia-world'],
+  ['page-miia', '咪呀空间', '咪呀的世界 数学笔记 诗歌碎片', '#miia-world'],
   ['page-math', '数学模型', 'FSIII 数学模型 排名系统', '#math'],
   ['page-playground', '游乐场', '游戏 规则 Scratch', '#problems'],
   ['page-settings', '设置与工具', '词典 Prime Focus', '#dictionary'],

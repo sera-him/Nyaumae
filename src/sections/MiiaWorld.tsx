@@ -90,6 +90,13 @@ export default function MiiaWorld() {
             <Heart className="w-5 h-5 text-[var(--aurora-brand-pink)]" />
             <h3 className="text-lg font-semibold text-[var(--aurora-brand-text)]">{semanticHighlight("咪呀的愿望")}</h3>
           </div>
+          <SmartImage
+            localSrc="/story-miia-wish.jpg"
+            alt="咪呀的愿望：星空中央发光的心形水晶"
+            aspectRatio="15/8"
+            containerClassName="w-full rounded-lg border border-[#F472B6]/15 mb-4"
+            className="object-cover"
+          />
           <p className="text-sm text-nc-text leading-relaxed">{semanticHighlight(miiaWish)}</p>
         </div>
 

@@ -113,6 +113,13 @@ export default function ExtraStories() {
           <p className="text-lg text-nc-text-secondary">
             Period 系列 · Corruption 0f Emotion · 更多叙事碎片
           </p>
+          <SmartImage
+            localSrc="/story-poems-banner.jpg"
+            alt="诗歌栏目横幅：星空下白羽毛与发光的罗盘"
+            aspectRatio="15/8"
+            containerClassName="w-full rounded-xl border border-nc-violet/10 mt-6 overflow-hidden"
+            className="object-cover"
+          />
         </div>
 
         {/* 笔放下 - 新增 */}

@@ -325,6 +325,7 @@ Lost Number，Lost Future
   {
     title: '【Period 2】',
     period: '13, 21, 41',
+    image: '/story-yingchangwei.jpg',
     content: `应该说吧
 常常会觉得
 平凡伟大
