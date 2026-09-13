@@ -35,8 +35,16 @@ export function getLocale(): Locale {
 
 export function setLocale(next: Locale): void {
   writeJsonStorage(KEY, next, 'local');
-  if (typeof document !== 'undefined') document.documentElement.lang = next;
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = next;
+    // Components that render locale-dependent chrome (story reader notices,
+    // toggles) need to react without a page reload.
+    window.dispatchEvent(new Event(LOCALE_EVENT));
+  }
 }
+
+/** Fired on every locale change so listeners can re-read the active locale. */
+export const LOCALE_EVENT = 'nc:locale-change';
 
 export function t(key: I18nKey, locale?: Locale): string {
   const active = locale ?? getLocale();

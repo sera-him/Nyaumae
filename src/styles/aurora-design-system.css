@@ -386,6 +386,7 @@
 .story-reader-article-heading p { margin: 0 0 var(--aurora-space-2); color: var(--aurora-text-muted); font: 600 var(--aurora-font-label)/1.5 'JetBrains Mono',monospace; letter-spacing: .06em; }
 .story-reader-article-heading h2 { margin: 0; width: fit-content; color: transparent; background: linear-gradient(92deg, color-mix(in srgb, var(--aurora-accent) 82%, white), var(--aurora-text) 72%); background-clip: text; -webkit-background-clip: text; font-size: clamp(1.4rem,3vw,2rem); font-weight: 680; line-height: 1.3; letter-spacing: -.02em; }
 .story-reader-prose { color: var(--aurora-text-secondary); font-size: clamp(1.0625rem,.4vw + 1rem,1.18rem); line-height: var(--aurora-leading-reading); letter-spacing: .018em; text-wrap: pretty; }
+.story-reader-translation-note { max-width: 38em; margin: 0 auto var(--aurora-space-6); padding: .7rem .95rem; border: 1px solid rgba(var(--aurora-accent-rgb),.32); border-radius: var(--aurora-radius-md); color: var(--aurora-text-secondary); background: rgba(var(--aurora-accent-rgb),.07); font-size: .82rem; line-height: 1.65; }
 .story-reader-prose > * { max-width: 38em; margin-inline: auto; }
 .story-reader-prose > * + * { margin-top: 1.1em; }
 .story-reader-nav-area { max-width: var(--aurora-reading-width); margin: var(--aurora-space-8) auto 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--aurora-space-3); }

@@ -5,6 +5,7 @@
 // Every replaced node keeps its original value in a WeakMap, so switching back
 // to zh-CN restores the exact source text instead of a lossy round-trip.
 import { EXACT_TRANSLATIONS, PHRASE_TRANSLATIONS } from './dictionary';
+import { applyTranslationRules } from './entries/rules';
 
 const EXACT = new Map(Object.entries(EXACT_TRANSLATIONS));
 const CJK = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
@@ -26,6 +27,29 @@ interface TextRecord {
 const textRecords = new WeakMap<Text, TextRecord>();
 const attrRecords = new WeakMap<Element, Record<string, string>>();
 
+// zh-CN is the authored language, so the default experience must be a perfect
+// no-op: until something has actually been translated there is nothing to
+// restore, and the restore pass is skipped entirely (not even a DOM read).
+let touchedAnything = false;
+let titleRecord: string | null = null;
+
+function translateDocumentTitle(enabled: boolean): void {
+  if (typeof document === 'undefined') return;
+  if (enabled) {
+    const current = document.title;
+    if (!current || titleRecord !== null) return;
+    const output = translate(current);
+    if (output === current) return;
+    titleRecord = current;
+    document.title = output;
+    return;
+  }
+  if (titleRecord !== null) {
+    document.title = titleRecord;
+    titleRecord = null;
+  }
+}
+
 function translate(input: string): string {
   const trimmed = input.trim();
   // A single glyph is never a UI label we want to swap: inside animated or
@@ -34,6 +58,9 @@ function translate(input: string): string {
 
   const exact = EXACT.get(trimmed);
   if (exact) return input.replace(trimmed, () => exact);
+
+  const ruled = applyTranslationRules(input);
+  if (ruled !== null) return ruled;
 
   let output = input;
   for (const [from, to] of PHRASE_TRANSLATIONS) {
@@ -114,7 +141,10 @@ function processText(node: Text, enabled: boolean): void {
     if (isSplitTextNode(node)) return;
     const output = translate(current);
     textRecords.set(node, { source: current, output });
-    if (output !== current) node.nodeValue = output;
+    if (output !== current) {
+      node.nodeValue = output;
+      touchedAnything = true;
+    }
     return;
   }
 
@@ -145,7 +175,10 @@ function processAttributes(element: Element, enabled: boolean): void {
         store[attr] = current;
         attrRecords.set(element, store);
       }
-      if (output !== current) element.setAttribute(attr, output);
+      if (output !== current) {
+        element.setAttribute(attr, output);
+        touchedAnything = true;
+      }
     } else if (store[attr] !== undefined) {
       element.setAttribute(attr, store[attr]);
       delete store[attr];
@@ -189,10 +222,14 @@ export function startPageTranslation(enabled: boolean): () => void {
 
   const root = document.body;
 
-  // zh-CN is the source language: restoring is a one-shot pass with no
-  // observers attached, so the default experience costs nothing.
+  // zh-CN is the authored language: if nothing was ever swapped there is
+  // nothing to restore, so the default experience performs zero DOM writes.
   if (!enabled) {
-    applyTo(root, false);
+    if (touchedAnything) {
+      applyTo(root, false);
+      translateDocumentTitle(false);
+      touchedAnything = false;
+    }
     return () => {};
   }
 
@@ -250,6 +287,7 @@ export function startPageTranslation(enabled: boolean): () => void {
   };
 
   applyTo(root, enabled);
+  translateDocumentTitle(true);
   observe();
   reconcileTimer = window.setInterval(() => {
     if (disposed || document.visibilityState !== 'visible') return;
@@ -274,5 +312,7 @@ export function startPageTranslation(enabled: boolean): () => void {
     observer.disconnect();
     dirty.clear();
     applyTo(root, false);
+    translateDocumentTitle(false);
+    touchedAnything = false;
   };
 }

@@ -11,6 +11,7 @@ import type { Story, StoryChapter } from '@/data/stories';
 import SmartImage from '@/components/SmartImage';
 import { READER_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
 import { useReadingPreferences } from '@/hooks/useReadingPreferences';
+import { useLocale } from '@/hooks/useLocale';
 import { recordReadingProgress } from '@/lib/readingState';
 
 interface TextStoryPart {
@@ -188,6 +189,8 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
     error: null,
   }));
   const { preferences, updatePreferences } = useReadingPreferences();
+  const locale = useLocale();
+  const englishReader = locale === 'en';
   const parts = loadedStory.source === sourceUrl
     ? loadedStory.parts
     : textStoryCache.get(sourceUrl) ?? [];
@@ -433,6 +436,12 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
                   <p>{part.title}</p>
                   <h2>{chapter.title}</h2>
                 </header>
+                {englishReader && (
+                  <p className="story-reader-translation-note" role="note">
+                    The interface is in English. This novel is being translated chapter by chapter —
+                    the original Chinese text is shown below.
+                  </p>
+                )}
                 <div className="story-reader-prose font-serif-cn whitespace-pre-wrap" data-no-translate style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight }}>
                   {renderStoryContent(chapter.content)}
                 </div>

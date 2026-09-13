@@ -78,13 +78,26 @@ main.aurora-site-main--chat {
   overflow: hidden;
 }
 
-/* 第 2 重：聊天根容器 = 可视高度 - 顶部导航；height 与 max-height 同值封顶 */
+/* 第 2 重：聊天根容器 = 可视高度 - 顶部导航；height 与 max-height 同值封顶。
+   `grid-template-rows: minmax(0, 1fr)` 是关键：不加的话隐式行按 max-content
+   计算，侧栏对话一多（几十个）就把整行撑高，右边的输入框会被一起推到视口外。 */
 .ocean-chat, .sweet-chat, .aurora-chat {
   margin-top: var(--app-nav-h);
   height: calc(var(--app-vh) - var(--app-nav-h));
   max-height: calc(var(--app-vh) - var(--app-nav-h));
   min-height: 0;
   overflow: hidden;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* 侧栏 / 对话列表：侧栏被行高压住不外扩，列表自己滚 */
+.ocean-sidebar, .sweet-sidebar, .aurora-sidebar {
+  min-height: 0;
+  overflow: hidden;
+}
+.ocean-history, .sweet-history, .aurora-history {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* 第 3 重：shell 用两行 grid 把「消息区」和「输入框」分开，输入框真正占位 */

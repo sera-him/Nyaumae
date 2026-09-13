@@ -160,7 +160,7 @@
 .sweet-search:focus-within { border-color: rgba(255, 107, 157, 0.3); background: rgba(255, 255, 255, 0.85); }
 .sweet-search svg { width: 15px; color: var(--aurora-violet-soft); }
 .sweet-search input { width: 100%; border: 0; outline: 0; background: transparent; color: #6b5b7b; font-size: 12px; }
-.sweet-history { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 180px; }
+.sweet-history { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; }
 .sweet-history p { margin: 10px 9px 4px; color: var(--aurora-violet-soft); font-size: 10px; letter-spacing: 0.1em; font-weight: 600; }
 .sweet-history button {
   position: relative; display: grid; grid-template-columns: 28px minmax(0,1fr) auto;

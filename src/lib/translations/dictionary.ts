@@ -8,9 +8,23 @@
 //            fragments here; a wrong entry silently mangles real content.
 //
 // Keep entries sorted by area so future additions stay reviewable.
+//
+// Machine-collected batches live in ./entries/ and were harvested from the real
+// rendered DOM (see tmp/harvest2.mjs), which is why they cover whole sentences
+// as well as short labels. They are spread first so the hand-curated entries
+// below stay authoritative on conflict.
+
+import { BATCH1 } from './entries/batch1';
+import { BATCH2 } from './entries/batch2';
+import { BATCH3 } from './entries/batch3';
+import { BATCH4 } from './entries/batch4';
 
 /** Whole-node replacements (trimmed text must equal the key). */
 export const EXACT_TRANSLATIONS: Record<string, string> = {
+  ...BATCH1,
+  ...BATCH2,
+  ...BATCH3,
+  ...BATCH4,
   // ---------- 站点结构与导航 ----------
   "首页": 'Home',
   "故事": 'Stories',

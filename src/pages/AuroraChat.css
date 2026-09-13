@@ -125,7 +125,7 @@
 .aurora-search svg { width: 15px; color: var(--ink-muted); }
 .aurora-search input { width: 100%; border: 0; outline: 0; background: transparent; color: #c8d2ff; font-size: 12px; }
 .aurora-search input::placeholder { color: var(--ink-muted); }
-.aurora-history { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 180px; }
+.aurora-history { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; }
 .aurora-history p { margin: 10px 9px 4px; color: var(--ink-muted); font-size: 10px; letter-spacing: .16em; }
 .aurora-history button { position: relative; display: grid; grid-template-columns: 25px minmax(0,1fr) auto; gap: 5px; align-items: center; width: 100%; padding: 9px 9px; border: 0; border-radius: 12px; background: transparent; text-align: left; cursor: pointer; }
 .aurora-history button:hover { background: rgba(255, 255, 255, .06); }

@@ -30,7 +30,7 @@ export default function SiteAids() {
     setLocale(next);
     setActiveLocale(next);
     showHint(next === 'en'
-      ? 'Interface copy is now in English. Long-form stories stay in Chinese.'
+      ? 'Interface and site data are now in English. Long-form chapters and lore stay in the original Chinese.'
       : '已恢复中文原文。');
   };
 
