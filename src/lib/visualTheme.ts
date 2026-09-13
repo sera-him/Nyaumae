@@ -38,7 +38,14 @@ const THEME_ROUTES = [
   { theme: 'codex', prefixes: ['/codex', '/analytics'] },
 ] as const satisfies readonly ThemeRoute[];
 
-function normalizePathname(pathname: string): string {
+/**
+ * Canonicalize a pathname for route comparisons.
+ *
+ * Cloudflare Pages appends a trailing slash when it serves a prerendered
+ * folder (`/chat/ocean` → `/chat/ocean/`), so any exact-match check against
+ * `location.pathname` must normalize first or it silently fails in production.
+ */
+export function normalizePathname(pathname: string): string {
   let normalized = pathname.trim();
 
   // Also accepts a raw HashRouter URL for callers outside React Router.

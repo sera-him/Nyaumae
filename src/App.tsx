@@ -11,7 +11,7 @@ import SiteMotionController from '@/components/SiteMotionController';
 import RouteMetadata from '@/components/RouteMetadata';
 import ResilienceNotices from '@/components/ResilienceNotices';
 import AppRoutes from '@/routes';
-import { resolveSiteTheme } from '@/lib/visualTheme';
+import { resolveSiteTheme, normalizePathname } from '@/lib/visualTheme';
 import { loadSearchData } from '@/lib/searchDataLoader';
 import { preloadRoute, scheduleRouteHierarchyPreload } from '@/lib/routePreload';
 import { recordLastViewed } from '@/lib/lastViewed';
@@ -20,6 +20,10 @@ import { SearchSessionProvider } from '@/contexts/SearchSessionContext';
 import { readJsonStorage, writeJsonStorage } from '@/lib/browserStorage';
 
 const SCROLL_STORAGE_KEY = 'kimi:scrollPositions';
+
+// 沉浸式/无页脚布局的路径。线上 Cloudflare Pages 会给预渲染目录补尾斜杠
+// （/chat/ocean → /chat/ocean/），所以比对前必须走 normalizePathname。
+const THEMED_CHAT_PATHS = new Set(['/chat/ocean', '/chat/sweetdream', '/chat/aurora']);
 
 interface ScrollPosition {
   scrollX: number;
@@ -54,8 +58,9 @@ function App() {
   const siteTheme = resolveSiteTheme(location.pathname);
   const routeScrollKey = `route:${location.pathname}${location.search}`;
   const historyScrollKey = `history:${location.key}`;
-  const immersive = location.pathname === '/neural-clash';
-  const isThemedChatRoute = ['/chat/ocean', '/chat/sweetdream', '/chat/aurora'].includes(location.pathname);
+  const normalizedPathname = normalizePathname(location.pathname);
+  const immersive = normalizedPathname === '/neural-clash';
+  const isThemedChatRoute = THEMED_CHAT_PATHS.has(normalizedPathname);
 
   const handleSearchIntent = useCallback(() => {
     void loadSearchData().catch(() => {
