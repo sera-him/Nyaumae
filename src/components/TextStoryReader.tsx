@@ -433,7 +433,7 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
                   <p>{part.title}</p>
                   <h2>{chapter.title}</h2>
                 </header>
-                <div className="story-reader-prose font-serif-cn whitespace-pre-wrap" style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight }}>
+                <div className="story-reader-prose font-serif-cn whitespace-pre-wrap" data-no-translate style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight }}>
                   {renderStoryContent(chapter.content)}
                 </div>
               </motion.article>

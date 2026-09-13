@@ -147,7 +147,7 @@
 .aurora-profile small { color: var(--ink-muted); font-size: 9px; }
 .aurora-profile svg { width: 14px; color: var(--ink-muted); }
 
-.aurora-chat-main { position: relative; z-index: 2; display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+/* 布局（高度链 / flex 链 / 输入框占位）统一由 chat-layout.css 负责，这里只留配色与装饰 */
 .aurora-chat-header { display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 24px; border-bottom: 1px solid var(--glass-line); background: rgba(10, 14, 36, .4); backdrop-filter: blur(14px); }
 .aurora-header-left, .aurora-header-actions { display: flex; align-items: center; gap: 10px; }
 .aurora-model-mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 14px; color: #071018; background: linear-gradient(135deg, var(--aurora-cyan), var(--aurora-violet) 58%, var(--aurora-pink)); box-shadow: 0 8px 20px rgba(140, 120, 255, .3), 0 0 18px rgba(102, 233, 218, .18); }
@@ -166,7 +166,7 @@
 .aurora-share:hover { box-shadow: 0 5px 18px rgba(80, 90, 190, .4); }
 .aurora-share svg { width: 14px; }
 
-.aurora-conversation { width: min(780px, calc(100% - 52px)); margin: 0 auto; padding: 22px 0 190px; }
+.aurora-conversation { width: min(780px, calc(100% - 52px)); margin: 0 auto; padding: 22px 0 28px; }
 .aurora-date { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; color: var(--ink-muted); font-size: 9px; letter-spacing: .1em; }
 .aurora-date::before, .aurora-date::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(126, 146, 255, .3)); }
 .aurora-date::after { transform: scaleX(-1); }
@@ -194,7 +194,7 @@
 .aurora-suggestions button small { color: var(--ink-muted); font-size: 8px; }
 .aurora-suggestions button svg { width: 14px; color: var(--ink-muted); }
 
-.aurora-composer-shell { position: absolute; z-index: 6; left: 50%; bottom: 20px; transform: translateX(-50%); width: min(720px, calc(100% - 72px)); transition: width .35s ease; }
+/* 输入框的定位与占位见 chat-layout.css（grid 第二行），此处不再声明 position/left/bottom */
 .aurora-chat[data-sidebar="closed"] .aurora-composer-shell { width: min(720px, calc(100% - 72px)); }
 .aurora-quick-replies { display: flex; justify-content: center; gap: 7px; margin: 0 0 8px; }
 .aurora-quick-replies button { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border: 1px solid var(--glass-line); border-radius: 999px; background: rgba(10, 14, 36, .55); backdrop-filter: blur(10px); color: #aab6e6; font-size: 9px; cursor: pointer; box-shadow: 0 4px 15px rgba(15, 22, 60, .3); }
@@ -309,14 +309,12 @@
   .aurora-chat, .aurora-chat[data-sidebar="closed"] { grid-template-columns: 1fr; min-height: 0; }
   .aurora-sidebar { position: fixed; z-index: 12; inset: 0 auto 0 0; width: min(300px, 88vw); margin: 0; transform: translateX(0); box-shadow: 24px 0 70px rgba(10, 16, 50, .6); }
   .aurora-chat[data-sidebar="closed"] .aurora-sidebar { margin: 0; transform: translateX(-102%); }
-  .aurora-chat-main { min-height: 0; height: 100%; }
   .aurora-chat-header { height: 58px; padding: 0 14px; }
   .aurora-share { padding: 9px; }
   .aurora-share span { display: none; }
-  .aurora-conversation { width: calc(100% - 28px); padding: 18px 0 190px; }
+  .aurora-conversation { width: calc(100% - 28px); padding: 18px 0 24px; }
   .aurora-suggestions { grid-template-columns: 1fr; }
   .aurora-suggestions button { grid-template-columns: 34px 1fr 18px; }
-  .aurora-composer-shell, .aurora-chat[data-sidebar="closed"] .aurora-composer-shell { left: 14px; right: 14px; bottom: 68px; width: auto; transform: none; }
   .aurora-quick-replies { justify-content: flex-start; overflow: hidden; }
   .aurora-quick-replies button { flex: 0 0 auto; }
   .aurora-quick-replies button:last-child { display: flex; }

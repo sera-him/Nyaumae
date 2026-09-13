@@ -51,16 +51,80 @@
   --oc-danger-grad: linear-gradient(135deg, #ef8aa9, #c37fba);
 }
 
-.ocean-chat, .sweet-chat, .aurora-chat {
-  margin-top: 5.3rem;
-  height: calc(100svh - 5.3rem);
-  min-height: calc(100vh - 5.3rem);
+/* ============================================================
+ * 聊天页高度令牌（三重兜底，越靠后优先级越高）
+ *   1. 100vh    —— 所有浏览器都能解析的底线
+ *   2. 100svh   —— 现代浏览器：小视口，避开移动端地址栏
+ *   3. 实测像素 —— JS 写入，移动端软键盘弹出时也跟着走
+ * 注意：这里只定义 height / max-height，绝不使用 min-height，
+ * 否则内容一多就会把容器顶高、把输入框推出视口。
+ * ============================================================ */
+:root {
+  --app-nav-h: 5.3rem;
+  --app-vh: 100vh;
 }
-.aurora-site-main--chat { height: 100svh; min-height: 100svh; overflow: hidden; }
-.ocean-chat-shell, .sweet-chat-shell, .aurora-chat-shell { position: relative; min-width: 0; min-height: 0; height: 100%; }
-.ocean-chat-main, .sweet-chat-main, .aurora-chat-main { overflow: hidden; overscroll-behavior: contain; }
+@supports (height: 100svh) {
+  :root { --app-vh: 100svh; }
+}
+html[data-app-vh="measured"] { --app-vh: var(--app-vh-px, 100vh); }
+
+/* 第 1 重：外层 main 锁死到可视高度，任何内容都不能把它撑高。
+   用元素 + 类提高优先级，压过 aurora-design-system 里 `.aurora-site-main`
+   的 `min-height: 100svh` —— 否则软键盘弹出时容器缩不下去。 */
+main.aurora-site-main--chat {
+  height: var(--app-vh);
+  max-height: var(--app-vh);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 第 2 重：聊天根容器 = 可视高度 - 顶部导航；height 与 max-height 同值封顶 */
+.ocean-chat, .sweet-chat, .aurora-chat {
+  margin-top: var(--app-nav-h);
+  height: calc(var(--app-vh) - var(--app-nav-h));
+  max-height: calc(var(--app-vh) - var(--app-nav-h));
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 第 3 重：shell 用两行 grid 把「消息区」和「输入框」分开，输入框真正占位 */
+.ocean-chat-shell, .sweet-chat-shell, .aurora-chat-shell {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.ocean-chat-main, .sweet-chat-main, .aurora-chat-main {
+  grid-row: 1;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
 .ocean-chat-scroll, .sweet-chat-scroll, .aurora-chat-scroll {
   flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+}
+/* 输入框回到布局流：占 grid 第二行，谁也多推不动它 */
+.ocean-composer-shell, .sweet-composer-shell, .aurora-composer-shell {
+  grid-row: 2;
+  position: relative;
+  z-index: 6;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  transform: none;
+  justify-self: center;
+  width: min(720px, calc(100% - 72px));
+  padding-bottom: 20px;
+  transition: width .35s ease;
 }
 /* 内部滚动区统一显示细滚动条（覆盖 Win11 悬浮式自动隐藏行为） */
 .ocean-chat-scroll, .sweet-chat-scroll, .aurora-chat-scroll,
@@ -311,10 +375,16 @@
 }
 
 @media (max-width: 820px) {
-  .ocean-chat, .sweet-chat, .aurora-chat, .ocean-chat[data-sidebar="closed"], .sweet-chat[data-sidebar="closed"], .aurora-chat[data-sidebar="closed"] {
-    margin-top: 4.55rem;
-    height: calc(100svh - 4.55rem);
-    min-height: calc(100svh - 4.55rem);
+  :root { --app-nav-h: 4.55rem; }
+  /* 窄屏：输入框左右贴边，底部给移动导航留出 68px，仍然占位、不被推走 */
+  .ocean-composer-shell, .sweet-composer-shell, .aurora-composer-shell {
+    grid-row: 2;
+    justify-self: stretch;
+    width: auto;
+    margin: 0 14px;
+    padding-bottom: 68px;
+    transform: none;
+    transition: none;
   }
   .original-chat-sidebar-backdrop {
     position: fixed; z-index: 11; inset: 0; display: block; border: 0; background: rgba(65,68,96,.2);

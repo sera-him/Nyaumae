@@ -194,10 +194,7 @@
 .sweet-profile small { color: #b0a0c0; font-size: 9px; }
 .sweet-profile svg { width: 14px; color: var(--aurora-violet-soft); }
 
-.sweet-chat-main {
-  position: relative; z-index: 2; display: flex; flex-direction: column;
-  min-width: 0; min-height: 0; height: 100%;
-}
+/* 布局（高度链 / flex 链 / 输入框占位）统一由 chat-layout.css 负责，这里只留配色与装饰 */
 .sweet-chat-header {
   display: flex; align-items: center; justify-content: space-between;
   height: 68px; padding: 0 28px;
@@ -243,7 +240,7 @@
 .sweet-share:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255, 179, 217, 0.15); }
 .sweet-share svg { width: 15px; color: #ff6b9d; }
 
-.sweet-conversation { width: min(780px, calc(100% - 52px)); margin: 0 auto; padding: 28px 0 220px; }
+.sweet-conversation { width: min(780px, calc(100% - 52px)); margin: 0 auto; padding: 28px 0 32px; }
 .sweet-date {
   display: flex; align-items: center; gap: 12px; margin: 0 0 28px;
   color: var(--aurora-violet-soft); font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
@@ -298,13 +295,11 @@
 .sweet-suggestions button small { color: #b0a0c0; font-size: 9px; }
 .sweet-suggestions button svg { width: 15px; color: var(--aurora-violet-soft); }
 
-.sweet-composer-shell {
-  position: absolute; z-index: 6;
-  left: 50%; bottom: 24px;
-  transform: translateX(-50%); width: min(720px, calc(100% - 72px));
-  transition: width 0.35s ease;
-}
+/* 输入框的定位与占位见 chat-layout.css（grid 第二行），此处不再声明 position/left/bottom */
 .sweet-chat[data-sidebar="closed"] .sweet-composer-shell { width: min(720px, calc(100% - 72px)); }
+@media (min-width: 821px) {
+  .sweet-composer-shell { padding-bottom: 24px; }
+}
 .sweet-quick-replies { display: flex; justify-content: center; gap: 8px; margin: 0 0 10px; }
 .sweet-quick-replies button {
   display: flex; align-items: center; gap: 6px; padding: 8px 14px;
@@ -436,14 +431,12 @@
   .sweet-chat, .sweet-chat[data-sidebar="closed"] { grid-template-columns: 1fr; min-height: 0; }
   .sweet-sidebar { position: fixed; z-index: 12; inset: 0 auto 0 0; width: min(300px, 88vw); margin: 0; transform: translateX(0); box-shadow: 24px 0 70px rgba(255, 179, 217, 0.12); }
   .sweet-chat[data-sidebar="closed"] .sweet-sidebar { margin: 0; transform: translateX(-102%); }
-  .sweet-chat-main { min-height: 0; height: 100%; }
   .sweet-chat-header { height: 60px; padding: 0 14px; }
   .sweet-share { padding: 10px; }
   .sweet-share span { display: none; }
-  .sweet-conversation { width: calc(100% - 28px); padding: 20px 0 210px; }
+  .sweet-conversation { width: calc(100% - 28px); padding: 20px 0 24px; }
   .sweet-suggestions { grid-template-columns: 1fr; }
   .sweet-suggestions button { grid-template-columns: 38px 1fr 18px; }
-  .sweet-composer-shell, .sweet-chat[data-sidebar="closed"] .sweet-composer-shell { left: 14px; right: 14px; bottom: 72px; width: auto; transform: none; }
   .sweet-quick-replies { justify-content: flex-start; overflow: hidden; }
   .sweet-quick-replies button { flex: 0 0 auto; }
   .sweet-quick-replies button:last-child { display: flex; }

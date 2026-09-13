@@ -20,6 +20,7 @@ import type {
 import { CHAT_STICKERS, parseMessageParts, stickerToken } from '@/conversation/stickers';
 import ResponsiveImage, { THUMBNAIL_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
 import { readStorageValue, writeStorageValue } from '@/lib/browserStorage';
+import { useAppViewportHeight } from '@/hooks/useAppViewportHeight';
 import './ThemedChat.css';
 
 type ChatTheme = 'ocean' | 'sweet' | 'aurora';
@@ -191,6 +192,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
   const p = theme;
   const copy = themeCopy[theme];
   const location = useLocation();
+  useAppViewportHeight();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedId, setSelectedId] = useState(() => readLocalValue(SELECTED_CHAT_KEY));
   const [messages, setMessages] = useState<Message[]>([]);

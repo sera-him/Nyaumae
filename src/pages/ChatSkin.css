@@ -117,7 +117,7 @@
 .ocean-profile small { color: #9eacc2; font-size: 9px; }
 .ocean-profile svg { width: 14px; color: #9caec8; }
 
-.ocean-chat-main { position: relative; z-index: 2; display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+/* 布局（高度链 / flex 链 / 输入框占位）统一由 chat-layout.css 负责，这里只留配色与装饰 */
 .ocean-chat-header { display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 24px; border-bottom: 1px solid rgba(141,174,210,.16); background: rgba(255,255,255,.36); backdrop-filter: blur(14px); }
 .ocean-header-left, .ocean-header-actions { display: flex; align-items: center; gap: 10px; }
 .ocean-model-mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 14px; color: white; background: linear-gradient(135deg, #74d8e5, #829fea 58%, #d19bf2); box-shadow: 0 8px 18px rgba(113,166,218,.22); }
@@ -135,7 +135,7 @@
 .ocean-share { display: flex; align-items: center; gap: 7px; padding: 9px 13px; border: 1px solid rgba(255,255,255,.86); border-radius: 13px; background: linear-gradient(135deg, rgba(210,246,248,.85), rgba(247,220,255,.82)); font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 15px rgba(105,150,195,.1); }
 .ocean-share svg { width: 14px; }
 
-.ocean-conversation { width: min(780px, calc(100% - 52px)); margin: 0 auto; padding: 22px 0 190px; }
+.ocean-conversation { width: min(780px, calc(100% - 52px)); margin: 0 auto; padding: 22px 0 28px; }
 .ocean-date { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; color: #9fb0c6; font-size: 9px; letter-spacing: .09em; }
 .ocean-date::before, .ocean-date::after { content:""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(119,155,194,.22)); }
 .ocean-date::after { transform: scaleX(-1); }
@@ -162,7 +162,7 @@
 .ocean-suggestions button small { color: #a5b4c6; font-size: 8px; }
 .ocean-suggestions button svg { width: 14px; color: #9dadd1; }
 
-.ocean-composer-shell { position: absolute; z-index: 6; left: 50%; bottom: 20px; transform: translateX(-50%); width: min(720px, calc(100% - 72px)); transition: width .35s ease; }
+/* 输入框的定位与占位见 chat-layout.css（grid 第二行），此处不再声明 position/left/bottom */
 .ocean-chat[data-sidebar="closed"] .ocean-composer-shell { width: min(720px, calc(100% - 72px)); }
 .ocean-quick-replies { display: flex; justify-content: center; gap: 7px; margin: 0 0 8px; }
 .ocean-quick-replies button { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border: 1px solid rgba(255,255,255,.85); border-radius: 999px; background: rgba(255,255,255,.67); backdrop-filter: blur(10px); color: #7890ad; font-size: 9px; cursor: pointer; box-shadow: 0 4px 15px rgba(106,145,185,.08); }
@@ -219,14 +219,12 @@
   .ocean-chat, .ocean-chat[data-sidebar="closed"] { grid-template-columns: 1fr; min-height: 0; }
   .ocean-sidebar { position: fixed; z-index: 12; inset: 0 auto 0 0; width: min(300px, 88vw); margin: 0; transform: translateX(0); box-shadow: 24px 0 70px rgba(65,100,150,.24); }
   .ocean-chat[data-sidebar="closed"] .ocean-sidebar { margin: 0; transform: translateX(-102%); }
-  .ocean-chat-main { min-height: 0; height: 100%; }
   .ocean-chat-header { height: 58px; padding: 0 14px; }
   .ocean-share { padding: 9px; }
   .ocean-share span { display: none; }
-  .ocean-conversation { width: calc(100% - 28px); padding: 18px 0 190px; }
+  .ocean-conversation { width: calc(100% - 28px); padding: 18px 0 24px; }
   .ocean-suggestions { grid-template-columns: 1fr; }
   .ocean-suggestions button { grid-template-columns: 34px 1fr 18px; }
-  .ocean-composer-shell, .ocean-chat[data-sidebar="closed"] .ocean-composer-shell { left: 14px; right: 14px; bottom: 68px; width: auto; transform: none; }
   .ocean-quick-replies { justify-content: flex-start; overflow: hidden; }
   .ocean-quick-replies button { flex: 0 0 auto; }
   .ocean-quick-replies button:last-child { display: flex; }

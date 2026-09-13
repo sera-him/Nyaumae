@@ -106,7 +106,9 @@ function coloredLine(text: string, lineIndex: number): React.ReactNode {
 
 export default function ExtraStories() {
   return (
-    <section id="extra-stories" className="miia-poems-section py-24 px-4 sm:px-6 relative">
+    // The page translator skips this subtree: story bodies, poems and fragments
+    // are long-form Chinese content, not interface copy.
+    <section id="extra-stories" data-no-translate className="miia-poems-section py-24 px-4 sm:px-6 relative">
       <div className="max-w-[1100px] mx-auto">
         <div className="mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-nc-text mb-4 tracking-wide">{semanticHighlight("诗歌与碎片")}</h2>

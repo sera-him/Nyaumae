@@ -30,6 +30,23 @@ test('i18n defaults to zh-CN with en toggle', () => {
   assert.match(html, /feed\.xml/);
 });
 
+test('site language switch translates the rendered page instead of reloading', () => {
+  const dict = readFileSync('src/lib/translations/dictionary.ts', 'utf-8');
+  assert.match(dict, /EXACT_TRANSLATIONS/);
+  assert.match(dict, /PHRASE_TRANSLATIONS/);
+
+  const translator = readFileSync('src/lib/translations/pageTranslator.ts', 'utf-8');
+  assert.match(translator, /export function startPageTranslation/);
+  assert.match(translator, /MutationObserver/);
+  assert.match(translator, /data-no-translate/);
+  // Bare glyphs must never be swapped: split-rendered prose would break.
+  assert.match(translator, /trimmed\.length < 2/);
+
+  const aids = readFileSync('src/components/SiteAids.tsx', 'utf-8');
+  assert.match(aids, /startPageTranslation/);
+  assert.doesNotMatch(aids, /location\.reload\(\)/);
+});
+
 test('canon review flow wraps guard', () => {
   const src = readFileSync('src/conversation/canonReview.ts', 'utf-8');
   assert.match(src, /canonGuard/);

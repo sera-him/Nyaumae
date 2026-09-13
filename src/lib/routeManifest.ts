@@ -181,8 +181,11 @@ export const ROUTE_DIRECTORY_GROUPS: RouteDirectoryGroup[] = [
     label: 'AI',
     caption: 'AI CHAT',
     description: '聊天空间、主题与 AI 设置',
+    // The '/chat' hub (星海甜梦舱) is intentionally not listed here: the three
+    // themed rooms below already cover every entry point, and the group root
+    // still reaches the hub from the top bar.
     items: [
-      ...directoryItems(['/chat', '/chat/ocean', '/chat/sweetdream', '/chat/aurora']),
+      ...directoryItems(['/chat/ocean', '/chat/sweetdream', '/chat/aurora']),
       ...directoryItems(['/settings/ai']),
     ],
   },

@@ -56,6 +56,7 @@ const GIT_CANDIDATES = ['git', 'C:\\Program Files\\Git\\cmd\\git.exe', 'C:\\Prog
 const GIT_BIN = GIT_CANDIDATES.find((candidate) => candidate === 'git' || existsSync(candidate)) ?? 'git';
 
 const CHECK_ONLY = process.argv.includes('--check');
+const SKIP_CONFIRM = process.argv.includes('--yes') || process.argv.includes('-y');
 const action = process.argv[2];
 
 function requireFile(filePath, label) {
@@ -201,8 +202,13 @@ async function confirmDeployment(config) {
     console.warn('如果要发布最新修改，请先运行桌面上的“1-构建网页”。');
   }
 
+  if (SKIP_CONFIRM) {
+    console.log('已通过 --yes 跳过交互确认。');
+    return true;
+  }
+
   if (!input.isTTY) {
-    throw new Error('部署需要在可交互窗口中确认。');
+    throw new Error('部署需要在可交互窗口中确认，或使用 --yes 跳过确认。');
   }
 
   const prompt = createInterface({ input, output });
@@ -431,7 +437,7 @@ async function main() {
   if (action === 'preview') return previewSite();
   if (action === 'deploy') return deploySite();
   if (action === 'git-sync') return autoGitSync();
-  throw new Error('用法：desktop-site-tool.mjs <build|deploy|preview|git-sync> [--check] [--no-git]');
+  throw new Error('用法：desktop-site-tool.mjs <build|deploy|preview|git-sync> [--check] [--no-git] [--yes]');
 }
 
 main().catch((error) => {

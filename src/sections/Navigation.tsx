@@ -49,8 +49,9 @@ const primaryItems: PrimaryItem[] = navigationGroups.map((group) => ({
 }));
 
 const navigationGroupCount = navigationGroups.length;
-// Keep the restored directory label exactly as it appeared before the redesign.
-const directoryEntryCount = 32;
+// Derived from the live directory so adding/removing a route never leaves the
+// advertised entry count stale.
+const directoryEntryCount = navigationGroups.reduce((total, group) => total + group.items.length, 0);
 
 function routeIsActive(pathname: string, to: string, paths?: string[]) {
   const candidates = paths ?? [to.split('?')[0].split('#')[0]];
