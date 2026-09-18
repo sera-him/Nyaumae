@@ -2,7 +2,7 @@
 chcp 65001 >nul
 title 1-构建网页
 
-set "APP_DIR=C:\Users\Administrator\Desktop\app"
+set "APP_DIR=E:\app"
 set "TOOL_NODE=C:\Users\Administrator\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
 
 if not exist "%TOOL_NODE%" set "TOOL_NODE=node"

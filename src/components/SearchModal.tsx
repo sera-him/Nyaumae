@@ -1,12 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, User, BookOpen, Sparkles, Settings, Swords, BookMarked, BarChart3, ArrowUpRight, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import PageState from '@/components/PageState';
 import { getPopularWords, getRelatedWords, getWordFreqScore, type WordFreq } from '@/data/wordFrequency';
+import { getWordFrequencyCloudsEn, getEnWordFreqScore } from '@/data/wordFrequencyEn';
 import { loadSearchData } from '@/lib/searchDataLoader';
 import { recordSearch } from '@/lib/analytics';
 import { useSearchSession } from '@/hooks/useSearchSession';
+import { useLocale } from '@/hooks/useLocale';
+import type { Locale } from '@/lib/i18n';
 
 interface FullSearchItem {
   id: string;
@@ -29,6 +32,11 @@ const categoryColors: Record<string, string> = {
   '棋子': 'bg-orange-500/15 text-orange-400',
   '词典': 'bg-green-500/15 text-green-400',
   '页面': 'bg-blue-500/15 text-blue-400',
+};
+
+const EN_CATEGORY_LABELS: Record<string, string> = {
+  '角色': 'Character', '故事': 'Story', '技能': 'Skill', '设定': 'Lore',
+  '棋子': 'Chess', '词典': 'Dictionary', '页面': 'Page', '游戏': 'Game', '测评': 'Assessment',
 };
 
 interface SearchModalProps {
@@ -130,6 +138,8 @@ function resolveRoute(item: FullSearchItem): string {
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const { query, setQuery, setSearchState } = useSearchSession();
+  const locale = useLocale();
+  const isEn = locale === 'en';
   const [results, setResults] = useState<{ item: FullSearchItem; score: number }[]>([]);
   const [popularWords, setPopularWords] = useState<WordFreq[]>([]);
   const [isIndexReady, setIsIndexReady] = useState(false);
@@ -142,6 +152,59 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const trimmedQuery = query.trim();
   const isIndexLoading = isOpen && !isIndexReady && !searchLoadError;
   const isSearchLoading = Boolean(trimmedQuery && trimmedQuery !== searchedQuery);
+
+  const ui = useMemo(() => ({
+    modeLabel: isEn ? 'Quick search' : '快捷搜索',
+    modeHint: isEn ? 'Jump straight to results' : '快速定位并打开结果',
+    placeholder: isEn ? 'Search all content... (fuzzy match)' : '搜索全站内容...（支持模糊匹配）',
+    ariaSearch: isEn ? 'Search' : '搜索',
+    ariaClose: isEn ? 'Close quick search' : '关闭快捷搜索',
+    loadingTitle: isEn ? 'Loading search content' : '正在加载搜索内容',
+    loadingDesc: isEn ? 'Results appear automatically once the index is ready.' : '索引准备好后会自动显示结果。',
+    offlineTitle: isEn ? 'Search index unavailable offline' : '离线时无法加载搜索索引',
+    errorTitle: isEn ? 'Failed to load search content' : '搜索内容加载失败',
+    errorDesc: isEn ? 'Check your network connection, or reopen search later.' : '请检查网络连接，或稍后重新打开搜索。',
+    retry: isEn ? 'Retry' : '重新加载',
+    related: isEn ? 'Related high-frequency words:' : '高频关联：',
+    totalLabel: isEn ? (count: number) => `${count} item${count === 1 ? '' : 's'} found` : (count: number) => `找到 ${count} 篇`,
+    totalTimes: isEn ? (n: number) => `, ${n.toLocaleString('en-US')} occurrences` : (n: number) => `，共 ${n.toLocaleString('zh-CN')} 次`,
+    sortNote: isEn ? ' · sorted by relevance' : ' · 按匹配度排序',
+    notFound: (q: string) => isEn ? `No results for "${q}"` : `未找到“${q}”`,
+    notFoundDesc: isEn ? 'Try shorter keywords, or search with a different name.' : '尝试简化关键词，或换一个名称搜索。',
+    popularTitle: isEn ? 'Site high-frequency words · live' : '全站高频词 · 随内容更新',
+    popularCount: isEn ? (n: number) => `${n} occurrences across the site` : (n: number) => `全站出现 ${n} 次`,
+    fullPageTitle: isEn ? 'Full search page' : '完整搜索页面',
+    fullPageDesc: isEn ? 'For filtering and sharing; continues after refresh.' : '适合筛选、分享，刷新后仍可继续。',
+    openFullPage: isEn ? 'Open full search' : '打开完整搜索页',
+    scoreLabel: (score: number) => isEn
+      ? (score >= 1400 ? 'exact match' : score >= 850 ? 'phrase match' : score >= 700 ? 'prefix match' : score >= 500 ? 'title match' : score >= 400 ? 'word match' : score >= 250 ? 'content match' : score >= 150 ? 'prefix match' : score >= 100 ? 'fuzzy match' : 'related')
+      : (score >= 1400 ? '完全匹配' : score >= 850 ? '短语匹配' : score >= 700 ? '前缀匹配' : score >= 500 ? '标题匹配' : score >= 400 ? '整词匹配' : score >= 250 ? '内容匹配' : score >= 150 ? '前缀匹配' : score >= 100 ? '模糊匹配' : '相关'),
+    enHintTitle: isEn ? 'English mode searches the English corpus only' : '',
+    enHintDesc: isEn ? 'Chinese words are not indexed in English mode. Try English keywords, or switch to Chinese mode to search them.' : '',
+  }), [isEn]);
+
+  const hasCjkQuery = /[\u3400-\u9fff]/.test(trimmedQuery);
+
+  const popularWordsFor = useCallback((target: Locale): WordFreq[] => (
+    target === 'en' ? getWordFrequencyCloudsEn().all.slice(0, 18) : getPopularWords(18)
+  ), []);
+
+  const relatedWordsFor = useCallback((searchQuery: string, target: Locale, max = 5): WordFreq[] => {
+    if (target === 'zh-CN') return getRelatedWords(searchQuery, max);
+    const tokens = searchQuery.toLocaleLowerCase('en-US').split(/[\s·.,，。！？：；/()（）-]+/).filter(Boolean);
+    if (tokens.length === 0) return [];
+    const all = getWordFrequencyCloudsEn().all;
+    const hits: WordFreq[] = [];
+    for (const entry of all) {
+      const lower = entry.word.toLocaleLowerCase('en-US');
+      const matched = tokens.some((token) => lower.includes(token) || token.includes(lower));
+      if (matched) {
+        hits.push(entry);
+        if (hits.length >= max) break;
+      }
+    }
+    return hits;
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -168,7 +231,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     let cancelled = false;
     void loadSearchData().then(() => {
       if (!cancelled) {
-        setPopularWords(getPopularWords(18));
+        setPopularWords(popularWordsFor(locale));
         setIsIndexReady(true);
         setSearchLoadError(false);
       }
@@ -180,7 +243,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       }
     });
     return () => { cancelled = true; };
-  }, [isOpen, loadAttempt, setSearchState]);
+  }, [isOpen, loadAttempt, locale, popularWordsFor, setSearchState]);
 
   useEffect(() => {
     let cancelled = false;
@@ -198,8 +261,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       try {
         const { fullTextSearch } = await loadSearchData();
         if (!cancelled) {
-          setPopularWords(getPopularWords(18));
-          const r = fullTextSearch(searchQuery);
+          setPopularWords(popularWordsFor(locale));
+          const r = fullTextSearch(searchQuery, locale);
           setResults(r);
           setSearchedQuery(trimmedQuery);
           recordSearch(trimmedQuery, r.length);
@@ -216,7 +279,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       }
     }, trimmedQuery ? 80 : 0);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [isOpen, query, setSearchState, trimmedQuery]);
+  }, [isOpen, query, setSearchState, trimmedQuery, locale, popularWordsFor]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -244,17 +307,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     navigate({ pathname: '/codex', search: params.toString() ? `?${params.toString()}` : '' });
   }, [navigate, onClose, query, trimmedQuery]);
 
-  const getScoreLabel = (score: number): string => {
-    if (score >= 1400) return '完全匹配';
-    if (score >= 850) return '短语匹配';
-    if (score >= 700) return '前缀匹配';
-    if (score >= 500) return '标题匹配';
-    if (score >= 400) return '整词匹配';
-    if (score >= 250) return '内容匹配';
-    if (score >= 150) return '前缀匹配';
-    if (score >= 100) return '模糊匹配';
-    return '相关';
-  };
+  const getScoreLabel = (score: number): string => ui.scoreLabel(score);
 
   return (
     <AnimatePresence>
@@ -265,7 +318,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           exit={{ opacity: 0 }}
           className="site-search-overlay fixed inset-0 z-[60] flex items-start justify-center pt-[15vh] px-4 bg-nc-bg/80 backdrop-blur-xl"
           onClick={onClose}
-          role="dialog" aria-modal="true" aria-label="搜索"
+          role="dialog" aria-modal="true" aria-label={ui.ariaSearch}
         >
           <motion.div
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -275,7 +328,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             onClick={(e) => e.stopPropagation()}
             className="site-search-panel w-[calc(100%-1.5rem)] sm:w-full sm:max-w-xl mx-3 sm:mx-0 bg-nc-bg-secondary border border-nc-violet/20 rounded-xl shadow-2xl shadow-black/50 overflow-hidden"
           >
-            <div className="site-search-mode-label"><span>快捷搜索</span><small>快速定位并打开结果</small></div>
+            <div className="site-search-mode-label"><span>{ui.modeLabel}</span><small>{ui.modeHint}</small></div>
             <div className="flex items-center gap-3 px-4 py-3 border-b border-nc-violet/10">
               <Search className="site-search-input-icon w-5 h-5 text-nc-text-muted shrink-0" />
               <input
@@ -283,46 +336,46 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="搜索全站内容...（支持模糊匹配）"
+                placeholder={ui.placeholder}
                 className="flex-1 bg-transparent text-nc-text placeholder:text-nc-text-muted outline-none text-sm"
               />
               <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[11px] font-mono bg-nc-bg-tertiary border border-nc-violet/20 rounded text-nc-text-muted">
                 ESC
               </kbd>
-              <button type="button" data-action="close" onClick={onClose} className="site-search-close p-1 hover:text-nc-text text-nc-text-muted" aria-label="关闭快捷搜索">
+              <button type="button" data-action="close" onClick={onClose} className="site-search-close p-1 hover:text-nc-text text-nc-text-muted" aria-label={ui.ariaClose}>
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="max-h-[60vh] overflow-y-auto">
               {isIndexLoading || isSearchLoading ? (
-                <PageState kind="loading" title="正在加载搜索内容" description="索引准备好后会自动显示结果。" compact />
+                <PageState kind="loading" title={ui.loadingTitle} description={ui.loadingDesc} compact />
               ) : searchLoadError ? (
                 <PageState
                   kind={typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error'}
-                  title={typeof navigator !== 'undefined' && !navigator.onLine ? '离线时无法加载搜索索引' : '搜索内容加载失败'}
-                  description="请检查网络连接，或稍后重新打开搜索。"
+                  title={typeof navigator !== 'undefined' && !navigator.onLine ? ui.offlineTitle : ui.errorTitle}
+                  description={ui.errorDesc}
                   actions={<button type="button" data-action="retry" onClick={() => {
                     setSearchLoadError(false);
                     setIsIndexReady(false);
                     setLoadAttempt((attempt) => attempt + 1);
-                  }}><RotateCcw />重新加载</button>}
+                  }}><RotateCcw />{ui.retry}</button>}
                   compact
                 />
               ) : results.length > 0 ? (
                 <div className="py-2">
                   {query.toLowerCase().trim() === 'sera-him' && (
                     <div className="mx-4 mb-2 px-3 py-2 rounded-lg bg-nc-rose/10 border border-nc-rose/20 text-xs">
-                      <span className="text-nc-rose font-medium">发现彩蛋！</span>
+                      <span className="text-nc-rose font-medium">{isEn ? 'Easter egg found!' : '发现彩蛋！'}</span>
                       <span className="text-nc-text-secondary ml-1">sera-him → nyaumæ</span>
                     </div>
                   )}
                   {(() => {
-                    const related = getRelatedWords(query, 5);
+                    const related = relatedWordsFor(query, locale, 5);
                     return related.length > 0 ? (
                       <div className="mx-4 mb-2 px-3 py-2 rounded-lg bg-nc-gold/5 border border-nc-gold/15 text-xs flex items-center gap-2">
                         <BarChart3 className="w-3 h-3 text-nc-gold shrink-0" />
-                        <span className="text-nc-text-muted">高频关联：</span>
+                        <span className="text-nc-text-muted">{ui.related}</span>
                         <div className="flex flex-wrap gap-1">
                           {related.map(rw => (
                             <button
@@ -338,10 +391,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     ) : null;
                   })()}
                   {(() => {
-                    const totalOccurrences = trimmedQuery.split(/[\s·.,，。！？：；/()（）-]+/).filter(Boolean).reduce((s, w) => s + getWordFreqScore(w), 0);
+                    const totalOccurrences = trimmedQuery.split(/[\s·.,，。！？：；/()（）-]+/).filter(Boolean).reduce((s, w) => s + (isEn ? getEnWordFreqScore(w) : getWordFreqScore(w)), 0);
                     return (
                       <p className="px-4 py-1 text-xs text-nc-text-muted">
-                        找到 {results.length} 篇{totalOccurrences ? `，共 ${totalOccurrences.toLocaleString('zh-CN')} 次` : ''} · 按匹配度排序
+                        {ui.totalLabel(results.length)}{totalOccurrences ? ui.totalTimes(totalOccurrences) : ''}{ui.sortNote}
                       </p>
                     );
                   })()}
@@ -355,7 +408,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         className="site-search-result w-full text-left px-4 py-2.5 hover:bg-nc-bg-tertiary/50 transition-colors flex items-start gap-3 group"
                       >
                         <span className={`mt-0.5 px-1.5 py-0.5 rounded text-[11px] font-medium shrink-0 ${categoryColors[item.category] || 'bg-nc-bg-tertiary text-nc-text-muted'}`}>
-                          {item.category}
+                          {isEn ? (EN_CATEGORY_LABELS[item.category] ?? item.category) : item.category}
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
@@ -376,16 +429,24 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   })}
                 </div>
               ) : query.trim() ? (
-                <PageState kind="empty" title={`未找到“${query}”`} description="尝试简化关键词，或换一个名称搜索。" compact />
+                <div>
+                  {isEn && hasCjkQuery && (
+                    <div className="mx-4 mt-3 px-3 py-2 rounded-lg bg-nc-violet/10 border border-nc-violet/25 text-xs">
+                      <span className="text-nc-violet font-medium">{ui.enHintTitle}</span>
+                      <span className="text-nc-text-secondary ml-1">{ui.enHintDesc}</span>
+                    </div>
+                  )}
+                  <PageState kind="empty" title={ui.notFound(query)} description={ui.notFoundDesc} compact />
+                </div>
               ) : (
                 <div className="py-6 px-4">
-                  <p className="text-xs text-nc-text-muted mb-3">全站高频词 · 随内容更新</p>
+                  <p className="text-xs text-nc-text-muted mb-3">{ui.popularTitle}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {popularWords.map(({ word: tag, count }) => (
                       <button
                         key={tag}
                         onClick={() => setQuery(tag)}
-                        title={`全站出现 ${count} 次`}
+                        title={ui.popularCount(count)}
                         className="site-search-chip px-2 py-1 rounded-md bg-nc-bg-tertiary border border-nc-violet/10 text-xs text-nc-text-secondary hover:text-nc-text hover:border-nc-violet/30 transition-colors"
                       >
                         {tag}
@@ -396,8 +457,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               )}
             </div>
             <div className="site-search-full-page">
-              <div><strong>完整搜索页面</strong><span>适合筛选、分享，刷新后仍可继续。</span></div>
-              <button type="button" onClick={openFullSearch}>打开完整搜索页<ArrowUpRight /></button>
+              <div><strong>{ui.fullPageTitle}</strong><span>{ui.fullPageDesc}</span></div>
+              <button type="button" onClick={openFullSearch}>{ui.openFullPage}<ArrowUpRight /></button>
             </div>
           </motion.div>
         </motion.div>

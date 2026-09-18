@@ -1,10 +1,19 @@
 import { useRef } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { motion, useInView } from 'framer-motion';
 import { BookOpenText, Eraser } from 'lucide-react';
 import { theoremFragments } from '@/data/extraStories';
-import { semanticHighlight } from '@/lib/semanticHighlight';
+import { theoremFragmentsEn } from '@/data/extraStories.en';
+import { semanticHighlightProse } from '@/lib/semanticHighlight';
+import { getLocale } from '@/lib/i18n';
+import {
+  miiaMathParagraphsEn,
+  miiaMathHighlightsEn,
+  miiaMathRedMarksEn,
+} from '@/data/miiaMathNotes.en';
 
-const paragraphs = [
+const paragraphsZh = [
   `我2年级啦，我在想，1是奇数，3是奇数，5是奇数，能不能有一个东西自己判断一个数字是不是奇数？那么就叫做"数是奇数"。`,
   `我们可以把这些数字放在一起，叫做<数，数是奇数>。那么1在<数，数是奇数>里，2不在<数，数是奇数>里，每个数都知道自己在不在里面。`,
   `然后我们学校得不同的分数有不同的星星奖励，90分以上40颗星星，85分以上37颗星星，80分以上33颗星星，75分以上30颗星星，70分以上27颗星星，67分以上23颗星星，65分以上20颗星星，62分以上17颗星星，60分以上10颗星星，不及格没有星星。`,
@@ -28,10 +37,20 @@ const paragraphs = [
   `所以可以随便乱放，可是这样用它就要把整个最快芯片全都看一遍，还是不好。所以工程师发明了几种不一样的@，每个东西先用第一个@，如果那里有东西就换一个@，全都有才会挤掉。这样机器人就可以最快告诉你这两个东西谁排在前面了。`,
 ];
 
-const highlights = ['数是奇数', '@星星', '龟兔赛跑', '无限时间', '艾特分类', '坏@', '生日悖论', '机器人'];
-const redMarks = ['不公平', '无穷大'];
+const highlightsZh = ['数是奇数', '@星星', '龟兔赛跑', '无限时间', '艾特分类', '坏@', '生日悖论', '机器人'];
+const redMarksZh = ['不公平', '无穷大'];
 
-function NoteParagraph({ text, index }: { text: string; index: number }) {
+function NoteParagraph({
+  text,
+  index,
+  highlights,
+  redMarks,
+}: {
+  text: string;
+  index: number;
+  highlights: string[];
+  redMarks: string[];
+}) {
   const ref = useRef<HTMLParagraphElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
 
@@ -133,6 +152,12 @@ function NoteParagraph({ text, index }: { text: string; index: number }) {
 }
 
 export default function MiiaMathNotes() {
+  const _en = getLocale() === 'en';
+  const paragraphs = _en ? miiaMathParagraphsEn : paragraphsZh;
+  const highlights = _en ? miiaMathHighlightsEn : highlightsZh;
+  const redMarks = _en ? miiaMathRedMarksEn : redMarksZh;
+  const theoremText = _en ? theoremFragmentsEn : theoremFragments;
+
   return (
     <section id="miia-math-notes" className="miia-subpage miia-math-page py-20 px-4 sm:px-6 bg-[var(--aurora-brand-bg-deep)] relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none opacity-30">
@@ -144,7 +169,7 @@ export default function MiiaMathNotes() {
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-300 text-xs mb-4">
             <BookOpenText className="w-3.5 h-3.5" />
-            <span>咪呀的手写笔记</span>
+            <span>{L("咪呀的手写笔记")}</span>
           </div>
           <h2
             className="text-3xl sm:text-4xl tracking-tight"
@@ -153,9 +178,8 @@ export default function MiiaMathNotes() {
               color: '#F0E6FF',
             }}
           >
-            数学笔记
-          </h2>
-          <p className="text-sm text-nc-text-muted mt-2">二年级 · 集合论遐想</p>
+            {L("数学笔记\r\n          ")}</h2>
+          <p className="text-sm text-nc-text-muted mt-2">{L("二年级 · 集合论遐想")}</p>
         </div>
 
         <div
@@ -211,12 +235,11 @@ export default function MiiaMathNotes() {
                 color: '#c4b8a8',
               }}
             >
-              2026.5.10 星期日 多云
-            </div>
+              {L("2026.5.10 星期日 多云\r\n            ")}</div>
 
             <div className="space-y-0">
               {paragraphs.map((text, i) => (
-                <NoteParagraph key={i} text={text} index={i} />
+                <NoteParagraph key={i} text={text} index={i} highlights={highlights} redMarks={redMarks} />
               ))}
             </div>
 
@@ -236,8 +259,7 @@ export default function MiiaMathNotes() {
                 transform: 'rotate(-2deg)',
               }}
             >
-              ——咪呀
-            </motion.p>
+              {L("——咪呀\r\n            ")}</motion.p>
 
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -260,27 +282,23 @@ export default function MiiaMathNotes() {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-nc-text-muted">
           <span className="inline-flex items-center gap-1.5">
             <span className="inline-block w-6 h-3 rounded-sm" style={{ background: 'linear-gradient(120deg, #fde047 0%, #fde047 100%)' }} />
-            重点标记
-          </span>
+            {L("重点标记\r\n          ")}</span>
           <span className="inline-flex items-center gap-1.5">
             <span className="inline-block w-6 h-3 rounded-sm border border-dashed border-red-400/70" />
-            红笔圈注
-          </span>
+            {L("红笔圈注\r\n          ")}</span>
           <span className="inline-flex items-center gap-1.5">
             <Eraser className="w-3.5 h-3.5" />
-            字体：站酷快乐体
-          </span>
+            {L("字体：站酷快乐体\r\n          ")}</span>
         </div>
 
         {/* 定理1-3 - 新增 */}
         <div className="max-w-3xl mx-auto mt-10 bg-[var(--aurora-brand-cream)] rounded-lg p-6 sm:p-8 shadow-xl">
           <h3 className="text-lg font-bold text-[var(--aurora-brand-stone)] mb-4 flex items-center gap-2">
             <BookOpenText className="w-5 h-5 text-violet-600" />
-            定理一二三 · 整数伪装
-          </h3>
+            {L("定理一二三 · 整数伪装\r\n          ")}</h3>
           <div className="space-y-4 text-sm text-[var(--aurora-brand-stone)] leading-relaxed whitespace-pre-wrap" style={{ fontFamily: '"ZCOOL KuaiLe", "Ma Shan Zheng", cursive' }}>
-            {theoremFragments.split('\n\n').map((para, i) => (
-              <p key={i}>{semanticHighlight(para)}</p>
+            {theoremText.split('\n\n').map((para, i) => (
+              <p key={i}>{semanticHighlightProse(para)}</p>
             ))}
           </div>
         </div>

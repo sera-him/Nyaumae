@@ -1,4 +1,6 @@
 import { memo, useEffect, useMemo, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import type { CSSProperties } from 'react';
 import { getWordDocumentCount, type WordFreq } from '@/data/wordFrequency';
 import './WordFrequencyTable.css';
@@ -9,6 +11,8 @@ const PAGE_STEP = 500;
 
 interface WordFrequencyTableProps {
   entries: WordFreq[];
+  /** Document-breadth resolver; defaults to the zh-CN frequency engine. */
+  resolveDocCount?: (word: string) => number;
 }
 
 type SortMode = 'count' | 'docs' | 'word';
@@ -18,7 +22,7 @@ interface FrequencyRow {
   index: number;
 }
 
-function WordFrequencyTable({ entries }: WordFrequencyTableProps) {
+function WordFrequencyTable({ entries, resolveDocCount = getWordDocumentCount }: WordFrequencyTableProps) {
   const [query, setQuery] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('count');
   const [packColumns, setPackColumns] = useState(18);
@@ -49,13 +53,13 @@ function WordFrequencyTable({ entries }: WordFrequencyTableProps) {
       .sort((a, b) => {
         if (sortMode === 'count') return b.count - a.count || a.word.localeCompare(b.word, 'zh-CN');
         if (sortMode === 'docs') {
-          const aDocs = getWordDocumentCount(a.word);
-          const bDocs = getWordDocumentCount(b.word);
+          const aDocs = resolveDocCount(a.word);
+          const bDocs = resolveDocCount(b.word);
           return bDocs - aDocs || b.count - a.count || a.word.localeCompare(b.word, 'zh-CN');
         }
         return a.word.localeCompare(b.word, 'zh-CN') || b.count - a.count;
       });
-  }, [entries, query, sortMode]);
+  }, [entries, query, sortMode, resolveDocCount]);
 
   const packedRows = useMemo(() => {
     const rows: FrequencyRow[][] = [];
@@ -73,7 +77,7 @@ function WordFrequencyTable({ entries }: WordFrequencyTableProps) {
   const hiddenEntries = Math.max(0, filteredEntries.length - visibleRows.length * packColumns);
 
   const downloadCsv = () => {
-    const csv = ['词语,出现次数,文档数', ...filteredEntries.map((entry) => `${JSON.stringify(entry.word)},${entry.count.toFixed(1)},${getWordDocumentCount(entry.word)}`)].join('\n');
+    const csv = ['词语,出现次数,文档数', ...filteredEntries.map((entry) => `${JSON.stringify(entry.word)},${entry.count.toFixed(1)},${resolveDocCount(entry.word)}`)].join('\n');
     const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
     const link = document.createElement('a');
     link.download = 'word-frequency.csv';
@@ -89,30 +93,29 @@ function WordFrequencyTable({ entries }: WordFrequencyTableProps) {
     <section className="word-frequency-table" aria-labelledby="word-frequency-table-title">
       <div className="word-frequency-table-heading">
         <div>
-          <h4 id="word-frequency-table-title">完整词频明细</h4>
-          <p>云图是概览；这里保留每一个词语和它的实际出现次数。</p>
+          <h4 id="word-frequency-table-title">{L("完整词频明细")}</h4>
+          <p>{L("云图是概览；这里保留每一个词语和它的实际出现次数。")}</p>
         </div>
         <button type="button" className="word-frequency-download" onClick={downloadCsv}>
-          下载 CSV
-        </button>
+          {L("下载 CSV\n        ")}</button>
       </div>
       <div className="word-frequency-table-tools">
         <label>
-          <span>筛选词语</span>
+          <span>{L("筛选词语")}</span>
           <input
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="输入词语…"
-            aria-label="筛选词频明细"
+            placeholder={L("输入词语…")}
+            aria-label={L("筛选词频明细")}
           />
         </label>
-        <div className="word-frequency-sort" role="group" aria-label="词频排序方式">
-          <button type="button" className={sortMode === 'count' ? 'is-active' : ''} onClick={() => setSortMode('count')}>按频次</button>
-          <button type="button" className={sortMode === 'docs' ? 'is-active' : ''} onClick={() => setSortMode('docs')}>按篇数</button>
-          <button type="button" className={sortMode === 'word' ? 'is-active' : ''} onClick={() => setSortMode('word')}>按词语</button>
+        <div className="word-frequency-sort" role="group" aria-label={L("词频排序方式")}>
+          <button type="button" className={sortMode === 'count' ? 'is-active' : ''} onClick={() => setSortMode('count')}>{L("按频次")}</button>
+          <button type="button" className={sortMode === 'docs' ? 'is-active' : ''} onClick={() => setSortMode('docs')}>{L("按篇数")}</button>
+          <button type="button" className={sortMode === 'word' ? 'is-active' : ''} onClick={() => setSortMode('word')}>{L("按词语")}</button>
         </div>
-        <span className="word-frequency-table-total">显示 {filteredEntries.length.toLocaleString('zh-CN')} / {entries.length.toLocaleString('zh-CN')} 项</span>
+        <span className="word-frequency-table-total">{L("显示 ")}{filteredEntries.length.toLocaleString('zh-CN')} / {entries.length.toLocaleString('zh-CN')} {L("项")}</span>
       </div>
       <div className="word-frequency-table-scroll">
         <table
@@ -122,12 +125,11 @@ function WordFrequencyTable({ entries }: WordFrequencyTableProps) {
           data-frequency-row-count={packedRows.length}
           style={{ '--frequency-columns': packColumns } as CSSProperties}
         >
-          <caption>全部 {entries.length.toLocaleString('zh-CN')} 个词语的出现次数</caption>
+          <caption>{L("全部 ")}{entries.length.toLocaleString('zh-CN')} {L("个词语的出现次数")}</caption>
           <thead>
             <tr>
               <th colSpan={packColumns} scope="col">
-                词语 · 出现次数 · 文档数（密集显示，每排 {packColumns} 组）
-              </th>
+                {L("词语 · 出现次数 · 文档数（密集显示，每排 ")}{packColumns} {L("组）\n              ")}</th>
             </tr>
           </thead>
           <tbody>
@@ -139,12 +141,12 @@ function WordFrequencyTable({ entries }: WordFrequencyTableProps) {
                     <td key={`entry-${columnIndex}`} className="word-frequency-cell">
                       <div
                         className="word-frequency-entry"
-                        aria-label={`${item.entry.word}，出现 ${item.entry.count.toLocaleString('zh-CN')} 次，${getWordDocumentCount(item.entry.word)} 篇`}
-                        title={`${item.entry.word}：${item.entry.count.toLocaleString('zh-CN')} 次 / ${getWordDocumentCount(item.entry.word)} 篇`}
+                        aria-label={L(`${item.entry.word}，出现 ${item.entry.count.toLocaleString('zh-CN')} 次，${resolveDocCount(item.entry.word)} 篇`)}
+                        title={L(`${item.entry.word}：${item.entry.count.toLocaleString('zh-CN')} 次 / ${resolveDocCount(item.entry.word)} 篇`)}
                       >
                         <span className="word-frequency-rank" aria-hidden="true">{item.index}</span>
                         <span className="word-frequency-word">{item.entry.word}</span>
-                        <span className="word-frequency-count">{item.entry.count.toLocaleString('zh-CN')}·{getWordDocumentCount(item.entry.word)}篇</span>
+                        <span className="word-frequency-count">{item.entry.count.toLocaleString('zh-CN')}·{resolveDocCount(item.entry.word)}{L("篇")}</span>
                       </div>
                     </td>
                   ) : (
@@ -158,14 +160,12 @@ function WordFrequencyTable({ entries }: WordFrequencyTableProps) {
         {hiddenRows > 0 && (
           <div className="word-frequency-more">
             <button type="button" onClick={() => setRowLimit((n) => n + PAGE_STEP)}>
-              加载更多（还有约 {hiddenEntries.toLocaleString('zh-CN')} 项）
-            </button>
+              {L("加载更多（还有约 ")}{hiddenEntries.toLocaleString('zh-CN')} {L("项）\n            ")}</button>
             <button type="button" onClick={() => setRowLimit(packedRows.length)}>
-              显示全部
-            </button>
+              {L("显示全部\n            ")}</button>
           </div>
         )}
-        {filteredEntries.length === 0 && <p className="word-frequency-table-empty">没有匹配的词语。</p>}
+        {filteredEntries.length === 0 && <p className="word-frequency-table-empty">{L("没有匹配的词语。")}</p>}
       </div>
     </section>
   );

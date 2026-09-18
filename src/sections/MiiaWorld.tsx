@@ -1,13 +1,26 @@
 import { useState, useEffect } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { useMusic } from '@/contexts/MusicContext';
-import { miiaTexts, miiaWish, miiaAgiLand, miiaAgiPoem, lilaAnalysis, mappingBlock } from '@/data/miiaTexts';
-import { dualAxisModel } from '@/data/extraStories';
+import { miiaTexts as miiaTextsZh, miiaWish as miiaWishZh, miiaAgiLand as miiaAgiLandZh, miiaAgiPoem as miiaAgiPoemZh, lilaAnalysis as lilaAnalysisZh, mappingBlock as mappingBlockZh } from '@/data/miiaTexts';
+import { miiaTextsEn, miiaWishEn, miiaAgiLandEn, miiaAgiPoemEn, lilaAnalysisEn, mappingBlockEn } from '@/data/miiaTexts.en';
+import { getLocale } from '@/lib/i18n';
+import { dualAxisModel as dualAxisModelZh } from '@/data/extraStories';
+import { dualAxisModelEn } from '@/data/extraStories.en';
 import ParticleField from '@/components/ParticleField';
-import { semanticHighlight } from '@/lib/semanticHighlight';
+import { semanticHighlight, semanticHighlightProse } from '@/lib/semanticHighlight';
 import SmartImage from '@/components/SmartImage';
 import { ScrollText, Heart, Brain } from 'lucide-react';
 
 export default function MiiaWorld() {
+  const _en = getLocale() === 'en';
+  const miiaTexts = _en ? miiaTextsEn : miiaTextsZh;
+  const miiaWish = _en ? miiaWishEn : miiaWishZh;
+  const miiaAgiLand = _en ? miiaAgiLandEn : miiaAgiLandZh;
+  const miiaAgiPoem = _en ? miiaAgiPoemEn : miiaAgiPoemZh;
+  const lilaAnalysis = _en ? lilaAnalysisEn : lilaAnalysisZh;
+  const mappingBlock = _en ? mappingBlockEn : mappingBlockZh;
+  const dualAxisModel = _en ? dualAxisModelEn : dualAxisModelZh;
   const [activeText, setActiveText] = useState(0);
   const { playTrack, currentTrack } = useMusic();
 
@@ -36,8 +49,7 @@ export default function MiiaWorld() {
             {semanticHighlight('咪呀的世界')}
           </h2>
           <p className="text-nc-text text-lg">
-            10 个文本 · 来自量子纠缠处的低语
-          </p>
+            {L("10 个文本 · 来自量子纠缠处的低语\r\n          ")}</p>
         </div>
 
         {/* Text Selector */}
@@ -53,7 +65,7 @@ export default function MiiaWorld() {
                   : 'bg-[var(--aurora-brand-bg)] text-nc-text-muted border border-[#8B5CF6]/10 hover:text-nc-text'
               }`}
             >
-              文本 {i + 1}
+              {L("文本 ")}{i + 1}
             </button>
           ))}
         </div>
@@ -61,7 +73,7 @@ export default function MiiaWorld() {
         {/* Miia Dream Banner */}
         <SmartImage
           localSrc="/story-miia-dream.jpg"
-          alt="咪呀的世界"
+          alt={L("咪呀的世界")}
           aspectRatio="16/9"
           containerClassName="miia-dream-image w-full rounded-xl border border-[#8B5CF6]/10 mb-8"
           className="object-cover"
@@ -74,12 +86,12 @@ export default function MiiaWorld() {
           <div className="flex items-center gap-3 mb-4">
             <ScrollText className="w-5 h-5 text-[var(--aurora-brand-violet-soft)]" />
             <h3 className="text-lg font-semibold text-[var(--aurora-brand-text)]">
-              {semanticHighlight(miiaTexts[activeText]?.title || `文本 ${activeText + 1}`)}
+              {semanticHighlightProse(miiaTexts[activeText]?.title || `文本 ${activeText + 1}`)}
             </h3>
           </div>
           <div className="font-serif-cn text-nc-text leading-[2] text-base sm:text-lg space-y-4">
             {miiaTexts[activeText]?.content.split('\n\n').map((paragraph, i) => (
-              <p key={i} className="text-justify">{semanticHighlight(paragraph)}</p>
+              <p key={i} className="text-justify">{semanticHighlightProse(paragraph)}</p>
             ))}
           </div>
         </div>
@@ -92,12 +104,12 @@ export default function MiiaWorld() {
           </div>
           <SmartImage
             localSrc="/story-miia-wish.jpg"
-            alt="咪呀的愿望：星空中央发光的心形水晶"
+            alt={L("咪呀的愿望：星空中央发光的心形水晶")}
             aspectRatio="15/8"
             containerClassName="w-full rounded-lg border border-[#F472B6]/15 mb-4"
             className="object-cover"
           />
-          <p className="text-sm text-nc-text leading-relaxed">{semanticHighlight(miiaWish)}</p>
+          <p className="text-sm text-nc-text leading-relaxed">{semanticHighlightProse(miiaWish)}</p>
         </div>
 
         {/* AGI 应许之地 */}
@@ -108,7 +120,7 @@ export default function MiiaWorld() {
           </div>
           <SmartImage
             localSrc="/story-agi-pyramid.jpg"
-            alt="AGI 应许之地"
+            alt={L("AGI 应许之地")}
             aspectRatio="16/9"
             containerClassName="w-full rounded-lg border border-[#00E5CC]/10 mb-4"
             className="object-cover"
@@ -117,12 +129,12 @@ export default function MiiaWorld() {
             {miiaAgiLand.map((item, i) => (
               <div key={i}>
                 <p className="text-xs text-nc-text-secondary font-bold mb-1">{item.level}</p>
-                <p>{semanticHighlight(item.content)}</p>
+                <p>{semanticHighlightProse(item.content)}</p>
               </div>
             ))}
             <div className="bg-[var(--aurora-brand-bg-deep)] border border-[#00E5CC]/10 rounded-lg p-4 font-serif-cn">
               {miiaAgiPoem.split('\n').map((line, i) => (
-                <p key={i} className="text-nc-text leading-[2]">{semanticHighlight(line)}</p>
+                <p key={i} className="text-nc-text leading-[2]">{semanticHighlightProse(line)}</p>
               ))}
             </div>
           </div>
@@ -138,7 +150,7 @@ export default function MiiaWorld() {
             className="font-mono text-xs text-nc-text-secondary whitespace-pre leading-relaxed overflow-x-auto"
             role="group"
             tabIndex={0}
-            aria-label="映射区块原始数据（可横向滚动查看）"
+            aria-label={L("映射区块原始数据（可横向滚动查看）")}
           >
             {JSON.stringify(mappingBlock, null, 2)}
           </div>
@@ -159,7 +171,7 @@ export default function MiiaWorld() {
           />
           <div className="text-sm text-nc-text leading-relaxed space-y-3">
             {lilaAnalysis.map((p, i) => (
-              <p key={i}>{semanticHighlight(p)}</p>
+              <p key={i}>{semanticHighlightProse(p)}</p>
             ))}
           </div>
         </div>
@@ -172,7 +184,7 @@ export default function MiiaWorld() {
           </div>
           <div className="text-sm text-nc-text leading-relaxed space-y-3">
             {dualAxisModel.split('\n\n').map((paragraph, i) => (
-              <p key={i} className="text-justify">{semanticHighlight(paragraph)}</p>
+              <p key={i} className="text-justify">{semanticHighlightProse(paragraph)}</p>
             ))}
           </div>
         </div>

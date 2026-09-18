@@ -24,6 +24,8 @@ export interface ConversationState {
   levelEvents: LevelEvent[];
   levelProfiles: LevelProfile[];
   prompts: PromptDefinition[];
+  /** Last local mutation time; drives last-write-wins cloud sync. */
+  updatedAt: string;
 }
 
 const EMPTY_STATE: ConversationState = {
@@ -34,6 +36,7 @@ const EMPTY_STATE: ConversationState = {
   levelEvents: [],
   levelProfiles: [],
   prompts: [],
+  updatedAt: nowIso(),
 };
 
 const DEFAULT_AI_CONFIG: AiConfig = {
@@ -49,6 +52,9 @@ const DEFAULT_AI_CONFIG: AiConfig = {
   timeoutMs: 45_000,
   retry: 1,
   headers: {},
+  semanticSearch: false,
+  embeddingModel: '',
+  embeddingBaseUrl: '',
   updatedAt: nowIso(),
 };
 
@@ -85,6 +91,7 @@ function readState(): ConversationState {
           levelEvents: Array.isArray(parsed.levelEvents) ? parsed.levelEvents : [],
           levelProfiles: Array.isArray(parsed.levelProfiles) ? parsed.levelProfiles : [],
           prompts: Array.isArray(parsed.prompts) ? parsed.prompts : [],
+          updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : nowIso(),
         };
       },
     },
@@ -127,17 +134,54 @@ function normalizeMemory(memory: MemoryRecord): MemoryRecord {
 
 export class ConversationRepository {
   private state: ConversationState;
+  private readonly listeners = new Set<(state: ConversationState) => void>();
 
   constructor() {
     this.state = readState();
     this.state.conversations = this.state.conversations.map(normalizeConversation);
     this.state.messages = this.state.messages.map(normalizeMessage);
     this.state.memories = this.state.memories.map(normalizeMemory);
+    if (typeof this.state.updatedAt !== 'string') this.state.updatedAt = nowIso();
+  }
+
+  /** Change feed for the cloud-sync bridge; listeners must not mutate state. */
+  subscribe(listener: (state: ConversationState) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
   }
 
   private commit(): void {
     this.state.schemaVersion = SCHEMA_VERSION;
+    this.state.updatedAt = nowIso();
     writeState(this.state);
+    for (const listener of this.listeners) {
+      try {
+        listener(clone(this.state));
+      } catch {
+        /* a broken listener must not break persistence */
+      }
+    }
+  }
+
+  /** Cloud-sync entry points. */
+  getStateSnapshot(): ConversationState {
+    return clone(this.state);
+  }
+
+  getStateUpdatedAt(): string {
+    return this.state.updatedAt;
+  }
+
+  /** Replace local state with a pulled remote snapshot (last-write-wins). */
+  replaceStateFromSync(remote: ConversationState): boolean {
+    if (!isConversationStateShape(remote)) return false;
+    this.state = clone(remote);
+    this.state.conversations = this.state.conversations.map(normalizeConversation);
+    this.state.messages = this.state.messages.map(normalizeMessage);
+    this.state.memories = this.state.memories.map(normalizeMemory);
+    if (typeof this.state.updatedAt !== 'string') this.state.updatedAt = nowIso();
+    writeState(this.state);
+    return true;
   }
 
   listConversations(includeDeleted = false): Conversation[] {
@@ -351,9 +395,23 @@ export class ConversationRepository {
     return { ...clone(DEFAULT_AI_CONFIG), ...stored.value };
   }
 
+  private readonly aiConfigListeners = new Set<(config: AiConfig) => void>();
+
+  subscribeAiConfig(listener: (config: AiConfig) => void): () => void {
+    this.aiConfigListeners.add(listener);
+    return () => this.aiConfigListeners.delete(listener);
+  }
+
   saveAiConfig(config: AiConfig): AiConfig {
     const next = { ...clone(config), updatedAt: nowIso() };
     writeJsonStorage(AI_CONFIG_KEY, next);
+    for (const listener of this.aiConfigListeners) {
+      try {
+        listener(clone(next));
+      } catch {
+        /* listener failures must not break persistence */
+      }
+    }
     return clone(next);
   }
 

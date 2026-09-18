@@ -20,7 +20,7 @@ const root = resolve(import.meta.dirname, '..');
 /** Characters whose short bio is acceptable as-is (one clear sentence). */
 const BIO_MIN_CHARS = 40;
 /** Characters that are intentionally minimal (ASI logs, side extras). */
-const BIO_EXEMPT = new Set(['gpt', 'mimi', 'mia', 'miia', 'miaowu']);
+const _BIO_EXEMPT = new Set(['gpt', 'mimi', 'mia', 'miia', 'miaowu']); // 保留待接入豁免逻辑（审计 QUA-006）
 
 interface Gap {
   id: string;

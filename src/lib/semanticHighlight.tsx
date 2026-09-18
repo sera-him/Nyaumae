@@ -1,5 +1,7 @@
-import React from 'react';
+﻿import React from 'react';
 import { frequencyHighlightMap } from '@/data/wordFrequency';
+import { getLocale } from '@/lib/i18n';
+import { translateSurfaceText } from '@/lib/translations/manual';
 
 // ═══════════════════════════════════════════════════════════════
 //  FULL-SITE Semantic Highlight — comprehensive keyword coverage
@@ -461,8 +463,35 @@ function setCachedHighlight(text: string, result: React.ReactNode[]): void {
 
 // ═══════════════════════════════════════════════════════════════
 
-export function semanticHighlight(text: string): React.ReactNode[] {
-  if (!text) return [];
+// ═══════════════════════════════════════════════════════════════
+//  LOCALISATION
+//
+//  These helpers are the single choke point through which almost every
+//  section renders its copy (headings, settings, tables, rules). Translating
+//  *here* — before the per-character split — is what lets the English view
+//  read as whole sentences instead of disconnected glyphs.
+//
+//  Long-form narrative (story reader, poems, essays) opts out with
+//  `{ prose: true }`: those bodies are authored works, not interface copy,
+//  and must keep their original layout and wording.
+// ═══════════════════════════════════════════════════════════════
+
+export interface HighlightOptions {
+  /** Narrative body: never localised, even in the English view. */
+  prose?: boolean;
+}
+
+function localizeSource(text: string, options?: HighlightOptions): string {
+  if (options?.prose) return text;
+  if (getLocale() !== 'en') return text;
+  return translateSurfaceText(text);
+}
+
+// ═══════════════════════════════════════════════════════════════
+
+export function semanticHighlight(input: string, options?: HighlightOptions): React.ReactNode[] {
+  if (!input) return [];
+  const text = localizeSource(input, options);
 
   syncFrequencyHighlights();
 
@@ -566,12 +595,14 @@ export function semanticHighlight(text: string): React.ReactNode[] {
 // ═══════════════════════════════════════════════════════════════
 
 export function alternatingHighlight(
-  text: string,
+  input: string,
   colorA: string = 'text-rose-400 font-bold',
   colorB: string = 'text-cyan-400 font-bold',
-  targetWord?: string
+  targetWord?: string,
+  options?: HighlightOptions
 ): React.ReactNode[] {
-  if (!text) return [];
+  if (!input) return [];
+  const text = localizeSource(input, options);
 
   syncFrequencyHighlights();
   const parts: React.ReactNode[] = [];
@@ -667,8 +698,9 @@ const GUN_COLOR = 'text-red-500 font-bold';
 const COW_COLOR = 'text-orange-400 font-bold';
 const CAT_COLOR = 'text-cyan-400 font-bold';
 
-export function cowCatHighlight(text: string): React.ReactNode[] {
-  if (!text) return [];
+export function cowCatHighlight(input: string, options?: HighlightOptions): React.ReactNode[] {
+  if (!input) return [];
+  const text = localizeSource(input, options);
   const parts: React.ReactNode[] = [];
   let key = 0;
   let i = 0;
@@ -769,11 +801,11 @@ const POS_COLOR_MAP: Record<string, string> = {
   '核心': 'text-red-400 font-bold',
 };
 
-export function posColorHighlight(text: string, posTag: string): React.ReactNode[] {
-  if (!text) return [];
+export function posColorHighlight(input: string, posTag: string, options?: HighlightOptions): React.ReactNode[] {
+  if (!input) return [];
   const colorClass = POS_COLOR_MAP[posTag] || 'text-nc-text';
   // Apply the base POS color, then run semantic highlight within
-  const highlighted = semanticHighlight(text);
+  const highlighted = semanticHighlight(input, options);
   // Wrap each part with the POS color as default
   return highlighted.map((part, idx) => {
     if (React.isValidElement(part) && (part.props as { className?: string })?.className) {
@@ -799,8 +831,9 @@ export function getRandomOverloadColor(): string {
   return OVERLOAD_COLORS[Math.floor(Math.random() * OVERLOAD_COLORS.length)];
 }
 
-export function randomColorHighlight(text: string, seed?: number): React.ReactNode[] {
-  if (!text) return [];
+export function randomColorHighlight(input: string, seed?: number, options?: HighlightOptions): React.ReactNode[] {
+  if (!input) return [];
+  const text = localizeSource(input, options);
   const parts: React.ReactNode[] = [];
   let key = 0;
 
@@ -845,6 +878,15 @@ export function randomColorHighlight(text: string, seed?: number): React.ReactNo
 
 // Re-export pieceTierColorMap for backward compatibility
 export const pieceTierColorMap = PIECE_KEYWORDS;
+
+/**
+ * Same rendering, but for narrative bodies (novel chapters, poems, essays):
+ * the text is never swapped for English, so a paragraph can never end up
+ * half-translated.
+ */
+export function semanticHighlightProse(input: string): React.ReactNode[] {
+  return semanticHighlight(input, { prose: true });
+}
 
 // Re-export POS colors for Dictionary use
 export { POS_COLOR_MAP };

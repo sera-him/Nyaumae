@@ -9,6 +9,7 @@ import type {
 import { conversationRepository, type ConversationRepository } from './storage.ts';
 import { ContextBuilder } from './contextBuilder.ts';
 import { contextBuilder, ensureSiteKnowledgeLoaded } from './siteContextBuilder.ts';
+import { configureSemanticRetrieval } from './siteKnowledgeRetriever.ts';
 import { createModelAdapter, ModelAdapterError } from './modelAdapters.ts';
 import { LevelSystem, levelSystem } from './levelSystem.ts';
 import { isAbortError, estimateTokens, nowIso } from './utils.ts';
@@ -172,7 +173,8 @@ export class ConversationEngine {
     }
     const latestConversation = this.persist.getConversation(conversation.id) ?? conversation;
     await ensureSiteKnowledgeLoaded();
-    const builtContext = this.context.build({
+    configureSemanticRetrieval(config);
+    const builtContext = await this.context.buildAsync({
       conversation: latestConversation,
       currentInput: content,
       recentMessages: previousMessages,

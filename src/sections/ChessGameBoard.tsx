@@ -1,4 +1,6 @@
 import { useCallback, useEffect } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { Play, RotateCcw, Undo2 } from 'lucide-react';
 import { pieceTierColorMap } from '@/lib/highlightUtils';
@@ -85,7 +87,7 @@ export function ChessGameBoard() {
       {/* 棋钟预设选择器（游戏未开始时显示） */}
       {!gameStarted && (<>
         <div className="space-y-2">
-          <div className="text-xs text-nc-text-secondary font-medium">⏱ 棋钟</div>
+          <div className="text-xs text-nc-text-secondary font-medium">{L("⏱ 棋钟")}</div>
           <div className="flex flex-wrap gap-1">
             {CATEGORY_ORDER.map(cat => {
               const catPresets = CLOCK_PRESETS.filter(p => p.category === cat);
@@ -133,8 +135,7 @@ export function ChessGameBoard() {
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-nc-violet/20 text-nc-violet border border-nc-violet/30 hover:bg-nc-violet/30 text-sm font-medium transition-all"
             >
               <Play className="w-4 h-4" />
-              开始对弈
-            </button>
+              {L("开始对弈\n            ")}</button>
           ) : (
             <>
               {/* Turn Indicator */}
@@ -161,7 +162,7 @@ export function ChessGameBoard() {
               {/* Blue Cheese Indicator */}
               {gameState.blueCheeseControl && (
                 <div className="px-3 py-1.5 rounded-lg bg-[#6366F1]/10 border border-[#6366F1]/30 text-[var(--aurora-brand-indigo)] text-xs font-medium">
-                  🧀 蓝奶酪：{gameState.blueCheeseControl === 'white' ? '白方可控对方老鼠' : '黑方可控对方老鼠'}
+                  {L("🧀 蓝奶酪：")}{gameState.blueCheeseControl === 'white' ? '白方可控对方老鼠' : '黑方可控对方老鼠'}
                 </div>
               )}
 
@@ -182,8 +183,7 @@ export function ChessGameBoard() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-nc-bg-tertiary text-nc-text-secondary hover:text-nc-text border border-nc-violet/10 hover:border-nc-violet/20 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <Undo2 className="w-3.5 h-3.5" />
-              撤销
-            </button>
+              {L("撤销\n            ")}</button>
             <button
               onClick={() => {
                 if (confirmAction({ title: '重新开始组合棋对局？', consequence: '当前棋盘、计时、历史步骤和技能状态都会清空。' })) resetGame();
@@ -191,8 +191,7 @@ export function ChessGameBoard() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-nc-bg-tertiary text-nc-text-secondary hover:text-rose-400 border border-nc-violet/10 hover:border-rose-400/20"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              重新开始
-            </button>
+              {L("重新开始\n            ")}</button>
           </div>
         )}
       </div>
@@ -218,8 +217,8 @@ export function ChessGameBoard() {
           return (
             <div className="space-y-2">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs text-nc-text-muted">{isWitch ? '女巫' : '反女巫'}技能：</span>
-                <span className="text-xs text-nc-text-muted">献祭次数：{sc}</span>
+                <span className="text-xs text-nc-text-muted">{isWitch ? '女巫' : '反女巫'}{L("技能：")}</span>
+                <span className="text-xs text-nc-text-muted">{L("献祭次数：")}{sc}</span>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 {/* 下毒 */}
@@ -231,8 +230,7 @@ export function ChessGameBoard() {
                       : 'bg-nc-bg-tertiary text-nc-text-secondary border-nc-violet/10 hover:border-red-500/30'
                   }`}
                 >
-                  ☠️ 下毒
-                </button>
+                  {L("☠️ 下毒\n                ")}</button>
                 {/* 5种奶酪 */}
                 {cheeseTypes.map(({ type, label, color, activeColor, needsSacrifice }) => {
                   const isActive = witchSkillMode === 'cheese' && selectedCheeseType === type;
@@ -265,15 +263,14 @@ export function ChessGameBoard() {
                       : 'bg-nc-bg-tertiary text-nc-text-secondary border-nc-violet/10 hover:border-purple-500/30'
                   }`}
                 >
-                  🙏 献祭 {isWitch ? 'IZ' : 'Z'}
+                  {L("🙏 献祭 ")}{isWitch ? 'IZ' : 'Z'}
                 </button>
                 {/* 自爆 */}
                 <button
                   onClick={requestSelfDestruct}
                   className="px-3 py-1 rounded-lg text-xs font-medium transition-all border bg-nc-bg-tertiary text-nc-text-secondary border-nc-violet/10 hover:border-orange-500/30"
                 >
-                  💥 自爆
-                </button>
+                  {L("💥 自爆\n                ")}</button>
               </div>
             </div>
           );
@@ -298,7 +295,7 @@ export function ChessGameBoard() {
                 🚀 {starshipDeployMode ? '取消部署' : '部署棋子'}
               </button>
               {starshipDeployMode && (
-                <span className="text-xs text-emerald-400">点击 9×9 范围内空格</span>
+                <span className="text-xs text-emerald-400">{L("点击 9×9 范围内空格")}</span>
               )}
             </div>
           );
@@ -315,15 +312,14 @@ export function ChessGameBoard() {
           return (
             <div className="flex items-center gap-3 flex-wrap">
               <span className="text-xs text-nc-text-muted">
-                👨‍🚀 太空人（{variety.current}/{variety.total}）
+                {L("👨‍🚀 太空人（")}{variety.current}/{variety.total}）
               </span>
               {canSynth && (
                 <button
                   onClick={synthesizeStarship}
                   className="px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-nc-gold/20 text-nc-gold border-nc-gold/40 hover:bg-nc-gold/30"
                 >
-                  ✨ 合成星舰
-                </button>
+                  {L("✨ 合成星舰\n                ")}</button>
               )}
             </div>
           );
@@ -341,8 +337,7 @@ export function ChessGameBoard() {
                 onClick={transformQueen}
                 className="px-3 py-1 rounded-lg text-xs font-medium transition-all border bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20"
               >
-                🦢 变为鸵鸟 O
-              </button>
+                {L("🦢 变为鸵鸟 O\n              ")}</button>
             </div>
           );
         }
@@ -356,8 +351,7 @@ export function ChessGameBoard() {
             onClick={executeDecrypt}
             className="px-3 py-1 rounded-lg text-xs font-medium transition-all border bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/20"
           >
-            🔓 发动破译
-          </button>
+            {L("🔓 发动破译\n          ")}</button>
         </div>
       )}
 
@@ -368,7 +362,7 @@ export function ChessGameBoard() {
           <div className="flex justify-center">
             <div
               role="grid"
-              aria-label={`复合象棋棋盘，${boardStatusLabel}`}
+              aria-label={L(`复合象棋棋盘，${boardStatusLabel}`)}
               aria-rowcount={BOARD_SIZE}
               aria-colcount={BOARD_SIZE}
               className="grid gap-0.5 bg-nc-violet/10 rounded-lg overflow-hidden"
@@ -526,7 +520,7 @@ export function ChessGameBoard() {
           return (
             <div className="flex flex-col gap-3 w-36 flex-shrink-0">
               <div className={`rounded-xl p-3 border transition-all bg-nc-bg-secondary border-nc-violet/10`}>
-                <div className="text-[10px] font-medium mb-1 opacity-60">拔河</div>
+                <div className="text-[10px] font-medium mb-1 opacity-60">{L("拔河")}</div>
                 <div className={`font-mono text-2xl font-bold tabular-nums leading-tight ${
                   t < 0 ? 'text-nc-cyan' : t > 0 ? 'text-nc-rose' : ''
                 }`}>
@@ -535,8 +529,8 @@ export function ChessGameBoard() {
                   {(nearWhiteLoss || nearBlackLoss) && <span className="text-sm ml-1 text-red-400">⚠</span>}
                 </div>
                 <div className="flex justify-between text-[10px] text-nc-text-muted mt-2 pt-2 border-t border-nc-violet/10">
-                  <span className={wActive ? 'text-nc-cyan font-medium' : ''}>白方 -5min 输</span>
-                  <span className={bActive ? 'text-nc-rose font-medium' : ''}>黑方 +5min 输</span>
+                  <span className={wActive ? 'text-nc-cyan font-medium' : ''}>{L("白方 -5min 输")}</span>
+                  <span className={bActive ? 'text-nc-rose font-medium' : ''}>{L("黑方 +5min 输")}</span>
                 </div>
               </div>
               <div className="text-[10px] text-nc-text-muted text-center">{preset.category} · {preset.label}</div>
@@ -558,7 +552,7 @@ export function ChessGameBoard() {
               <div className={`rounded-xl p-3 border transition-all bg-nc-bg-secondary ${
                 poolEmpty ? 'border-red-500/50' : 'border-nc-violet/10'
               }`}>
-                <div className="text-[10px] font-medium mb-1 opacity-60">池 · 共享</div>
+                <div className="text-[10px] font-medium mb-1 opacity-60">{L("池 · 共享")}</div>
                 <div className={`font-mono text-2xl font-bold tabular-nums leading-tight ${
                   poolEmpty ? 'text-red-400 animate-pulse' : 'text-nc-cyan'
                 }`}>
@@ -571,7 +565,7 @@ export function ChessGameBoard() {
                   ? 'bg-nc-cyan/10 border-nc-cyan/30'
                   : 'hidden'
               }`}>
-                <div className="text-[10px] font-medium mb-1 opacity-60">白方 · 步限</div>
+                <div className="text-[10px] font-medium mb-1 opacity-60">{L("白方 · 步限")}</div>
                 <div className={`font-mono text-xl font-bold tabular-nums leading-tight ${
                   moveEmpty ? 'text-red-400 animate-pulse' : wActivePool ? 'text-nc-cyan' : ''
                 }`}>
@@ -584,7 +578,7 @@ export function ChessGameBoard() {
                   ? 'bg-nc-rose/10 border-nc-rose/30'
                   : 'hidden'
               }`}>
-                <div className="text-[10px] font-medium mb-1 opacity-60">黑方 · 步限</div>
+                <div className="text-[10px] font-medium mb-1 opacity-60">{L("黑方 · 步限")}</div>
                 <div className={`font-mono text-xl font-bold tabular-nums leading-tight ${
                   moveEmpty ? 'text-red-400 animate-pulse' : bActivePool ? 'text-nc-rose' : ''
                 }`}>
@@ -610,7 +604,7 @@ export function ChessGameBoard() {
                 ? 'bg-nc-cyan/10 border-nc-cyan/30'
                 : 'bg-nc-bg-secondary border-nc-violet/10'
             }`}>
-              <div className="text-[10px] font-medium mb-1 opacity-60">白方</div>
+              <div className="text-[10px] font-medium mb-1 opacity-60">{L("白方")}</div>
               <div className={`font-mono text-2xl font-bold tabular-nums leading-tight ${
                 wActive ? 'text-nc-cyan' : wCrit ? 'text-red-400 animate-pulse' : wLow ? 'text-amber-400' : ''
               }`}>
@@ -624,7 +618,7 @@ export function ChessGameBoard() {
                 ? 'bg-nc-rose/10 border-nc-rose/30'
                 : 'bg-nc-bg-secondary border-nc-violet/10'
             }`}>
-              <div className="text-[10px] font-medium mb-1 opacity-60">黑方</div>
+              <div className="text-[10px] font-medium mb-1 opacity-60">{L("黑方")}</div>
               <div className={`font-mono text-2xl font-bold tabular-nums leading-tight ${
                 bActive ? 'text-nc-rose' : bCrit ? 'text-red-400 animate-pulse' : bLow ? 'text-amber-400' : ''
               }`}>
@@ -642,13 +636,11 @@ export function ChessGameBoard() {
     {/* Legend */}
       <div className="flex flex-wrap gap-4 text-xs text-nc-text-muted px-2">
         <span className="flex items-center gap-1.5">
-          <span className="w-4 h-4 rounded bg-nc-cyan/30 inline-block" /> 白方（大写字母）
-        </span>
+          <span className="w-4 h-4 rounded bg-nc-cyan/30 inline-block" /> {L("白方（大写字母）\n        ")}</span>
         <span className="flex items-center gap-1.5">
-          <span className="w-4 h-4 rounded bg-nc-rose/30 inline-block" /> 黑方（小写字母）
-        </span>
+          <span className="w-4 h-4 rounded bg-nc-rose/30 inline-block" /> {L("黑方（小写字母）\n        ")}</span>
         {gameStarted && (
-          <span className="text-nc-text-muted">第 {moveCount} 手</span>
+          <span className="text-nc-text-muted">{L("第 ")}{moveCount} {L("手")}</span>
         )}
       </div>
 
@@ -662,10 +654,9 @@ export function ChessGameBoard() {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
           >
             <div className="bg-nc-bg-secondary border border-nc-violet/20 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-              <h3 className="text-lg font-bold text-nc-text mb-2">选择升变棋子</h3>
+              <h3 className="text-lg font-bold text-nc-text mb-2">{L("选择升变棋子")}</h3>
               <p className="text-sm text-nc-text-secondary mb-4">
-                兵/象已到达对方底线，请选择升变目标
-              </p>
+                {L("兵/象已到达对方底线，请选择升变目标\n              ")}</p>
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                 {promoteChoice.options.map(opt => (
                   <button
@@ -680,7 +671,7 @@ export function ChessGameBoard() {
                   </button>
                 ))}
               </div>
-              <p className="mt-3 text-xs text-nc-text-muted text-center">象可选 E 保留为象；横移仍在底线可再次升变</p>
+              <p className="mt-3 text-xs text-nc-text-muted text-center">{L("象可选 E 保留为象；横移仍在底线可再次升变")}</p>
             </div>
           </motion.div>
         )}
@@ -696,7 +687,7 @@ export function ChessGameBoard() {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
           >
             <div className="bg-nc-bg-secondary border border-orange-500/30 rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-              <h3 className="text-lg font-bold text-orange-400 mb-2">💥 确认自爆</h3>
+              <h3 className="text-lg font-bold text-orange-400 mb-2">{L("💥 确认自爆")}</h3>
               <p className="text-sm text-nc-text-secondary mb-1">
                 {(getPiece(board, skillConfirmTarget)?.type === 'W')
                   ? '女巫将变成骷髅兵，并在左右各召唤 1 个骷髅兵。'
@@ -707,14 +698,12 @@ export function ChessGameBoard() {
                   onClick={confirmSkill}
                   className="flex-1 py-2.5 rounded-lg text-sm font-bold text-white bg-orange-600 hover:bg-orange-500 border border-orange-500 transition-all"
                 >
-                  确认自爆
-                </button>
+                  {L("确认自爆\n                ")}</button>
                 <button
                   onClick={cancelSkill}
                   className="flex-1 py-2.5 rounded-lg text-sm text-nc-text-secondary hover:text-nc-text border border-nc-violet/20 hover:border-nc-violet/30 transition-all"
                 >
-                  取消
-                </button>
+                  {L("取消\n                ")}</button>
               </div>
             </div>
           </motion.div>
@@ -731,10 +720,9 @@ export function ChessGameBoard() {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
           >
             <div className="bg-nc-bg-secondary border border-emerald-500/30 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-              <h3 className="text-lg font-bold text-emerald-400 mb-2">🚀 星舰部署</h3>
+              <h3 className="text-lg font-bold text-emerald-400 mb-2">{L("🚀 星舰部署")}</h3>
               <p className="text-sm text-nc-text-secondary mb-4">
-                选择要部署的非关键棋子
-              </p>
+                {L("选择要部署的非关键棋子\n              ")}</p>
               <div className="grid grid-cols-6 gap-2 max-h-60 overflow-y-auto">
                 {['Q','R','B','N','P','T','Y','M','E','L','A','C','W','Z','J','H','X','O'].map(opt => (
                   <button
@@ -752,8 +740,7 @@ export function ChessGameBoard() {
                 onClick={() => setStarshipDeployMode(false)}
                 className="mt-4 w-full py-2 rounded-lg text-sm text-nc-text-muted hover:text-nc-text border border-nc-violet/10 hover:border-nc-violet/20 transition-all"
               >
-                取消部署
-              </button>
+                {L("取消部署\n              ")}</button>
             </div>
           </motion.div>
         )}
@@ -769,23 +756,20 @@ export function ChessGameBoard() {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
           >
             <div className="bg-nc-bg-secondary border border-nc-cyan/30 rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-              <h3 className="text-lg font-bold text-nc-cyan mb-2">🦢 鸵鸟变回皇后</h3>
+              <h3 className="text-lg font-bold text-nc-cyan mb-2">{L("🦢 鸵鸟变回皇后")}</h3>
               <p className="text-sm text-nc-text-secondary mb-4">
-                鸵鸟已移动，是否变回皇后？变回后猫娘将同步变回王。
-              </p>
+                {L("鸵鸟已移动，是否变回皇后？变回后猫娘将同步变回王。\n              ")}</p>
               <div className="flex gap-3">
                 <button
                   onClick={confirmOstrichRevert}
                   className="flex-1 py-2.5 rounded-lg text-sm font-bold text-white bg-nc-cyan hover:bg-cyan-400 border border-nc-cyan transition-all"
                 >
-                  变回皇后
-                </button>
+                  {L("变回皇后\n                ")}</button>
                 <button
                   onClick={cancelOstrichRevert}
                   className="flex-1 py-2.5 rounded-lg text-sm text-nc-text-secondary hover:text-nc-text border border-nc-violet/20 hover:border-nc-violet/30 transition-all"
                 >
-                  保持鸵鸟
-                </button>
+                  {L("保持鸵鸟\n                ")}</button>
               </div>
             </div>
           </motion.div>

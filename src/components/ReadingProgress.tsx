@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 
 interface ReadingProgressProps {
   resetKey: string;
@@ -44,7 +46,7 @@ export default function ReadingProgress({ resetKey }: ReadingProgressProps) {
     <div
       className="story-reading-progress"
       role="progressbar"
-      aria-label="本章阅读进度"
+      aria-label={L("本章阅读进度")}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={percentage}

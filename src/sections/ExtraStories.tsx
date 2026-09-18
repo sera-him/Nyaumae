@@ -1,7 +1,9 @@
 import {
   extraPoems, poems, chapterIndex, wishSection, correctOverdose, xishouStory,
-  absurdNarrative, tinyWish, miiaStoryFragments, jingBeiGouFragment, penPoemFragment, wageFragment,
+  absurdNarrative, tinyWish, miiaStoryFragments, jingBeiGouFragment, penPoemFragment, wageFragment, laborValueTheory,
 } from '@/data/extraStories';
+import { L } from '@/lib/translations/manual';
+
 import {
   paradigmText, rtoText, yearDayFragment, numberFragments,
   f3wCodeLine, dreamPoem,
@@ -12,7 +14,7 @@ import {
   Feather, BookOpen, Skull, Sparkles, Hash, Rabbit, CloudRain, Flower2, Baby,
   Code2, Sun, Cpu, Building2, Coins,
 } from 'lucide-react';
-import { semanticHighlight } from '@/lib/semanticHighlight';
+import { semanticHighlight, semanticHighlightProse } from '@/lib/semanticHighlight';
 import SmartImage from '@/components/SmartImage';
 import React from 'react';
 
@@ -101,7 +103,7 @@ const DREAM_LINE_COLORS = [
 
 function coloredLine(text: string, lineIndex: number): React.ReactNode {
   const color = DREAM_LINE_COLORS[lineIndex % DREAM_LINE_COLORS.length];
-  return <span className={`${color} font-semibold text-[1.1em]`}>{semanticHighlight(text)}</span>;
+  return <span className={`${color} font-semibold text-[1.1em]`}>{semanticHighlightProse(text)}</span>;
 }
 
 export default function ExtraStories() {
@@ -113,11 +115,10 @@ export default function ExtraStories() {
         <div className="mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-nc-text mb-4 tracking-wide">{semanticHighlight("诗歌与碎片")}</h2>
           <p className="text-lg text-nc-text-secondary">
-            Period 系列 · Corruption 0f Emotion · 更多叙事碎片
-          </p>
+            {L("Period 系列 · Corruption 0f Emotion · 更多叙事碎片\r\n          ")}</p>
           <SmartImage
             localSrc="/story-poems-banner.jpg"
-            alt="诗歌栏目横幅：星空下白羽毛与发光的罗盘"
+            alt={L("诗歌栏目横幅：星空下白羽毛与发光的罗盘")}
             aspectRatio="15/8"
             containerClassName="w-full rounded-xl border border-nc-violet/10 mt-6 overflow-hidden"
             className="object-cover"
@@ -133,7 +134,7 @@ export default function ExtraStories() {
             </h3>
             <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
               {penPoemFragment.split('\n').map((line, li) => (
-                <span key={li} className="block">{semanticHighlight(line)}</span>
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
               ))}
             </pre>
           </article>
@@ -148,8 +149,21 @@ export default function ExtraStories() {
             </h3>
             <pre className="font-serif text-nc-text leading-[1.9] whitespace-pre-wrap text-base sm:text-[15px]">
               {wageFragment.split('\n').map((line, li) => (
-                <span key={li} className="block">{semanticHighlight(line)}</span>
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
               ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* 人工与物价 - 新增碎片 */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-amber-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-amber-300 mb-4 flex items-center gap-2">
+              <Coins className="w-5 h-5 shrink-0" />
+              {semanticHighlight("人工越贵，生活越好")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[1.9] whitespace-pre-wrap text-base sm:text-[15px]">
+              {semanticHighlightProse(laborValueTheory)}
             </pre>
           </article>
         </div>
@@ -172,7 +186,7 @@ export default function ExtraStories() {
                 </div>
                 <pre className="font-serif-cn text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
                   {poem.content.split('\n').map((line, li) => (
-                    <span key={li} className="block">{semanticHighlight(line)}</span>
+                    <span key={li} className="block">{semanticHighlightProse(line)}</span>
                   ))}
                 </pre>
               </div>
@@ -193,10 +207,10 @@ export default function ExtraStories() {
                 {absurdNarrative.eyebrow}
               </p>
               <h4 className="mb-5 text-2xl sm:text-3xl font-bold text-nc-text">
-                {semanticHighlight(absurdNarrative.title)}
+                {semanticHighlightProse(absurdNarrative.title)}
               </h4>
               <p className="max-w-[920px] text-[15px] sm:text-base leading-[2] text-nc-text-secondary">
-                {semanticHighlight(absurdNarrative.content)}
+                {semanticHighlightProse(absurdNarrative.content)}
               </p>
             </div>
           </article>
@@ -208,11 +222,11 @@ export default function ExtraStories() {
             <Sparkles className="mt-1 h-5 w-5 shrink-0 text-nc-cyan" />
             <div>
               <p className="mb-1 text-xs font-mono tracking-[0.16em] text-nc-cyan/80">MINIMAL WISHLIST</p>
-              <h3 className="text-xl sm:text-2xl font-bold text-nc-text">{semanticHighlight(tinyWish.title)}</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-nc-text">{semanticHighlightProse(tinyWish.title)}</h3>
             </div>
           </div>
           <p className="mb-6 max-w-[920px] text-base sm:text-lg leading-[1.9] text-nc-text">
-            {semanticHighlight(tinyWish.content)}
+            {semanticHighlightProse(tinyWish.content)}
           </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {tinyWish.metrics.map((metric, i) => {
@@ -258,7 +272,7 @@ export default function ExtraStories() {
               <div key={i} className={`miia-story-card bg-nc-bg-secondary border rounded-lg p-3 sm:p-4 text-center hover:scale-[1.02] transition-transform ${
                 ['border-nc-gold/20', 'border-nc-cyan/20'][i % 2]
               }`}>
-                <p className="text-sm font-mono text-nc-text leading-relaxed">{semanticHighlight(frag)}</p>
+                <p className="text-sm font-mono text-nc-text leading-relaxed">{semanticHighlightProse(frag)}</p>
               </div>
             ))}
           </div>
@@ -268,14 +282,14 @@ export default function ExtraStories() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-10">
           <div className="miia-story-card bg-nc-bg-secondary border border-nc-gold/20 rounded-xl p-4 sm:p-6">
             <Hash className="w-4 h-4 text-nc-gold mb-3" />
-            <pre className="font-mono text-sm text-nc-text-secondary whitespace-pre-wrap">{semanticHighlight(yearDayFragment)}</pre>
+            <pre className="font-mono text-sm text-nc-text-secondary whitespace-pre-wrap">{semanticHighlightProse(yearDayFragment)}</pre>
           </div>
           <div className="miia-story-card bg-nc-bg-secondary border border-nc-cyan/20 rounded-xl p-4 sm:p-6 text-center sm:text-left">
             <p className="font-mono text-base text-nc-cyan font-bold mb-2">TaskLens 2025</p>
             <p className="font-mono text-2xl text-nc-rose font-bold">Σ = 1314</p>
           </div>
           <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/20 rounded-xl p-4 sm:p-6 text-center sm:text-left">
-            <p className="font-mono text-base text-nc-violet font-bold">{semanticHighlight(rtoText)}</p>
+            <p className="font-mono text-base text-nc-violet font-bold">{semanticHighlightProse(rtoText)}</p>
           </div>
         </div>
 
@@ -289,7 +303,7 @@ export default function ExtraStories() {
             className="object-cover"
           />
           <pre className="font-serif text-nc-text leading-[2.2] whitespace-pre-wrap text-center text-lg sm:text-xl">
-            {semanticHighlight(paradigmText)}
+            {semanticHighlightProse(paradigmText)}
           </pre>
         </div>
 
@@ -297,8 +311,7 @@ export default function ExtraStories() {
         <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/15 rounded-xl p-6 sm:p-8 mb-10">
           <h3 className="text-xl font-bold text-nc-text mb-6 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-nc-cyan" />
-            章节索引
-          </h3>
+            {L("章节索引\r\n          ")}</h3>
           {chapterIndex.map((period, pi) => (
             <div key={pi} className="mb-5">
               <p className="text-sm font-bold text-nc-rose mb-3 tracking-wider">{period.period}</p>
@@ -308,7 +321,7 @@ export default function ExtraStories() {
                   {chap.subtitles.length > 0 && (
                     <div className="space-y-1.5 mt-2 ml-4">
                       {chap.subtitles.map((s, si) => (
-                        <p key={si} className="text-sm text-nc-text-secondary">{semanticHighlight(s)}</p>
+                        <p key={si} className="text-sm text-nc-text-secondary">{semanticHighlightProse(s)}</p>
                       ))}
                     </div>
                   )}
@@ -317,7 +330,7 @@ export default function ExtraStories() {
             </div>
           ))}
           <pre className="text-base text-nc-text font-mono leading-relaxed whitespace-pre-wrap border-t border-nc-violet/10 pt-5 mt-5">
-            {semanticHighlight(wishSection)}
+            {semanticHighlightProse(wishSection)}
           </pre>
         </div>
 
@@ -345,7 +358,7 @@ export default function ExtraStories() {
               <pre className="font-serif text-nc-text leading-[2.2] whitespace-pre-wrap text-base sm:text-lg">
                 {poem.period === '13, 21, 41'
                   ? colorizePeriod2(poem.content)
-                  : semanticHighlight(poem.content)}
+                  : semanticHighlightProse(poem.content)}
               </pre>
             </div>
           ))}
@@ -378,7 +391,7 @@ export default function ExtraStories() {
             </div>
             <div className="border-t border-nc-violet/10 pt-4 mt-4 space-y-2">
               <p className="text-base sm:text-lg font-serif leading-relaxed text-nc-text-muted">
-                {semanticHighlight(dreamPoem[5])}
+                {semanticHighlightProse(dreamPoem[5])}
               </p>
               {dreamPoem.slice(6).map((line, i) => (
                 <p key={i + 6} className="text-base sm:text-lg font-serif leading-relaxed">
@@ -397,23 +410,23 @@ export default function ExtraStories() {
           </div>
           <SmartImage
             localSrc="/story-bad-rabbit.jpg"
-            alt="坏兔子"
+            alt={L("坏兔子")}
             aspectRatio="16/9"
             containerClassName="w-full border-b border-red-500/10"
             className="object-cover"
           />
           <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-nc-violet/10">
             <div className="p-4 sm:p-6">
-              <p className="text-xs text-nc-text-muted mb-3 font-bold tracking-wider">版本一</p>
-              <p className="text-base text-nc-text leading-relaxed">{semanticHighlight(badRabbitVersions.version1)}</p>
+              <p className="text-xs text-nc-text-muted mb-3 font-bold tracking-wider">{L("版本一")}</p>
+              <p className="text-base text-nc-text leading-relaxed">{semanticHighlightProse(badRabbitVersions.version1)}</p>
             </div>
             <div className="p-4 sm:p-6">
-              <p className="text-xs text-nc-text-muted mb-3 font-bold tracking-wider">版本二</p>
-              <p className="text-base text-nc-text leading-relaxed">{semanticHighlight(badRabbitVersions.version2)}</p>
+              <p className="text-xs text-nc-text-muted mb-3 font-bold tracking-wider">{L("版本二")}</p>
+              <p className="text-base text-nc-text leading-relaxed">{semanticHighlightProse(badRabbitVersions.version2)}</p>
             </div>
             <div className="p-4 sm:p-6">
-              <p className="text-xs text-nc-text-muted mb-3 font-bold tracking-wider">版本三（萌化）</p>
-              <pre className="text-base text-nc-text leading-relaxed whitespace-pre-wrap">{semanticHighlight(badRabbitVersions.version3)}</pre>
+              <p className="text-xs text-nc-text-muted mb-3 font-bold tracking-wider">{L("版本三（萌化）")}</p>
+              <pre className="text-base text-nc-text leading-relaxed whitespace-pre-wrap">{semanticHighlightProse(badRabbitVersions.version3)}</pre>
             </div>
           </div>
         </div>
@@ -422,11 +435,11 @@ export default function ExtraStories() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-10">
           <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
             <Flower2 className="w-4 h-4 text-nc-rose mb-3" />
-            <pre className="font-serif text-nc-text leading-[2.2] whitespace-pre-wrap text-base">{semanticHighlight(huaPoem)}</pre>
+            <pre className="font-serif text-nc-text leading-[2.2] whitespace-pre-wrap text-base">{semanticHighlightProse(huaPoem)}</pre>
           </div>
           <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
             <Baby className="w-4 h-4 text-nc-gold mb-3" />
-            <pre className="text-base text-nc-text leading-relaxed whitespace-pre-wrap">{semanticHighlight(diminutiveText)}</pre>
+            <pre className="text-base text-nc-text leading-relaxed whitespace-pre-wrap">{semanticHighlightProse(diminutiveText)}</pre>
           </div>
           <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
             <CloudRain className="w-4 h-4 text-indigo-400 mb-3" />
@@ -438,13 +451,13 @@ export default function ExtraStories() {
         <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-8 text-center mb-10">
           <SmartImage
             localSrc="/story-sheep-song.jpg"
-            alt="绵羊之歌"
+            alt={L("绵羊之歌")}
             aspectRatio="16/9"
             containerClassName="w-full rounded-lg border border-nc-violet/10 mb-4"
             className="object-cover"
           />
           <pre className="font-mono text-sm text-nc-text-secondary leading-relaxed whitespace-pre-wrap">
-            {semanticHighlight(sheepsFull)}
+            {semanticHighlightProse(sheepsFull)}
           </pre>
         </div>
 
@@ -462,7 +475,7 @@ export default function ExtraStories() {
             className="object-cover"
           />
           <div className="font-serif text-nc-text leading-relaxed whitespace-pre-wrap text-base sm:text-lg">
-            {semanticHighlight(correctOverdose)}
+            {semanticHighlightProse(correctOverdose)}
           </div>
         </div>
 
@@ -474,12 +487,12 @@ export default function ExtraStories() {
           </h3>
           <SmartImage
             localSrc="/story-xishou-nianshou.jpg"
-            alt="夕兽与年兽"
+            alt={L("夕兽与年兽")}
             aspectRatio="16/9"
             containerClassName="w-full rounded-lg border border-nc-gold/10 mb-6"
             className="object-cover"
           />
-          <p className="text-base sm:text-lg text-nc-text leading-relaxed">{semanticHighlight(xishouStory)}</p>
+          <p className="text-base sm:text-lg text-nc-text leading-relaxed">{semanticHighlightProse(xishouStory)}</p>
         </div>
 
         {/* Collected stories stay at the end of the poetry and fragments archive. */}
@@ -494,14 +507,14 @@ export default function ExtraStories() {
                 <div className="mb-5 flex items-start justify-between gap-4 border-b border-nc-rose/15 pb-4">
                   <div>
                     <p className="mb-2 font-mono text-[10px] tracking-[0.18em] text-nc-rose/75 uppercase">STORY FRAGMENT / 0{i + 1}</p>
-                    <h4 className="text-xl font-bold text-nc-text sm:text-2xl">{semanticHighlight(story.title)}</h4>
+                    <h4 className="text-xl font-bold text-nc-text sm:text-2xl">{semanticHighlightProse(story.title)}</h4>
                   </div>
                   <span className="shrink-0 rounded-full border border-nc-rose/20 px-2.5 py-1 text-[10px] text-nc-text-muted">
                     {story.period}
                   </span>
                 </div>
                 <pre className="whitespace-pre-wrap font-serif-cn text-base leading-[2] text-nc-text-secondary sm:text-[17px]">
-                  {semanticHighlight(story.content)}
+                  {semanticHighlightProse(story.content)}
                 </pre>
               </article>
             ))}
@@ -511,7 +524,7 @@ export default function ExtraStories() {
         {/* 京贝狗 - 无标题置于末尾 */}
         <div className="miia-story-card bg-nc-bg-secondary/50 border border-white/[0.06] rounded-xl p-6 sm:p-8 opacity-80">
           <pre className="whitespace-pre-wrap font-serif text-nc-text-muted leading-[1.9] text-sm sm:text-base">
-            {semanticHighlight(jingBeiGouFragment)}
+            {semanticHighlightProse(jingBeiGouFragment)}
           </pre>
         </div>
       </div>

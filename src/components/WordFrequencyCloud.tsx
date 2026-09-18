@@ -1,4 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import type { WordFreq } from '@/data/wordFrequency';
 import './WordFrequencyCloud.css';
 
@@ -14,6 +16,10 @@ interface WordFrequencyCloudProps {
   shape?: WordCloudShape;
   shapeLabel?: string;
   emptyText?: string;
+  /** 默认 false：词云按需加载，不随面板打开自动生成；点击“刷新词云”后才生成。 */
+  requested?: boolean;
+  /** 点击“刷新词云”按钮时回调（父组件负责切换 requested 并刷新 key）。 */
+  onRequestRefresh?: () => void;
 }
 
 interface HoveredWord {
@@ -822,6 +828,8 @@ function WordFrequencyCloud({
   alpha,
   shapeLabel = 'WordClouds 风格自然词团',
   emptyText = '暂无可显示的词频数据',
+  requested = true,
+  onRequestRefresh,
 }: WordFrequencyCloudProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -830,6 +838,7 @@ function WordFrequencyCloud({
   const [hoveredWord, setHoveredWord] = useState<HoveredWord | undefined>();
 
   useEffect(() => {
+    if (!requested) return;
     const container = containerRef.current;
     if (!container || entries.length === 0) return;
     let disposed = false;
@@ -862,7 +871,7 @@ function WordFrequencyCloud({
       window.clearTimeout(renderTimer);
       observer.disconnect();
     };
-  }, [entries, alpha]);
+  }, [entries, alpha, requested]);
 
   const downloadCloud = () => {
     const svg = svgRef.current;
@@ -904,16 +913,33 @@ function WordFrequencyCloud({
       <div className="word-frequency-cloud-heading">
         <div>
           <h4 id={`${id}-title`}>{title}</h4>
-          <p>{shapeLabel} · 文字实际面积 ∝ 词频^{alpha} · 随机碰撞排布 · 全量显示</p>
+          <p>{shapeLabel} {L("· 文字实际面积 ∝ 词频^")}{alpha} {L("· 随机碰撞排布 · 全量显示")}</p>
         </div>
         <div className="word-frequency-cloud-actions">
-          <span className="word-frequency-cloud-count">“词云与月” · {entries.length.toLocaleString('zh-CN')} 项</span>
-          <button type="button" onClick={downloadCloud} disabled={status !== 'ready'} className="word-frequency-download">
-            下载 PNG
+          <span className="word-frequency-cloud-count">{L("“词云与月” · ")}{entries.length.toLocaleString('zh-CN')} {L("项")}</span>
+          <button
+            type="button"
+            onClick={onRequestRefresh}
+            className="word-frequency-refresh"
+            aria-label={L("刷新词云")}
+          >
+            {L("刷新词云")}
           </button>
+          {requested && (
+            <button type="button" onClick={downloadCloud} disabled={status !== 'ready'} className="word-frequency-download">
+              {L("下载 PNG\n          ")}</button>
+          )}
         </div>
       </div>
-      {entries.length === 0 ? (
+      {!requested ? (
+        <div className="word-frequency-cloud-placeholder">
+          <p className="word-frequency-cloud-placeholder-title">{L("词云默认不加载")}</p>
+          <p className="word-frequency-cloud-placeholder-hint">{L("点击“刷新词云”按钮按需生成全量词云")}</p>
+          <button type="button" onClick={onRequestRefresh} className="word-frequency-refresh-primary">
+            {L("刷新词云")}
+          </button>
+        </div>
+      ) : entries.length === 0 ? (
         <div className="word-frequency-cloud-empty">{emptyText}</div>
       ) : (
         <div ref={containerRef} className="word-frequency-cloud-canvas-wrap">
@@ -930,7 +956,7 @@ function WordFrequencyCloud({
               data-post-scale={layout.postScale.toFixed(3)}
               data-cloud-style="wordclouds"
               data-area-alpha={alpha}
-              aria-label={`${title}，“词云与月” WordClouds 风格，alpha=${alpha}，完整展示 ${entries.length} 项词频`}
+              aria-label={L(`${title}，“词云与月” WordClouds 风格，alpha=${alpha}，完整展示 ${entries.length} 项词频`)}
             >
               <g fontFamily={FONT_FAMILY} textAnchor="middle" dominantBaseline="central">
                 {layout.words.map((item) => (
@@ -950,18 +976,18 @@ function WordFrequencyCloud({
                     onBlur={() => setHoveredWord(undefined)}
                     onClick={() => setHoveredWord({ word: item.word, count: item.count })}
                   >
-                    <title>{`${item.word} · ${item.count.toLocaleString('zh-CN')} 次`}</title>
+                    <title>{L(`${item.word} · ${item.count.toLocaleString('zh-CN')} 次`)}</title>
                     {item.word}
                   </text>
                 ))}
               </g>
             </svg>
           ) : (
-            <div className="word-frequency-cloud-generating">正在生成全量“词云与月”…</div>
+            <div className="word-frequency-cloud-generating">{L("正在生成全量“词云与月”…")}</div>
           )}
           <div className="word-frequency-cloud-status" aria-live="polite">
             <span>{statusText}</span>
-            {hoveredWord && <strong>{hoveredWord.word} · {hoveredWord.count.toLocaleString('zh-CN')} 次</strong>}
+            {hoveredWord && <strong>{hoveredWord.word} · {hoveredWord.count.toLocaleString('zh-CN')} {L("次")}</strong>}
           </div>
         </div>
       )}

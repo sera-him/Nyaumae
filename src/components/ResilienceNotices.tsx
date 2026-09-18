@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { CloudOff, DatabaseZap, RefreshCw, Wifi } from 'lucide-react';
 import {
   BROWSER_STORAGE_ISSUE_EVENT,
@@ -86,7 +88,7 @@ export default function ResilienceNotices() {
   if (!networkNotice && !storageIssue && !waitingWorker) return null;
 
   return (
-    <aside className="pointer-events-none fixed inset-x-3 bottom-3 z-[160] mx-auto flex max-w-xl flex-col gap-2" aria-label="站点状态提示">
+    <aside className="pointer-events-none fixed inset-x-3 bottom-3 z-[160] mx-auto flex max-w-xl flex-col gap-2" aria-label={L("站点状态提示")}>
       {networkNotice && (
         <div className={`aurora-notice aurora-notice--${networkNotice} pointer-events-auto`} role="status" aria-live="polite">
           {networkNotice === 'offline' ? <CloudOff className="mt-0.5 h-5 w-5 text-amber-300" /> : <Wifi className="mt-0.5 h-5 w-5 text-emerald-300" />}
@@ -101,15 +103,15 @@ export default function ResilienceNotices() {
       {waitingWorker && (
         <div className="aurora-notice aurora-notice--info pointer-events-auto" role="status" aria-live="polite">
           <RefreshCw className="mt-0.5 h-5 w-5 text-nc-violet" />
-          <div className="min-w-0 flex-1"><strong>发现新版本</strong><p className="mt-1 text-xs text-nc-text-muted">刷新后仍会回到当前网址。</p></div>
-          <button type="button" onClick={applyUpdate} className="aurora-button aurora-button-primary">刷新更新</button>
+          <div className="min-w-0 flex-1"><strong>{L("发现新版本")}</strong><p className="mt-1 text-xs text-nc-text-muted">{L("刷新后仍会回到当前网址。")}</p></div>
+          <button type="button" onClick={applyUpdate} className="aurora-button aurora-button-primary">{L("刷新更新")}</button>
         </div>
       )}
       {storageIssue && (
         <div className="aurora-notice aurora-notice--warning pointer-events-auto" role="alert">
           <DatabaseZap className="mt-0.5 h-5 w-5 text-amber-300" />
-          <div className="min-w-0 flex-1"><strong>本机存档需要注意</strong><p className="mt-1 text-xs leading-5 text-nc-text-muted">{storageIssue.message}</p></div>
-          <button type="button" onClick={() => setStorageIssue(null)} className="aurora-button">知道了</button>
+          <div className="min-w-0 flex-1"><strong>{L("本机存档需要注意")}</strong><p className="mt-1 text-xs leading-5 text-nc-text-muted">{storageIssue.message}</p></div>
+          <button type="button" onClick={() => setStorageIssue(null)} className="aurora-button">{L("知道了")}</button>
         </div>
       )}
     </aside>

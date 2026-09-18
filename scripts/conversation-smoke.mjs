@@ -11,6 +11,9 @@ import { ContextBuilder } from '../src/conversation/contextBuilder.ts';
 import { KnowledgeRetriever } from '../src/conversation/knowledgeRetriever.ts';
 import { CanonGuard } from '../src/conversation/canonGuard.ts';
 import { LOCAL_MODEL_TIERS } from '../src/conversation/localModelCatalog.ts';
+import { corpusSignature } from '../src/conversation/vectorSearch.ts';
+import { createRemoteCloudAdapter, decryptEnvelope, encryptEnvelope } from '../src/lib/remoteCloudAdapter.ts';
+import syncWorker from '../cloud/sync-worker/worker.mjs';
 
 test('memory conflicts create versions and retrieval prefers the latest valid record', () => {
   const repository = new ConversationRepository();
@@ -383,4 +386,127 @@ test('character and story mode prompts are injected only once', () => {
     .join('\n')
     .match(/当前故事标识是/g) ?? [];
   assert.equal(storyRules.length, 1);
+});
+
+test('semantic searchAsync surfaces vector-only matches and degrades on provider failure', async () => {
+  const keywordItem = {
+    id: 'char_mia', title: 'Mia', content: 'Mia 的公开资料。', category: '角色', href: '#characters',
+    relatedIds: ['mia'], canonStatus: 'canon', spoilerLevel: 0,
+  };
+  const semanticOnlyItem = {
+    id: 'world_tides', title: '潮汐引擎', content: '世界观设定：潮汐引擎驱动浮岛。', category: '世界观', href: '#world',
+    relatedIds: [], canonStatus: 'canon', spoilerLevel: 0,
+  };
+  const knowledge = new KnowledgeRetriever({
+    items: [keywordItem, semanticOnlyItem],
+    search: (query) => (query.includes('Mia') ? [{ item: keywordItem }] : []),
+  });
+
+  // No provider: keyword-only behaviour is preserved.
+  assert.deepEqual((await knowledge.searchAsync('Mia')).map((doc) => doc.id), ['char_mia']);
+  assert.deepEqual((await knowledge.searchAsync('浮岛能源')).map((doc) => doc.id), []);
+
+  // Provider returns a vector hit for an item keyword search missed.
+  knowledge.setSemanticProvider({
+    rank: async () => new Map([[semanticOnlyItem.id, 0.9]]),
+  });
+  const merged = await knowledge.searchAsync('浮岛能源');
+  assert.deepEqual(merged.map((doc) => doc.id), ['world_tides']);
+
+  // Provider failure degrades to keyword-only instead of breaking the turn.
+  knowledge.setSemanticProvider({ rank: async () => { throw new Error('embedding down'); } });
+  assert.deepEqual((await knowledge.searchAsync('Mia')).map((doc) => doc.id), ['char_mia']);
+});
+
+test('corpus signature changes with content and stays stable for identical corpora', () => {
+  const items = [{ id: 'a', text: 'alpha' }, { id: 'b', text: 'beta' }];
+  assert.equal(corpusSignature(items), corpusSignature([...items]));
+  assert.notEqual(corpusSignature(items), corpusSignature([{ id: 'a', text: 'alpha!' }, { id: 'b', text: 'beta' }]));
+  assert.notEqual(corpusSignature(items), corpusSignature([{ id: 'a', text: 'alpha' }]));
+});
+
+test('AI config export carries semantic fields but never the key; import keeps them', () => {
+  const repository = new ConversationRepository();
+  const config = repository.saveAiConfig({
+    ...repository.getAiConfig(),
+    apiKey: 'sk-test-secret-value',
+    semanticSearch: true,
+    embeddingModel: 'text-embedding-3-small',
+    embeddingBaseUrl: 'https://embed.example.com/v1',
+  });
+  const exported = exportSafeAiConfig(config);
+  assert.equal(exported.semanticSearch, true);
+  assert.equal(exported.embeddingModel, 'text-embedding-3-small');
+  assert.equal(exported.embeddingBaseUrl, 'https://embed.example.com/v1');
+  assert.equal(JSON.stringify(exported).includes('sk-test-secret-value'), false);
+  const imported = sanitizeImportedConfig(exported, repository.getAiConfig());
+  assert.equal(imported.semanticSearch, true);
+  assert.equal(imported.embeddingModel, 'text-embedding-3-small');
+  assert.equal(imported.apiKey, undefined);
+});
+
+test('remote sync envelope encrypts and decrypts with the sync key only', async () => {
+  const envelope = { v: 1, updatedAt: new Date().toISOString(), payload: { hello: '世界', n: 42 } };
+  const blob = await encryptEnvelope('sync-key-alpha', envelope);
+  assert.equal(blob.includes('世界'), false);
+  const roundTrip = await decryptEnvelope('sync-key-alpha', blob);
+  assert.deepEqual(roundTrip.payload, envelope.payload);
+  await assert.rejects(() => decryptEnvelope('sync-key-beta', blob));
+});
+
+function makeKvMock() {
+  const map = new Map();
+  return {
+    get: async (key) => (map.has(key) ? map.get(key) : null),
+    put: async (key, value) => { map.set(key, value); },
+  };
+}
+
+test('remote cloud adapter pushes and pulls through the worker protocol', async () => {
+  const kv = makeKvMock();
+  const fetchImpl = async (url, init = {}) => {
+    const request = new Request(url, { method: init.method ?? 'GET', headers: init.headers, body: init.body });
+    return syncWorker.fetch(request, { SYNC_KV: kv });
+  };
+  const adapter = createRemoteCloudAdapter({ baseUrl: 'https://sync.example', syncKey: 'sync-key-alpha', fetchImpl });
+  assert.equal(await adapter.pull('ai-config'), null);
+  await adapter.push('ai-config', { enabled: true, hasApiKey: true });
+  assert.deepEqual(await adapter.pull('ai-config'), { enabled: true, hasApiKey: true });
+});
+
+test('sync worker authenticates, isolates namespaces and validates payloads', async () => {
+  const env = { SYNC_KV: makeKvMock() };
+  const put = (key, blob) => new Request(`https://w.example/sync/${key}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer sync-key-alpha' },
+    body: JSON.stringify({ blob }),
+  });
+
+  const unauthorized = await syncWorker.fetch(new Request('https://w.example/sync/x'), env);
+  assert.equal(unauthorized.status, 401);
+
+  assert.equal((await syncWorker.fetch(put('state', 'ciphertext'), env)).status, 200);
+  const found = await syncWorker.fetch(new Request('https://w.example/sync/state', { headers: { Authorization: 'Bearer sync-key-alpha' } }), env);
+  assert.equal(found.status, 200);
+  assert.deepEqual(await found.json(), { blob: 'ciphertext' });
+
+  // A different sync key sees a different namespace.
+  const otherKey = await syncWorker.fetch(new Request('https://w.example/sync/state', { headers: { Authorization: 'Bearer sync-key-beta' } }), env);
+  assert.equal(otherKey.status, 404);
+
+  const badBlob = await syncWorker.fetch(put('state', ''), env);
+  assert.equal(badBlob.status, 400);
+});
+
+test('conversation state sync snapshot replaces only through the sync entry point', () => {
+  const repository = new ConversationRepository();
+  const before = repository.getStateUpdatedAt();
+  const snapshot = repository.getStateSnapshot();
+  snapshot.conversations.push({
+    id: 'conv_remote', title: 'From another device', mode: 'website-assistant',
+    createdAt: before, updatedAt: before, isDeleted: false, metadata: {},
+  });
+  assert.equal(repository.replaceStateFromSync(snapshot), true);
+  assert.equal(repository.listConversations().some((item) => item.id === 'conv_remote'), true);
+  assert.equal(repository.replaceStateFromSync({ schemaVersion: 99 }), false);
 });

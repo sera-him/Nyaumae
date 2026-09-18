@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles, Target, Zap } from 'lucide-react';
 import {
   analyzeBoard,
@@ -170,7 +172,7 @@ function RootBoard({
   readonly disabled: boolean;
 }) {
   return (
-    <div className="re-root-board" role="grid" aria-label="根盘 3×3 棋盘">
+    <div className="re-root-board" role="grid" aria-label={L("根盘 3×3 棋盘")}>
       {COORDINATES.map((coordinate) => {
         const cell = root.cells[coordinate];
         if (!cell) return null;
@@ -199,7 +201,7 @@ function MiniBoard({ board }: { board: Board }) {
   const stats = analyzeBoard(board);
   return (
     <div className="re-mini-board-wrap">
-      <div className="re-mini-board" role="img" aria-label={`子盘示例，${controllerLabel(stats.controller)}控制`}>
+      <div className="re-mini-board" role="img" aria-label={L(`子盘示例，${controllerLabel(stats.controller)}控制`)}>
         {board.cells.map((cell, index) => (
           <span key={index} className={`re-mini-cell ${cell.kind === 'token' ? `re-mini-${cell.color}` : cell.kind === 'board' ? 're-mini-child' : ''}`}>
             {cell.kind === 'empty' ? '' : cell.kind === 'board' ? '↗' : colorLabel(cell.color)}
@@ -207,8 +209,8 @@ function MiniBoard({ board }: { board: Board }) {
         ))}
       </div>
       <div className="re-mini-copy">
-        <span>选中格里的内层样本</span>
-        <strong><ControllerChip controller={stats.controller} /> · {formatCount(1n + stats.boardCount)} 张盘</strong>
+        <span>{L("选中格里的内层样本")}</span>
+        <strong><ControllerChip controller={stats.controller} /> · {formatCount(1n + stats.boardCount)} {L("张盘")}</strong>
       </div>
     </div>
   );
@@ -284,22 +286,22 @@ export default function FractalEcho() {
       <header className="re-hero">
         <div>
           <div className="re-kicker"><Sparkles size={13} /> SYNCHRONOUS ECHO · 3×3 · BROADCAST</div>
-          <h2>递归回响 <span>同步回响版</span></h2>
-          <p>同一坐标，所有已存在递归层同时回响。每次行动都在整棵树上按下同一个键。</p>
+          <h2>{L("递归回响 ")}<span>{L("同步回响版")}</span></h2>
+          <p>{L("同一坐标，所有已存在递归层同时回响。每次行动都在整棵树上按下同一个键。")}</p>
         </div>
         <div className="re-header-actions">
           <button type="button" onClick={() => setShowRules((value) => !value)}>
-            <BookOpen size={15} /> 规则图 {showRules ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            <BookOpen size={15} /> {L("规则图 ")}{showRules ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
-          <button type="button" className="re-icon-button" onClick={() => { if (confirmRestart()) restart(); }} aria-label="重新开始">
+          <button type="button" className="re-icon-button" onClick={() => { if (confirmRestart()) restart(); }} aria-label={L("重新开始")}>
             <RotateCcw size={16} />
           </button>
         </div>
       </header>
 
-      <div className="re-setup" aria-label="对局设置">
+      <div className="re-setup" aria-label={L("对局设置")}>
         <div className="re-setup-block">
-          <span className="re-setup-label">对局强度</span>
+          <span className="re-setup-label">{L("对局强度")}</span>
           <div className="re-mode-list">
             {MODES.map((option) => (
               <button
@@ -315,43 +317,43 @@ export default function FractalEcho() {
           </div>
         </div>
         <label className="re-ai-select">
-          <span className="re-setup-label">开局 AI 地形</span>
+          <span className="re-setup-label">{L("开局 AI 地形")}</span>
           <select value={aiMoves} onChange={(event) => changeAiMoves(Number(event.target.value))}>
             {AI_OPTIONS.map((option) => <option key={option.moves} value={option.moves}>{option.label}</option>)}
           </select>
         </label>
         <div className="re-seed">
-          <span>本局种子</span>
+          <span>{L("本局种子")}</span>
           <code>{formatSeed(session.seed)}</code>
-          <small>设置变化会重新开局</small>
+          <small>{L("设置变化会重新开局")}</small>
         </div>
       </div>
 
       <div className="re-sync-note">
         <Zap size={15} />
-        <span><strong>本局规则：</strong>共 {modeOption.turns} 次行动，蓝/橙各半；第 r 次行动方由 <code>popcount(r−1) mod 2</code> 决定（r 从 1 起：0 为蓝，1 为橙），所有模式共用同一条序列的前缀。{aiTerrainText}。</span>
+        <span><strong>{L("本局规则：")}</strong>{L("共 ")}{modeOption.turns} {L("次行动，蓝/橙各半；第 r 次行动方由 ")}<code>popcount(r−1) mod 2</code> {L("决定（r 从 1 起：0 为蓝，1 为橙），所有模式共用同一条序列的前缀。")}{aiTerrainText}。</span>
       </div>
 
       <div className="re-score-row">
         <article className="re-player-score re-blue-score">
-          <div><span className="re-player-dot" />蓝方受控子盘</div>
+          <div><span className="re-player-dot" />{L("蓝方受控子盘")}</div>
           <strong>{formatCount(rootStats.controlledBoards.blue)}</strong>
-          <small>根盘票数 {formatCount(rootStats.votes.blue)}</small>
+          <small>{L("根盘票数 ")}{formatCount(rootStats.votes.blue)}</small>
         </article>
         <article className="re-root-score">
-          <span>根盘控制</span>
+          <span>{L("根盘控制")}</span>
           <strong><ControllerChip controller={rootStats.controller} /></strong>
-          <small>蓝 {formatCount(rootStats.votes.blue)} · 橙 {formatCount(rootStats.votes.orange)} · AI {formatCount(rootStats.votes.ai)}</small>
+          <small>{L("蓝 ")}{formatCount(rootStats.votes.blue)} {L("· 橙 ")}{formatCount(rootStats.votes.orange)} · AI {formatCount(rootStats.votes.ai)}</small>
         </article>
         <article className="re-player-score re-orange-score">
-          <div>橙方受控子盘<span className="re-player-dot" /></div>
+          <div>{L("橙方受控子盘")}<span className="re-player-dot" /></div>
           <strong>{formatCount(rootStats.controlledBoards.orange)}</strong>
-          <small>根盘票数 {formatCount(rootStats.votes.orange)}</small>
+          <small>{L("根盘票数 ")}{formatCount(rootStats.votes.orange)}</small>
         </article>
       </div>
 
-      <div className="re-sequence" aria-label="行动序列">
-        <span>行动序列</span>
+      <div className="re-sequence" aria-label={L("行动序列")}>
+        <span>{L("行动序列")}</span>
         <div className="re-sequence-grid">
           {Array.from({ length: modeOption.turns }, (_, index) => {
             const player = actionPlayer(index);
@@ -363,37 +365,37 @@ export default function FractalEcho() {
       <div className="re-workspace">
         <div className="re-board-panel">
           <div className="re-panel-head">
-            <div><span className="re-eyebrow">ROOT BOARD · 3×3</span><h3>选择一个坐标</h3></div>
-            <div className="re-turn-counter"><span>第</span><strong>{Math.min(session.turn + 1, modeOption.turns)}</strong><span>/ {modeOption.turns}</span></div>
+            <div><span className="re-eyebrow">ROOT BOARD · 3×3</span><h3>{L("选择一个坐标")}</h3></div>
+            <div className="re-turn-counter"><span>{L("第")}</span><strong>{Math.min(session.turn + 1, modeOption.turns)}</strong><span>/ {modeOption.turns}</span></div>
           </div>
           <RootBoard root={session.root} selected={selected} onSelect={setSelected} disabled={finished} />
           <div className="re-board-legend">
-            <span className="re-legend-blue">蓝</span><span className="re-legend-orange">橙</span><span className="re-legend-ai">AI 地形</span><span className="re-legend-child">↗ 子盘</span><span>白框 = 当前坐标</span>
+            <span className="re-legend-blue">{L("蓝")}</span><span className="re-legend-orange">{L("橙")}</span><span className="re-legend-ai">{L("AI 地形")}</span><span className="re-legend-child">{L("↗ 子盘")}</span><span>{L("白框 = 当前坐标")}</span>
           </div>
           {selectedChild && <MiniBoard board={selectedChild} />}
         </div>
 
         <aside className="re-inspector">
           <div className="re-turn-card" style={{ '--turn-color': PLAYER_COLORS[currentPlayer] } as React.CSSProperties}>
-            <div className="re-turn-top"><span>当前行动方</span><strong>{finished ? '已结束' : currentPlayer === 'blue' ? '蓝方' : '橙方'}</strong></div>
+            <div className="re-turn-top"><span>{L("当前行动方")}</span><strong>{finished ? '已结束' : currentPlayer === 'blue' ? '蓝方' : '橙方'}</strong></div>
             <h3>{finished ? '广播序列完成' : `第 ${session.turn + 1} 次：广播一个坐标`}</h3>
             <p>{finished ? '根盘与递归子盘已经完成最终结算。' : '根盘上的一次选择，会同时落到所有已存在棋盘的同一格。'}</p>
           </div>
 
           <div className="re-selection-card">
-            <div className="re-card-label">当前坐标 <b>{coordinateLabel(selected)}</b></div>
+            <div className="re-card-label">{L("当前坐标 ")}<b>{coordinateLabel(selected)}</b></div>
             <strong>{selectionText}</strong>
             <p>{selectedCell?.kind === 'empty' ? '将放置行动方颜色，得到 1 票。' : selectedCell?.kind === 'token' && selectedCell.color === currentPlayer ? '己色会变成一个新的子盘，子盘中心与十字格放置己色。' : selectedCell?.kind === 'token' ? '敌色（包括 AI）会触发入侵，子盘中心为行动方、十字格保留敌色。' : '入口保留；这个子盘内部的同坐标会继续递回。'}</p>
           </div>
 
           <div className="re-target-card">
-            <div className="re-card-label"><span>同步命中</span><b>{formatCount(targets.boards)} 张已存在棋盘</b></div>
+            <div className="re-card-label"><span>{L("同步命中")}</span><b>{formatCount(targets.boards)} {L("张已存在棋盘")}</b></div>
             <div className="re-target-grid">
-              <span><i className="re-target-empty" />空格 <b>{formatCount(targets.empty)}</b></span>
-              <span><i className="re-target-blue" />蓝色 <b>{formatCount(targets.blue)}</b></span>
-              <span><i className="re-target-orange" />橙色 <b>{formatCount(targets.orange)}</b></span>
-              <span><i className="re-target-ai" />AI色 <b>{formatCount(targets.ai)}</b></span>
-              <span><i className="re-target-child" />子盘 <b>{formatCount(targets.subboard)}</b></span>
+              <span><i className="re-target-empty" />{L("空格 ")}<b>{formatCount(targets.empty)}</b></span>
+              <span><i className="re-target-blue" />{L("蓝色 ")}<b>{formatCount(targets.blue)}</b></span>
+              <span><i className="re-target-orange" />{L("橙色 ")}<b>{formatCount(targets.orange)}</b></span>
+              <span><i className="re-target-ai" />{L("AI色 ")}<b>{formatCount(targets.ai)}</b></span>
+              <span><i className="re-target-child" />{L("子盘 ")}<b>{formatCount(targets.subboard)}</b></span>
             </div>
             <p className="re-target-note">{reactionDetail(targets, currentPlayer)}</p>
           </div>
@@ -406,40 +408,40 @@ export default function FractalEcho() {
 
       {finished && (
         <div className={`re-finish-banner re-finish-${endResult.winner}`}>
-          <div><span className="re-eyebrow">FINAL ECHO · {modeOption.turns} ACTIONS</span><h3>{winnerLabel(endResult.winner)}</h3><p>{endResult.reason}。蓝方受控子盘 {formatCount(rootStats.controlledBoards.blue)}，橙方 {formatCount(rootStats.controlledBoards.orange)}。</p></div>
-          <button type="button" onClick={() => restart()}><RotateCcw size={15} /> 再来一局</button>
+          <div><span className="re-eyebrow">FINAL ECHO · {modeOption.turns} ACTIONS</span><h3>{winnerLabel(endResult.winner)}</h3><p>{endResult.reason}{L("。蓝方受控子盘 ")}{formatCount(rootStats.controlledBoards.blue)}{L("，橙方 ")}{formatCount(rootStats.controlledBoards.orange)}。</p></div>
+          <button type="button" onClick={() => restart()}><RotateCcw size={15} /> {L("再来一局")}</button>
         </div>
       )}
 
       <div className="re-bottom-grid">
         <section className="re-log-panel">
-          <div className="re-section-head"><div><span className="re-eyebrow">ECHO LOG</span><h3>最近回响</h3></div><span className="re-muted">AI 控制子盘 {formatCount(aiControlledBoards)} · 不计分</span></div>
-          {session.log.length === 0 ? <p className="re-empty-log">还没有玩家行动。先选一个坐标，再广播。</p> : (
+          <div className="re-section-head"><div><span className="re-eyebrow">ECHO LOG</span><h3>{L("最近回响")}</h3></div><span className="re-muted">{L("AI 控制子盘 ")}{formatCount(aiControlledBoards)} {L("· 不计分")}</span></div>
+          {session.log.length === 0 ? <p className="re-empty-log">{L("还没有玩家行动。先选一个坐标，再广播。")}</p> : (
             <ol className="re-log-list">
-              {session.log.map((entry) => <li key={entry.turn}><span className={`re-log-dot re-log-${entry.actor}`} /><b>#{String(entry.turn).padStart(2, '0')} {entry.actor === 'blue' ? '蓝' : entry.actor === 'orange' ? '橙' : 'AI'}</b><strong>{coordinateLabel(entry.coordinate)}</strong><span>{entry.detail}</span><em>全场 {formatCount(entry.boardCount)} 盘</em></li>)}
+              {session.log.map((entry) => <li key={entry.turn}><span className={`re-log-dot re-log-${entry.actor}`} /><b>#{String(entry.turn).padStart(2, '0')} {entry.actor === 'blue' ? '蓝' : entry.actor === 'orange' ? '橙' : 'AI'}</b><strong>{coordinateLabel(entry.coordinate)}</strong><span>{entry.detail}</span><em>{L("全场 ")}{formatCount(entry.boardCount)} {L("盘")}</em></li>)}
             </ol>
           )}
         </section>
         <section className="re-ai-panel">
-          <div className="re-section-head"><div><span className="re-eyebrow">TERRAIN ONLY</span><h3>AI 地形</h3></div><span className="re-ai-status">{aiMoves === 0 ? '关闭' : `${aiMoves} 次`}</span></div>
-          <p>AI 只在开局前随机广播，使用第三种颜色改变地形。AI 是蓝橙双方的敌色，但不参加行动序列，也不获得胜利分数。</p>
-          <div className="re-ai-seed"><span>行动坐标</span><strong>{session.aiCoordinates.length ? session.aiCoordinates.map(coordinateLabel).join(' · ') : '—'}</strong></div>
+          <div className="re-section-head"><div><span className="re-eyebrow">TERRAIN ONLY</span><h3>{L("AI 地形")}</h3></div><span className="re-ai-status">{aiMoves === 0 ? '关闭' : `${aiMoves} 次`}</span></div>
+          <p>{L("AI 只在开局前随机广播，使用第三种颜色改变地形。AI 是蓝橙双方的敌色，但不参加行动序列，也不获得胜利分数。")}</p>
+          <div className="re-ai-seed"><span>{L("行动坐标")}</span><strong>{session.aiCoordinates.length ? session.aiCoordinates.map(coordinateLabel).join(' · ') : '—'}</strong></div>
         </section>
       </div>
 
       {showRules && (
         <section className="re-rules-section" id="recursive-echo-rules">
           <div className="re-rules-image-wrap">
-            <div className="re-section-head"><div><span className="re-eyebrow">RULE IMAGE</span><h3>同步回响版规则图</h3></div></div>
-            <ResponsiveImage src="/recursive-echo-rules.png" alt="递归回响同步回响版规则图" widths={READER_IMAGE_WIDTHS} sizes="(max-width: 900px) calc(100vw - 48px), 860px" className="re-rules-image" />
+            <div className="re-section-head"><div><span className="re-eyebrow">RULE IMAGE</span><h3>{L("同步回响版规则图")}</h3></div></div>
+            <ResponsiveImage src="/recursive-echo-rules.png" alt={L("递归回响同步回响版规则图")} widths={READER_IMAGE_WIDTHS} sizes="(max-width: 900px) calc(100vw - 48px), 860px" className="re-rules-image" />
           </div>
           <div className="re-rules-copy">
-            <div className="re-section-head"><div><span className="re-eyebrow">TEXT SUPPLEMENT</span><h3>本局补充说明</h3></div></div>
-            <div className="re-rule-block"><h4>1 · 行动序列</h4><p>极速、轻度、中等、高强度分别取 8 / 16 / 32 / 64 次行动，都是同一条序列的前缀。第 r 次行动方由 <code>popcount(r−1) mod 2</code> 决定：0 为蓝，1 为橙。</p></div>
-            <div className="re-rule-block"><h4>2 · 冻结与广播</h4><p>每次行动开始时冻结所有已存在的棋盘；每张盘只处理一次同坐标。行动中新生成的子盘从下一次行动才进入目标集合，子盘入口在父盘中保留。</p></div>
-            <div className="re-rule-block"><h4>3 · 四种反应</h4><p>空格播种行动方颜色；己色生长为己方十字形 5 票子盘；敌色（包括 AI 色）入侵为中心 1 格行动方、十字 4 格敌色的中立子盘；子盘递回则继续在内层结算同坐标。</p></div>
-            <div className="re-rule-block"><h4>4 · 控制与 AI</h4><p>一张 3×3 盘有至少 5 票才被控制；受控子盘在父盘中只算 1 票，并由最深处向外重算。AI 只改开局地形，不计入蓝橙分数；若根盘没有蓝/橙控制者，按蓝橙根盘票数，再按蓝橙受控子盘数比较。</p></div>
-            <div className="re-rule-note"><strong>忘记规则时停下：</strong>这一区域只补充模式和 AI 地形，其他判定以左侧原规则图为准。</div>
+            <div className="re-section-head"><div><span className="re-eyebrow">TEXT SUPPLEMENT</span><h3>{L("本局补充说明")}</h3></div></div>
+            <div className="re-rule-block"><h4>{L("1 · 行动序列")}</h4><p>{L("极速、轻度、中等、高强度分别取 8 / 16 / 32 / 64 次行动，都是同一条序列的前缀。第 r 次行动方由 ")}<code>popcount(r−1) mod 2</code> {L("决定：0 为蓝，1 为橙。")}</p></div>
+            <div className="re-rule-block"><h4>{L("2 · 冻结与广播")}</h4><p>{L("每次行动开始时冻结所有已存在的棋盘；每张盘只处理一次同坐标。行动中新生成的子盘从下一次行动才进入目标集合，子盘入口在父盘中保留。")}</p></div>
+            <div className="re-rule-block"><h4>{L("3 · 四种反应")}</h4><p>{L("空格播种行动方颜色；己色生长为己方十字形 5 票子盘；敌色（包括 AI 色）入侵为中心 1 格行动方、十字 4 格敌色的中立子盘；子盘递回则继续在内层结算同坐标。")}</p></div>
+            <div className="re-rule-block"><h4>{L("4 · 控制与 AI")}</h4><p>{L("一张 3×3 盘有至少 5 票才被控制；受控子盘在父盘中只算 1 票，并由最深处向外重算。AI 只改开局地形，不计入蓝橙分数；若根盘没有蓝/橙控制者，按蓝橙根盘票数，再按蓝橙受控子盘数比较。")}</p></div>
+            <div className="re-rule-note"><strong>{L("忘记规则时停下：")}</strong>{L("这一区域只补充模式和 AI 地形，其他判定以左侧原规则图为准。")}</div>
           </div>
         </section>
       )}

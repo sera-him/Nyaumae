@@ -1,10 +1,15 @@
 import { useEffect } from 'react';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useMusic } from '@/contexts/MusicContext';
 import { useLocation, useNavigate } from 'react-router';
 import { characters } from '@/data/characters';
+import { charactersEn } from '@/data/characters.en';
 import { extraCharacters } from '@/data/extraCharacters';
+import { extraCharactersEn } from '@/data/extraCharacters.en';
 import { getCharacterCardImageLocal, getCharacterImageLocal, getCharacterImageSetLocal } from '@/data/characterImages';
 import { semanticHighlight } from '@/lib/semanticHighlight';
 import { getTierStyle } from '@/lib/fsiiiTiers';
@@ -26,7 +31,7 @@ const FILTER_MAP: Record<string, string> = {
   other: 'other',
 };
 
-const filters = [
+const filtersZh = [
   { key: 'all', label: '全部' },
   { key: 'mia-family', label: 'M/I/A 家族' },
   { key: 'zhehua', label: '哲华系' },
@@ -34,6 +39,16 @@ const filters = [
   { key: 'delansi', label: '德澜思拓' },
   { key: 'grownup-country', label: '大人国篇' },
   { key: 'other', label: '其他' },
+];
+
+const filtersEn = [
+  { key: 'all', label: 'All' },
+  { key: 'mia-family', label: 'M/I/A Family' },
+  { key: 'zhehua', label: 'Zhehua line' },
+  { key: 'yin', label: 'Yin faction' },
+  { key: 'delansi', label: 'Delanstor' },
+  { key: 'grownup-country', label: 'Giant Country arc' },
+  { key: 'other', label: 'Other' },
 ];
 
 const groupColors: Record<string, string> = {
@@ -59,6 +74,10 @@ export default function CharactersPage() {
   const { playTrack, currentTrack, isMuted } = useMusic();
   const location = useLocation();
   const navigate = useNavigate();
+  const _en = getLocale() === 'en';
+  const source = _en ? charactersEn : characters;
+  const extras = _en ? extraCharactersEn : extraCharacters;
+  const filters = _en ? filtersEn : filtersZh;
   const filterParam = new URLSearchParams(location.search).get('group') ?? 'all';
   const activeFilterKey = FILTER_MAP[filterParam] ? filterParam : 'all';
   const activeFilter = FILTER_MAP[activeFilterKey];
@@ -77,8 +96,8 @@ export default function CharactersPage() {
   };
 
   const filtered = activeFilter === 'all'
-    ? characters
-    : characters.filter((c) => c.group === activeFilter);
+    ? source
+    : source.filter((c) => c.group === activeFilter);
 
   return (
     <AuroraPage accent="characters" className="aurora-content-page characters-aurora-page">
@@ -93,23 +112,23 @@ export default function CharactersPage() {
           >
             <div className="aurora-content-copy">
               <p className="aurora-eyebrow">02 / CONSCIOUSNESS INDEX</p>
-              <h1 className="aurora-title">角色档案</h1>
-              <p className="aurora-lead">{characters.length} 位主角色与 {extraCharacters.length} 位补充意识体，在不同神经频率上留下各自的存在痕迹。</p>
+              <h1 className="aurora-title">{L("角色档案")}</h1>
+              <p className="aurora-lead">{source.length} {L("位主角色与 ")}{extras.length} {L("位补充意识体，在不同神经频率上留下各自的存在痕迹。")}</p>
               <div className="aurora-hero-signal"><Users /><span>CHARACTER ARCHIVE ONLINE</span><ArrowRight /></div>
             </div>
             <AuroraPanel className="aurora-hero-stats">
-              <AuroraStat label="MAIN CHARACTERS" value={characters.length} />
-              <AuroraStat label="EXTRA MINDS" value={extraCharacters.length} />
-              <AuroraStat label="TOTAL SIGNALS" value={characters.length + extraCharacters.length} />
+              <AuroraStat label="MAIN CHARACTERS" value={source.length} />
+              <AuroraStat label="EXTRA MINDS" value={extras.length} />
+              <AuroraStat label="TOTAL SIGNALS" value={source.length + extras.length} />
             </AuroraPanel>
           </motion.div>
 
           <AuroraPanel className="characters-filter-panel">
             <div className="characters-filter-copy">
               <span>ARCHIVE FILTER</span>
-              <p>角色图片为示意图，非立绘</p>
+              <p>{L("角色图片为示意图，非立绘")}</p>
             </div>
-            <div className="aurora-tabs characters-filter-tabs" role="tablist" aria-label="角色阵营筛选">
+            <div className="aurora-tabs characters-filter-tabs" role="tablist" aria-label={L("角色阵营筛选")}>
               {filters.map((f) => (
                 <button
                   key={f.key}
@@ -122,10 +141,10 @@ export default function CharactersPage() {
                 </button>
               ))}
             </div>
-            <div className="characters-era-note"><Sparkles /><span><strong>双纪年基准：</strong>公元 2026 年 = 大人国 169 年；大人国纪年 = 公元纪年 − 1857。</span></div>
+            <div className="characters-era-note"><Sparkles /><span><strong>{L("双纪年基准：")}</strong>{L("公元 2026 年 = 大人国 169 年；大人国纪年 = 公元纪年 − 1857。")}</span></div>
           </AuroraPanel>
 
-          <h2 className="sr-only">角色列表</h2>
+          <h2 className="sr-only">{L("角色列表")}</h2>
           <div className="characters-aurora-grid">
             <AnimatePresence mode="popLayout" initial={false}>
               {filtered.map((char, i) => (
@@ -179,8 +198,7 @@ export default function CharactersPage() {
                           </span>
                         ) : (
                           <span className="text-[10px] text-nc-text-muted font-mono">
-                            {char.approximateAge ? '约 ' : ''}{char.age} 岁
-                          </span>
+                            {char.approximateAge ? (_en ? '~' : '约 ') : ''}{char.age} {L("岁\n                          ")}</span>
                         )}
                       </div>
                       <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full border ${groupLabelColors[char.group]}`}>
@@ -196,9 +214,9 @@ export default function CharactersPage() {
 
           {/* 补充角色 */}
           <div className="characters-extra-section">
-            <AuroraSectionHeading eyebrow="SUPPLEMENTARY MINDS" title="补充角色" description="游离于主要阵营之外，但依然与世界产生联系的意识体。" />
+            <AuroraSectionHeading eyebrow="SUPPLEMENTARY MINDS" title={L("补充角色")} description={_en ? 'Minds that wander outside the main factions, yet still connect with the world.' : '游离于主要阵营之外，但依然与世界产生联系的意识体。'} />
             <div className="characters-aurora-grid">
-              {extraCharacters.map((char, i) => {
+              {extras.map((char, i) => {
                 const localSrc = getCharacterImageLocal(char.id);
                 return (
                   <motion.div
@@ -222,7 +240,7 @@ export default function CharactersPage() {
                           />
                         ) : (
                           <div className="absolute inset-0 bg-nc-bg-secondary flex items-center justify-center">
-                            <span className="text-nc-text-muted text-xs">暂无图片</span>
+                            <span className="text-nc-text-muted text-xs">{L("暂无图片")}</span>
                           </div>
                         )}
                       </div>
@@ -236,7 +254,7 @@ export default function CharactersPage() {
                           )}
                         </div>
                         <span className="text-[10px] text-nc-text-muted bg-nc-bg-tertiary px-2 py-0.5 rounded-full">
-                          {char.category}
+                          {L(char.category)}
                         </span>
                       </div>
                       <span className="character-card-signal" aria-hidden="true" />
@@ -252,7 +270,7 @@ export default function CharactersPage() {
       {/* 角色关系网络 */}
       <section className="characters-network-section">
         <div className="aurora-container">
-          <AuroraSectionHeading className="characters-network-heading" eyebrow="RELATIONSHIP MAP" title="角色关系网络" description={<span><Network className="inline w-4 h-4 mr-2" />每一个节点都在回应另一个意识体。</span>} />
+          <AuroraSectionHeading className="characters-network-heading" eyebrow="RELATIONSHIP MAP" title={L("角色关系网络")} description={<span><Network className="inline w-4 h-4 mr-2" />{L("每一个节点都在回应另一个意识体。")}</span>} />
           <AuroraPanel className="characters-network-panel"><CharacterNetwork /></AuroraPanel>
         </div>
       </section>

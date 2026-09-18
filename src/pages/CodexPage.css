@@ -254,3 +254,11 @@
 .full-search-page .full-search-result-heading strong {
   color: color-mix(in srgb, var(--site-theme-accent, var(--aurora-cyan-dim)) 74%, #fff);
 }
+
+.full-search-en-hint {
+  margin: 0.4rem auto 1.2rem;
+  max-width: 34rem;
+  color: color-mix(in srgb, var(--site-theme-accent, var(--aurora-cyan-dim)) 80%, #fff);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}

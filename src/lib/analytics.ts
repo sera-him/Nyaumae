@@ -84,6 +84,7 @@ const DOMAIN_CATEGORY: Partial<Record<RouteDomain, AnalyticsCategory>> = {
   settings: 'AI',
   api: 'API',
   codex: '其他',
+  other: '其他',
 };
 
 let fallbackSessionId: string | null = null;

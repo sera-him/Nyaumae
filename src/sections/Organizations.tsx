@@ -1,14 +1,31 @@
 import { useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { motion } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { semanticHighlight } from '@/lib/semanticHighlight';
-import { organizations, zhihuaClasses } from '@/data/organizations';
+import { organizations as organizationsZh, zhihuaClasses as zhihuaClassesZh } from '@/data/organizations';
+import {
+  organizationsEn,
+  zhihuaClassesEn,
+  orgsHeroSubtitleEn,
+  budgetLabelEn,
+  facultyLabelEn,
+  membersLabelEn,
+  zhihuaToggleEn,
+  superRuleEn,
+  unifiedRecruitmentEn,
+  hyperCommunicationSummaryEn,
+} from '@/data/organizations.en';
+import { getLocale } from '@/lib/i18n';
 import SmartImage from '@/components/SmartImage';
 import CollapsibleCard from '@/components/CollapsibleCard';
 import HyperCommunication from '@/sections/HyperCommunication';
 import { Radio } from 'lucide-react';
 
 function ClassTable() {
+  const _en = getLocale() === 'en';
+  const zhihuaClasses = _en ? zhihuaClassesEn : zhihuaClassesZh;
   const undergradTotal = zhihuaClasses.reduce(
     (s, c) => s + c.undergradPerYear * c.undergradYears,
     0
@@ -23,11 +40,11 @@ function ClassTable() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-nc-violet/20">
-            <th className="text-left py-2 px-2 text-nc-text-muted font-normal">学院</th>
-            <th className="text-left py-2 px-2 text-nc-text-muted font-normal">班级</th>
-            <th className="text-right py-2 px-2 text-nc-text-muted font-normal">本科</th>
-            <th className="text-right py-2 px-2 text-nc-text-muted font-normal">研究生</th>
-            <th className="text-left py-2 px-2 text-nc-text-muted font-normal hidden sm:table-cell">方向</th>
+            <th className="text-left py-2 px-2 text-nc-text-muted font-normal">{L("学院")}</th>
+            <th className="text-left py-2 px-2 text-nc-text-muted font-normal">{L("班级")}</th>
+            <th className="text-right py-2 px-2 text-nc-text-muted font-normal">{L("本科")}</th>
+            <th className="text-right py-2 px-2 text-nc-text-muted font-normal">{L("研究生")}</th>
+            <th className="text-left py-2 px-2 text-nc-text-muted font-normal hidden sm:table-cell">{L("方向")}</th>
           </tr>
         </thead>
         <tbody>
@@ -48,10 +65,10 @@ function ClassTable() {
             </tr>
           ))}
           <tr className="border-t-2 border-nc-violet/30">
-            <td className="py-2 px-2 text-nc-text-muted" colSpan={2}>合计</td>
+            <td className="py-2 px-2 text-nc-text-muted" colSpan={2}>{L("合计")}</td>
             <td className="py-2 px-2 text-nc-text font-bold text-right font-mono">{undergradTotal}</td>
             <td className="py-2 px-2 text-nc-text font-bold text-right font-mono">{gradTotal}</td>
-            <td className="py-2 px-2 text-nc-text-muted hidden sm:table-cell">在读 {undergradTotal + gradTotal} 人</td>
+            <td className="py-2 px-2 text-nc-text-muted hidden sm:table-cell">{L("在读 ")}{undergradTotal + gradTotal} {L("人")}</td>
           </tr>
         </tbody>
       </table>
@@ -60,6 +77,8 @@ function ClassTable() {
 }
 
 export default function Organizations() {
+  const _en = getLocale() === 'en';
+  const organizations = _en ? organizationsEn : organizationsZh;
   const { ref, isVisible } = useScrollReveal();
   const [zhihuaExpanded, setZhihuaExpanded] = useState(false);
 
@@ -76,7 +95,7 @@ export default function Organizations() {
             {semanticHighlight("组织机构")}
           </h2>
           <p className="text-nc-text-secondary text-lg">
-            {semanticHighlight("权力与知识的网络，驱动着这个世界的运转")}
+            {_en ? orgsHeroSubtitleEn : semanticHighlight("权力与知识的网络，驱动着这个世界的运转")}
           </p>
         </motion.div>
 
@@ -118,7 +137,7 @@ export default function Organizations() {
                     <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0" style={{ backgroundColor: org.accentColor + '20', color: org.accentColor }}>
                       B
                     </span>
-                    <span className="text-nc-text-muted">{semanticHighlight("年预算：")}</span>
+                    <span className="text-nc-text-muted">{_en ? budgetLabelEn : semanticHighlight("年预算：")}</span>
                     <span className="font-mono text-nc-text">{org.budget}</span>
                   </div>
                   {org.budgetNote && (
@@ -129,8 +148,8 @@ export default function Organizations() {
                       <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0" style={{ backgroundColor: org.accentColor + '20', color: org.accentColor }}>
                         F
                       </span>
-                      <span className="text-nc-text-muted">{semanticHighlight("师资：")}</span>
-                      <span className="text-nc-text">教授 {org.facultyCount} 人</span>
+                      <span className="text-nc-text-muted">{_en ? facultyLabelEn : semanticHighlight("师资：")}</span>
+                      <span className="text-nc-text">{L("教授 ")}{org.facultyCount} {L("人")}</span>
                     </div>
                   )}
                   {org.facultyNote && (
@@ -140,7 +159,7 @@ export default function Organizations() {
                     <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0" style={{ backgroundColor: org.accentColor + '20', color: org.accentColor }}>
                       M
                     </span>
-                    <span className="text-nc-text-muted">{semanticHighlight("核心成员：")}</span>
+                    <span className="text-nc-text-muted">{_en ? membersLabelEn : semanticHighlight("核心成员：")}</span>
                     <span className="text-nc-text-secondary">{semanticHighlight(org.members.join('、'))}</span>
                   </div>
                 </div>
@@ -152,7 +171,7 @@ export default function Organizations() {
                       onClick={() => setZhihuaExpanded((v) => !v)}
                       className="organization-expand-button text-sm text-nc-violet hover:text-nc-cyan transition-colors flex items-center gap-1"
                     >
-                      {zhihuaExpanded ? '收起' : '查看班级结构'}
+                      {zhihuaExpanded ? (_en ? zhihuaToggleEn.collapse : '收起') : (_en ? zhihuaToggleEn.expand : '查看班级结构')}
                       <span className={`transition-transform ${zhihuaExpanded ? 'rotate-180' : ''}`}>▼</span>
                     </button>
                     {zhihuaExpanded && (
@@ -174,32 +193,41 @@ export default function Organizations() {
         {/* 超级智能校规 - 新增 */}
         <CollapsibleCard
           id="super-intelligence-rule"
-          title={semanticHighlight("超级智能校规提案")}
-          summary={semanticHighlight("学生四不条件+监护人签字，学校必须执行，否则校长被超级智能秒开除")}
+          title={_en ? superRuleEn.title : semanticHighlight("超级智能校规提案")}
+          summary={_en ? superRuleEn.summary : semanticHighlight("学生四不条件+监护人签字，学校必须执行，否则校长被超级智能秒开除")}
           icon={<Radio className="w-5 h-5 text-violet-400" />}
           borderColor="border-violet-500/15"
           titleColor="text-violet-300"
         >
           <div className="p-6">
-            <p className="text-sm text-nc-text leading-relaxed">{semanticHighlight("对于任意学生及其就读的学校，只要学生请求①不违法、②不笔试作弊、③不增加学校资源消耗、④不直接影响其他学生，那么监护人签字同意后，学校必须无条件执行，否则校长被超级智能秒开除。")}</p>
+            <p className="text-sm text-nc-text leading-relaxed">{_en ? superRuleEn.body : semanticHighlight("对于任意学生及其就读的学校，只要学生请求①不违法、②不笔试作弊、③不增加学校资源消耗、④不直接影响其他学生，那么监护人签字同意后，学校必须无条件执行，否则校长被超级智能秒开除。")}</p>
           </div>
         </CollapsibleCard>
 
         {/* 统一招聘平台 - 新增 */}
         <CollapsibleCard
           id="unified-recruitment"
-          title={semanticHighlight("国家统一招聘平台")}
-          summary={semanticHighlight("先晒价·盲面·后验资，总分定胜负")}
+          title={_en ? unifiedRecruitmentEn.title : semanticHighlight("国家统一招聘平台")}
+          summary={_en ? unifiedRecruitmentEn.summary : semanticHighlight("先晒价·盲面·后验资，总分定胜负")}
           icon={<Radio className="w-5 h-5 text-emerald-400" />}
           borderColor="border-emerald-500/15"
           titleColor="text-emerald-300"
         >
           <div className="p-6 space-y-3 text-sm text-nc-text leading-relaxed">
-            <p>{semanticHighlight("1. 先晒价（面试前）：企业必须提前公示《资质加分表》，明确每个证书/技能加多少分，全网公开，禁止暗箱操作。")}</p>
-            <p>{semanticHighlight("2. 盲面（无身份）：面试仅限文字或变声通话，禁止透露性别、年龄、外貌。面试官只问技术问题，打出的分数仅代表“纯能力”。")}</p>
-            <p>{semanticHighlight("3. 后验资（面试后）：面试结束后，求职者再提交学历、证书等资质。平台自动核验真伪，并按公示的表格计算附加分。")}</p>
-            <p>{semanticHighlight("4. 总分定胜负：最终总分 = 面试能力分 + 资质加分。按分数排名录取，公开透明。")}</p>
-            <p className="text-xs text-emerald-300/80 border-t border-emerald-500/10 pt-3">{semanticHighlight("核心铁律：面试时允许撒谎（因为技术问题答不出就露馅）；资质造假零容忍。一切只凭真本事和硬证书说话。")}</p>
+            {_en ? (
+              <>
+                {unifiedRecruitmentEn.paragraphs.map((p, i) => <p key={i}>{p}</p>)}
+                <p className="text-xs text-emerald-300/80 border-t border-emerald-500/10 pt-3">{unifiedRecruitmentEn.ironRule}</p>
+              </>
+            ) : (
+              <>
+                <p>{semanticHighlight("1. 先晒价（面试前）：企业必须提前公示《资质加分表》，明确每个证书/技能加多少分，全网公开，禁止暗箱操作。")}</p>
+                <p>{semanticHighlight("2. 盲面（无身份）：面试仅限文字或变声通话，禁止透露性别、年龄、外貌。面试官只问技术问题，打出的分数仅代表“纯能力”。")}</p>
+                <p>{semanticHighlight("3. 后验资（面试后）：面试结束后，求职者再提交学历、证书等资质。平台自动核验真伪，并按公示的表格计算附加分。")}</p>
+                <p>{semanticHighlight("4. 总分定胜负：最终总分 = 面试能力分 + 资质加分。按分数排名录取，公开透明。")}</p>
+                <p className="text-xs text-emerald-300/80 border-t border-emerald-500/10 pt-3">{semanticHighlight("核心铁律：面试时允许撒谎（因为技术问题答不出就露馅）；资质造假零容忍。一切只凭真本事和硬证书说话。")}</p>
+              </>
+            )}
           </div>
         </CollapsibleCard>
 
@@ -207,7 +235,7 @@ export default function Organizations() {
         <CollapsibleCard
           id="hyper-communication"
           title="HyperCommunication"
-          summary="哲华学校的核心融合机制——让数理生信艺哲语在碰撞中产生火花"
+          summary={_en ? hyperCommunicationSummaryEn : L("哲华学校的核心融合机制——让数理生信艺哲语在碰撞中产生火花")}
           icon={<Radio className="w-5 h-5 text-nc-cyan" />}
           borderColor="border-nc-cyan/15"
           titleColor="text-nc-cyan"

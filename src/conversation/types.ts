@@ -323,6 +323,11 @@ export interface AiConfig {
   timeoutMs: number;
   retry: number;
   headers: Record<string, string>;
+  /** Semantic (vector) retrieval for the site knowledge base. */
+  semanticSearch: boolean;
+  embeddingModel: string;
+  /** Optional dedicated embeddings endpoint; falls back to baseUrl. */
+  embeddingBaseUrl: string;
   updatedAt: string;
 }
 
@@ -340,6 +345,9 @@ export interface AiConfigExport {
   retry: number;
   headers: Record<string, string>;
   hasApiKey: boolean;
+  semanticSearch: boolean;
+  embeddingModel: string;
+  embeddingBaseUrl: string;
   updatedAt: string;
 }
 

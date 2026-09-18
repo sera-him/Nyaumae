@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { semanticHighlight } from '@/lib/semanticHighlight';
@@ -6,21 +9,22 @@ import { TrendingUp, Settings2, Crosshair } from 'lucide-react';
 
 interface ModelDef {
   name: string;
+  nameEn: string;
   color: string;
   fn: (x: number) => number;
 }
 
 const models: ModelDef[] = [
-  { name: '立方(咪呀)', color: '#00E5CC', fn: (x) => 9.89 * Math.pow(x, 3) },
-  { name: '立方(无婴)', color: '#F59E0B', fn: (x) => 11.95 * Math.pow(x, 3) },
-  { name: '立方', color: '#8B5CF6', fn: (x) => 14.0 * Math.pow(x, 3) },
-  { name: '平方', color: '#EC4899', fn: (x) => 16.29 * x * x },
-  { name: '牛津', color: '#F472B6', fn: (x) => 16.24 * Math.pow(x, 2.15) },
-  { name: '多项', color: '#6366F1', fn: (x) => 9.73 * Math.pow(x, 1.64) + 6.09 * Math.pow(x, 3.0) },
-  { name: '复合', color: '#06B6D4', fn: (x) => 15.28 * Math.pow(x, 1.97) * Math.pow(1 + Math.pow(x, 65.37), 0.0062) },
-  { name: '约束', color: '#A78BFA', fn: (x) => 10.23 * Math.pow(x, 3.0) + 5.15 - 76213.41 * Math.exp(-18.45 * Math.max(x, 0.55)) },
-  { name: '线偏', color: '#94A3B8', fn: (x) => Math.max(73.58 * x - 69.22, 24.85 * x - 9.09) },
-  { name: '无约束', color: '#64748B', fn: (x) => 6.74 * Math.pow(x, 3.78) + 8.75 - 175.10 * Math.exp(-6.44 * Math.max(x, 0.524)) },
+  { name: '立方(咪呀)', nameEn: 'Cubic (Miia)', color: '#00E5CC', fn: (x) => 9.89 * Math.pow(x, 3) },
+  { name: '立方(无婴)', nameEn: 'Cubic (no-baby)', color: '#F59E0B', fn: (x) => 11.95 * Math.pow(x, 3) },
+  { name: '立方', nameEn: 'Cubic', color: '#8B5CF6', fn: (x) => 14.0 * Math.pow(x, 3) },
+  { name: '平方', nameEn: 'Quadratic', color: '#EC4899', fn: (x) => 16.29 * x * x },
+  { name: '牛津', nameEn: 'Oxford', color: '#F472B6', fn: (x) => 16.24 * Math.pow(x, 2.15) },
+  { name: '多项', nameEn: 'Polynomial', color: '#6366F1', fn: (x) => 9.73 * Math.pow(x, 1.64) + 6.09 * Math.pow(x, 3.0) },
+  { name: '复合', nameEn: 'Composite', color: '#06B6D4', fn: (x) => 15.28 * Math.pow(x, 1.97) * Math.pow(1 + Math.pow(x, 65.37), 0.0062) },
+  { name: '约束', nameEn: 'Constrained', color: '#A78BFA', fn: (x) => 10.23 * Math.pow(x, 3.0) + 5.15 - 76213.41 * Math.exp(-18.45 * Math.max(x, 0.55)) },
+  { name: '线偏', nameEn: 'Linear-bias', color: '#94A3B8', fn: (x) => Math.max(73.58 * x - 69.22, 24.85 * x - 9.09) },
+  { name: '无约束', nameEn: 'Unconstrained', color: '#64748B', fn: (x) => 6.74 * Math.pow(x, 3.78) + 8.75 - 175.10 * Math.exp(-6.44 * Math.max(x, 0.524)) },
 ];
 
 const PADDING = { top: 40, right: 40, bottom: 60, left: 70 };
@@ -37,7 +41,7 @@ interface TooltipData {
   y: number;      // canvas px
   popupLeft: number;
   heightM: number;
-  modelValues: { name: string; color: string; weight: number }[];
+  modelValues: { name: string; nameEn: string; color: string; weight: number }[];
 }
 
 function niceStep(range: number, maxTicks: number): number {
@@ -125,11 +129,11 @@ function drawChart(
   ctx.fillStyle = '#C4B5E0';
   ctx.font = '12px "Noto Sans SC", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('身高 (m)', PADDING.left + chartW / 2, height - 12);
+  ctx.fillText(getLocale() === 'en' ? 'Height (m)' : '身高 (m)', PADDING.left + chartW / 2, height - 12);
   ctx.save();
   ctx.translate(16, PADDING.top + chartH / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('体重 (kg)', 0, 0);
+  ctx.fillText(getLocale() === 'en' ? 'Weight (kg)' : '体重 (kg)', 0, 0);
   ctx.restore();
 
   // Draw curves
@@ -217,6 +221,7 @@ function drawChart(
 
 export default function HeightWeightChart() {
   const { ref, isVisible } = useScrollReveal();
+  const _en = getLocale() === 'en';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeModels, setActiveModels] = useState<Set<number>>(new Set([0, 1, 2, 5, 6]));
@@ -282,12 +287,12 @@ export default function HeightWeightChart() {
     const { xMin, xMax, yMax } = range;
     const heightM = xMin + ((canvasX - PADDING.left) / chartW) * (xMax - xMin);
 
-    const modelValues: { name: string; color: string; weight: number }[] = [];
+    const modelValues: { name: string; nameEn: string; color: string; weight: number }[] = [];
     models.forEach((model, idx) => {
       if (!activeModels.has(idx)) return;
       const weight = model.fn(heightM);
       if (weight >= 0 && weight <= yMax * 1.1) {
-        modelValues.push({ name: model.name, color: model.color, weight });
+        modelValues.push({ name: model.name, nameEn: model.nameEn, color: model.color, weight });
       }
     });
 
@@ -358,8 +363,7 @@ export default function HeightWeightChart() {
           }`}
         >
           <Settings2 className="w-3.5 h-3.5" />
-          范围
-        </button>
+          {L("范围\n        ")}</button>
       </div>
 
       {/* Legend / toggles */}
@@ -375,7 +379,7 @@ export default function HeightWeightChart() {
             }`}
           >
             <span className="w-2.5 h-0.5 rounded-full inline-block" style={{ backgroundColor: m.color }} />
-            <span style={{ color: activeModels.has(i) ? m.color : '#5A4D6E' }}>{m.name}</span>
+            <span style={{ color: activeModels.has(i) ? m.color : '#5A4D6E' }}>{_en ? m.nameEn : m.name}</span>
           </button>
         ))}
       </div>
@@ -393,7 +397,7 @@ export default function HeightWeightChart() {
             <div className="px-6 py-4 space-y-4">
               {/* X Min */}
               <div className="flex items-center gap-3">
-                <label className="text-xs text-nc-text-muted w-20 shrink-0">身高最小</label>
+                <label className="text-xs text-nc-text-muted w-20 shrink-0">{L("身高最小")}</label>
                 <input
                   type="range"
                   min={0.1}
@@ -407,7 +411,7 @@ export default function HeightWeightChart() {
               </div>
               {/* X Max */}
               <div className="flex items-center gap-3">
-                <label className="text-xs text-nc-text-muted w-20 shrink-0">身高最大</label>
+                <label className="text-xs text-nc-text-muted w-20 shrink-0">{L("身高最大")}</label>
                 <input
                   type="range"
                   min={range.xMin + 0.1}
@@ -421,7 +425,7 @@ export default function HeightWeightChart() {
               </div>
               {/* Y Max */}
               <div className="flex items-center gap-3">
-                <label className="text-xs text-nc-text-muted w-20 shrink-0">体重最大</label>
+                <label className="text-xs text-nc-text-muted w-20 shrink-0">{L("体重最大")}</label>
                 <input
                   type="range"
                   min={20}
@@ -463,7 +467,7 @@ export default function HeightWeightChart() {
                 <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-nc-violet/10">
                   <Crosshair className="w-3 h-3 text-nc-cyan" />
                   <span className="text-xs font-mono text-nc-text-secondary">
-                    身高 {tooltip.heightM.toFixed(2)}m
+                    {_en ? 'Height ' : '身高 '}{tooltip.heightM.toFixed(2)}m
                   </span>
                 </div>
                 <div className="space-y-1">
@@ -471,7 +475,7 @@ export default function HeightWeightChart() {
                     <div key={mv.name} className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-1.5">
                         <span className="w-2 h-0.5 rounded-full inline-block shrink-0" style={{ backgroundColor: mv.color }} />
-                        <span className="text-[10px] text-nc-text-muted">{mv.name}</span>
+                        <span className="text-[10px] text-nc-text-muted">{_en ? mv.nameEn : mv.name}</span>
                       </div>
                       <span className="text-xs font-mono font-bold" style={{ color: mv.color }}>
                         {mv.weight.toFixed(1)}kg
@@ -480,7 +484,7 @@ export default function HeightWeightChart() {
                   ))}
                 </div>
                 {/* Close hint */}
-                <p className="text-[9px] text-nc-text-muted/50 mt-2 text-center">再次点击关闭</p>
+                <p className="text-[9px] text-nc-text-muted/50 mt-2 text-center">{L("再次点击关闭")}</p>
               </div>
             </motion.div>
           )}
@@ -491,8 +495,7 @@ export default function HeightWeightChart() {
         <span>{semanticHighlight("咪呀专用模型（青色粗线）：y = 9.89 · x³ · 图中标注点为墨璇玥.iv 数据 1.47m/32kg")}</span>
         <span className="text-[10px] text-nc-text-muted/50 flex items-center gap-1">
           <Crosshair className="w-3 h-3" />
-          点击曲线查看坐标
-        </span>
+          {L("点击曲线查看坐标\n        ")}</span>
       </div>
     </motion.div>
   );

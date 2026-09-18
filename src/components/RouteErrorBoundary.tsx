@@ -1,4 +1,6 @@
 import { Component, type ReactNode } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { Link, useLocation } from 'react-router';
 import {
   attemptAsyncModuleRecovery,
@@ -62,15 +64,12 @@ class AreaBoundary extends Component<BoundaryProps, BoundaryState> {
           <div className="flex flex-wrap justify-center gap-3">
             {!asyncModuleError && (
               <button type="button" onClick={this.retry} className="rounded-xl bg-nc-violet px-5 py-2.5 text-sm font-medium text-white hover:opacity-90">
-                原地重试
-              </button>
+                {L("原地重试\n              ")}</button>
             )}
             <button type="button" onClick={forceAsyncModuleReload} className="rounded-xl border border-nc-violet/30 px-5 py-2.5 text-sm text-nc-text hover:bg-nc-violet/10">
-              重新载入当前网址
-            </button>
+              {L("重新载入当前网址\n            ")}</button>
             <Link to="/" className="rounded-xl border border-white/10 px-5 py-2.5 text-sm text-nc-text-muted hover:text-nc-text">
-              返回首页
-            </Link>
+              {L("返回首页\n            ")}</Link>
           </div>
         </div>
       </section>

@@ -38,6 +38,63 @@
   font-size: .62rem;
 }
 
+/* 语言范围切换（中文 / English / 合并总结果）——刻意比 alpha 控件更醒目 */
+.word-frequency-lang-switch {
+  display: flex;
+  gap: .5rem;
+  margin: .25rem 0 .9rem;
+  padding: .42rem;
+  border-radius: .8rem;
+  border: 1.5px solid rgba(251, 191, 36, .38);
+  background: linear-gradient(135deg, rgba(251, 191, 36, .12), rgba(96, 165, 250, .08));
+  box-shadow: 0 0 0 1px rgba(251, 191, 36, .08), 0 8px 22px -12px rgba(251, 191, 36, .55);
+}
+
+.word-frequency-lang-switch button {
+  flex: 1 1 0;
+  padding: .55rem .7rem;
+  border-radius: .55rem;
+  border: 1px solid rgba(251, 191, 36, .24);
+  background: rgba(7, 19, 29, .58);
+  color: #f4ecd6;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.word-frequency-lang-switch button:hover:not(:disabled) {
+  border-color: rgba(251, 191, 36, .6);
+  transform: translateY(-1px);
+}
+
+.word-frequency-lang-switch button.is-active {
+  color: #221a08;
+  border-color: #fbbf24;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  box-shadow: 0 5px 16px -5px rgba(251, 191, 36, .75);
+}
+
+.word-frequency-lang-switch button.is-merged.is-active {
+  color: #041823;
+  border-color: #38bdf8;
+  background: linear-gradient(135deg, #bae6fd, #0ea5e9);
+  box-shadow: 0 5px 16px -5px rgba(56, 189, 248, .75);
+}
+
+.word-frequency-lang-switch button:disabled {
+  opacity: .45;
+  cursor: progress;
+}
+
+@media (max-width: 560px) {
+  .word-frequency-lang-switch {
+    flex-direction: column;
+  }
+}
+
 .word-frequency-alpha-control {
   display: grid;
   gap: .45rem;
@@ -116,6 +173,80 @@
 .word-frequency-download:disabled {
   cursor: not-allowed;
   opacity: .38;
+}
+
+/* 按需加载：刷新词云按钮 */
+.word-frequency-refresh {
+  border: 1px solid rgba(251, 191, 36, .32);
+  border-radius: 999px;
+  padding: .28rem .58rem;
+  color: #fde68a;
+  background: rgba(251, 191, 36, .08);
+  font-size: .62rem;
+  cursor: pointer;
+  transition: border-color .2s ease, background-color .2s ease, transform .15s ease;
+}
+
+.word-frequency-refresh:hover:not(:disabled),
+.word-frequency-refresh:focus-visible:not(:disabled) {
+  border-color: rgba(251, 191, 36, .6);
+  background: rgba(251, 191, 36, .16);
+}
+
+.word-frequency-refresh:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* 按需加载：未生成时的占位区 */
+.word-frequency-cloud-placeholder {
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  align-content: center;
+  gap: .45rem;
+  border: 1px dashed rgba(251, 191, 36, .3);
+  border-radius: .18rem;
+  background: rgba(251, 191, 36, .03);
+  color: var(--aurora-text-muted, #8ca6b4);
+  font-size: .7rem;
+  text-align: center;
+}
+
+.word-frequency-cloud-placeholder p {
+  margin: 0;
+}
+
+.word-frequency-cloud-placeholder-title {
+  color: #f4ecd6;
+  font-weight: 600;
+}
+
+.word-frequency-cloud-placeholder-hint {
+  opacity: .78;
+}
+
+.word-frequency-refresh-primary {
+  margin-top: .15rem;
+  border: 1px solid rgba(251, 191, 36, .45);
+  border-radius: 999px;
+  padding: .5rem 1.1rem;
+  color: #221a08;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 5px 16px -5px rgba(251, 191, 36, .55);
+  transition: transform .15s ease, filter .18s ease;
+}
+
+.word-frequency-refresh-primary:hover:not(:disabled),
+.word-frequency-refresh-primary:focus-visible:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.word-frequency-refresh-primary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .word-frequency-cloud-canvas-wrap {

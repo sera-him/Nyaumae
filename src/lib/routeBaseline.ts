@@ -40,6 +40,14 @@ export const ROUTE_MANIFEST: RouteEntry[] = [
     imageAssets: [],
   },
   {
+    path: '/other',
+    title: '其他入口',
+    description: '全站搜索、NCTB 认知实验室与本机数据统计的工具导航页',
+    parentRoute: '/codex',
+    theme: 'codex',
+    imageAssets: [],
+  },
+  {
     path: '/world/overview',
     title: '世界概览',
     description: '世界观总览与宏观数据',

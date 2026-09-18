@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Clock, ArrowUpRight } from 'lucide-react';
 
@@ -94,13 +96,13 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
             <div className="flex items-center justify-between px-5 py-4 border-b border-nc-violet/10">
               <div id="feedback-dialog-title" className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-nc-cyan" />
-                <h3 className="text-sm font-medium text-nc-text">反馈</h3>
+                <h3 className="text-sm font-medium text-nc-text">{L("反馈")}</h3>
               </div>
               <button
                 ref={closeButtonRef}
                 type="button"
                 onClick={onClose}
-                aria-label="关闭反馈窗口"
+                aria-label={L("关闭反馈窗口")}
                 className="p-1.5 rounded-md hover:bg-nc-violet/10 text-nc-text-muted hover:text-nc-text transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -112,8 +114,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               {/* Email display */}
               <div className="text-center space-y-3">
                 <p className="text-xs text-nc-text-muted">
-                  当前反馈接收邮箱
-                </p>
+                  {L("当前反馈接收邮箱\n                ")}</p>
                 <a
                   href={mailtoLink}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-nc-cyan/8 border border-nc-cyan/20 text-nc-cyan hover:bg-nc-cyan/15 hover:border-nc-cyan/30 transition-all text-sm font-mono"
@@ -140,11 +141,9 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               {/* Instructions */}
               <div className="space-y-2">
                 <p className="text-xs text-nc-text-muted leading-relaxed">
-                  点击上方邮箱地址即可唤起邮件客户端发送反馈。
-                </p>
+                  {L("点击上方邮箱地址即可唤起邮件客户端发送反馈。\n                ")}</p>
                 <p className="text-[11px] text-nc-text-muted/60 leading-relaxed">
-                  你也可以手动复制邮箱地址发送邮件。反馈内容可以包括：网站 bug 报告、内容勘误、功能建议，或者任何关于 Neural Connection 世界观的想法。
-                </p>
+                  {L("你也可以手动复制邮箱地址发送邮件。反馈内容可以包括：网站 bug 报告、内容勘误、功能建议，或者任何关于 Neural Connection 世界观的想法。\n                ")}</p>
               </div>
             </div>
 
@@ -158,8 +157,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 onClick={onClose}
                 className="px-3 py-1.5 rounded-lg bg-nc-violet/10 border border-nc-violet/15 text-xs text-nc-text-secondary hover:text-nc-text hover:bg-nc-violet/15 transition-colors"
               >
-                关闭
-              </button>
+                {L("关闭\n              ")}</button>
             </div>
           </motion.div>
         </motion.div>

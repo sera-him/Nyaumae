@@ -1,17 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
 import { useMusic } from '@/contexts/MusicContext';
 import { useOverload } from '@/contexts/OverloadContext';
 import {
   worldviewNotes, hypothesis, qetWritten, qetPractical,
   miyaCircle, muGuangPlan, xinyuanLog,
   fourDimensionTest, moralPrinciples, moralPrinciplesNote, lawValuesNote, nyaumaeismPrinciples,
+  catTrueNameTable, citizenLevelSystem, teacherVotingRule, workplaceBlindnessRule, specialChildrenNotes,
 } from '@/data/worldSettings';
+import {
+  catTrueNameTableEn, citizenLevelSystemEn, teacherVotingRuleEn, workplaceBlindnessRuleEn, specialChildrenNotesEn,
+} from '@/data/worldSettings.en';
 import {
   p2rDefinition,
 } from '@/data/fragments';
 import { OverloadCanvas, OverloadToggle, GlitchText } from '@/components/OverloadEffects';
 import CollapsibleCard from '@/components/CollapsibleCard';
-import { semanticHighlight, cowCatHighlight } from '@/lib/semanticHighlight';
+import { semanticHighlight, semanticHighlightProse, cowCatHighlight } from '@/lib/semanticHighlight';
 import { Settings, Cat, Scale, Sparkles, Zap, GraduationCap, HeartPulse, BookMarked } from 'lucide-react';
 import SmartImage from '@/components/SmartImage';
 import { confirmAction } from '@/lib/confirmAction';
@@ -193,8 +200,7 @@ function FourDimensionTestQuiz() {
             onClick={reset}
             className="px-5 py-2 bg-[#8B5CF6]/20 hover:bg-[#8B5CF6]/30 border border-[#8B5CF6]/30 rounded-lg text-sm text-[var(--aurora-brand-violet-soft)] transition-all"
           >
-            再测一次
-          </button>
+            {L("再测一次\r\n          ")}</button>
         </div>
       </div>
     );
@@ -247,13 +253,13 @@ function FourDimensionTestQuiz() {
   // Start screen (no easter egg hint!)
   return (
     <div className="world-test-start bg-[var(--aurora-brand-bg-raised)] border border-[#8B5CF6]/20 rounded-xl p-6 mb-6 text-center">
-      <p className="text-nc-text-secondary mb-4">12个问题，测出你的牛马/猫咪属性</p>
+      <p className="text-nc-text-secondary mb-4">{L("12个问题，测出你的牛马/猫咪属性")}</p>
       <button
         onClick={startQuiz}
         className="px-8 py-3 bg-[var(--aurora-brand-violet)] hover:bg-[var(--aurora-brand-violet-deep)] text-white rounded-lg font-medium transition-all inline-flex items-center gap-2"
       >
         <span>🐮</span>
-        <span>开始测试</span>
+        <span>{L("开始测试")}</span>
         <span>🐱</span>
       </button>
     </div>
@@ -261,26 +267,30 @@ function FourDimensionTestQuiz() {
 }
 
 export default function WorldSettings() {
+  const _en = getLocale() === 'en';
+  const catTable = _en ? catTrueNameTableEn : catTrueNameTable;
+  const citizenLevelText = _en ? citizenLevelSystemEn : citizenLevelSystem;
+  const teacherVotingText = _en ? teacherVotingRuleEn : teacherVotingRule;
+  const workplaceBlindText = _en ? workplaceBlindnessRuleEn : workplaceBlindnessRule;
+  const specialChildren = _en ? specialChildrenNotesEn : specialChildrenNotes;
   return (
     <section id="world-settings" className="py-24 px-4 sm:px-6 relative">
       <div className="max-w-[1100px] mx-auto">
         <div className="mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-nc-text mb-3 tracking-wide">{semanticHighlight("世界观详述")}</h2>
           <p className="text-nc-text-secondary text-lg">
-            假说 · QET · 映射障碍 · 四维测试 · 哲学原则
-          </p>
+            {L("假说 · QET · 映射障碍 · 四维测试 · 哲学原则\r\n          ")}</p>
         </div>
 
         {/* Notes — 简短，保持展开 */}
         <div id="setting-worldview" className="bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 mb-8 scroll-mt-[100px]">
           <h3 className="text-base font-semibold text-nc-text mb-3 flex items-center gap-2">
             <Settings className="w-4 h-4 text-[var(--aurora-brand-violet)]" />
-            世界观说明
-          </h3>
+            {L("世界观说明\r\n          ")}</h3>
           {worldviewNotes.map((n, i) => (
-            <p key={i} className="text-base text-nc-text-secondary leading-relaxed mb-2">{semanticHighlight(n)}</p>
+            <p key={i} className="text-base text-nc-text-secondary leading-relaxed mb-2">{semanticHighlightProse(n)}</p>
           ))}
-          <p className="text-base text-nc-text mt-3 font-medium">{semanticHighlight(hypothesis)}</p>
+          <p className="text-base text-nc-text mt-3 font-medium">{semanticHighlightProse(hypothesis)}</p>
         </div>
 
         <CollapsibleCard
@@ -319,21 +329,20 @@ export default function WorldSettings() {
               </h3>
             </div>
             <p className="max-w-md text-sm leading-relaxed text-nc-text-muted sm:text-right">
-              记录两处海岛场景的实拍感画面，保留旅途中那种明亮、轻松的氛围。
-            </p>
+              {L("记录两处海岛场景的实拍感画面，保留旅途中那种明亮、轻松的氛围。\r\n            ")}</p>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
             <figure className="group overflow-hidden rounded-xl border border-[#F472B6]/15 bg-[var(--aurora-brand-bg-deep)]">
               <SmartImage
                 localSrc="/xinjie-vr-rainbow-drive.png"
-                alt="海岛实景记录：彩虹花田场景中的玉桂狗主题座驾"
+                alt={L("海岛实景记录：彩虹花田场景中的玉桂狗主题座驾")}
                 aspectRatio="1024/476"
                 containerClassName="w-full"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
               <figcaption className="flex items-center justify-between gap-4 px-4 py-3">
-                <span className="text-sm font-medium text-[var(--aurora-brand-text)]">彩虹花田</span>
+                <span className="text-sm font-medium text-[var(--aurora-brand-text)]">{L("彩虹花田")}</span>
                 <span className="font-mono text-[10px] tracking-[0.18em] text-[var(--aurora-brand-green)]">VRLOG 01</span>
               </figcaption>
             </figure>
@@ -341,13 +350,13 @@ export default function WorldSettings() {
             <figure className="group overflow-hidden rounded-xl border border-[#00E5CC]/15 bg-[var(--aurora-brand-bg-deep)]">
               <SmartImage
                 localSrc="/xinjie-vr-duck-island.png"
-                alt="海岛实景记录：鸭鸭乐园场景中的玉桂狗主题座驾"
+                alt={L("海岛实景记录：鸭鸭乐园场景中的玉桂狗主题座驾")}
                 aspectRatio="1024/476"
                 containerClassName="w-full"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
               <figcaption className="flex items-center justify-between gap-4 px-4 py-3">
-                <span className="text-sm font-medium text-[var(--aurora-brand-text)]">鸭鸭乐园</span>
+                <span className="text-sm font-medium text-[var(--aurora-brand-text)]">{L("鸭鸭乐园")}</span>
                 <span className="font-mono text-[10px] tracking-[0.18em] text-[var(--aurora-brand-green)]">VRLOG 02</span>
               </figcaption>
             </figure>
@@ -382,11 +391,11 @@ export default function WorldSettings() {
         >
           <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#8B5CF6]/10">
             <div className="p-5">
-              <p className="text-xs font-mono text-[var(--aurora-brand-amber)] mb-2">笔试 {qetWritten.score} 分</p>
+              <p className="text-xs font-mono text-[var(--aurora-brand-amber)] mb-2">{L("笔试 ")}{qetWritten.score} {L("分")}</p>
               <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlight(qetWritten.rules)}</p>
             </div>
             <div className="p-5">
-              <p className="text-xs font-mono text-[var(--aurora-brand-amber)] mb-2">机试 {qetPractical.score} 分</p>
+              <p className="text-xs font-mono text-[var(--aurora-brand-amber)] mb-2">{L("机试 ")}{qetPractical.score} {L("分")}</p>
               <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlight(qetPractical.rules)}</p>
             </div>
           </div>
@@ -425,7 +434,7 @@ export default function WorldSettings() {
             <div className="mb-6">
               <SmartImage
                 localSrc="/4d-test-banner.jpg"
-                alt="四维测试：牛马人格 vs 猫咪喵格"
+                alt={L("四维测试：牛马人格 vs 猫咪喵格")}
                 aspectRatio="16/9"
                 containerClassName="w-full rounded-xl border border-[#8B5CF6]/20 shadow-lg"
                 className="object-cover"
@@ -472,7 +481,7 @@ export default function WorldSettings() {
         <CollapsibleCard
           id="nyaumaeism"
           title={"nyaumæism"}
-          summary={"nyaumæ 是一名 2 年级学生提出的哲学体系"}
+          summary={L("nyaumæ 是一名 2 年级学生提出的哲学体系")}
           icon={<BookMarked className="w-4 h-4 text-[var(--aurora-brand-cyan)]" />}
           borderColor="border-[#00E5CC]/20"
           titleColor="text-[var(--aurora-brand-cyan)]"
@@ -480,8 +489,7 @@ export default function WorldSettings() {
         >
           <div className="p-6 space-y-4">
             <p className="text-xs text-[var(--aurora-brand-cyan)] italic border-l-2 border-[#00E5CC]/20 pl-3">
-              nyaumæ 是一名 2 年级学生。以下是这名学生提出的七条哲学原则。
-            </p>
+              {L("nyaumæ 是一名 2 年级学生。以下是这名学生提出的七条哲学原则。\r\n            ")}</p>
             {nyaumaeismPrinciples.map((p) => (
               <div key={p.id} className="border-l-2 border-[#00E5CC]/20 pl-4">
                 <h4 className="text-base font-semibold text-nc-text mb-1">{p.id}. {p.title}</h4>
@@ -492,6 +500,88 @@ export default function WorldSettings() {
         </CollapsibleCard>
 
         {/* Sensory Overload Zone - auto-triggers on scroll */}
+        {/* 猫猫真身对照表 */}
+        <CollapsibleCard
+          id="setting-cat-true-names"
+          title={semanticHighlight("猫猫真身对照表")}
+          summary={semanticHighlight("孟加拉猫其实是孟加拉虎，极速猫其实是猎豹——44 种猫的真身一览")}
+          icon={<Cat className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#00E5CC]/15"
+        >
+          <div className="p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              {catTable.map((entry) => (
+                <div key={entry.cat} className="border border-[#8B5CF6]/10 rounded-md p-2.5 text-sm">
+                  <p className="text-nc-text font-semibold">{semanticHighlightProse(entry.cat)}</p>
+                  <p className="text-nc-text-secondary text-xs mt-0.5">→ {semanticHighlightProse(entry.real)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CollapsibleCard>
+
+        {/* 等级公民制度 */}
+        <CollapsibleCard
+          id="setting-citizen-level"
+          title={semanticHighlight("等级公民制度")}
+          summary={semanticHighlight("年满6周岁自动获得6级，自愿申请升级、可升不可降，权利随等级解锁")}
+          icon={<Scale className="w-5 h-5 text-[var(--aurora-brand-violet)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#8B5CF6]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(citizenLevelText)}</pre>
+          </div>
+        </CollapsibleCard>
+
+        {/* 教师年度投票制度 */}
+        <CollapsibleCard
+          id="setting-teacher-voting"
+          title={semanticHighlight("教师年度投票制度")}
+          summary={semanticHighlight("毕业生每年给教过自己的老师打 -10～+10 分，最低分且为负者取消全部年终奖")}
+          icon={<GraduationCap className="w-5 h-5 text-[var(--aurora-brand-amber)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#F59E0B]/15"
+        >
+          <div className="p-6">
+            <p className="text-sm sm:text-base text-nc-text-secondary leading-relaxed">{semanticHighlightProse(teacherVotingText)}</p>
+          </div>
+        </CollapsibleCard>
+
+        {/* 职场特征盲化规则 */}
+        <CollapsibleCard
+          id="setting-workplace-blindness"
+          title={semanticHighlight("职场特征盲化规则")}
+          summary={semanticHighlight("上班时无法获取和记得他人的年龄特征与生理特征信息（医生除外）")}
+          icon={<BookMarked className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#00E5CC]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(workplaceBlindText)}</pre>
+          </div>
+        </CollapsibleCard>
+
+        {/* 三类小朋友与三年级课程建议 */}
+        <CollapsibleCard
+          id="setting-special-children"
+          title={semanticHighlight("三类小朋友与三年级课程建议")}
+          summary={semanticHighlight("刻板与仪式化、幻觉与紧张性、自理与发育——以及为什么3年级不该教广义线性模型")}
+          icon={<HeartPulse className="w-5 h-5 text-[var(--aurora-brand-pink)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#F472B6]/15"
+        >
+          <div className="p-6 space-y-4">
+            {specialChildren.map((note) => (
+              <div key={note.title} className="border-l-2 border-[#F472B6]/30 pl-4">
+                <h4 className="text-base font-semibold text-nc-text mb-1">{semanticHighlight(note.title)}</h4>
+                <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlightProse(note.content)}</p>
+              </div>
+            ))}
+          </div>
+        </CollapsibleCard>
+
         <OverloadMusicSync />
         <section id="overload" className="relative bg-[var(--aurora-brand-bg-plum)] border border-[#EF4444]/20 rounded-xl overflow-hidden mb-8" data-motion-loop>
           <OverloadCanvas />
@@ -514,29 +604,27 @@ export default function WorldSettings() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="bg-[#100A1A]/80 border border-[#8B5CF6]/10 rounded-lg p-3">
-                  <p className="text-xs text-[var(--aurora-brand-violet)] font-bold mb-1">视觉干扰</p>
-                  <p className="text-sm text-nc-text-secondary">{'扫描线闪烁、随机条纹、画面扭曲'}</p>
+                  <p className="text-xs text-[var(--aurora-brand-violet)] font-bold mb-1">{L("视觉干扰")}</p>
+                  <p className="text-sm text-nc-text-secondary">{L("扫描线闪烁、随机条纹、画面扭曲")}</p>
                 </div>
                 <div className="bg-[#100A1A]/80 border border-[#00E5CC]/10 rounded-lg p-3">
-                  <p className="text-xs text-[var(--aurora-brand-cyan)] font-bold mb-1">文字故障</p>
-                  <p className="text-sm text-nc-text-secondary">{'字符错位、重影、随机替换'}</p>
+                  <p className="text-xs text-[var(--aurora-brand-cyan)] font-bold mb-1">{L("文字故障")}</p>
+                  <p className="text-sm text-nc-text-secondary">{L("字符错位、重影、随机替换")}</p>
                 </div>
                 <div className="bg-[#100A1A]/80 border border-[#EF4444]/10 rounded-lg p-3">
-                  <p className="text-xs text-[var(--aurora-brand-red)] font-bold mb-1">信息轰炸</p>
-                  <p className="text-sm text-nc-text-secondary">{'碎片文字高速飞入飞出'}</p>
+                  <p className="text-xs text-[var(--aurora-brand-red)] font-bold mb-1">{L("信息轰炸")}</p>
+                  <p className="text-sm text-nc-text-secondary">{L("碎片文字高速飞入飞出")}</p>
                 </div>
               </div>
               <p className="text-[10px] text-nc-text-muted text-center mt-2">
-                滚动进入此区域自动触发感官过载体验（含音频）
-              </p>
+                {L("滚动进入此区域自动触发感官过载体验（含音频）\r\n              ")}</p>
             </div>
           </div>
         </section>
         <div className="bg-[var(--aurora-brand-bg)] border border-[#F472B6]/15 rounded-xl p-6 sm:p-8">
           <h3 className="text-base font-semibold text-[var(--aurora-brand-pink)] mb-3 flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
-            《复数域公主梦》
-          </h3>
+            {L("《复数域公主梦》\r\n          ")}</h3>
           <p className="text-base text-nc-text-secondary leading-relaxed">
             {semanticHighlight("世界观下已有不是二次元的VR游戏《复数域公主梦》，这部作品的女主林可梦（linkmo）是一名梦想成为公主的小镇做题家。但是其实她本来就是公主，是数电大魔王卡塔斯（Quartus）强行修改了世界观，利用分形将其映射到复数域世界观，扭曲了众人的认知。")}
           </p>

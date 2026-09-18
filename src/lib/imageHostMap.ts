@@ -8,7 +8,7 @@
  * 4. 修改此文件即可无缝切换图床，无需改动组件代码
  *
  * 当前使用 uguu.se（免费图床，文件长期保留）。
- * 如需切换：运行 node upload-images.mjs <lsky|aliyun|tencent|hellohao> --options
+ * 如需切换：运行 node scripts/upload-images.mjs <lsky|aliyun|tencent|hellohao> --options
  */
 
 export const imageHostMap: Record<string, string> = {

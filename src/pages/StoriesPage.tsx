@@ -1,7 +1,11 @@
 import { motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
+import { useState } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { stories } from '@/data/stories';
+import { stories as storiesZh } from '@/data/stories';
+import { storiesEn } from '@/data/stories.en';
 import { Link } from 'react-router';
 import { ArrowRight, BookOpen, Shuffle } from 'lucide-react';
 import SmartImage from '@/components/SmartImage';
@@ -34,16 +38,18 @@ function getStoryDotColor(storyId: string): string {
 
 export default function StoriesPage() {
   const { ref, isVisible } = useScrollReveal();
+  const _en = getLocale() === 'en';
+  const stories = _en ? storiesEn : storiesZh;
   const latestProgress = getLatestReadingProgress();
   const progressMap = getReadingProgressMap();
   const totalChapters = stories.reduce((sum, story) => sum + (story.chapterCount ?? story.chapters.length), 0);
   // Stable per visit: one random chapter door into the library.
-  const randomTarget = useMemo(() => {
+  const [randomTarget] = useState(() => {
     const story = stories[Math.floor(Math.random() * stories.length)];
     const count = story.chapterCount ?? story.chapters.length;
     const chapter = 1 + Math.floor(Math.random() * count);
     return { story, chapter, href: `/stories/${story.id}/chapters/${chapter}` };
-  }, []);
+  });
 
   return (
     <div className="aurora-ui aurora-generic-page stories-aurora-page" data-aurora-accent="stories">
@@ -56,21 +62,20 @@ export default function StoriesPage() {
             className="aurora-simple-hero"
           >
             <p className="aurora-eyebrow">03 / STORY DIRECTORY</p>
-            <h1 className="aurora-title">故事章节</h1>
+            <h1 className="aurora-title">{L("故事章节")}</h1>
             <p className="aurora-lead">
-              {stories.length} 个叙事宇宙，等待神经连接
-            </p>
+              {stories.length} {L("个叙事宇宙，等待神经连接\n            ")}</p>
           </motion.div>
 
           {latestProgress && (
-            <Link to={latestProgress.href} className="story-continue-card" aria-label={`继续阅读${latestProgress.storyTitle}，${latestProgress.chapterTitle}`}>
+            <Link to={latestProgress.href} className="story-continue-card" aria-label={L(`继续阅读${latestProgress.storyTitle}，${latestProgress.chapterTitle}`)}>
               <span><BookOpen /></span>
-              <div><small>CONTINUE READING / 继续阅读</small><strong>{latestProgress.storyTitle}</strong><p>{latestProgress.chapterTitle}</p></div>
+              <div><small>{L("CONTINUE READING / 继续阅读")}</small><strong>{latestProgress.storyTitle}</strong><p>{latestProgress.chapterTitle}</p></div>
               <ArrowRight />
             </Link>
           )}
 
-          <h2 className="sr-only">故事目录</h2>
+          <h2 className="sr-only">{L("故事目录")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {stories.map((story, i) => {
               const covers = getStoryCovers(story.id);
@@ -118,11 +123,10 @@ export default function StoriesPage() {
                   <div className="story-card-footer p-4 flex items-center justify-between gap-3">
                     <span className="flex items-center text-xs text-nc-text-muted shrink-0">
                       <span className="story-theme-dot" style={{ backgroundColor: getStoryDotColor(story.id) }} />
-                      {story.chapterCount ?? story.chapters.length} 章节
-                    </span>
+                      {story.chapterCount ?? story.chapters.length} {L("章节\n                    ")}</span>
                     {progressMap[story.id] && (
-                      <span className="story-card-progress" title={`读到：${progressMap[story.id].chapterTitle}`}>
-                        读到 {progressMap[story.id].chapterTitle}
+                      <span className="story-card-progress" title={L(`读到：${progressMap[story.id].chapterTitle}`)}>
+                        {L("读到 ")}{progressMap[story.id].chapterTitle}
                       </span>
                     )}
                     <ArrowRight className="story-card-arrow w-4 h-4 text-nc-text-muted group-hover:text-nc-cyan transition-all shrink-0" />
@@ -135,16 +139,16 @@ export default function StoriesPage() {
 
           <div className="stories-footer-band">
             <div className="stories-footer-stat">
-              <small>UNIVERSES / 叙事宇宙</small>
+              <small>{L("UNIVERSES / 叙事宇宙")}</small>
               <strong>{stories.length}</strong>
             </div>
             <div className="stories-footer-stat">
-              <small>CHAPTERS / 总章节</small>
+              <small>{L("CHAPTERS / 总章节")}</small>
               <strong>{totalChapters}</strong>
             </div>
-            <Link to={randomTarget.href} className="stories-random-card" aria-label={`随机一章：${randomTarget.story.title} 第 ${randomTarget.chapter} 章`}>
+            <Link to={randomTarget.href} className="stories-random-card" aria-label={L(`随机一章：${randomTarget.story.title} 第 ${randomTarget.chapter} 章`)}>
               <Shuffle />
-              <div><small>SERENDIPITY / 随机一章</small><strong>{randomTarget.story.title}</strong><p>第 {randomTarget.chapter} 章，随手翻开</p></div>
+              <div><small>{L("SERENDIPITY / 随机一章")}</small><strong>{randomTarget.story.title}</strong><p>{L(`第 ${randomTarget.chapter} 章，随手翻开`)}</p></div>
               <ArrowRight />
             </Link>
           </div>

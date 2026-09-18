@@ -1,16 +1,22 @@
 import { motion } from 'framer-motion';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
 import { useParams, useNavigate } from 'react-router';
 import { FunctionSquare, BarChart3, TrendingUp, Calculator, Scale } from 'lucide-react';
 import { Link } from 'react-router';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { characters } from '@/data/characters';
 import { extraCharacters } from '@/data/extraCharacters';
+import { charactersEn } from '@/data/characters.en';
+import { extraCharactersEn } from '@/data/extraCharacters.en';
 import { semanticHighlight } from '@/lib/semanticHighlight';
 import { getTierStyle, getPositionPercent } from '@/lib/fsiiiTiers';
 import type { Tier } from '@/lib/fsiiiTiers';
 import HeightWeightChart from '@/sections/HeightWeightChart';
 import FLAModel from '@/sections/FLAModel';
 import { gaoKaoVolunteerRule } from '@/data/extraStories';
+import { gaoKaoVolunteerRuleEn } from '@/data/extraStories.en';
 import '@/styles/math-terminal.css';
 
 /* ═══════════════════════════════════════════════
@@ -131,13 +137,17 @@ const tabs = [
 
 function FsiiiTab() {
   const { ref, isVisible } = useScrollReveal();
+  const _en = getLocale() === 'en';
 
   const aiIds = new Set(['damocles', 'eirene', 'zero', 'gpt']);
 
+  const roster = _en ? charactersEn : characters;
+  const rosterExtras = _en ? extraCharactersEn : extraCharacters;
+
   const allItems: FsiiiItem[] = [
-    ...characters.filter((c) => c.fsiii !== undefined)
+    ...roster.filter((c) => c.fsiii !== undefined)
       .map((c) => ({ id: c.id, name: c.name, score: c.fsiii! })),
-    ...extraCharacters.filter((c) => c.fsiii !== undefined)
+    ...rosterExtras.filter((c) => c.fsiii !== undefined)
       .map((c) => ({ id: c.id, name: c.name, score: c.fsiii! })),
   ].sort((a, b) => b.score - a.score);
 
@@ -163,11 +173,12 @@ function FsiiiTab() {
             </h2>
           </div>
           <p className="text-nc-text-secondary text-lg">
-            理性骨架 · {allItems.length} 个意识体 · 均值 {avg.toFixed(1)}（不含AI: {avgNonAi.toFixed(1)}）
+            {_en
+              ? <>Rational skeleton · {allItems.length} entities · mean {avg.toFixed(1)} (ex-AI: {avgNonAi.toFixed(1)})</>
+              : <>理性骨架 · {allItems.length} 个意识体 · 均值 {avg.toFixed(1)}（不含AI: {avgNonAi.toFixed(1)}）</>}
           </p>
           <p className="text-nc-text-muted text-xs mt-2">
-            排名 1：Damocles 1314 | 排名 2：Eirene 831 | 排名 3：咪呀 226 · Līlā 226 | 排名 5：あいえふちゃん 180 | 排名 6：墨问 177
-          </p>
+            {L("排名 1：Damocles 1314 | 排名 2：Eirene 831 | 排名 3：咪呀 226 · Līlā 226 | 排名 5：あいえふちゃん 180 | 排名 6：墨问 177\r\n          ")}</p>
         </motion.div>
 
         <motion.div
@@ -176,10 +187,11 @@ function FsiiiTab() {
           transition={{ delay: 0.15 }}
           className="liquid-glass-subtle border border-white/[0.06] rounded-2xl p-6 mb-10 glass-highlight glass-shine relative"
         >
-          <h3 className="text-lg font-semibold text-nc-text mb-3">FSIII 公式</h3>
+          <h3 className="text-lg font-semibold text-nc-text mb-3">{L("FSIII 公式")}</h3>
           <p className="text-sm text-nc-text-muted mb-4">
-            Full Scale Intrinsic Intelligence Index（全量内在智力指数），也可以叫 FS3，因为 III 就是 3。
-          </p>
+            {_en
+              ? "Full Scale Intrinsic Intelligence Index — in short FS3, because III literally is the number 3."
+              : L("Full Scale Intrinsic Intelligence Index（全量内在智力指数），也可以叫 FS3，因为 III 就是 3。")}</p>
           <div className="bg-nc-bg rounded-xl p-6 text-center">
             <code className="font-mono text-xl sm:text-2xl text-nc-text-secondary">
               FSIII = 100 + (FSIQ - 85)(FSIQ - 115) / (15√2)
@@ -196,8 +208,8 @@ function FsiiiTab() {
         >
           <div className="px-6 py-4 border-b border-nc-violet/10 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-nc-text-secondary" />
-            <h3 className="text-lg font-semibold text-nc-text">FSIII 角色排名</h3>
-            <span className="text-xs text-nc-text-muted ml-2">全部 {allItems.length} 个角色</span>
+            <h3 className="text-lg font-semibold text-nc-text">{L("FSIII 角色排名")}</h3>
+            <span className="text-xs text-nc-text-muted ml-2">{L("全部 ")}{allItems.length} {L("个角色")}</span>
             <span className="ml-auto math-model-badge">MODEL / FSIII-01</span>
           </div>
 
@@ -307,7 +319,7 @@ function FsiiiTab() {
               </div>
 
               <div className="mt-4 text-center">
-                <p className="text-xs text-nc-text-muted">显示全部 {allItems.length} 个角色</p>
+                <p className="text-xs text-nc-text-muted">{L("显示全部 ")}{allItems.length} {L("个角色")}</p>
               </div>
             </div>
           </div>
@@ -321,10 +333,9 @@ function FsiiiTab() {
         >
           <h3 className="text-lg font-semibold text-nc-text mb-3 flex items-center gap-2">
             <Calculator className="w-5 h-5 text-nc-cyan" />
-            高考志愿独立位次模型
-          </h3>
+            {_en ? 'Independent rank-position model for gaokao application choices' : L("高考志愿独立位次模型")}</h3>
           <p className="text-sm text-nc-text-secondary leading-relaxed whitespace-pre-wrap">
-            {semanticHighlight(gaoKaoVolunteerRule)}
+            {semanticHighlight(_en ? gaoKaoVolunteerRuleEn : gaoKaoVolunteerRule)}
           </p>
         </motion.div>
       </div>
@@ -340,6 +351,7 @@ export default function MathModelsPage() {
   const { section = 'fsiii' } = useParams<{ section: string }>();
   const navigate = useNavigate();
   const activeTab = section;
+  const _en = getLocale() === 'en';
 
   return (
     <div className="aurora-ui aurora-generic-page math-aurora-page" data-aurora-accent="math">
@@ -355,12 +367,11 @@ export default function MathModelsPage() {
               </h1>
             </div>
             <p className="text-nc-text-secondary">
-              数学模型、排名系统与量化分析
-            </p>
+              {_en ? 'Math models, ranking systems and quantitative analysis' : L("数学模型、排名系统与量化分析")}</p>
           </div>
 
           {/* Sub-tab Navigation */}
-          <div className="aurora-tabs mb-8" role="tablist" aria-label="数学模型章节">
+          <div className="aurora-tabs mb-8" role="tablist" aria-label={L("数学模型章节")}>
             {tabs.map((tab) => {
               const isActive = activeTab === tab.key;
               const Icon = tab.icon;
@@ -377,7 +388,7 @@ export default function MathModelsPage() {
                   role="tab" aria-selected={isActive} className="aurora-tab inline-flex items-center gap-1.5"
                 >
                   <Icon className="w-4 h-4" />
-                  {tab.label}
+                  {L(tab.label)}
                 </button>
               );
             })}

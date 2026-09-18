@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import {
   ArrowUpRight,
   BarChart3,
@@ -23,6 +25,7 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router';
 import { createPortal } from 'react-dom';
 import { frequencyMeta, getPopularWords, getRelatedWords, type WordFreq } from '@/data/wordFrequency';
+import { frequencyMetaEn, getWordFrequencyCloudsEn } from '@/data/wordFrequencyEn';
 import type { FullSearchItem } from '@/data/fullSearchIndex';
 import {
   ANALYTICS_DATA_EVENT,
@@ -39,6 +42,8 @@ import {
 } from '@/lib/lastViewed';
 import { loadSearchData } from '@/lib/searchDataLoader';
 import { useSearchSession } from '@/hooks/useSearchSession';
+import { useLocale } from '@/hooks/useLocale';
+import type { Locale } from '@/lib/i18n';
 import './CodexPage.css';
 
 type SearchIndexModule = Awaited<ReturnType<typeof loadSearchData>>;
@@ -54,6 +59,11 @@ interface ContentGroup {
   categories: readonly string[];
 }
 
+const EN_CATEGORY_LABELS: Record<string, string> = {
+  '角色': 'Character', '故事': 'Story', '技能': 'Skill', '设定': 'Lore',
+  '棋子': 'Chess', '词典': 'Dictionary', '页面': 'Page', '游戏': 'Game', '测评': 'Assessment',
+};
+
 const contentGroups: ContentGroup[] = [
   { key: 'stories', label: '故事', description: '章节与叙事内容', icon: BookOpen, categories: ['故事'] },
   { key: 'characters', label: '角色', description: '人物与关系资料', icon: User, categories: ['角色'] },
@@ -61,6 +71,14 @@ const contentGroups: ContentGroup[] = [
   { key: 'games', label: '游戏', description: '游戏、规则与棋子', icon: Gamepad2, categories: ['游戏', '棋子'] },
   { key: 'other', label: '其他', description: '技能与页面索引', icon: Sparkles, categories: ['技能', '页面'] },
 ];
+
+const EN_CONTENT_GROUPS: Record<ContentGroup['key'], { label: string; description: string }> = {
+  stories: { label: 'Stories', description: 'Chapters & narrative' },
+  characters: { label: 'Characters', description: 'People & relationships' },
+  world: { label: 'World', description: 'Lore, dictionary & archives' },
+  games: { label: 'Games', description: 'Games, rules & pieces' },
+  other: { label: 'Other', description: 'Skills & page index' },
+};
 
 const categoryIcons: Record<string, LucideIcon> = {
   角色: User,
@@ -79,11 +97,24 @@ const domainLabels: Record<LastViewedEntry['domain'], string> = {
   world: '世界观',
 };
 
+const EN_DOMAIN_LABELS: Record<LastViewedEntry['domain'], string> = {
+  stories: 'Story',
+  characters: 'Character',
+  world: 'World',
+};
+
 const searchExamples = [
   '咪呀是谁？',
   '猫鼠迷踪怎么玩？',
   '世界观里有哪些区域？',
   '谁和小满关系最好？',
+];
+
+const EN_SEARCH_EXAMPLES = [
+  'Who is Miia?',
+  'How do I play Cat-Mouse Mystery?',
+  'Which regions exist in the world?',
+  'Who is closest to Xiaoman?',
 ];
 
 const anchorRoutes: Record<string, string> = {
@@ -154,7 +185,17 @@ function HighlightText({ text, query }: { text: string; query: string }) {
   return <>{text.split(pattern).map((part, index) => words.some((word) => word.toLocaleLowerCase('zh-CN') === part.toLocaleLowerCase('zh-CN')) ? <mark key={`${part}-${index}`}>{part}</mark> : <span key={`${part}-${index}`}>{part}</span>)}</>;
 }
 
-function getScoreLabel(score: number): string {
+function getScoreLabel(score: number, locale: Locale): string {
+  if (locale === 'en') {
+    if (score >= 1400) return 'exact match';
+    if (score >= 850) return 'phrase match';
+    if (score >= 700) return 'prefix match';
+    if (score >= 500) return 'title match';
+    if (score >= 400) return 'word match';
+    if (score >= 250) return 'content match';
+    if (score >= 100) return 'fuzzy match';
+    return 'related content';
+  }
   if (score >= 1400) return '完全匹配';
   if (score >= 850) return '短语匹配';
   if (score >= 700) return '前缀匹配';
@@ -183,25 +224,59 @@ function isInGroup(item: FullSearchItem, groupKey: ContentGroupKey): boolean {
   return getContentGroup(item.category)?.key === groupKey;
 }
 
-function formatSearchTime(timestamp: number): string {
+function formatSearchTime(timestamp: number, locale: Locale): string {
   const age = Math.max(0, Date.now() - timestamp);
+  if (locale === 'en') {
+    if (age < 60_000) return 'just now';
+    if (age < 3_600_000) return `${Math.floor(age / 60_000)} min ago`;
+    if (age < 86_400_000) return `${Math.floor(age / 3_600_000)} hr ago`;
+    return new Intl.DateTimeFormat('en-US', { month: 'numeric', day: 'numeric' }).format(timestamp);
+  }
   if (age < 60_000) return '刚刚';
   if (age < 3_600_000) return `${Math.floor(age / 60_000)} 分钟前`;
   if (age < 86_400_000) return `${Math.floor(age / 3_600_000)} 小时前`;
   return new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric' }).format(timestamp);
 }
 
-function formatPopularCount(count: number): string {
+function formatPopularCount(count: number, locale: Locale): string {
   if (!Number.isFinite(count)) return '—';
   // 保留一位小数的友好缩写：codex 热门词仅作概览，完整明细在深层档案
+  if (locale === 'en') {
+    if (count >= 10000) return `${(count / 10000).toFixed(1).replace(/\.0$/, '')}w`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+    return count.toLocaleString('en-US');
+  }
   if (count >= 10000) return `${(count / 10000).toFixed(1).replace(/\.0$/, '')}w`;
   if (count >= 1000) return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}k`;
   return count.toLocaleString('zh-CN');
 }
 
+/** 按 locale 返回当前语料（en 镜像 / 中文索引）。 */
+function corpusFor(searchIndex: SearchIndexModule | null, locale: Locale): FullSearchItem[] {
+  if (!searchIndex) return [];
+  return locale === 'en' ? searchIndex.fullSearchIndexEn : searchIndex.fullSearchIndex;
+}
+
+function relatedWordsFor(query: string, locale: Locale, max = 8): WordFreq[] {
+  if (locale === 'zh-CN') return getRelatedWords(query, max);
+  const tokens = query.toLocaleLowerCase('en-US').split(/[\s·.,，。！？：；/()（）-]+/).filter(Boolean);
+  if (tokens.length === 0) return [];
+  const hits: WordFreq[] = [];
+  for (const entry of getWordFrequencyCloudsEn().all) {
+    const lower = entry.word.toLocaleLowerCase('en-US');
+    if (tokens.some((token) => lower.includes(token) || token.includes(lower))) {
+      hits.push(entry);
+      if (hits.length >= max) break;
+    }
+  }
+  return hits;
+}
+
 export default function CodexPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const locale = useLocale();
+  const isEn = locale === 'en';
   const { query, setQuery, status: sharedStatus, resultCount: sharedResultCount, setSearchState } = useSearchSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const workspaceRef = useRef<HTMLElement>(null);
@@ -237,13 +312,17 @@ export default function CodexPage() {
     setQuery(urlQuery);
   }, [location.search, setQuery]);
 
+  const popularWordsFor = useCallback((target: Locale): WordFreq[] => (
+    target === 'en' ? getWordFrequencyCloudsEn().all.slice(0, 24) : getPopularWords(24)
+  ), []);
+
   useEffect(() => {
     let cancelled = false;
     setSearchState({ status: 'loading', resultCount: null });
     void loadSearchData().then((module) => {
       if (cancelled) return;
       setSearchIndex(module);
-      setPopularWords(getPopularWords(24));
+      setPopularWords(popularWordsFor(locale));
       setLoadError(false);
     }).catch(() => {
       if (!cancelled) {
@@ -252,7 +331,7 @@ export default function CodexPage() {
       }
     });
     return () => { cancelled = true; };
-  }, [loadAttempt, setSearchState]);
+  }, [loadAttempt, setSearchState, locale, popularWordsFor]);
 
   useEffect(() => {
     let cancelled = false;
@@ -268,8 +347,8 @@ export default function CodexPage() {
       }
       if (!searchIndex) return;
       setSearchState({ status: 'loading', resultCount: null });
-      const effectiveQuery = trimmedQuery.toLocaleLowerCase('zh-CN') === 'sera-him' ? `${query} nyaum忙` : query;
-      const nextResults = searchIndex.fullTextSearch(effectiveQuery);
+      const effectiveQuery = trimmedQuery.toLocaleLowerCase('zh-CN') === 'sera-him' ? `${query} nyaumæ` : query;
+      const nextResults = searchIndex.fullTextSearch(effectiveQuery, locale);
       if (!cancelled) {
         setResults(nextResults);
         setSearchedQuery(trimmedQuery);
@@ -285,7 +364,7 @@ export default function CodexPage() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [query, searchIndex, setSearchState, trimmedQuery]);
+  }, [query, searchIndex, setSearchState, trimmedQuery, locale]);
 
   useEffect(() => {
     const refreshSearchHistory = () => setRecentSearches(readSearchHistory(8));
@@ -347,18 +426,18 @@ export default function CodexPage() {
 
   const relatedWords = useMemo(() => {
     if (!trimmedQuery || searchedQuery !== trimmedQuery || results.length === 0) return [];
-    return getRelatedWords(query, 8);
-  }, [query, results.length, searchedQuery, trimmedQuery]);
+    return relatedWordsFor(query, locale, 8);
+  }, [query, results.length, searchedQuery, trimmedQuery, locale]);
 
   const groupCounts = useMemo(() => {
     const counts = new Map<ContentGroupKey, number>(contentGroups.map((group) => [group.key, 0]));
-    if (!searchIndex) return counts;
-    for (const item of searchIndex.fullSearchIndex) {
+    const corpus = corpusFor(searchIndex, locale);
+    for (const item of corpus) {
       const group = getContentGroup(item.category);
       if (group) counts.set(group.key, (counts.get(group.key) ?? 0) + 1);
     }
     return counts;
-  }, [searchIndex]);
+  }, [searchIndex, locale]);
 
   const resultGroupSummary = useMemo(() => {
     const counts = new Map<ContentGroupKey, number>(contentGroups.map((group) => [group.key, 0]));
@@ -377,11 +456,12 @@ export default function CodexPage() {
   ), [activeFilter, results]);
 
   const browseResults = useMemo(() => {
+    const corpus = corpusFor(searchIndex, locale);
     if (!searchIndex || activeFilter === 'all') return [];
-    return searchIndex.fullSearchIndex
+    return corpus
       .filter((item) => isInGroup(item, activeFilter))
       .map((item) => ({ item, score: 0 }));
-  }, [activeFilter, searchIndex]);
+  }, [activeFilter, searchIndex, locale]);
 
   const visibleEntries = useMemo(() => (
     (trimmedQuery ? filteredResults : browseResults).slice(0, visibleResultCount)
@@ -400,11 +480,12 @@ export default function CodexPage() {
 
   const randomDiscoveries = useMemo(() => {
     if (!searchIndex) return [];
-    const candidates = searchIndex.fullSearchIndex.filter((item) => ['故事', '角色', '设定'].includes(item.category));
+    const corpus = corpusFor(searchIndex, locale);
+    const candidates = corpus.filter((item) => ['故事', '角色', '设定'].includes(item.category));
     return [...candidates]
       .sort((left, right) => discoveryOrder(left.id, randomSeed) - discoveryOrder(right.id, randomSeed))
       .slice(0, 4);
-  }, [randomSeed, searchIndex]);
+  }, [randomSeed, searchIndex, locale]);
 
   useEffect(() => {
     if (activeResultIndex < 0) return;
@@ -462,7 +543,7 @@ export default function CodexPage() {
   }, [activeResultIndex, clearSearch, openResult, query, visibleEntries]);
 
   const renderResultList = (entries: SearchResult[]) => (
-    <div className="full-search-results" id="full-search-results-list" role="listbox" aria-label="搜索结果">
+    <div className="full-search-results" id="full-search-results-list" role="listbox" aria-label={isEn ? 'Search results' : '搜索结果'}>
       {entries.map(({ item, score }, index) => {
         const Icon = categoryIcons[item.category] ?? Search;
         const resultId = `full-search-result-${index}`;
@@ -480,7 +561,7 @@ export default function CodexPage() {
         >
           <span className={`full-search-result-icon category-${item.category}`}><Icon size={18} /></span>
           <span className="full-search-result-copy">
-            <span className="full-search-result-heading"><strong><HighlightText text={item.title} query={query} /></strong><small>{item.category} · {score ? getScoreLabel(score) : '内容浏览'}</small></span>
+            <span className="full-search-result-heading"><strong><HighlightText text={item.title} query={query} /></strong><small>{isEn ? (EN_CATEGORY_LABELS[item.category] ?? item.category) : item.category} · {score ? getScoreLabel(score, locale) : (isEn ? 'browsing' : '内容浏览')}</small></span>
             <span className="full-search-result-snippet"><HighlightText text={getSnippet(item.content, query)} query={query} /></span>
           </span>
           <ArrowUpRight className="full-search-result-open" size={17} aria-hidden="true" />
@@ -489,26 +570,40 @@ export default function CodexPage() {
     </div>
   );
 
+  const corpusTotal = searchIndex ? corpusFor(searchIndex, locale).length : 0;
+  const groupLabel = (key: ConcreteContentGroupKey): string => {
+    const zh = contentGroups.find((group) => group.key === key)?.label ?? '';
+    return isEn ? (EN_CONTENT_GROUPS[key]?.label ?? zh) : zh;
+  };
+  const groupDescription = (key: ConcreteContentGroupKey): string => {
+    const zh = contentGroups.find((group) => group.key === key)?.description ?? '';
+    return isEn ? (EN_CONTENT_GROUPS[key]?.description ?? zh) : zh;
+  };
+  const frequencyMetaActive = isEn ? frequencyMetaEn : frequencyMeta;
+  const localeTag = isEn ? 'en-US' : 'zh-CN';
+
   const statusText = loadError
-    ? '搜索索引加载失败，可重新加载。'
+    ? (isEn ? 'Failed to load the search index. You can reload.' : '搜索索引加载失败，可重新加载。')
     : isSearching
-      ? '正在搜索共享索引……'
+      ? (isEn ? 'Searching the shared index…' : '正在搜索共享索引……')
       : trimmedQuery
-        ? `${filteredResults.length}${activeFilter === 'all' ? '' : ` 个${contentGroups.find((group) => group.key === activeFilter)?.label ?? ''}`}结果 · 按匹配度排序`
+        ? `${filteredResults.length}${activeFilter === 'all' ? '' : ` ${groupLabel(activeFilter)}`} ${isEn ? 'result' : '结果'}${filteredResults.length === 1 && isEn ? '' : (isEn ? 's' : '')} · ${isEn ? 'sorted by relevance' : '按匹配度排序'}`
         : searchIndex
-          ? `${searchIndex.fullSearchIndex.length} 条内容已就绪 · 支持自然语言、别名与模糊匹配`
-          : '正在准备全站搜索……';
+          ? `${corpusTotal} ${isEn ? 'entries ready' : '条内容已就绪'} · ${isEn ? 'natural language, aliases and fuzzy match supported' : '支持自然语言、别名与模糊匹配'}`
+          : (isEn ? 'Preparing site search…' : '正在准备全站搜索……');
+
+  const hasCjkQuery = /[\u3400-\u9fff]/.test(trimmedQuery);
 
   const searchInputElement = (
     <label ref={inputWrapRef} className={`full-search-input-wrap${isInputPinned ? ' is-pinned' : ''}`}>
       <Search size={23} aria-hidden="true" />
-      <span className="full-search-visually-hidden">搜索全站内容</span>
+      <span className="full-search-visually-hidden">{isEn ? 'Search all content' : '搜索全站内容'}</span>
       <input
         ref={inputRef}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         onKeyDown={handleInputKeyDown}
-        placeholder="搜索人物、故事、设定、游戏……"
+        placeholder={isEn ? 'Search characters, stories, lore, games…' : '搜索人物、故事、设定、游戏……'}
         autoComplete="off"
         role="combobox"
         aria-autocomplete="list"
@@ -516,7 +611,7 @@ export default function CodexPage() {
         aria-expanded={visibleEntries.length > 0}
         aria-activedescendant={activeResultIndex >= 0 ? `full-search-result-${activeResultIndex}` : undefined}
       />
-      {query && <button type="button" onClick={clearSearch} aria-label="清除搜索内容"><X size={18} /></button>}
+      {query && <button type="button" onClick={clearSearch} aria-label={isEn ? 'Clear search' : '清除搜索内容'}><X size={18} /></button>}
     </label>
   );
 
@@ -525,92 +620,93 @@ export default function CodexPage() {
     <div className="full-search-shell">
       <header className="full-search-hero">
         <div>
-          <p className="full-search-eyebrow"><span>SEARCH / ALL CONTENT</span> 全站搜索</p>
-          <h1>全站搜索</h1>
-          <p>从故事、角色、世界观和游戏中，找到一个人、一段设定或一个可以继续探索的入口。</p>
+          <p className="full-search-eyebrow"><span>SEARCH / ALL CONTENT</span> {isEn ? 'Site search' : '全站搜索'}</p>
+          <h1>{isEn ? 'Site Search' : '全站搜索'}</h1>
+          <p>{isEn ? 'Find a person, a piece of lore or a new entry point across stories, characters, world and games.' : '从故事、角色、世界观和游戏中，找到一个人、一段设定或一个可以继续探索的入口。'}</p>
         </div>
-        <div className="full-search-index-stat" aria-label={searchIndex ? `已载入 ${searchIndex.fullSearchIndex.length} 条内容` : '正在载入全站内容'}>
-          <strong>{searchIndex ? searchIndex.fullSearchIndex.length : '—'}</strong>
-          <span>条索引内容</span>
-          <small>共享站内搜索数据</small>
+        <div className="full-search-index-stat" aria-label={searchIndex ? (isEn ? `${corpusTotal} entries loaded` : `已载入 ${corpusTotal} 条内容`) : (isEn ? 'Loading site content' : '正在载入全站内容')}>
+          <strong>{searchIndex ? corpusTotal : '—'}</strong>
+          <span>{isEn ? 'indexed entries' : '条索引内容'}</span>
+          <small>{isEn ? 'shared site search data' : '共享站内搜索数据'}</small>
         </div>
       </header>
 
-      <section ref={workspaceRef} className="full-search-workspace" aria-label="全站搜索">
+      <section ref={workspaceRef} className="full-search-workspace" aria-label={isEn ? 'Site search' : '全站搜索'}>
         <div ref={inputSentinelRef} className={`full-search-input-sentinel${isInputPinned ? ' is-active' : ''}`} aria-hidden="true" />
         {!isInputPinned && searchInputElement}
         {isInputPinned && typeof document !== 'undefined' ? createPortal(searchInputElement, document.body) : null}
 
         <div className="full-search-meta-line" aria-live="polite">
-          <span>{sharedStatus === 'loading' ? '搜索中' : sharedStatus === 'error' ? '搜索异常' : '全站索引'}</span>
-          <small>{statusText}{sharedResultCount !== null && trimmedQuery && sharedResultCount !== filteredResults.length ? ` · ${sharedResultCount} 条总结果` : ''}</small>
+          <span>{sharedStatus === 'loading' ? (isEn ? 'Searching' : '搜索中') : sharedStatus === 'error' ? (isEn ? 'Search error' : '搜索异常') : (isEn ? 'Site index' : '全站索引')}</span>
+          <small>{statusText}{sharedResultCount !== null && trimmedQuery && sharedResultCount !== filteredResults.length ? ` · ${sharedResultCount} ${isEn ? 'total results' : '条总结果'}` : ''}</small>
         </div>
 
         {loadError ? <div className="full-search-state" role="alert">
           <Search size={32} />
-          <h2>全站内容加载失败</h2>
-          <p>搜索索引暂时不可用，可以立即重试。</p>
-          <button type="button" onClick={() => { setLoadError(false); setLoadAttempt((value) => value + 1); }}>重新加载</button>
+          <h2>{isEn ? 'Failed to load site content' : '全站内容加载失败'}</h2>
+          <p>{isEn ? 'The search index is temporarily unavailable. You can retry now.' : '搜索索引暂时不可用，可以立即重试。'}</p>
+          <button type="button" onClick={() => { setLoadError(false); setLoadAttempt((value) => value + 1); }}>{isEn ? 'Reload' : '重新加载'}</button>
         </div> : !searchIndex || isSearching ? <div className="full-search-state" role="status">
           <Loader2 className="full-search-spinner" size={32} />
-          <h2>{trimmedQuery ? '正在搜索全站内容' : '正在载入全站索引'}</h2>
-          <p>故事、角色、设定、词典和游戏资料正在汇入同一个结果列表。</p>
+          <h2>{trimmedQuery ? (isEn ? 'Searching site content' : '正在搜索全站内容') : (isEn ? 'Loading the site index' : '正在载入全站索引')}</h2>
+          <p>{isEn ? 'Stories, characters, lore, dictionary and games are merging into one result list.' : '故事、角色、设定、词典和游戏资料正在汇入同一个结果列表。'}</p>
         </div> : (hasQueryResults || hasBrowseResults) ? <div className="full-search-results-wrap">
-          {trimmedQuery.toLocaleLowerCase('zh-CN') === 'sera-him' && <div className="full-search-easter"><strong>发现彩蛋</strong><span>sera-him → nyaum忙</span></div>}
+          {trimmedQuery.toLocaleLowerCase('zh-CN') === 'sera-him' && <div className="full-search-easter"><strong>{isEn ? 'Easter egg found' : '发现彩蛋'}</strong><span>sera-him → nyaumæ</span></div>}
           <div className="full-search-refine">
             <div className="full-search-refine-heading">
-              <span><BarChart3 size={14} /> {trimmedQuery ? '结果分布' : '按内容筛选'}</span>
-              <small>{trimmedQuery ? '点击分类只看对应结果' : `从 ${searchIndex.fullSearchIndex.length} 条索引中继续浏览`}</small>
+              <span><BarChart3 size={14} /> {trimmedQuery ? (isEn ? 'Result distribution' : '结果分布') : (isEn ? 'Filter by content' : '按内容筛选')}</span>
+              <small>{trimmedQuery ? (isEn ? 'Click a category to narrow results' : '点击分类只看对应结果') : `${isEn ? 'Continue browsing' : '从'} ${corpusTotal} ${isEn ? 'indexed entries' : '条索引中继续浏览'}`}</small>
             </div>
             <div className="full-search-filter-chips">
               <button type="button" className={`full-search-filter-chip${activeFilter === 'all' ? ' is-active' : ''}`} aria-pressed={activeFilter === 'all'} onClick={() => { setActiveFilter('all'); setActiveResultIndex(-1); }}>
-                全部<small>{trimmedQuery ? results.length : searchIndex.fullSearchIndex.length}</small>
+                {isEn ? 'All' : '全部'}<small>{trimmedQuery ? results.length : corpusTotal}</small>
               </button>
               {filterCounts.map((group) => {
                 const Icon = group.icon;
                 return <button type="button" className={`full-search-filter-chip${activeFilter === group.key ? ' is-active' : ''}`} aria-pressed={activeFilter === group.key} key={group.key} onClick={() => { setActiveFilter(group.key); setActiveResultIndex(-1); setVisibleResultCount(20); }}>
-                  <Icon size={13} /> {group.label}<small>{group.count}</small>
+                  <Icon size={13} /> {groupLabel(group.key)}<small>{group.count}</small>
                 </button>;
               })}
             </div>
             {trimmedQuery && relatedWords.length > 0 && <div className="full-search-related">
-              <span>高频关联 · 保留一位小数</span>
-              <div>{relatedWords.map((word) => <button type="button" key={word.word} onClick={() => runSearch(word.word)} title={`全站出现 ${word.count.toLocaleString('zh-CN')} 次`}>{word.word}<small>{formatPopularCount(word.count)}</small></button>)}</div>
+              <span>{isEn ? 'Related high-frequency words · one decimal' : '高频关联 · 保留一位小数'}</span>
+              <div>{relatedWords.map((word) => <button type="button" key={word.word} onClick={() => runSearch(word.word)} title={L(`${isEn ? `${word.count.toLocaleString(localeTag)} occurrences across the site` : `全站出现 ${word.count.toLocaleString('zh-CN')} 次`}`)}>{word.word}<small>{formatPopularCount(word.count, locale)}</small></button>)}</div>
             </div>}
           </div>
 
           <div className="full-search-results-toolbar">
-            <span>{activeFilter === 'all' ? (trimmedQuery ? `找到 ${results.length} 个结果` : '全部索引内容') : `正在浏览「${contentGroups.find((group) => group.key === activeFilter)?.label}」`}</span>
-            <small>已显示 {Math.min(visibleResultCount, allEntries.length)} / {allEntries.length} · ↑↓ 选择，Enter 打开</small>
+            <span>{activeFilter === 'all' ? (trimmedQuery ? `${isEn ? 'Found' : '找到'} ${results.length} ${isEn ? 'results' : '个结果'}` : (isEn ? 'All indexed content' : '全部索引内容')) : `${isEn ? 'Browsing' : '正在浏览「'}${groupLabel(activeFilter)}${isEn ? '' : '」'}`}</span>
+            <small>{isEn ? `Showing ${Math.min(visibleResultCount, allEntries.length)} / ${allEntries.length} · ↑↓ select, Enter open` : `已显示 ${Math.min(visibleResultCount, allEntries.length)} / ${allEntries.length} · ↑↓ 选择，Enter 打开`}</small>
           </div>
 
           {visibleEntries.length > 0 ? renderResultList(visibleEntries) : <div className="full-search-state full-search-filter-empty">
             <Search size={28} />
-            <h2>这个分类没有匹配结果</h2>
-            <p>换一个内容分类，或恢复查看全部结果。</p>
-            <button type="button" onClick={() => setActiveFilter('all')}>查看全部结果</button>
+            <h2>{isEn ? 'No matches in this category' : '这个分类没有匹配结果'}</h2>
+            <p>{isEn ? 'Try another category, or view all results again.' : '换一个内容分类，或恢复查看全部结果。'}</p>
+            <button type="button" onClick={() => setActiveFilter('all')}>{isEn ? 'View all results' : '查看全部结果'}</button>
           </div>}
 
           {visibleEntries.length < allEntries.length && <div className="full-search-load-more">
-            <button type="button" onClick={() => setVisibleResultCount((count) => count + 20)}>继续加载 <span>{Math.min(visibleResultCount + 20, allEntries.length)} / {allEntries.length}</span></button>
+            <button type="button" onClick={() => setVisibleResultCount((count) => count + 20)}>{isEn ? 'Load more' : '继续加载'} <span>{Math.min(visibleResultCount + 20, allEntries.length)} / {allEntries.length}</span></button>
           </div>}
         </div> : trimmedQuery ? <div className="full-search-state">
           <Search size={32} />
-          <h2>没有找到“{trimmedQuery}”</h2>
-          <p>可以缩短句子、换用人物别名，或从下面的搜索示例重新开始。</p>
-          <button type="button" onClick={clearSearch}>查看探索入口</button>
+          <h2>{isEn ? `No results for “${trimmedQuery}”` : `没有找到“${trimmedQuery}”`}</h2>
+          <p>{isEn ? 'Shorten the sentence, use an alias, or restart from the search examples below.' : '可以缩短句子、换用人物别名，或从下面的搜索示例重新开始。'}</p>
+          {isEn && hasCjkQuery && <p className="full-search-en-hint">{'English mode searches the English mirror only — Chinese words are not indexed here. Try English keywords, or switch to Chinese mode.'}</p>}
+          <button type="button" onClick={clearSearch}>{isEn ? 'Explore entry points' : '查看探索入口'}</button>
         </div> : <div className="full-search-discovery">
           <section className="full-search-section full-search-explore-section" aria-labelledby="full-search-explore-title" data-testid="full-search-category-explore">
             <div className="full-search-section-heading">
-              <div><span className="full-search-section-kicker">01 / CONTENT MAP</span><h2 id="full-search-explore-title">按内容探索</h2></div>
-              <small>{searchIndex.fullSearchIndex.length} 条索引</small>
+              <div><span className="full-search-section-kicker">01 / CONTENT MAP</span><h2 id="full-search-explore-title">{isEn ? 'Explore by content' : '按内容探索'}</h2></div>
+              <small>{corpusTotal} {isEn ? 'entries' : '条索引'}</small>
             </div>
             <div className="full-search-category-grid">
               {contentGroups.map((group) => {
                 const Icon = group.icon;
                 return <button type="button" className="full-search-category-card" key={group.key} onClick={() => { setActiveFilter(group.key); setVisibleResultCount(20); }}>
                   <span className="full-search-category-card-icon"><Icon size={18} /></span>
-                  <span><strong>{group.label}</strong><small>{group.description}</small></span>
+                  <span><strong>{groupLabel(group.key)}</strong><small>{groupDescription(group.key)}</small></span>
                   <b>{groupCounts.get(group.key) ?? 0}</b>
                 </button>;
               })}
@@ -619,42 +715,42 @@ export default function CodexPage() {
 
           <div className="full-search-discovery-columns">
             <section className="full-search-section full-search-module" aria-labelledby="full-search-recent-title" data-testid="full-search-recent-searches">
-              <div className="full-search-section-heading"><div><span className="full-search-section-kicker">02 / LOCAL MEMORY</span><h2 id="full-search-recent-title">最近搜索</h2></div><History size={16} /></div>
+              <div className="full-search-section-heading"><div><span className="full-search-section-kicker">02 / LOCAL MEMORY</span><h2 id="full-search-recent-title">{isEn ? 'Recent searches' : '最近搜索'}</h2></div><History size={16} /></div>
               {recentSearches.length > 0 ? <div className="full-search-history-list">
                 {recentSearches.map((entry) => <button type="button" className="full-search-history-item" key={`${entry.query}-${entry.at}`} onClick={() => runSearch(entry.query)}>
                   <span className="full-search-history-icon"><Clock3 size={14} /></span>
-                  <span><strong>{entry.query}</strong><small>{entry.resultCount} 条结果 · {formatSearchTime(entry.at)}</small></span>
+                  <span><strong>{entry.query}</strong><small>{entry.resultCount} {isEn ? 'results' : '条结果'} · {formatSearchTime(entry.at, locale)}</small></span>
                   <ArrowUpRight size={15} aria-hidden="true" />
                 </button>)}
-              </div> : <p className="full-search-module-empty">这里会显示本机搜索过的词，一键即可重新搜索。</p>}
+              </div> : <p className="full-search-module-empty">{isEn ? 'Words searched on this device will appear here — one click to search again.' : '这里会显示本机搜索过的词，一键即可重新搜索。'}</p>}
             </section>
 
             <section className="full-search-section full-search-module" aria-labelledby="full-search-examples-title" data-testid="full-search-examples">
-              <div className="full-search-section-heading"><div><span className="full-search-section-kicker">03 / TRY A QUESTION</span><h2 id="full-search-examples-title">试试这样搜</h2></div><Sparkles size={16} /></div>
+              <div className="full-search-section-heading"><div><span className="full-search-section-kicker">03 / TRY A QUESTION</span><h2 id="full-search-examples-title">{isEn ? 'Try searching like this' : '试试这样搜'}</h2></div><Sparkles size={16} /></div>
               <div className="full-search-example-list">
-                {searchExamples.map((example) => <button type="button" key={example} onClick={() => runSearch(example)}><span>“{example}”</span><ArrowUpRight size={14} aria-hidden="true" /></button>)}
+                {(isEn ? EN_SEARCH_EXAMPLES : searchExamples).map((example) => <button type="button" key={example} onClick={() => runSearch(example)}><span>“{example}”</span><ArrowUpRight size={14} aria-hidden="true" /></button>)}
               </div>
             </section>
           </div>
 
           <div className="full-search-discovery-columns">
             <section className="full-search-section full-search-module" aria-labelledby="full-search-continue-title" data-testid="full-search-continue-browsing">
-              <div className="full-search-section-heading"><div><span className="full-search-section-kicker">04 / PICK UP</span><h2 id="full-search-continue-title">继续浏览</h2></div><BookOpen size={16} /></div>
+              <div className="full-search-section-heading"><div><span className="full-search-section-kicker">04 / PICK UP</span><h2 id="full-search-continue-title">{isEn ? 'Continue browsing' : '继续浏览'}</h2></div><BookOpen size={16} /></div>
               {lastViewed.length > 0 ? <div className="full-search-history-list">
                 {lastViewed.slice(0, 4).map((entry) => <button type="button" className="full-search-history-item" key={`${entry.path}-${entry.viewedAt}`} onClick={() => navigate(entry.path)}>
                   <span className={`full-search-history-icon domain-${entry.domain}`}><BookOpen size={14} /></span>
-                  <span><strong>{entry.label}</strong><small>{domainLabels[entry.domain]} · {formatSearchTime(entry.viewedAt)}</small></span>
+                  <span><strong>{L(entry.label)}</strong><small>{(isEn ? EN_DOMAIN_LABELS : domainLabels)[entry.domain]} · {formatSearchTime(entry.viewedAt, locale)}</small></span>
                   <ArrowUpRight size={15} aria-hidden="true" />
                 </button>)}
-              </div> : <p className="full-search-module-empty">打开故事、角色或世界设定后，它们会出现在这里。</p>}
+              </div> : <p className="full-search-module-empty">{isEn ? 'Open a story, character or world page and it will appear here.' : '打开故事、角色或世界设定后，它们会出现在这里。'}</p>}
             </section>
 
             <section className="full-search-section full-search-module" aria-labelledby="full-search-random-title" data-testid="full-search-random-discovery">
-              <div className="full-search-section-heading"><div><span className="full-search-section-kicker">05 / SERENDIPITY</span><h2 id="full-search-random-title">随机发现</h2></div><button type="button" className="full-search-icon-button" onClick={() => setRandomSeed((seed) => seed + 1)} aria-label="换一组随机发现"><RefreshCw size={15} /></button></div>
+              <div className="full-search-section-heading"><div><span className="full-search-section-kicker">05 / SERENDIPITY</span><h2 id="full-search-random-title">{isEn ? 'Random discoveries' : '随机发现'}</h2></div><button type="button" className="full-search-icon-button" onClick={() => setRandomSeed((seed) => seed + 1)} aria-label={isEn ? 'Shuffle discoveries' : '换一组随机发现'}><RefreshCw size={15} /></button></div>
               <div className="full-search-random-list">
                 {randomDiscoveries.map((item) => <button type="button" className="full-search-random-item" key={item.id} onClick={() => openResult(item)}>
                   <span className={`full-search-random-dot category-${item.category}`} />
-                  <span><strong>{item.title}</strong><small>{getContentGroup(item.category)?.label ?? item.category}</small></span>
+                  <span><strong>{item.title}</strong><small>{getContentGroup(item.category) ? groupLabel(getContentGroup(item.category)!.key) : item.category}</small></span>
                   <ArrowUpRight size={14} aria-hidden="true" />
                 </button>)}
               </div>
@@ -662,12 +758,14 @@ export default function CodexPage() {
           </div>
 
           <section className="full-search-section full-search-popular-section" aria-labelledby="full-search-popular-title" data-testid="full-search-popular-words">
-            <div className="full-search-section-heading"><div><span className="full-search-section-kicker">06 / FREQUENCY</span><h2 id="full-search-popular-title">高频词 · 保留一位小数</h2></div><button type="button" className="full-search-expand-button" onClick={() => setShowAllPopular((value) => !value)}>{showAllPopular ? '收起' : '展开全部'} {showAllPopular ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div>
+            <div className="full-search-section-heading"><div><span className="full-search-section-kicker">06 / FREQUENCY</span><h2 id="full-search-popular-title">{isEn ? 'High-frequency words · one decimal' : '高频词 · 保留一位小数'}</h2></div><button type="button" className="full-search-expand-button" onClick={() => setShowAllPopular((value) => !value)}>{showAllPopular ? (isEn ? 'Collapse' : '收起') : (isEn ? 'Expand all' : '展开全部')} {showAllPopular ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div>
             <div className="full-search-popular-tags">
-              {popularWords.slice(0, showAllPopular ? popularWords.length : 10).map((word) => <button type="button" key={word.word} onClick={() => runSearch(word.word)} title={`全站出现 ${word.count.toLocaleString('zh-CN')} 次（完整 ${formatPopularCount(word.count)}）`}><span>{word.word}</span><small>{formatPopularCount(word.count)}</small></button>)}
+              {popularWords.slice(0, showAllPopular ? popularWords.length : 10).map((word) => <button type="button" key={word.word} onClick={() => runSearch(word.word)} title={L(`${isEn ? `${word.count.toLocaleString(localeTag)} occurrences across the site (full ${formatPopularCount(word.count, locale)})` : `全站出现 ${word.count.toLocaleString('zh-CN')} 次（完整 ${formatPopularCount(word.count, locale)}）`}`)}><span>{word.word}</span><small>{formatPopularCount(word.count, locale)}</small></button>)}
             </div>
             <p className="full-search-popular-hint">
-              热门词为概览，仅展示 {popularWords.length ? `Top ${popularWords.length}` : '高频'} 且计数保留一位小数（如 1.2w / 1.5k）。完整 {frequencyMeta.uniqueWords ? `${frequencyMeta.uniqueWords.toLocaleString('zh-CN')} 项` : '全量'} 词频、文档数与“词云与月”请前往 <Link to="/characters/miia?archive=1#deep-archive" className="full-search-popular-link">咪呀 · 深层档案</Link> 查看。
+              {isEn
+                ? <>Popular words are an overview — only Top {popularWords.length ? popularWords.length : 'high-frequency'} shown with one-decimal counts (e.g. 1.2w / 1.5k). Full {frequencyMetaActive.uniqueWords ? `${frequencyMetaActive.uniqueWords.toLocaleString('en-US')} entries` : 'all'} of word frequency, document counts and the "word cloud by month" are in <Link to="/characters/miia?archive=1#deep-archive" className="full-search-popular-link">Miia · Deep Archive</Link>.</>
+                : <>{L("热门词为概览，仅展示 ")}{popularWords.length ? `Top ${popularWords.length}` : '高频'} {L("且计数保留一位小数（如 1.2w / 1.5k）。完整 ")}{frequencyMeta.uniqueWords ? `${frequencyMeta.uniqueWords.toLocaleString('zh-CN')} 项` : '全量'} {L("词频、文档数与“词云与月”请前往 ")}<Link to="/characters/miia?archive=1#deep-archive" className="full-search-popular-link">{L("咪呀 · 深层档案")}</Link> {L("查看。")}</>}
             </p>
           </section>
         </div>}

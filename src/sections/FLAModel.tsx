@@ -1,4 +1,7 @@
 import { useMemo, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
 import { motion } from 'framer-motion';
 import { BlockMath, InlineMath } from 'react-katex';
 import {
@@ -98,10 +101,26 @@ const scorePresets: { id: string; label: string; description: string; scores: Pe
 
 const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
+const DIM_TITLE_EN: Record<string, string> = {
+  P: 'Physical development',
+  E: 'Executive function',
+  M: 'Emotional regulation',
+  S: 'Social interaction',
+  L: 'Language / symbols',
+};
+
+const SHORT_LABEL_EN: Record<string, string> = {
+  P: 'Physical',
+  E: 'Executive',
+  M: 'Emotional',
+  S: 'Social',
+  L: 'Language',
+};
+
 function Formula({ math, label }: { math: string; label?: string }) {
   return (
     <div className="rounded-xl border border-white/[0.07] bg-black/20 px-3 py-4 sm:px-6 overflow-x-auto">
-      {label && <p className="mb-2 text-center text-[11px] uppercase tracking-[0.18em] text-nc-text-muted">{label}</p>}
+      {label && <p className="mb-2 text-center text-[11px] uppercase tracking-[0.18em] text-nc-text-muted">{L(label)}</p>}
       <div className="min-w-max text-center text-nc-text-secondary [&_.katex-display]:my-0">
         <BlockMath math={math} />
       </div>
@@ -128,7 +147,7 @@ function SectionHeading({
         <span>{eyebrow}</span>
       </div>
       <h3 className="text-2xl font-semibold tracking-tight text-nc-text sm:text-3xl">{title}</h3>
-      {description && <p className="mt-3 max-w-3xl text-sm leading-7 text-nc-text-secondary sm:text-base">{description}</p>}
+      {description && <p className="mt-3 max-w-3xl text-sm leading-7 text-nc-text-secondary sm:text-base">{L(description)}</p>}
     </div>
   );
 }
@@ -142,6 +161,7 @@ function GlassCard({ children, className = '' }: { children: React.ReactNode; cl
 }
 
 export default function FLAModel() {
+  const _en = getLocale() === 'en';
   const [scores, setScores] = useState<PemsScores>(() => ({ ...ADULT_REFERENCE_SCORES }));
   const evaluation = useMemo(() => evaluatePemsL(scores), [scores]);
   const sensitivityBand = useMemo(() => ({
@@ -169,19 +189,18 @@ export default function FLAModel() {
             PEMS-L FLA v2.1
           </span>
           <span className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-nc-text-muted">
-            功能法律年龄模型
-          </span>
+            {_en ? 'Functional legal age model' : '功能法律年龄模型'}</span>
         </div>
 
         <div className="max-w-3xl">
-          <p className="mb-3 text-sm font-medium tracking-wide text-nc-text-secondary">从“五科加权”到“人口曲线反查”</p>
+          <p className="mb-3 text-sm font-medium tracking-wide text-nc-text-secondary">{L("从“五科加权”到“人口曲线反查”")}</p>
           <h2 className="text-3xl font-bold leading-tight tracking-tight text-nc-text sm:text-5xl">
-            不推翻生命周期函数，
-            <span className="text-gradient-cyan">重构年龄映射的最后一步</span>
+            {_en ? 'Without overturning the life-course functions, ' : L("不推翻生命周期函数，")}<span className="text-gradient-cyan">{L("重构年龄映射的最后一步")}</span>
           </h2>
           <p className="mt-5 max-w-2xl text-sm leading-7 text-nc-text-secondary sm:text-base">
-            旧公式默认能力可以无限互相补偿，也默认五个维度彼此独立。现实中的认知能力峰值时间高度异质，执行功能包含共同因素与不同子成分，社会认知甚至会随年龄向不同方向变化。
-          </p>
+            {_en
+            ? "The legacy formula assumed abilities could compensate for one another without limit, and that the five dimensions were independent. In reality, the timing of cognitive peaks varies a lot between people; executive function shares a common factor with distinct subcomponents, and social cognition may even move in different directions with age."
+            : L("旧公式默认能力可以无限互相补偿，也默认五个维度彼此独立。现实中的认知能力峰值时间高度异质，执行功能包含共同因素与不同子成分，社会认知甚至会随年龄向不同方向变化。")}</p>
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-[0.9fr_auto_1.2fr] sm:items-center">
@@ -194,7 +213,7 @@ export default function FLAModel() {
           <ChevronRight className="hidden h-5 w-5 text-nc-text-muted sm:block" />
           <div className="rounded-xl border border-nc-cyan/15 bg-nc-cyan/[0.05] px-4 py-3">
             <p className="mb-1 text-[10px] uppercase tracking-[0.16em] text-nc-cyan/70">v2.1 mapping</p>
-            <p className="text-sm font-medium text-nc-text">多维成熟度 → 人口成长曲线 → 年龄等效值</p>
+            <p className="text-sm font-medium text-nc-text">{L("多维成熟度 → 人口成长曲线 → 年龄等效值")}</p>
           </div>
         </div>
       </motion.header>
@@ -204,7 +223,7 @@ export default function FLAModel() {
           <SectionHeading
             index="01"
             eyebrow="Normative atlas"
-            title="十个生命周期函数继续保留"
+            title={L("十个生命周期函数继续保留")}
             description="它们建立类似儿童身高生长曲线的生命周期参考图谱：给定年龄，估计正常分布，再计算个人偏离程度。"
           />
 
@@ -218,11 +237,9 @@ export default function FLAModel() {
                 <Database className="h-5 w-5" />
               </div>
               <p className="text-sm leading-7 text-nc-text-secondary">
-                这种思路接近现实中的 <span className="text-nc-text">normative modelling</span>：大型生命周期脑图谱也会同时建模中心趋势与变异程度，而不是假定所有人沿同一条固定曲线发展。
-              </p>
+                {L("这种思路接近现实中的 ")}<span className="text-nc-text">normative modelling</span>{_en ? ': large-scale life-course brain atlases model both the central trend and its dispersion, rather than assuming everyone develops along one fixed curve.' : L("：大型生命周期脑图谱也会同时建模中心趋势与变异程度，而不是假定所有人沿同一条固定曲线发展。")}</p>
               <p className="mt-3 border-l-2 border-amber-300/50 pl-3 text-xs leading-6 text-amber-100/70">
-                当前具体参数应理解为世界观数据库拟合值，而不是现实中已被证明的精确生物常数。
-              </p>
+                {_en ? 'The concrete parameters should be read as fits of the worldbuilding database, not as precise biological constants already established in the real world.' : L("当前具体参数应理解为世界观数据库拟合值，而不是现实中已被证明的精确生物常数。")}</p>
             </div>
           </div>
         </GlassCard>
@@ -231,7 +248,7 @@ export default function FLAModel() {
           <SectionHeading
             index="02"
             eyebrow="Constructs"
-            title="名称不变，法律测量内容重新定义"
+            title={L("名称不变，法律测量内容重新定义")}
             description="五个维度仍然是 P、E、M、S、L，但测试关注的是法律主体能力，而非外观、性格或对主流行为方式的符合程度。"
           />
           <div className="grid gap-4 md:grid-cols-2">
@@ -255,11 +272,11 @@ export default function FLAModel() {
                     </div>
                     <div>
                       <p className="text-xs font-medium uppercase tracking-[0.16em]" style={{ color: dimension.color }}>{dimension.code}</p>
-                      <h4 className="font-semibold text-nc-text">{dimension.title}</h4>
+                      <h4 className="font-semibold text-nc-text">{_en ? DIM_TITLE_EN[dimension.code] : dimension.title}</h4>
                     </div>
                   </div>
-                  <p className="text-sm font-medium leading-6 text-nc-text">{dimension.subtitle}</p>
-                  <p className="mt-2 text-sm leading-6 text-nc-text-muted">{dimension.description}</p>
+                  <p className="text-sm font-medium leading-6 text-nc-text">{L(dimension.subtitle)}</p>
+                  <p className="mt-2 text-sm leading-6 text-nc-text-muted">{L(dimension.description)}</p>
                 </motion.article>
               );
             })}
@@ -272,18 +289,18 @@ export default function FLAModel() {
               <SectionHeading
                 index="03"
                 eyebrow="Probability transform"
-                title="先转换为“达到成年功能水平”的概率"
+                title={L("先转换为“达到成年功能水平”的概率")}
                 description="不再直接线性相加五个 Z 分数。每个维度先通过逻辑函数，映射到与成熟法律主体的匹配程度。"
               />
               <Formula math={'q_i=\\frac{1}{1+\\exp[-s_i(Z_i-T_i)]},\\qquad q_i\\in(0,1)'} />
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl bg-white/[0.025] p-4">
                   <p className="font-mono text-xs text-nc-cyan">Tᵢ</p>
-                  <p className="mt-1 text-sm text-nc-text-secondary">成年功能参考线</p>
+                  <p className="mt-1 text-sm text-nc-text-secondary">{L("成年功能参考线")}</p>
                 </div>
                 <div className="rounded-xl bg-white/[0.025] p-4">
                   <p className="font-mono text-xs text-violet-300">sᵢ</p>
-                  <p className="mt-1 text-sm text-nc-text-secondary">跨过参考线时的过渡陡度</p>
+                  <p className="mt-1 text-sm text-nc-text-secondary">{L("跨过参考线时的过渡陡度")}</p>
                 </div>
               </div>
             </div>
@@ -291,13 +308,13 @@ export default function FLAModel() {
             <div className="border-t border-white/[0.06] bg-black/10 p-5 sm:p-8 lg:border-l lg:border-t-0">
               <div className="mb-4 flex items-center gap-2">
                 <Gauge className="h-4 w-4 text-nc-cyan" />
-                <h4 className="text-sm font-semibold text-nc-text">推荐过渡参数</h4>
+                <h4 className="text-sm font-semibold text-nc-text">{L("推荐过渡参数")}</h4>
               </div>
               <div className="overflow-hidden rounded-xl border border-white/[0.07]">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-white/[0.04] text-xs text-nc-text-muted">
                     <tr>
-                      <th className="px-4 py-3 font-medium">维度</th>
+                      <th className="px-4 py-3 font-medium">{L("维度")}</th>
                       <th className="px-4 py-3 font-medium"><InlineMath math={'T_i'} /></th>
                       <th className="px-4 py-3 font-medium"><InlineMath math={'s_i'} /></th>
                     </tr>
@@ -321,7 +338,7 @@ export default function FLAModel() {
           <SectionHeading
             index="04"
             eyebrow="Soft bottleneck"
-            title="用几何平均制造“软短板效应”"
+            title={L("用几何平均制造“软短板效应”")}
             description="普通加权平均允许优势维度无限补偿短板；几何平均会让明显偏低的关键维度真实拖低整体成熟度，但不会让单项不足立刻归零全部权利。"
           />
           <Formula math={'Q=q_P^{0.05}q_E^{0.30}q_M^{0.25}q_S^{0.15}q_L^{0.25}'} />
@@ -340,7 +357,7 @@ export default function FLAModel() {
               {PEMS_DIMENSIONS.map((dimension) => (
                 <div key={dimension.code} className="text-center">
                   <p className="font-mono text-sm font-semibold text-nc-text">{dimension.code} · {dimension.weight * 100}%</p>
-                  <p className="mt-0.5 text-[10px] text-nc-text-muted">{dimension.shortLabel}</p>
+                  <p className="mt-0.5 text-[10px] text-nc-text-muted">{_en ? SHORT_LABEL_EN[dimension.code] : dimension.shortLabel}</p>
                 </div>
               ))}
             </div>
@@ -348,11 +365,9 @@ export default function FLAModel() {
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-rose-400/10 bg-rose-400/[0.04] p-4 text-sm leading-6 text-nc-text-secondary">
-              当一个人的 <InlineMath math={'E\\approx0'} />，即使其他四项很高，整体 <InlineMath math={'Q'} /> 仍会明显下降。
-            </div>
+              {L("当一个人的 ")}<InlineMath math={'E\\approx0'} />{L("，即使其他四项很高，整体 ")}<InlineMath math={'Q'} /> {_en ? 'still drops noticeably.' : L("仍会明显下降。")}</div>
             <div className="rounded-xl border border-emerald-400/10 bg-emerald-400/[0.04] p-4 text-sm leading-6 text-nc-text-secondary">
-              但它不是“E 不合格 → 全部权利归零”，而是连续、可解释的软性约束。
-            </div>
+              {_en ? 'But this is not “fails E → all rights revoked”: it is a continuous, explainable soft constraint.' : L("但它不是“E 不合格 → 全部权利归零”，而是连续、可解释的软性约束。")}</div>
           </div>
         </GlassCard>
 
@@ -360,7 +375,7 @@ export default function FLAModel() {
           <SectionHeading
             index="05"
             eyebrow="Age equivalence"
-            title="在人口成长曲线上反查年龄"
+            title={L("在人口成长曲线上反查年龄")}
             description="这是 v2.0 最大的升级：功能法律年龄不再来自人为设定的 18 + 7D，而是来自某个人与普通年龄人群之间的成熟模式匹配。"
           />
 
@@ -375,9 +390,9 @@ export default function FLAModel() {
                 <div key={item.title} className="contents">
                   <div className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4 text-center">
                     <Icon className="mx-auto mb-2 h-5 w-5 text-nc-cyan" />
-                    <p className="text-[10px] uppercase tracking-[0.16em] text-nc-text-muted">{item.step}</p>
-                    <p className="mt-1 text-sm font-medium text-nc-text">{item.title}</p>
-                    <p className="mt-1 text-xs text-nc-text-muted">{item.detail}</p>
+                    <p className="text-[10px] uppercase tracking-[0.16em] text-nc-text-muted">{L(item.step)}</p>
+                    <p className="mt-1 text-sm font-medium text-nc-text">{L(item.title)}</p>
+                    <p className="mt-1 text-xs text-nc-text-muted">{L(item.detail)}</p>
                   </div>
                   {index < 2 && <ChevronRight className="mx-auto hidden h-5 w-5 self-center text-nc-text-muted sm:block" />}
                 </div>
@@ -388,26 +403,24 @@ export default function FLAModel() {
           <GlassCard className="p-5 sm:p-8">
             <div className="grid gap-6 lg:grid-cols-2">
               <div>
-                <p className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-nc-text-muted">普通人在每个年龄的预期成熟度</p>
+                <p className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-nc-text-muted">{L("普通人在每个年龄的预期成熟度")}</p>
                 <Formula math={'Q_{\\mathrm{pop}}(x)=\\prod_i q_i\\!\\left(\\mu_i(x)\\right)^{w_i}'} />
                 <p className="mt-3 text-sm leading-6 text-nc-text-secondary">
-                  只取正常成长阶段：<InlineMath math={'x\\in[0,30]'} />。
+                  {L("只取正常成长阶段：")}<InlineMath math={'x\\in[0,30]'} />。
                 </p>
               </div>
               <div>
-                <p className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-nc-text-muted">寻找最接近的年龄位置</p>
+                <p className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-nc-text-muted">{L("寻找最接近的年龄位置")}</p>
                 <Formula math={'A^*=\\underset{0\\le a\\le30}{\\operatorname{argmin}}\\left|Q_{\\mathrm{pop}}(a)-Q_{\\mathrm{person}}\\right|'} />
                 <p className="mt-3 text-sm leading-6 text-nc-text-secondary">
-                  也就是 <InlineMath math={'A^*=Q_{\\mathrm{pop}}^{-1}(Q)'} /> 的数值反查形式。
-                </p>
+                  {L("也就是 ")}<InlineMath math={'A^*=Q_{\\mathrm{pop}}^{-1}(Q)'} /> {_en ? ', i.e. the numerical inverse form.' : L("的数值反查形式。")}</p>
               </div>
             </div>
 
             <div className="mt-6 rounded-xl border-l-2 border-nc-cyan bg-nc-cyan/[0.045] px-5 py-4">
-              <p className="text-base font-medium text-nc-text">“你的功能表现最接近普通人的多少岁？”</p>
+              <p className="text-base font-medium text-nc-text">{L("“你的功能表现最接近普通人的多少岁？”")}</p>
               <p className="mt-2 text-sm leading-6 text-nc-text-secondary">
-                若 <InlineMath math={'A^*=16.7'} />，含义不再是公式随意产出 16.7，而是此人的综合法律成熟模式与人口中典型的 16.7 岁水平最接近。
-              </p>
+                {L("若 ")}<InlineMath math={'A^*=16.7'} />{_en ? ', this no longer means the formula arbitrarily outputs 16.7; it means this person\'s overall legal-maturity pattern best matches the typical 16.7-year-old level in the population.' : L("，含义不再是公式随意产出 16.7，而是此人的综合法律成熟模式与人口中典型的 16.7 岁水平最接近。")}</p>
             </div>
           </GlassCard>
         </section>
@@ -423,11 +436,12 @@ export default function FLAModel() {
                 </div>
                 <div className="flex items-center gap-3">
                   <SlidersHorizontal className="h-6 w-6 text-nc-cyan" />
-                  <h3 className="text-2xl font-semibold tracking-tight text-nc-text sm:text-3xl">把公式变成可检查的实验台</h3>
+                  <h3 className="text-2xl font-semibold tracking-tight text-nc-text sm:text-3xl">{L("把公式变成可检查的实验台")}</h3>
                 </div>
                 <p className="mt-3 max-w-3xl text-sm leading-7 text-nc-text-secondary sm:text-base">
-                  调整五个标准分，实时查看每项匹配度、软短板效应和演示年龄反查。先用预设比较，再拖动单个维度，会更容易看清哪一步改变了结果。
-                </p>
+                  {_en
+                ? "Adjust the five standard scores and watch each dimension's match probability, the soft-bottleneck effect and the demo age back-out update in real time. Start from a preset to compare, then drag a single dimension to see which step actually moves the result."
+                : L("调整五个标准分，实时查看每项匹配度、软短板效应和演示年龄反查。先用预设比较，再拖动单个维度，会更容易看清哪一步改变了结果。")}</p>
               </div>
               <button
                 type="button"
@@ -435,17 +449,14 @@ export default function FLAModel() {
                 className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-white/[0.09] bg-white/[0.035] px-4 py-2 text-sm text-nc-text-secondary transition-colors hover:border-nc-cyan/30 hover:text-nc-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nc-cyan"
               >
                 <RefreshCcw className="h-4 w-4" />
-                重置成年线
-              </button>
+                {_en ? 'Reset to adult line' : '重置成年线'}</button>
             </div>
 
             <div className="mt-5 rounded-xl border border-amber-300/15 bg-amber-300/[0.045] px-4 py-3 text-xs leading-6 text-amber-100/75">
-              透明度说明：十条生命周期函数尚无可公开复核的拟合数据，因此实验台用
-              <span className="mx-1 font-mono text-amber-100">Qdemo(a)=sigmoid[0.22(a−18)]</span>
-              演示最后一步反查。它用于检查模型行为，不是现实测评、诊断或法律结论。
-            </div>
+              {_en ? 'Transparency note: the ten life-course functions have no publicly verifiable fit data yet, so the lab uses ' : L("透明度说明：十条生命周期函数尚无可公开复核的拟合数据，因此实验台用")}<span className="mx-1 font-mono text-amber-100">Qdemo(a)=sigmoid[0.22(a−18)]</span>
+              {_en ? 'to demo the final back-out step. It exists to inspect model behavior — it is not a real-world assessment, diagnosis, or legal verdict.' : L("演示最后一步反查。它用于检查模型行为，不是现实测评、诊断或法律结论。")}</div>
 
-            <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="PEMS-L 分数预设">
+            <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label={L("PEMS-L 分数预设")}>
               {scorePresets.map((preset) => (
                 <button
                   key={preset.id}
@@ -454,8 +465,8 @@ export default function FLAModel() {
                   title={preset.description}
                   className="min-h-11 rounded-xl border border-white/[0.08] bg-black/15 px-4 py-2 text-left transition-colors hover:border-violet-300/30 hover:bg-violet-400/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300"
                 >
-                  <span className="block text-sm font-medium text-nc-text">{preset.label}</span>
-                  <span className="mt-0.5 block text-[10px] text-nc-text-muted">{preset.description}</span>
+                  <span className="block text-sm font-medium text-nc-text">{L(preset.label)}</span>
+                  <span className="mt-0.5 block text-[10px] text-nc-text-muted">{L(preset.description)}</span>
                 </button>
               ))}
             </div>
@@ -474,9 +485,9 @@ export default function FLAModel() {
                         {dimension.code}
                       </span>
                       <span>
-                        <span className="block text-sm font-medium text-nc-text">{dimension.title}</span>
+                        <span className="block text-sm font-medium text-nc-text">{_en ? DIM_TITLE_EN[dimension.code] : dimension.title}</span>
                         <span className="mt-0.5 block text-[10px] text-nc-text-muted">
-                          Tᵢ {dimension.threshold.toFixed(2)} · sᵢ {dimension.slope.toFixed(1)} · 权重 {dimension.weight * 100}%
+                          Tᵢ {dimension.threshold.toFixed(2)} · sᵢ {dimension.slope.toFixed(1)} {L("· 权重 ")}{dimension.weight * 100}%
                         </span>
                       </span>
                     </label>
@@ -496,8 +507,8 @@ export default function FLAModel() {
                     step="0.1"
                     value={dimension.score}
                     onChange={(event) => updateScore(dimension.code, Number(event.currentTarget.value))}
-                    aria-label={`${dimension.title}标准分`}
-                    aria-valuetext={`${dimension.score.toFixed(1)}，匹配度 ${formatPercent(dimension.probability)}`}
+                    aria-label={_en ? `${DIM_TITLE_EN[dimension.code]} standard score` : `${dimension.title}标准分`}
+                    aria-valuetext={_en ? `${dimension.score.toFixed(1)}, match ${formatPercent(dimension.probability)}` : `${dimension.score.toFixed(1)}，匹配度 ${formatPercent(dimension.probability)}`}
                     className="h-11 w-full cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nc-cyan"
                     style={{ accentColor: dimension.color }}
                   />
@@ -517,28 +528,30 @@ export default function FLAModel() {
               ))}
             </div>
 
-            <aside className="border-t border-white/[0.06] bg-black/10 p-5 sm:p-8 lg:border-l lg:border-t-0" aria-label="PEMS-L 即时结果">
+            <aside className="border-t border-white/[0.06] bg-black/10 p-5 sm:p-8 lg:border-l lg:border-t-0" aria-label={L("PEMS-L 即时结果")}>
               <div className="lg:sticky lg:top-24" aria-live="polite">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-nc-text-muted">Demonstration result</p>
                 <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-2">
                   <p className="font-mono text-5xl font-semibold tracking-tight text-nc-text sm:text-6xl">
                     {evaluation.demoEquivalentAge.toFixed(1)}
-                    <span className="ml-1 text-lg font-normal text-nc-text-muted">岁</span>
+                    <span className="ml-1 text-lg font-normal text-nc-text-muted">{L("岁")}</span>
                   </p>
                   <span className={`mb-2 rounded-full border px-3 py-1 text-xs ${
                     evaluation.maturity >= evaluation.adultReference
                       ? 'border-emerald-300/20 bg-emerald-300/[0.06] text-emerald-200'
                       : 'border-amber-300/20 bg-amber-300/[0.06] text-amber-100'
                   }`}>
-                    {evaluation.maturity >= evaluation.adultReference ? '达到演示成年线' : '未达到演示成年线'}
+                    {_en
+                    ? (evaluation.maturity >= evaluation.adultReference ? 'Meets demo adult line' : 'Below demo adult line')
+                    : (evaluation.maturity >= evaluation.adultReference ? '达到演示成年线' : '未达到演示成年线')}
                   </span>
                 </div>
-                <p className="mt-2 text-xs leading-5 text-nc-text-muted">这是演示曲线上的 A*，不是自然年龄，也不决定任何人的权利。</p>
+                <p className="mt-2 text-xs leading-5 text-nc-text-muted">{L("这是演示曲线上的 A*，不是自然年龄，也不决定任何人的权利。")}</p>
 
                 <div
                   className="relative mt-7 h-14"
                   role="img"
-                  aria-label={`演示年龄刻度 0 到 30 岁，当前结果 ${evaluation.demoEquivalentAge.toFixed(1)} 岁，成年参考线 18 岁`}
+                  aria-label={_en ? `Demo age scale 0 to 30, current result ${evaluation.demoEquivalentAge.toFixed(1)}, adult reference line 18` : `演示年龄刻度 0 到 30 岁，当前结果 ${evaluation.demoEquivalentAge.toFixed(1)} 岁，成年参考线 18 岁`}
                 >
                   <div className="absolute left-0 right-0 top-4 h-1 rounded-full bg-gradient-to-r from-violet-500/30 via-nc-cyan/50 to-emerald-400/40" />
                   <div className="absolute bottom-0 left-0 font-mono text-[10px] text-nc-text-muted">0</div>
@@ -554,7 +567,7 @@ export default function FLAModel() {
                 <div className="mt-7 space-y-3">
                   <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
                     <div className="flex items-center justify-between gap-3 text-sm">
-                      <span className="text-nc-text-secondary">几何成熟度 Q</span>
+                      <span className="text-nc-text-secondary">{L("几何成熟度 Q")}</span>
                       <span className="font-mono font-semibold text-nc-text">{formatPercent(evaluation.maturity)}</span>
                     </div>
                     <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.05]">
@@ -564,30 +577,28 @@ export default function FLAModel() {
 
                   <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
                     <div className="flex items-center justify-between gap-3 text-sm">
-                      <span className="text-nc-text-secondary">普通加权平均</span>
+                      <span className="text-nc-text-secondary">{L("普通加权平均")}</span>
                       <span className="font-mono text-nc-text">{formatPercent(evaluation.arithmeticMaturity)}</span>
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-3 text-xs">
-                      <span className="text-nc-text-muted">软短板拉低</span>
+                      <span className="text-nc-text-muted">{L("软短板拉低")}</span>
                       <span className="font-mono text-rose-200/80">
-                        {evaluation.bottleneckGap >= 0.00005 ? '−' : ''}{(evaluation.bottleneckGap * 100).toFixed(2)} 个百分点
-                      </span>
+                        {evaluation.bottleneckGap >= 0.00005 ? '−' : ''}{(evaluation.bottleneckGap * 100).toFixed(2)} {_en ? 'pp' : '个百分点'}</span>
                     </div>
                   </div>
 
                   <div className="rounded-xl border border-violet-300/10 bg-violet-400/[0.04] p-4">
-                    <p className="text-[10px] uppercase tracking-[0.16em] text-violet-200/70">±0.25 分敏感性带</p>
+                    <p className="text-[10px] uppercase tracking-[0.16em] text-violet-200/70">{L("±0.25 分敏感性带")}</p>
                     <p className="mt-1 font-mono text-lg text-nc-text">
-                      {sensitivityBand.low.toFixed(1)}–{sensitivityBand.high.toFixed(1)} 岁
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-nc-text-muted">所有维度同时上下移动 0.25 分的压力测试，不是统计置信区间。</p>
+                      {sensitivityBand.low.toFixed(1)}–{sensitivityBand.high.toFixed(1)} {L("岁\n                    ")}</p>
+                    <p className="mt-1 text-xs leading-5 text-nc-text-muted">{L("所有维度同时上下移动 0.25 分的压力测试，不是统计置信区间。")}</p>
                   </div>
                 </div>
 
                 <div className="mt-5 rounded-xl border-l-2 border-rose-300/50 bg-rose-300/[0.035] px-4 py-3">
-                  <p className="text-xs text-nc-text-muted">当前最低匹配维度</p>
+                  <p className="text-xs text-nc-text-muted">{L("当前最低匹配维度")}</p>
                   <p className="mt-1 text-sm font-medium text-nc-text">
-                    {evaluation.limitingDimension.code} · {evaluation.limitingDimension.title}
+                    {evaluation.limitingDimension.code} · {_en ? DIM_TITLE_EN[evaluation.limitingDimension.code] : evaluation.limitingDimension.title}
                     <span className="ml-2 font-mono text-rose-200/80">{formatPercent(evaluation.limitingDimension.probability)}</span>
                   </p>
                 </div>
@@ -604,7 +615,7 @@ export default function FLAModel() {
               </div>
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-nc-cyan">07 · Calibration</p>
-                <h3 className="mt-1 text-xl font-semibold text-nc-text">成年线仍为 18，由人口目标校准</h3>
+                <h3 className="mt-1 text-xl font-semibold text-nc-text">{L("成年线仍为 18，由人口目标校准")}</h3>
               </div>
             </div>
             <Formula math={'A^*\\ge18'} label="通常成年功能标准" />
@@ -617,11 +628,11 @@ export default function FLAModel() {
               </div>
             </div>
             <div className="mt-5 flex items-center gap-2 rounded-xl border border-violet-400/10 bg-violet-400/[0.04] p-4 text-sm text-nc-text-secondary">
-              <span>先规定人口目标</span>
+              <span>{L("先规定人口目标")}</span>
               <ChevronRight className="h-4 w-4 shrink-0 text-violet-300" />
-              <span>再统计拟合 <InlineMath math={'T_i,s_i,w_i'} /></span>
+              <span>{L("再统计拟合 ")}<InlineMath math={'T_i,s_i,w_i'} /></span>
             </div>
-            <p className="mt-4 text-xs leading-6 text-nc-text-muted">不要先凭感觉定参数，再期待结果刚好符合制度目标。这种反向校准方式更像真正实施过的大规模公共政策。</p>
+            <p className="mt-4 text-xs leading-6 text-nc-text-muted">{L("不要先凭感觉定参数，再期待结果刚好符合制度目标。这种反向校准方式更像真正实施过的大规模公共政策。")}</p>
           </GlassCard>
 
           <GlassCard className="p-5 sm:p-7">
@@ -631,7 +642,7 @@ export default function FLAModel() {
               </div>
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-emerald-300">08 · Irreversibility</p>
-                <h3 className="mt-1 text-xl font-semibold text-nc-text">成年法律身份不可逆</h3>
+                <h3 className="mt-1 text-xl font-semibold text-nc-text">{L("成年法律身份不可逆")}</h3>
               </div>
             </div>
             <Formula math={'t_{\\mathrm{adult}}=\\inf\\{t:A^*(t)\\ge18\\}'} label="首次成年时间" />
@@ -639,8 +650,7 @@ export default function FLAModel() {
               <Formula math={'A_F(t)=\\begin{cases}A^*(t),&t<t_{\\mathrm{adult}}\\\\[4pt]\\max(18,A^*(t)),&t\\ge t_{\\mathrm{adult}}\\end{cases}'} label="正式有效年龄" />
             </div>
             <p className="mt-4 text-sm leading-6 text-nc-text-secondary">
-              老年人不会因认知老化出现 <span className="font-mono text-rose-300/80">80 → 17 → 15 → 12</span> 并重新取得未成年人身份。当前能力下降应进入“特定行为能力评估”，而不是让年龄倒流。
-            </p>
+              {L("老年人不会因认知老化出现 ")}<span className="font-mono text-rose-300/80">80 → 17 → 15 → 12</span> {_en ? 'and re-attains minor status. Declining ability should trigger a “specific-capacity assessment”, not a rollback of age.' : L("并重新取得未成年人身份。当前能力下降应进入“特定行为能力评估”，而不是让年龄倒流。")}</p>
           </GlassCard>
         </div>
 
@@ -648,18 +658,18 @@ export default function FLAModel() {
           <SectionHeading
             index="09"
             eyebrow="Measurement model"
-            title="把一次考试升级为稳定能力估计"
+            title={L("把一次考试升级为稳定能力估计")}
             description="失眠、生病或紧张不应让一个人的功能法律年龄在一天内从 19.2 跌到 16.8。五维真实能力应作为潜变量，通过多次、不同可靠度的测量进行估计。"
           />
           <div className="grid gap-5 lg:grid-cols-[0.9fr_auto_1.1fr] lg:items-center">
             <div>
               <Formula math={'X_{ij}=\\theta_i+\\varepsilon_{ij}'} label="单次测试观测" />
-              <p className="mt-3 text-center text-xs text-nc-text-muted"><InlineMath math={'\\theta_i'} /> 为稳定能力，<InlineMath math={'\\varepsilon_{ij}'} /> 为当次误差</p>
+              <p className="mt-3 text-center text-xs text-nc-text-muted"><InlineMath math={'\\theta_i'} /> {L("为稳定能力，")}<InlineMath math={'\\varepsilon_{ij}'} /> {L("为当次误差")}</p>
             </div>
             <ArrowDown className="mx-auto h-5 w-5 text-nc-text-muted lg:-rotate-90" />
             <div>
               <Formula math={'\\hat\\theta_i=\\frac{\\sum_j r_{ij}X_{ij}}{\\sum_j r_{ij}}'} label="法律系统的能力估计" />
-              <p className="mt-3 text-center text-xs text-nc-text-muted">可靠性更高的测试获得更大的 <InlineMath math={'r_{ij}'} /> 权重</p>
+              <p className="mt-3 text-center text-xs text-nc-text-muted">{L("可靠性更高的测试获得更大的 ")}<InlineMath math={'r_{ij}'} /> {L("权重")}</p>
             </div>
           </div>
         </GlassCard>
@@ -671,7 +681,7 @@ export default function FLAModel() {
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-nc-cyan">Recommended architecture</p>
-              <h3 className="mt-1 text-2xl font-semibold text-nc-text">PEMS-L FLA v2.1 当前结构</h3>
+              <h3 className="mt-1 text-2xl font-semibold text-nc-text">{L("PEMS-L FLA v2.1 当前结构")}</h3>
             </div>
           </div>
 
@@ -685,8 +695,8 @@ export default function FLAModel() {
               <div key={step[0]} className="contents">
                 <div className="rounded-xl border border-white/[0.07] bg-black/15 p-4">
                   <p className="font-mono text-[10px] text-nc-cyan">{step[0]}</p>
-                  <p className="mt-1 text-sm font-medium text-nc-text">{step[1]}</p>
-                  <p className="mt-1 text-xs leading-5 text-nc-text-muted">{step[2]}</p>
+                  <p className="mt-1 text-sm font-medium text-nc-text">{L(step[1])}</p>
+                  <p className="mt-1 text-xs leading-5 text-nc-text-muted">{L(step[2])}</p>
                 </div>
                 {index < 3 && <ChevronRight className="mx-auto hidden h-4 w-4 text-nc-text-muted md:block" />}
               </div>
@@ -694,8 +704,9 @@ export default function FLAModel() {
           </div>
 
           <p className="mt-6 max-w-4xl text-sm leading-7 text-nc-text-secondary">
-            FLA 因此不再是“五科考试加权算一个年龄”，而是根据一个人在多维成熟空间中的位置，寻找他最接近哪一个年龄阶段的人口成熟分布；同时保留短板效应、测量误差与成年身份不可逆性。
-          </p>
+            {_en
+            ? "So FLA is no longer “five subject scores weighted into one age”; it locates a person within the multi-dimensional maturity space and finds which age stage's population maturity distribution they most resemble — while keeping the bottleneck effect, measurement error and the irreversibility of adult status."
+            : L("FLA 因此不再是“五科考试加权算一个年龄”，而是根据一个人在多维成熟空间中的位置，寻找他最接近哪一个年龄阶段的人口成熟分布；同时保留短板效应、测量误差与成年身份不可逆性。")}</p>
         </section>
 
         <div className="rounded-2xl border border-dashed border-violet-400/25 bg-violet-400/[0.035] p-5 sm:p-7">
@@ -705,10 +716,9 @@ export default function FLAModel() {
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-violet-300">Next · v3.0</p>
-              <h3 className="mt-1 text-xl font-semibold text-nc-text">取消五维独立假设</h3>
+              <h3 className="mt-1 text-xl font-semibold text-nc-text">{L("取消五维独立假设")}</h3>
               <p className="mt-2 text-sm leading-7 text-nc-text-secondary">
-                数学上更完整的下一版，应加入一个 <InlineMath math={'5\\times5'} /> 协方差矩阵，以完整的多元概率分布计算年龄等效值，显式建模五维之间的共同因素与相关结构。
-              </p>
+                {L("数学上更完整的下一版，应加入一个 ")}<InlineMath math={'5\\times5'} /> {_en ? 'covariance matrix, so the age equivalence is computed from a full multivariate probability distribution, explicitly modeling the shared factors and correlational structure among the five dimensions.' : L("协方差矩阵，以完整的多元概率分布计算年龄等效值，显式建模五维之间的共同因素与相关结构。")}</p>
             </div>
           </div>
         </div>

@@ -11,9 +11,12 @@ import App from './App.tsx'
 import AppErrorBoundary from './components/AppErrorBoundary.tsx'
 import { installAsyncModuleRecovery } from './lib/asyncModuleRecovery.ts'
 import { applyMotionProfile } from './lib/motionPolicy.ts'
+import { initSyncBridge } from './conversation/syncBridge.ts'
 
 installAsyncModuleRecovery();
 applyMotionProfile();
+// Cloud sync (opt-in): no-op unless the user enabled it in AI settings.
+initSyncBridge();
 
 // Legacy HashRouter links (/#/stories/...) become clean paths (/stories/...)
 // before the router mounts, so bookmarks and old shared links keep working.

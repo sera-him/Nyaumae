@@ -1,9 +1,9 @@
 import { readFileSync, readdirSync, statSync } from 'fs';
-import { join, relative } from 'path';
+import { join, relative, resolve } from 'path';
 
-const T = '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';
+const T = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
 const O = 'sera-him', R = 'Nyaumae', B = 'gh-pages';
-const dist = 'C:/Users/Administrator/Desktop/app/dist';
+const dist = resolve(import.meta.dirname, '..', 'dist'); // OPS-005：脚本迁入 scripts/ 后相对仓库定位
 const textRe = /\.(html?|css|js|json|svg|txt|xml|md|yml|ico|webmanifest)$/i;
 
 async function api(m, p, b) {
@@ -17,6 +17,10 @@ async function api(m, p, b) {
 }
 
 async function main() {
+  if (!T) {
+    console.error('[deploy] 缺少环境变量 GITHUB_TOKEN（SEC-001 修复：凭据不再写入源码）');
+    process.exit(1);
+  }
   const headSha = (await api('GET', `/git/refs/heads/${B}`)).object.sha;
   const files = [];
   (function walk(p) {

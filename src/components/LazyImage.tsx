@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { ImageOff, RotateCcw } from 'lucide-react';
 
 interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -47,14 +49,13 @@ export default function LazyImage({
       {error && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-nc-bg-secondary text-nc-text-muted">
           <ImageOff className="w-8 h-8 mb-2 opacity-50" />
-          <span className="text-xs opacity-70">图片和备用资源均加载失败</span>
+          <span className="text-xs opacity-70">{L("图片和备用资源均加载失败")}</span>
           <button
             type="button"
             onClick={() => setImageStatus((value) => ({ src, loaded: false, error: false, fallback: false, attempt: value.attempt + 1 }))}
             className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-nc-text hover:bg-white/5"
           >
-            <RotateCcw className="h-3.5 w-3.5" />重试
-          </button>
+            <RotateCcw className="h-3.5 w-3.5" />{L("重试\r\n          ")}</button>
         </div>
       )}
       <img

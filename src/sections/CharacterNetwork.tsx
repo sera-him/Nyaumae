@@ -1,8 +1,12 @@
 import { useState, useCallback, useMemo } from 'react';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
 import { motion } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { semanticHighlight } from '@/lib/semanticHighlight';
 import { networkNodes, characterRelations, relationLabels, relationColors } from '@/data/relationships';
+import { networkNodesEn, relationLabelsEn } from '@/data/relationships.en';
 import type { RelationType } from '@/data/relationships';
 
 const groupColors: Record<string, string> = {
@@ -10,10 +14,15 @@ const groupColors: Record<string, string> = {
   'other': '#F59E0B', 'independent': '#3B82F6', 'ai': '#EF4444',
   'special': '#E2E8F0', 'giant': '#84CC16',
 };
-const groupLabels: Record<string, string> = {
+const groupLabelsZh: Record<string, string> = {
   'mia-family': 'M/I/A 家族', 'zhihua': '哲华学校', 'impact': '因派',
   'other': '卡可拉家', 'independent': '独立角色', 'ai': '数字生命',
   'special': '特殊', 'giant': '大人国篇',
+};
+const groupLabelsEn: Record<string, string> = {
+  'mia-family': 'M/I/A Family', 'zhihua': 'Zhehua School', 'impact': 'Yin Pai',
+  'other': 'Calcla Family', 'independent': 'Independent', 'ai': 'Digital Life',
+  'special': 'Special', 'giant': 'Giant Country arc',
 };
 
 const R = 3.8;
@@ -28,12 +37,16 @@ export default function CharacterNetwork() {
   const { ref, isVisible } = useScrollReveal();
   const [selected, setSelected] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<RelationType | null>(null);
+  const _en = getLocale() === 'en';
+  const nodesSource = _en ? networkNodesEn : networkNodes;
+  const labels = _en ? relationLabelsEn : relationLabels;
+  const groupLabels = _en ? groupLabelsEn : groupLabelsZh;
 
   const nodes: PosNode[] = useMemo(
-    () => networkNodes.map((node) => (
+    () => nodesSource.map((node) => (
       node.group === 'giant' ? node : { ...node, y: node.y + 45 }
     )),
-    [],
+    [nodesSource],
   );
 
   const filteredRels = useMemo(() => {
@@ -62,16 +75,15 @@ export default function CharacterNetwork() {
       <div ref={ref} className="max-w-[1100px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 40 }} animate={isVisible ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} className="mb-8">
           <h2 className="character-network-title text-3xl sm:text-4xl font-bold mb-3 tracking-wide">{semanticHighlight("角色/网络")}</h2>
-          <p className="text-nc-text-secondary text-lg">{semanticHighlight(`${nodes.length} 位角色 · 点击查看详情`)}</p>
+          <p className="text-nc-text-secondary text-lg">{semanticHighlight(_en ? `${nodes.length} characters · click a node for details` : `${nodes.length} 位角色 · 点击查看详情`)}</p>
           <p className="text-nc-text-muted text-xs mt-2 max-w-lg">
-            为什么叫「角色/网络」而不是「关系网」或「角色网」？<br />
-            「/」是一个分隔符，暗示这不是单纯的角色列表，也不是静态的关系图谱——而是一个<strong className="text-nc-cyan">动态的、可交互的神经拓扑</strong>。每个节点既是独立意识体（角色），又是网络中的一个信号中继（网络节点）。「角色/网络」强调的不是"谁认识谁"，而是<strong className="text-nc-cyan">意识如何在连接中涌现</strong>——这是 Neural Connection 世界观的核心隐喻。
-          </p>
+            {L("为什么叫「角色/网络」而不是「关系网」或「角色网」？")}<br />
+            {L("「/」是一个分隔符，暗示这不是单纯的角色列表，也不是静态的关系图谱——而是一个")}<strong className="text-nc-cyan">{L("动态的、可交互的神经拓扑")}</strong>{L("。每个节点既是独立意识体（角色），又是网络中的一个信号中继（网络节点）。「角色/网络」强调的不是\"谁认识谁\"，而是")}<strong className="text-nc-cyan">{L("意识如何在连接中涌现")}</strong>{L("——这是 Neural Connection 世界观的核心隐喻。\n          ")}</p>
         </motion.div>
 
         {/* Filters */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isVisible ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.1 }} className="flex flex-wrap gap-3 mb-4">
-          {(Object.entries(relationLabels) as [RelationType, string][]).map(([type, label]) => (
+          {(Object.entries(labels) as [RelationType, string][]).map(([type, label]) => (
             <button key={type} onClick={() => setActiveFilter(activeFilter === type ? null : type)}
               className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${activeFilter === type ? 'border-nc-cyan text-nc-cyan bg-nc-cyan/10' : 'border-nc-violet/20 text-nc-text-muted hover:border-nc-violet/40'}`}>
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: relationColors[type] }} />{label}
@@ -158,7 +170,7 @@ export default function CharacterNetwork() {
                 const other = r.from === selected ? r.to : r.from;
                 return (
                   <span key={i} className="text-xs px-2 py-1 rounded-full border" style={{ borderColor: relationColors[r.type] + '40', color: relationColors[r.type] }}>
-                    {relationLabels[r.type]} · {nodes.find((n) => n.id === other)?.name}
+                    {labels[r.type]} · {nodes.find((n) => n.id === other)?.name}
                   </span>
                 );
               })}

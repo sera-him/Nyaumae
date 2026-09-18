@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { motion } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import {
@@ -108,7 +110,7 @@ export default function Problems() {
         value={values[slotIdx] || ''}
         onChange={(e) => onChange(slotIdx, e.target.value)}
         data-answer-key={`qr-${slotIdx}`}
-        aria-label={`答案 ${slot.id}`}
+        aria-label={L(`答案 ${slot.id}`)}
         placeholder={slot.placeholder || '?'}
         className={`align-middle mx-0.5 px-1.5 py-0.5 text-sm font-mono
           bg-nc-bg-tertiary border-b-2 outline-none transition-colors
@@ -137,7 +139,7 @@ export default function Problems() {
           key={slot.id}
           className="inline-flex flex-wrap gap-1.5 align-middle"
           role="group"
-          aria-label={`答案 ${slot.id}`}
+          aria-label={L(`答案 ${slot.id}`)}
         >
           {slot.options.map((opt) => {
             const selected = (refAnswers[slotIdx] || '').includes(opt);
@@ -169,7 +171,7 @@ export default function Problems() {
         value={refAnswers[slotIdx] || ''}
         onChange={(e) => handleRefAnswerChange(slotIdx, e.target.value)}
         data-answer-key={`ref-${slotIdx}`}
-        aria-label={`答案 ${slot.id}`}
+        aria-label={L(`答案 ${slot.id}`)}
         placeholder={slot.placeholder || '?'}
         size={slot.size || undefined}
         style={{ width: slot.size ? undefined : (slot.width || undefined) }}
@@ -203,12 +205,10 @@ export default function Problems() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-nc-bg-tertiary border border-nc-violet/10 text-xs text-nc-text-muted mb-4">
             <Brain className="w-3.5 h-3.5" />
-            烧脑挑战
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-bold mb-3">题目</h2>
+            {L("烧脑挑战\n          ")}</div>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-3">{L("题目")}</h2>
           <p className="text-nc-text-secondary max-w-2xl mx-auto text-sm leading-relaxed">
-            提交后将基于你当前填写的答案计算生成二维码，无需全部填完；答案全部正确时才能得到有效的二维码。
-          </p>
+            {L("提交后将基于你当前填写的答案计算生成二维码，无需全部填完；答案全部正确时才能得到有效的二维码。\n          ")}</p>
         </motion.div>
 
         {/* ========== 全部题目列表 ========== */}
@@ -307,13 +307,11 @@ export default function Problems() {
             {computing ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                计算中...
-              </>
+                {L("计算中...\n              ")}</>
             ) : (
               <>
                 <Send className="w-4 h-4" />
-                提交答案
-              </>
+                {L("提交答案\n              ")}</>
             )}
           </button>
 
@@ -323,15 +321,14 @@ export default function Problems() {
               className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs text-nc-text-secondary hover:text-nc-text bg-nc-bg-tertiary border border-nc-violet/10 hover:border-nc-violet/20 transition-all"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              清空重填
-            </button>
+              {L("清空重填\n            ")}</button>
           )}
         </motion.div>
 
         {/* ========== QR 码结果 ========== */}
         <div className={`max-w-md mx-auto text-center transition-all duration-500 mb-20 select-none ${hasResult ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
           <div className="rounded-2xl bg-nc-bg-secondary/50 border border-nc-violet/10 p-8">
-            <h3 className="text-lg font-bold text-nc-text mb-4">生成结果</h3>
+            <h3 className="text-lg font-bold text-nc-text mb-4">{L("生成结果")}</h3>
             <div className="inline-block p-4 bg-white rounded-xl shadow-lg">
               <canvas
                 ref={canvasRef}
@@ -352,8 +349,7 @@ export default function Problems() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-nc-bg-tertiary border border-nc-violet/10 text-xs text-nc-text-muted">
             <Sparkles className="w-3.5 h-3.5" />
-            共 {PROBLEMS.length} 道题 · {TOTAL_SLOTS + TOTAL_NONQR_SLOTS} 个填空
-          </div>
+            {L("共 ")}{PROBLEMS.length} {L("道题 · ")}{TOTAL_SLOTS + TOTAL_NONQR_SLOTS} {L("个填空\n          ")}</div>
         </motion.div>
       </div>
     </section>

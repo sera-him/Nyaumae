@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react';
 import {
   ArrowLeft,
@@ -197,7 +199,7 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
         <div className="flex items-center gap-4">
           <span className="text-cyan-300">STAGE {battle.stageId}</span>
           <span className="flex items-center gap-1.5 text-emerald-300"><Heart className="h-3.5 w-3.5" /> {Math.ceil(hud.hp)}</span>
-          <span className="text-white/55">目标 {hud.alive}</span>
+          <span className="text-white/55">{L("目标 ")}{hud.alive}</span>
           <span className="text-white/55">{hud.elapsed.toFixed(1)}s</span>
         </div>
         <div className="flex items-center gap-3">
@@ -209,7 +211,7 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
             type="button"
             onClick={() => { activeBattleRef.current.paused = !activeBattleRef.current.paused; }}
             className="rounded-md border border-white/10 p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white"
-            aria-label="暂停"
+            aria-label={L("暂停")}
           >
             {hud.paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
           </button>
@@ -220,20 +222,19 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
         <canvas
           ref={canvasRef}
           className="block aspect-video w-full touch-none cursor-crosshair"
-          tabIndex={0} role="application" aria-label="Stellar 战场" aria-describedby="stellar-battle-help stellar-battle-status"
+          tabIndex={0} role="application" aria-label={L("Stellar 战场")} aria-describedby="stellar-battle-help stellar-battle-status"
           onPointerDown={(event) => { pointAt(event); inputRef.current.mouseDown = true; event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); }}
           onPointerMove={pointAt}
           onPointerUp={() => { inputRef.current.mouseDown = false; }} onPointerCancel={() => { inputRef.current.mouseDown = false; }} onBlur={() => { inputRef.current.mouseDown = false; inputRef.current.keys.clear(); }}
           onKeyDown={handleCanvasKeyDown} onKeyUp={handleCanvasKeyUp}
           onContextMenu={(event) => event.preventDefault()}
         />
-        <p id="stellar-battle-help" className="sr-only">聚焦战场后，使用 WASD 或方向键移动，I、J、K、L 调整瞄准方向，按住空格或 Enter 射击，数字 1 到 0 切换武器，P 或 Escape 暂停。鼠标和触控操作保持可用。</p>
-        <p id="stellar-battle-status" className="sr-only" aria-live="polite">键盘瞄准坐标：{Math.round(keyboardAim.x)}，{Math.round(keyboardAim.y)}。</p>
+        <p id="stellar-battle-help" className="sr-only">{L("聚焦战场后，使用 WASD 或方向键移动，I、J、K、L 调整瞄准方向，按住空格或 Enter 射击，数字 1 到 0 切换武器，P 或 Escape 暂停。鼠标和触控操作保持可用。")}</p>
+        <p id="stellar-battle-status" className="sr-only" aria-live="polite">{L("键盘瞄准坐标：")}{Math.round(keyboardAim.x)}，{Math.round(keyboardAim.y)}。</p>
         {hud.paused && (
           <div className="absolute inset-0 grid place-items-center bg-[#06030d]/70 backdrop-blur-sm">
             <button type="button" onClick={() => { activeBattleRef.current.paused = false; }} className="flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-6 py-3 text-sm font-medium text-cyan-200">
-              <Play className="h-4 w-4" /> 继续战斗
-            </button>
+              <Play className="h-4 w-4" /> {L("继续战斗\n            ")}</button>
           </div>
         )}
       </div>
@@ -268,7 +269,7 @@ function BattleArena({ battle, onEnd }: { battle: BattleState; onEnd: (won: bool
           <button type="button" onPointerDown={() => holdMove('s', true)} onPointerUp={() => holdMove('s', false)} className="h-10 w-10 rounded-lg bg-white/10">↓</button>
           <button type="button" onPointerDown={() => holdMove('d', true)} onPointerUp={() => holdMove('d', false)} className="h-10 w-10 rounded-lg bg-white/10">→</button>
         </div>
-        <div className="max-w-[180px] text-right text-[10px] leading-relaxed text-white/35">在战场中拖动瞄准<br />按住战场持续射击</div>
+        <div className="max-w-[180px] text-right text-[10px] leading-relaxed text-white/35">{L("在战场中拖动瞄准")}<br />{L("按住战场持续射击")}</div>
       </div>
     </div>
   );
@@ -370,8 +371,7 @@ export default function SpaceGame() {
         {view !== 'menu' && (
           <div className="mb-5 flex items-center justify-between gap-4">
             <button type="button" onClick={() => { setBattleState(null); setBattle(null); setView('menu'); }} className="flex items-center gap-2 text-xs text-white/45 transition hover:text-white">
-              <ArrowLeft className="h-4 w-4" /> 返回主界面
-            </button>
+              <ArrowLeft className="h-4 w-4" /> {L("返回主界面\n            ")}</button>
             <div className="flex items-center gap-3 font-mono text-[10px] text-white/35">
               {saveKey && <span>ID {saveKey}</span>}
               <span>{lFormatCompact(playerState.universalResource)} MATTER</span>
@@ -385,10 +385,9 @@ export default function SpaceGame() {
               <Crosshair className="h-9 w-9 text-cyan-300" />
             </div>
             <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.45em] text-cyan-300/70">Frontline Protocol</p>
-            <h2 className="text-4xl font-black tracking-tight sm:text-6xl">星际战线 <span className="text-gradient-cyan">Stellar</span></h2>
+            <h2 className="text-4xl font-black tracking-tight sm:text-6xl">{L("星际战线 ")}<span className="text-gradient-cyan">Stellar</span></h2>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-white/50 sm:text-base">
-              识别敌人弱点，在十把武器间高速调度。每一次正确切枪都会累积 Weapon Flow，直到点燃 Stellar Flow。
-            </p>
+              {L("识别敌人弱点，在十把武器间高速调度。每一次正确切枪都会累积 Weapon Flow，直到点燃 Stellar Flow。\n            ")}</p>
 
             <div className="mt-9 grid w-full max-w-2xl grid-cols-1 gap-3 text-left sm:grid-cols-3">
               {[
@@ -410,7 +409,7 @@ export default function SpaceGame() {
             <button type="button" onClick={beginCampaign} className="group mt-9 flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-300 px-7 py-3.5 text-sm font-bold text-[var(--aurora-brand-bg-teal)] shadow-lg shadow-cyan-500/15 transition hover:scale-[1.02]">
               <Play className="h-4 w-4 fill-current" /> {maxCleared > 0 ? `继续 Stage ${maxUnlocked}` : '开始战线'} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </button>
-            <div className="mt-4 text-[10px] text-white/25">进度保存在当前浏览器中</div>
+            <div className="mt-4 text-[10px] text-white/25">{L("进度保存在当前浏览器中")}</div>
           </motion.div>
         )}
 
@@ -418,8 +417,8 @@ export default function SpaceGame() {
           <div className="mx-auto max-w-4xl py-4">
             <div className="mb-7">
               <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-violet-300/65">Frontline Map</p>
-              <h2 className="mt-2 text-3xl font-bold">选择战区</h2>
-              <p className="mt-2 text-sm text-white/40">每个战区都会组合新的敌人弱点与行动方式。</p>
+              <h2 className="mt-2 text-3xl font-bold">{L("选择战区")}</h2>
+              <p className="mt-2 text-sm text-white/40">{L("每个战区都会组合新的敌人弱点与行动方式。")}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {Array.from({ length: stageCount }, (_, index) => index + 1).map((stage) => {
@@ -439,7 +438,7 @@ export default function SpaceGame() {
                     </div>
                     <div className="mt-5 font-mono text-3xl font-bold text-white/90">{String(stage).padStart(2, '0')}</div>
                     <div className="mt-4 flex items-center justify-between text-[10px] text-white/30">
-                      <span>{Math.min(stage, 5)} 种威胁</span>
+                      <span>{Math.min(stage, 5)} {L("种威胁")}</span>
                       {!locked && <ChevronRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />}
                     </div>
                   </button>
@@ -454,13 +453,13 @@ export default function SpaceGame() {
             <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-cyan-300/65">Enemy Preview</p>
-                <h2 className="mt-2 text-3xl font-bold">Stage {selectedStage} · 战前配装</h2>
+                <h2 className="mt-2 text-3xl font-bold">Stage {selectedStage} {L("· 战前配装")}</h2>
               </div>
-              <button type="button" onClick={() => setView('stages')} className="text-xs text-white/40 hover:text-white">更换战区</button>
+              <button type="button" onClick={() => setView('stages')} className="text-xs text-white/40 hover:text-white">{L("更换战区")}</button>
             </div>
 
             <div className="mb-6 rounded-2xl border border-white/[0.07] bg-black/20 p-4">
-              <div className="mb-3 flex items-center gap-2 text-xs font-medium text-white/55"><Shield className="h-4 w-4 text-violet-300" /> 敌方阵容</div>
+              <div className="mb-3 flex items-center gap-2 text-xs font-medium text-white/55"><Shield className="h-4 w-4 text-violet-300" /> {L("敌方阵容")}</div>
               <div className="flex flex-wrap gap-2">
                 {roster.map((id) => {
                   const def = enemyDef(id);
@@ -468,7 +467,7 @@ export default function SpaceGame() {
                   return (
                     <div key={id} className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2">
                       <span className="h-2.5 w-2.5 rounded-full" style={{ background: def.color, boxShadow: `0 0 10px ${def.color}` }} />
-                      <div><div className="text-xs">{def.name}</div><div className="text-[9px] text-white/30">弱点：{counter?.name ?? '未知'}</div></div>
+                      <div><div className="text-xs">{def.name}</div><div className="text-[9px] text-white/30">{L("弱点：")}{counter?.name ?? '未知'}</div></div>
                     </div>
                   );
                 })}
@@ -477,12 +476,12 @@ export default function SpaceGame() {
 
             <div className="grid gap-5 lg:grid-cols-[1fr_1.2fr]">
               <div>
-                <div className="mb-3 text-xs font-medium text-white/55">武器库 · 选择一把武器</div>
+                <div className="mb-3 text-xs font-medium text-white/55">{L("武器库 · 选择一把武器")}</div>
                 <div className="space-y-2">
                   {weaponInventory.map((weapon) => (
                     <button type="button" key={weapon.id} onClick={() => setSelectedWeapon(weapon.id)} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${selectedWeapon === weapon.id ? 'border-cyan-300/35 bg-cyan-300/[0.07]' : 'border-white/[0.06] bg-white/[0.02] hover:border-white/15'}`}>
                       <div className="grid h-9 w-9 place-items-center rounded-lg bg-black/30" style={{ color: rarityColor[weapon.rarity] }}><Swords className="h-4 w-4" /></div>
-                      <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{weapon.name}</div><div className="mt-0.5 text-[10px]" style={{ color: rarityColor[weapon.rarity] }}>{rarityLabel[weapon.rarity]} · Lv.{weapon.level} · 弱点 ×{weapon.weaknessMult.toFixed(1)}</div></div>
+                      <div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{weapon.name}</div><div className="mt-0.5 text-[10px]" style={{ color: rarityColor[weapon.rarity] }}>{rarityLabel[weapon.rarity]} · Lv.{weapon.level} {L("· 弱点 ×")}{weapon.weaknessMult.toFixed(1)}</div></div>
                       <span className="text-[9px] text-white/25">{weapon.fireRate}/s</span>
                     </button>
                   ))}
@@ -490,7 +489,7 @@ export default function SpaceGame() {
               </div>
 
               <div>
-                <div className="mb-3 flex items-center justify-between text-xs font-medium text-white/55"><span>十格快捷栏 · 点击槽位装配</span><span className="text-white/25">1—9 / 0</span></div>
+                <div className="mb-3 flex items-center justify-between text-xs font-medium text-white/55"><span>{L("十格快捷栏 · 点击槽位装配")}</span><span className="text-white/25">1—9 / 0</span></div>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                   {quickBar.map((weaponId, index) => {
                     const weapon = weaponInventory.find((item) => item.id === weaponId);
@@ -505,11 +504,9 @@ export default function SpaceGame() {
                 </div>
                 <div className="mt-4 rounded-xl border border-violet-300/10 bg-violet-300/[0.04] p-3 text-xs leading-6 text-white/40">
                   <Sparkles className="mr-2 inline h-3.5 w-3.5 text-violet-300" />
-                  先用武器 A 命中，切至武器 B 后在 1.5 秒内造成弱点伤害，即可累积 Flow。
-                </div>
+                  {L("先用武器 A 命中，切至武器 B 后在 1.5 秒内造成弱点伤害，即可累积 Flow。\n                ")}</div>
                 <button type="button" onClick={startBattle} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-3.5 text-sm font-bold text-[var(--aurora-brand-bg-teal)] transition hover:bg-cyan-200">
-                  <Crosshair className="h-4 w-4" /> 进入战场
-                </button>
+                  <Crosshair className="h-4 w-4" /> {L("进入战场\n                ")}</button>
               </div>
             </div>
           </div>
@@ -526,18 +523,18 @@ export default function SpaceGame() {
             <h2 className="mt-3 text-4xl font-bold">{view === 'victory' ? '战线已清除' : '战线失守'}</h2>
             {view === 'victory' && <div className="mt-4 text-3xl tracking-[0.25em] text-amber-300">{'★'.repeat(result.stars)}{'☆'.repeat(3 - result.stars)}</div>}
             <div className="mt-7 grid w-full grid-cols-3 gap-2">
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3"><div className="text-lg font-mono">{result.stats.clearTime.toFixed(1)}s</div><div className="mt-1 text-[10px] text-white/30">用时</div></div>
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3"><div className="text-lg font-mono">{result.stats.hitsTaken}</div><div className="mt-1 text-[10px] text-white/30">受击</div></div>
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3"><div className="text-lg font-mono">{result.stats.weaponSwitchCount}</div><div className="mt-1 text-[10px] text-white/30">切枪</div></div>
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3"><div className="text-lg font-mono">{result.stats.clearTime.toFixed(1)}s</div><div className="mt-1 text-[10px] text-white/30">{L("用时")}</div></div>
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3"><div className="text-lg font-mono">{result.stats.hitsTaken}</div><div className="mt-1 text-[10px] text-white/30">{L("受击")}</div></div>
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3"><div className="text-lg font-mono">{result.stats.weaponSwitchCount}</div><div className="mt-1 text-[10px] text-white/30">{L("切枪")}</div></div>
             </div>
             {view === 'victory' && (
               <div className="mt-4 w-full rounded-xl border border-white/[0.06] bg-black/20 p-4 text-left">
                 {result.conditions.map((condition) => <div key={condition.id} className="flex items-center justify-between py-1.5 text-xs"><span className="text-white/50">{condition.text}</span><span className={condition.check(result.stats) ? 'text-emerald-300' : 'text-white/20'}>{condition.check(result.stats) ? '完成' : '未完成'}</span></div>)}
-                <div className="mt-3 border-t border-white/[0.06] pt-3 text-xs text-cyan-300">奖励：{result.reward}</div>
+                <div className="mt-3 border-t border-white/[0.06] pt-3 text-xs text-cyan-300">{L("奖励：")}{result.reward}</div>
               </div>
             )}
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <button type="button" onClick={startBattle} className="flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-xs text-white/60 hover:bg-white/5 hover:text-white"><RotateCcw className="h-3.5 w-3.5" /> 再来一次</button>
+              <button type="button" onClick={startBattle} className="flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-xs text-white/60 hover:bg-white/5 hover:text-white"><RotateCcw className="h-3.5 w-3.5" /> {L("再来一次")}</button>
               <button type="button" onClick={() => { setSelectedStage(Math.min(maxUnlocked, selectedStage + 1)); setView('loadout'); }} className="flex items-center gap-2 rounded-full bg-cyan-300 px-5 py-2.5 text-xs font-bold text-[var(--aurora-brand-bg-teal)]">{view === 'victory' ? '下一战区' : '调整配装'} <ArrowRight className="h-3.5 w-3.5" /></button>
             </div>
           </div>

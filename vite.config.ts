@@ -47,12 +47,12 @@ export default defineConfig({
     port: Number(process.env.PORT) || 3000,
     host: '0.0.0.0',
     // 发布到反向代理域名时需要显式放行，否则 Vite 会拒绝请求。
-    allowedHosts: true,
+    allowedHosts: ['.nyaumae.chatgpt.site', '.pages.dev', 'sera-him.github.io'],
   },
   preview: {
     port: Number(process.env.PORT) || 4173,
     host: '0.0.0.0',
-    allowedHosts: true,
+    allowedHosts: ['.nyaumae.chatgpt.site', '.pages.dev', 'sera-him.github.io'],
   },
   build: {
     // WebLLM is a prebundled browser runtime and is loaded only for the Browser WebGPU provider.

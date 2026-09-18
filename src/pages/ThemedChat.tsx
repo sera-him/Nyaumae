@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import type { CSSProperties, FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -705,89 +707,89 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
         {theme === 'aurora' && <><span className="aurora-nebula" /><span className="aurora-curtain aurora-curtain-one" /><span className="aurora-curtain aurora-curtain-two" /></>}
       </div>
 
-      {sidebarOpen && <button type="button" className="original-chat-sidebar-backdrop" onClick={() => setSidebarOpen(false)} aria-label="关闭对话列表" />}
+      {sidebarOpen && <button type="button" className="original-chat-sidebar-backdrop" onClick={() => setSidebarOpen(false)} aria-label={L("关闭对话列表")} />}
 
-      <aside className={`${p}-sidebar`} aria-label="对话列表">
+      <aside className={`${p}-sidebar`} aria-label={L("对话列表")}>
         <div className={`${p}-sidebar-brand`}>
           <div className={`${p}-brand-orbit`}><Sparkles /></div>
           <div><strong>{copy.brand}</strong><span>{copy.subtitle}</span></div>
-          <button type="button" onClick={() => setSidebarOpen(false)} aria-label="收起侧栏"><Menu /></button>
+          <button type="button" onClick={() => setSidebarOpen(false)} aria-label={L("收起侧栏")}><Menu /></button>
         </div>
         <button type="button" className={`${p}-new-chat`} onClick={newConversation}>
-          <Plus /><span>新建对话</span><kbd>Ctrl K</kbd>
+          <Plus /><span>{L("新建对话")}</span><kbd>Ctrl K</kbd>
         </button>
         <label className={`${p}-search`}>
-          <Search /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索对话" aria-label="搜索对话" />
+          <Search /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={L("搜索对话")} aria-label={L("搜索对话")} />
         </label>
         <div className={`${p}-history`}>
-          <p>最近对话</p>
+          <p>{L("最近对话")}</p>
           {visibleConversations.map((conversation) => (
             <button type="button" key={conversation.id} className={conversation.id === selectedId ? 'is-active' : ''} onClick={() => selectConversation(conversation.id)}>
               <MessageCircle /><b>{conversation.title}</b><small>{formatTime(conversation.updatedAt)}</small>
             </button>
           ))}
-          {visibleConversations.length === 0 && <small className="original-chat-empty">没有匹配的对话</small>}
+          {visibleConversations.length === 0 && <small className="original-chat-empty">{L("没有匹配的对话")}</small>}
         </div>
         <div className={`${p}-voyage-card`}>
-          <div><Compass /><span>{LEVEL_NAMES[profile.aiLevel] ?? '世界探索'}</span><strong>旅程等级 {profile.aiLevel}</strong></div>
-          <div className={`${p}-voyage-track`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={levelProgress} aria-label={`当前等级进度 ${levelProgress}%`}><span style={{ width: `${levelProgress}%` }} /></div>
+          <div><Compass /><span>{LEVEL_NAMES[profile.aiLevel] ?? '世界探索'}</span><strong>{L("旅程等级 ")}{profile.aiLevel}</strong></div>
+          <div className={`${p}-voyage-track`} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={levelProgress} aria-label={L(`当前等级进度 ${levelProgress}%`)}><span style={{ width: `${levelProgress}%` }} /></div>
           <small>{nextRule ? `再获得 ${pointsToNextLevel} 点星光解锁 ${LEVEL_NAMES[nextRule.level] ?? `等级 ${nextRule.level}`}` : '全部旅程等级已解锁'}</small>
         </div>
         <div className={`${p}-profile`}>
-          <span>旅</span><div><strong>旅行者</strong><small>{aiConfig.apiKey ? `Key ${maskSecret(aiConfig.apiKey)}` : '尚未配置模型'}</small></div>
-          <Link to="/settings/ai" aria-label="AI 设置"><Settings2 /></Link>
+          <span>{L("旅")}</span><div><strong>{L("旅行者")}</strong><small>{aiConfig.apiKey ? `Key ${maskSecret(aiConfig.apiKey)}` : '尚未配置模型'}</small></div>
+          <Link to="/settings/ai" aria-label={L("AI 设置")}><Settings2 /></Link>
         </div>
       </aside>
 
       <div className={`${p}-chat-shell`}>
-      <section className={`${p}-chat-main`} aria-label="聊天内容">
+      <section className={`${p}-chat-main`} aria-label={L("聊天内容")}>
         <header className={`${p}-chat-header`}>
           <h1 className="sr-only">{selectedConversation?.title ?? copy.assistant}</h1>
           <div className={`${p}-header-left`}>
-            {!sidebarOpen && <button type="button" className={`${p}-icon-btn`} onClick={() => setSidebarOpen(true)} aria-label="打开侧栏"><Menu /></button>}
+            {!sidebarOpen && <button type="button" className={`${p}-icon-btn`} onClick={() => setSidebarOpen(true)} aria-label={L("打开侧栏")}><Menu /></button>}
             <div className={`${p}-model-mark`}><Bot /></div>
             <div>
-              <p><strong>{selectedConversation?.title ?? copy.assistant}</strong><button ref={controlsButtonRef} type="button" onClick={() => setShowControls((value) => !value)} aria-label="对话设置" aria-expanded={showControls}><ChevronDown /></button></p>
+              <p><strong>{selectedConversation?.title ?? copy.assistant}</strong><button ref={controlsButtonRef} type="button" onClick={() => setShowControls((value) => !value)} aria-label={L("对话设置")} aria-expanded={showControls}><ChevronDown /></button></p>
               <span><i />{aiConfig.enabled ? `${aiConfig.providerLabel} · ${selectedConversation?.model ?? aiConfig.model}` : '本地星光预览 · 记忆与护栏运行中'}</span>
             </div>
           </div>
           <div className={`${p}-header-actions`}>
-            <button type="button" className={`${p}-icon-btn${showContext ? ' is-active' : ''}`} onClick={() => setShowContext((value) => !value)} aria-label="查看引用和记忆" aria-pressed={showContext}><Shield /></button>
-            <button type="button" className={`${p}-icon-btn`} onClick={renameConversation} aria-label="重命名对话"><Edit3 /></button>
+            <button type="button" className={`${p}-icon-btn${showContext ? ' is-active' : ''}`} onClick={() => setShowContext((value) => !value)} aria-label={L("查看引用和记忆")} aria-pressed={showContext}><Shield /></button>
+            <button type="button" className={`${p}-icon-btn`} onClick={renameConversation} aria-label={L("重命名对话")}><Edit3 /></button>
             <button type="button" className={`${p}-share`} onClick={() => {
               if (!selectedConversation) return;
               downloadFile(`conversation-${selectedConversation.id}.json`, conversationEngine.exportConversation(selectedConversation.id));
               setNotice('对话已导出，文件不包含 API Key。');
-            }} aria-label="导出当前对话"><FileDown /><span>导出</span></button>
+            }} aria-label={L("导出当前对话")}><FileDown /><span>{L("导出")}</span></button>
           </div>
         </header>
 
         {showControls && (
-          <section className="original-chat-controls" aria-label="对话设置" ref={controlsRef}>
-            <header><div><strong>对话设置</strong><span>按当前会话单独保存</span></div><button type="button" onClick={() => setShowControls(false)} aria-label="关闭对话设置"><X /></button></header>
-            <label>模式<select value={activeMode} onChange={(event) => updateConversation({ mode: event.target.value as ConversationMode })}>
+          <section className="original-chat-controls" aria-label={L("对话设置")} ref={controlsRef}>
+            <header><div><strong>{L("对话设置")}</strong><span>{L("按当前会话单独保存")}</span></div><button type="button" onClick={() => setShowControls(false)} aria-label={L("关闭对话设置")}><X /></button></header>
+            <label>{L("模式")}<select value={activeMode} onChange={(event) => updateConversation({ mode: event.target.value as ConversationMode })}>
               {MODE_OPTIONS.map(([mode, label]) => <option key={mode} value={mode}>{label}</option>)}
             </select></label>
-            {activeMode === 'character' && <label>角色<select value={selectedCharacter} onChange={(event) => updateConversation({ characterId: event.target.value || undefined, mode: 'character' })}>
-              <option value="">选择角色</option>{characters.map((character) => <option key={character.id} value={character.id}>{character.name}</option>)}
+            {activeMode === 'character' && <label>{L("角色")}<select value={selectedCharacter} onChange={(event) => updateConversation({ characterId: event.target.value || undefined, mode: 'character' })}>
+              <option value="">{L("选择角色")}</option>{characters.map((character) => <option key={character.id} value={character.id}>{character.name}</option>)}
             </select></label>}
-            <label>模型<input key={`${selectedConversation?.id}-${selectedConversation?.model ?? aiConfig.model}`} defaultValue={selectedConversation?.model ?? aiConfig.model} onBlur={(event) => updateConversation({ model: event.currentTarget.value.trim() || undefined })} /></label>
-            <Link to="/settings/ai"><Settings2 />连接设置</Link>
-            <Link to="/codex"><BrainCircuit />搜索全站内容</Link>
-            <button type="button" onClick={clearContext}><Eraser />清空上下文</button>
-            <button type="button" className="is-danger" onClick={deleteConversation}><Trash2 />删除对话</button>
+            <label>{L("模型")}<input key={`${selectedConversation?.id}-${selectedConversation?.model ?? aiConfig.model}`} defaultValue={selectedConversation?.model ?? aiConfig.model} onBlur={(event) => updateConversation({ model: event.currentTarget.value.trim() || undefined })} /></label>
+            <Link to="/settings/ai"><Settings2 />{L("连接设置")}</Link>
+            <Link to="/codex"><BrainCircuit />{L("搜索全站内容")}</Link>
+            <button type="button" onClick={clearContext}><Eraser />{L("清空上下文")}</button>
+            <button type="button" className="is-danger" onClick={deleteConversation}><Trash2 />{L("删除对话")}</button>
           </section>
         )}
 
-        <section ref={chatScrollRef} className={`${p}-chat-scroll`} aria-label="消息记录" tabIndex={0}>
+        <section ref={chatScrollRef} className={`${p}-chat-scroll`} aria-label={L("消息记录")} tabIndex={0}>
         <div className={`${p}-conversation`} aria-live="polite">
-          <div className={`${p}-date`}>今天 · 在这里安心地聊聊吧</div>
+          <div className={`${p}-date`}>{L("今天 · 在这里安心地聊聊吧")}</div>
           {messages.length === 0 && (
             <article className={`${p}-message`}>
               <div className={`${p}-avatar`}><Sparkles /></div>
               <div className={`${p}-message-content`}>
-                <div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>刚刚</span></div>
-                <div className={`${p}-bubble`}><p>{copy.welcome}</p><p>我可以帮你查找站内故事、角色和世界资料，并把来源一起带回来。</p></div>
+                <div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>{L("刚刚")}</span></div>
+                <div className={`${p}-bubble`}><p>{copy.welcome}</p><p>{L("我可以帮你查找站内故事、角色和世界资料，并把来源一起带回来。")}</p></div>
                 <div className={`${p}-suggestions`}>
                   {suggestions.map(([emoji, title, subtitle, prompt]) => <button type="button" key={title} onClick={() => setInput(prompt)}><span>{emoji}</span><div><strong>{title}</strong><small>{subtitle}</small></div><ChevronRight /></button>)}
                 </div>
@@ -801,49 +803,49 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
                 <div className={`${p}-message-label`}><strong>{messageName(message, copy.assistant)}</strong><span className={`original-chat-status is-${message.status}`}>{formatTime(message.createdAt)} · {STATUS_LABELS[message.status]}</span></div>
                 <div className={`${p}-bubble`}>{renderMessageContent(message.content, message.id)}</div>
                 <div className="original-chat-message-actions">
-                  {message.status === 'completed' && <button type="button" onClick={() => void copyMessage(message.content)}><Copy />复制</button>}
-                  {message.role === 'assistant' && message.status === 'failed' && message.id === lastAssistant?.id && !isGenerating && <button type="button" data-action="retry" onClick={() => void regenerate()}><RotateCcw />重试</button>}
-                  {message.role === 'user' && !isGenerating && <button type="button" onClick={() => { setInput(message.content); setEditingId(message.id); composerRef.current?.focus(); }}><Edit3 />编辑</button>}
-                  {message.role === 'assistant' && message.id === lastAssistant?.id && message.citations.length > 0 && <button type="button" onClick={() => { setCitations(message.citations); setShowContext(true); }}><BookOpen />{message.citations.length} 条来源</button>}
+                  {message.status === 'completed' && <button type="button" onClick={() => void copyMessage(message.content)}><Copy />{L("复制")}</button>}
+                  {message.role === 'assistant' && message.status === 'failed' && message.id === lastAssistant?.id && !isGenerating && <button type="button" data-action="retry" onClick={() => void regenerate()}><RotateCcw />{L("重试")}</button>}
+                  {message.role === 'user' && !isGenerating && <button type="button" onClick={() => { setInput(message.content); setEditingId(message.id); composerRef.current?.focus(); }}><Edit3 />{L("编辑")}</button>}
+                  {message.role === 'assistant' && message.id === lastAssistant?.id && message.citations.length > 0 && <button type="button" onClick={() => { setCitations(message.citations); setShowContext(true); }}><BookOpen />{message.citations.length} {L("条来源")}</button>}
                 </div>
               </div>
             </article>
           ))}
           {isGenerating && <article className={`${p}-message`} aria-live="polite" aria-busy="true">
-            <div className={`${p}-avatar`}><Sparkles /></div><div className={`${p}-message-content`}><div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>{streamingText ? '生成中' : '发送中'}</span></div><div className={`${p}-bubble`}>{streamingText ? renderMessageContent(streamingText, 'streaming') : <p>正在发送并准备回答…</p>}</div></div>
+            <div className={`${p}-avatar`}><Sparkles /></div><div className={`${p}-message-content`}><div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>{streamingText ? '生成中' : '发送中'}</span></div><div className={`${p}-bubble`}>{streamingText ? renderMessageContent(streamingText, 'streaming') : <p>{L("正在发送并准备回答…")}</p>}</div></div>
           </article>}
 
-          {showContext && <section className="original-chat-context" aria-label="来源与记忆">
-            <header><div><Shield /><span><strong>本轮来源与记忆</strong><small>{MODE_LABELS[activeMode]} · 仅显示实际注入内容</small></span></div><button type="button" onClick={() => setShowContext(false)} aria-label="关闭来源与记忆"><X /></button></header>
+          {showContext && <section className="original-chat-context" aria-label={L("来源与记忆")}>
+            <header><div><Shield /><span><strong>{L("本轮来源与记忆")}</strong><small>{MODE_LABELS[activeMode]} {L("· 仅显示实际注入内容")}</small></span></div><button type="button" onClick={() => setShowContext(false)} aria-label={L("关闭来源与记忆")}><X /></button></header>
             <div className="original-chat-context-summary">
-              <span><strong>{citations.length}</strong> 条站内来源</span>
-              <span><strong>{memoryRecords.length}</strong> 条长期记忆</span>
-              <span><Check /><strong>本机存储</strong> 隐私保护</span>
+              <span><strong>{citations.length}</strong> {L("条站内来源")}</span>
+              <span><strong>{memoryRecords.length}</strong> {L("条长期记忆")}</span>
+              <span><Check /><strong>{L("本机存储")}</strong> {L("隐私保护")}</span>
             </div>
-            <div className="original-chat-context-column"><h3>引用来源</h3>{citations.length ? citations.map((citation) => <Link to={citation.route} key={citation.id}><BookOpen /><span><strong>{citation.title}</strong><small>{citation.excerpt || citation.route}</small></span><ArrowUpRight /></Link>) : <p>本次请求没有检索到可靠的站内来源。</p>}</div>
-            <div className="original-chat-context-column"><h3>使用记忆</h3>{memoryRecords.length ? memoryRecords.map((memory) => <article className="original-chat-memory" key={memory.id}><strong>{memory.title}</strong><span>{memory.content}</span><small>{memory.scope} · v{memory.version}</small></article>) : <p>本次请求没有注入长期记忆。</p>}</div>
-            <footer><Link to="/codex"><BrainCircuit />打开全站搜索<ArrowUpRight /></Link></footer>
+            <div className="original-chat-context-column"><h3>{L("引用来源")}</h3>{citations.length ? citations.map((citation) => <Link to={citation.route} key={citation.id}><BookOpen /><span><strong>{citation.title}</strong><small>{citation.excerpt || citation.route}</small></span><ArrowUpRight /></Link>) : <p>{L("本次请求没有检索到可靠的站内来源。")}</p>}</div>
+            <div className="original-chat-context-column"><h3>{L("使用记忆")}</h3>{memoryRecords.length ? memoryRecords.map((memory) => <article className="original-chat-memory" key={memory.id}><strong>{memory.title}</strong><span>{memory.content}</span><small>{memory.scope} · v{memory.version}</small></article>) : <p>{L("本次请求没有注入长期记忆。")}</p>}</div>
+            <footer><Link to="/codex"><BrainCircuit />{L("打开全站搜索")}<ArrowUpRight /></Link></footer>
           </section>}
           <div ref={threadEndRef} />
         </div>
         </section>
 
-        {notice && <div className="original-chat-notice" role="status"><Shield /><span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label="关闭提示"><X /></button></div>}
+        {notice && <div className="original-chat-notice" role="status"><Shield /><span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label={L("关闭提示")}><X /></button></div>}
 
       </section>
 
         <section className={`${p}-composer-shell`} ref={stickerPanelRef}>
-          {editingId && <div className="original-chat-editing">正在编辑历史消息；发送后将从这里重新生成 <button type="button" onClick={() => { setEditingId(''); setInput(''); composerRef.current?.focus(); }}>取消</button></div>}
+          {editingId && <div className="original-chat-editing">{L("正在编辑历史消息；发送后将从这里重新生成 ")}<button type="button" onClick={() => { setEditingId(''); setInput(''); composerRef.current?.focus(); }}>{L("取消")}</button></div>}
           <div className={`${p}-quick-replies`}>
-            {canRegenerate && <button type="button" onClick={() => void regenerate()}><RotateCcw />重新生成</button>}
-            {lastUser && !isGenerating && <button type="button" onClick={() => { setInput(lastUser.content); setEditingId(lastUser.id); composerRef.current?.focus(); }}><Edit3 />编辑上一条</button>}
-            <button type="button" onClick={() => setShowContext((value) => !value)}><Shield />来源与记忆</button>
+            {canRegenerate && <button type="button" onClick={() => void regenerate()}><RotateCcw />{L("重新生成")}</button>}
+            {lastUser && !isGenerating && <button type="button" onClick={() => { setInput(lastUser.content); setEditingId(lastUser.id); composerRef.current?.focus(); }}><Edit3 />{L("编辑上一条")}</button>}
+            <button type="button" onClick={() => setShowContext((value) => !value)}><Shield />{L("来源与记忆")}</button>
           </div>
           {showStickers && stickerPanelStyle && typeof document !== 'undefined' && createPortal(
-            <div ref={stickerPortalRef} className="original-chat-sticker-panel" style={stickerPanelStyle} role="dialog" aria-label="猫猫表情包">
-              <header><div><strong>猫猫表情</strong><span>点击即可发送</span></div><button type="button" onClick={() => setShowStickers(false)} aria-label="关闭表情面板">×</button></header>
+            <div ref={stickerPortalRef} className="original-chat-sticker-panel" style={stickerPanelStyle} role="dialog" aria-label={L("猫猫表情包")}>
+              <header><div><strong>{L("猫猫表情")}</strong><span>{L("点击即可发送")}</span></div><button type="button" onClick={() => setShowStickers(false)} aria-label={L("关闭表情面板")}>×</button></header>
               <div className="original-chat-sticker-grid">
-                {CHAT_STICKERS.map((sticker) => <button type="button" key={sticker.id} onClick={() => sendSticker(sticker.id)} title={sticker.label} aria-label={`发送${sticker.label}表情`}>
+                {CHAT_STICKERS.map((sticker) => <button type="button" key={sticker.id} onClick={() => sendSticker(sticker.id)} title={sticker.label} aria-label={L(`发送${sticker.label}表情`)}>
                   <ResponsiveImage src={sticker.src} alt="" widths={THUMBNAIL_IMAGE_WIDTHS} sizes="96px" /><span>{sticker.label}</span>
                 </button>)}
               </div>
@@ -851,35 +853,35 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
             document.body,
           )}
           <form className={`${p}-composer`} onSubmit={(event) => void send(event)} aria-busy={isGenerating}>
-            <button ref={stickerButtonRef} type="button" onClick={() => setShowStickers((value) => !value)} aria-label="打开猫猫表情" title="猫猫表情" aria-expanded={showStickers} disabled={isGenerating}><SmilePlus /></button>
+            <button ref={stickerButtonRef} type="button" onClick={() => setShowStickers((value) => !value)} aria-label={L("打开猫猫表情")} title={L("猫猫表情")} aria-expanded={showStickers} disabled={isGenerating}><SmilePlus /></button>
             <textarea ref={composerRef} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => {
               // 输入法组词期间按 Enter 是上屏候选词，不能当作发送
               if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.nativeEvent.keyCode !== 229) { event.preventDefault(); void send(); }
             }} placeholder={activeMode === 'character' && !selectedCharacter ? '先从对话设置中选择角色…' : '在星海里说点什么…'} rows={1} maxLength={MAX_INPUT_LENGTH} aria-label="聊天消息" />
-            <button type="button" className={`${p}-tool`} onClick={() => setShowContext((value) => !value)} aria-label="查看来源与记忆"><Shield />{memoryRecords.length ? `${memoryRecords.length} 条记忆` : '隐私上下文'}</button>
+            <button type="button" className={`${p}-tool`} onClick={() => setShowContext((value) => !value)} aria-label={L("查看来源与记忆")}><Shield />{memoryRecords.length ? `${memoryRecords.length} 条记忆` : '隐私上下文'}</button>
             {isGenerating
-              ? <button type="button" className={`${p}-send`} data-motion-ripple="true" onClick={() => abortRef.current?.abort()} aria-label="停止生成"><Square /></button>
-              : <button type="submit" className={`${p}-send`} data-motion-ripple="true" disabled={!input.trim() || isGenerating} aria-label="发送"><Send /></button>}
+              ? <button type="button" className={`${p}-send`} data-motion-ripple="true" onClick={() => abortRef.current?.abort()} aria-label={L("停止生成")}><Square /></button>
+              : <button type="submit" className={`${p}-send`} data-motion-ripple="true" disabled={!input.trim() || isGenerating} aria-label={L("发送")}><Send /></button>}
           </form>
-          <p><span>{input ? '草稿已自动保存在本机 · ' : ''}AI 可能会犯错，请通过引用核对重要信息 · API Key 仅保存在本机</span>{nearInputLimit && <strong>{input.length.toLocaleString('zh-CN')} / {MAX_INPUT_LENGTH.toLocaleString('zh-CN')}</strong>}</p>
+          <p><span>{input ? '草稿已自动保存在本机 · ' : ''}{L("AI 可能会犯错，请通过引用核对重要信息 · API Key 仅保存在本机")}</span>{nearInputLimit && <strong>{input.length.toLocaleString('zh-CN')} / {MAX_INPUT_LENGTH.toLocaleString('zh-CN')}</strong>}</p>
         </section>
 
-        <aside className={`${p}-pet-dock`} aria-label="陪伴角色">
+        <aside className={`${p}-pet-dock`} aria-label={L("陪伴角色")}>
           <div className={`${p}-pet-bubble`}><strong>{copy.pet}</strong><span>{copy.petLine}</span></div>
-          <button type="button" className={`${p}-pet`} onClick={petPoffy} aria-label={`摸摸泡芙，当前亲密度 ${affection}%`}>
-            <span className={`${p}-pet-halo`} /><ResponsiveImage src="/pets/poffy.png" alt="泡芙" widths={THUMBNAIL_IMAGE_WIDTHS} sizes="112px" loading="lazy" /><i>♥</i>
+          <button type="button" className={`${p}-pet`} onClick={petPoffy} aria-label={L(`摸摸泡芙，当前亲密度 ${affection}%`)}>
+            <span className={`${p}-pet-halo`} /><ResponsiveImage src="/pets/poffy.png" alt={L("泡芙")} widths={THUMBNAIL_IMAGE_WIDTHS} sizes="112px" loading="lazy" /><i>♥</i>
             {theme === 'sweet' && <span className="sweet-pet-toppings"><b className="sweet-topping" /><b className="sweet-topping" /><b className="sweet-topping" /><b className="sweet-topping" /><b className="sweet-topping" /></span>}
             {theme === 'aurora' && <span className="aurora-pet-glow" />}
           </button>
-          <div className={`${p}-pet-card`}><div><span>亲密度</span><strong>{affection}%</strong></div><div className={`${p}-affection`}><span style={{ width: `${affection}%` }} /></div><small>点击摸摸泡芙</small></div>
+          <div className={`${p}-pet-card`}><div><span>{L("亲密度")}</span><strong>{affection}%</strong></div><div className={`${p}-affection`}><span style={{ width: `${affection}%` }} /></div><small>{L("点击摸摸泡芙")}</small></div>
         </aside>
 
-        <nav className={`${p}-mobile-nav`} aria-label="聊天快捷导航">
-          <button type="button" onClick={() => setSidebarOpen(true)}><MessageCircle />对话</button>
-          <Link to="/"><Home />首页</Link>
-          <button type="button" className="is-active" onClick={() => setInput('带我探索这个网站。')}><Compass />探索</button>
-          <Link to="/settings/ai"><Settings2 />设置</Link>
-          <button type="button" onClick={() => setShowControls((value) => !value)}><MoreHorizontal />更多</button>
+        <nav className={`${p}-mobile-nav`} aria-label={L("聊天快捷导航")}>
+          <button type="button" onClick={() => setSidebarOpen(true)}><MessageCircle />{L("对话")}</button>
+          <Link to="/"><Home />{L("首页")}</Link>
+          <button type="button" className="is-active" onClick={() => setInput('带我探索这个网站。')}><Compass />{L("探索")}</button>
+          <Link to="/settings/ai"><Settings2 />{L("设置")}</Link>
+          <button type="button" onClick={() => setShowControls((value) => !value)}><MoreHorizontal />{L("更多")}</button>
         </nav>
       </div>
 
@@ -887,14 +889,14 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
         if (event.currentTarget === event.target) setConfirmation(null);
       }}>
         <section className="original-chat-dialog" role="dialog" aria-modal="true" aria-labelledby="chat-dialog-title">
-          <header><div className={confirmation.type === 'rename' ? '' : 'is-danger'}>{confirmation.type === 'rename' ? <Edit3 /> : <Trash2 />}</div><button type="button" onClick={() => setConfirmation(null)} aria-label="关闭"><X /></button></header>
+          <header><div className={confirmation.type === 'rename' ? '' : 'is-danger'}>{confirmation.type === 'rename' ? <Edit3 /> : <Trash2 />}</div><button type="button" onClick={() => setConfirmation(null)} aria-label={L("关闭")}><X /></button></header>
           <h2 id="chat-dialog-title">{confirmationTitle}</h2>
           {confirmation.type === 'rename'
-            ? <><p>取一个方便回看的名字，最多 80 个字符。</p><input autoFocus value={confirmation.value} maxLength={80} onChange={(event) => setConfirmation({ type: 'rename', value: event.target.value })} onKeyDown={(event) => {
+            ? <><p>{L("取一个方便回看的名字，最多 80 个字符。")}</p><input autoFocus value={confirmation.value} maxLength={80} onChange={(event) => setConfirmation({ type: 'rename', value: event.target.value })} onKeyDown={(event) => {
               if (event.key === 'Enter') confirmAction();
-            }} aria-label="对话名称" /></>
+            }} aria-label={L("对话名称")} /></>
             : <p>{confirmation.type === 'delete' ? '这段对话会从列表中移除，但底层仍保留为可恢复状态。' : '当前消息、摘要和会话级记忆会被清除；全局与角色长期记忆不受影响。'}</p>}
-          <footer><button type="button" onClick={() => setConfirmation(null)}>取消</button><button type="button" className={confirmation.type === 'rename' ? 'is-primary' : 'is-danger'} onClick={confirmAction} disabled={confirmation.type === 'rename' && !confirmation.value.trim()}>{confirmation.type === 'rename' ? '保存名称' : confirmation.type === 'delete' ? '确认删除' : '确认清空'}</button></footer>
+          <footer><button type="button" onClick={() => setConfirmation(null)}>{L("取消")}</button><button type="button" className={confirmation.type === 'rename' ? 'is-primary' : 'is-danger'} onClick={confirmAction} disabled={confirmation.type === 'rename' && !confirmation.value.trim()}>{confirmation.type === 'rename' ? '保存名称' : confirmation.type === 'delete' ? '确认删除' : '确认清空'}</button></footer>
         </section>
       </div>}
     </div>

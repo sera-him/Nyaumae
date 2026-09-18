@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { L } from '@/lib/translations/manual';
+
 
 /**
  * Animated counter that counts up from 0 to `target` on mount.
@@ -118,7 +120,7 @@ export function AnimatedWorldStats({ className = '', active = true }: { classNam
 
   return (
     <span className={`font-mono ${className}`}>
-      世界观人口 {formatNumber(population)} · 人均寿命 {lifespan.years}y {lifespan.months}m {lifespan.days}d
+      {L("世界观人口 ")}{formatNumber(population)} {L("· 人均寿命 ")}{lifespan.years}y {lifespan.months}m {lifespan.days}d
     </span>
   );
 }
@@ -136,7 +138,7 @@ export function AnimatedWorldStatsHero({ className = '', active = true }: { clas
 
   return (
     <span className={`font-mono ${className}`}>
-      世界观人口 {formatNumber(population)} | 人均寿命 {lifespan.years}y {lifespan.months}m {lifespan.days}d
+      {L("世界观人口 ")}{formatNumber(population)} {L("| 人均寿命 ")}{lifespan.years}y {lifespan.months}m {lifespan.days}d
     </span>
   );
 }

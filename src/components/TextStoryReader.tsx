@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { useParams, useNavigate, Link } from 'react-router';
 import { ArrowLeft, ChevronLeft, ChevronRight, ListTree, Minus, Plus } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageState from '@/components/PageState';
-import { renderStoryContent } from '@/lib/renderStoryContent';
+import { renderStoryContent, renderStoryContentEn } from '@/lib/renderStoryContent';
 import ReadingProgress from '@/components/ReadingProgress';
 import { emitRouteReady } from '@/lib/deepLinkCoordinator';
 import { getStoryConfig } from '@/lib/storyThemeConfig';
@@ -69,10 +71,15 @@ function parseTextStory(source: string): TextStoryPart[] {
     commitChapter();
     const title = line.slice(3).trim();
 
-    if (/^第.+篇/.test(title)) {
+    // 中文文件：`## 第一篇 …` / `## 第一章：…` / `## 尾声 …`
+    // 英文文件：`## Part 1: …` / `## Part Six: …` / `## Chapter 1: …` / `## Epilogue: …`
+    const isPartHeading = /^第.+篇/.test(title) || /^Part\b/i.test(title);
+    const isChapterHeading = /^(第.+章|尾声)/.test(title) || /^(Chapter|Epilogue)\b/i.test(title);
+
+    if (isPartHeading) {
       currentPart = { title, chapters: [] };
       parts.push(currentPart);
-    } else if (/^(第.+章|尾声)/.test(title)) {
+    } else if (isChapterHeading) {
       if (!currentPart) {
         currentPart = { title: '正文', chapters: [] };
         parts.push(currentPart);
@@ -151,7 +158,7 @@ interface ChapterDirectoryProps {
 
 function ChapterDirectory({ parts, activePart, activeChapter, onSelect }: ChapterDirectoryProps) {
   return (
-    <nav className="story-reader-directory-list" aria-label="章节目录">
+    <nav className="story-reader-directory-list" aria-label={L("章节目录")}>
       {parts.map((partItem, partIndex) => (
         <section key={partItem.title} className={partIndex === activePart ? 'is-active' : undefined}>
           <p>{partItem.title}</p>
@@ -181,20 +188,22 @@ function ChapterDirectory({ parts, activePart, activeChapter, onSelect }: Chapte
 export default function TextStoryReader({ story }: TextStoryReaderProps) {
   const { partId, chapterId } = useParams<{ partId?: string; chapterId?: string }>();
   const navigate = useNavigate();
+  const locale = useLocale();
   const sourceUrl = story.contentSource!;
+  const enSourceUrl = sourceUrl.replace(/\.txt$/, '.en.txt');
+  const activeSourceUrl = locale === 'en' ? enSourceUrl : sourceUrl;
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [loadedStory, setLoadedStory] = useState<LoadedTextStory>(() => ({
-    source: sourceUrl,
-    parts: textStoryCache.get(sourceUrl) ?? [],
+    source: activeSourceUrl,
+    parts: textStoryCache.get(activeSourceUrl) ?? [],
     error: null,
   }));
   const { preferences, updatePreferences } = useReadingPreferences();
-  const locale = useLocale();
   const englishReader = locale === 'en';
-  const parts = loadedStory.source === sourceUrl
+  const parts = loadedStory.source === activeSourceUrl
     ? loadedStory.parts
-    : textStoryCache.get(sourceUrl) ?? [];
-  const error = loadedStory.source === sourceUrl ? loadedStory.error : null;
+    : textStoryCache.get(activeSourceUrl) ?? [];
+  const error = loadedStory.source === activeSourceUrl ? loadedStory.error : null;
   const config = getStoryConfig(story.id);
   const paperClass = getPaperClass(config.paperStyle);
   const navClass = getNavClass(config.chapterButtonStyle);
@@ -206,29 +215,29 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
   useEffect(() => {
     let active = true;
 
-    void loadTextStory(sourceUrl)
+    void loadTextStory(activeSourceUrl)
       .then((nextParts) => {
-        if (active) setLoadedStory({ source: sourceUrl, parts: nextParts, error: null });
+        if (active) setLoadedStory({ source: activeSourceUrl, parts: nextParts, error: null });
       })
       .catch((loadError: unknown) => {
         if (active) {
           const reason = !navigator.onLine
-            ? '当前处于离线状态，正文尚未缓存。联网后可原地重试。'
+            ? (englishReader ? 'You are offline and the text is not cached yet. Reconnect to retry in place.' : '当前处于离线状态，正文尚未缓存。联网后可原地重试。')
             : loadError instanceof DOMException && loadError.name === 'AbortError'
-              ? '正文请求超过 15 秒，已停止等待。'
+              ? (englishReader ? 'The text request timed out after 15 seconds and was stopped.' : '正文请求超过 15 秒，已停止等待。')
               : loadError instanceof Error && loadError.message.startsWith('HTTP ')
-                ? `正文服务返回 ${loadError.message.replace('HTTP ', '')}。`
-                : '正文资源暂时不可用。';
+                ? (englishReader ? `The text service responded with ${loadError.message.replace('HTTP ', '')}.` : `正文服务返回 ${loadError.message.replace('HTTP ', '')}。`)
+                : (englishReader ? 'The text content is temporarily unavailable.' : '正文资源暂时不可用。');
           setLoadedStory((current) => ({
-            source: sourceUrl,
-            parts: current.source === sourceUrl ? current.parts : [],
+            source: activeSourceUrl,
+            parts: current.source === activeSourceUrl ? current.parts : [],
             error: reason,
           }));
         }
       });
 
     return () => { active = false; };
-  }, [loadAttempt, sourceUrl]);
+  }, [loadAttempt, activeSourceUrl, englishReader]);
 
   const partIndex = partId ? parseInt(partId, 10) - 1 : 0;
   const validPartIndex = !isNaN(partIndex) && partIndex >= 0 && partIndex < parts.length ? partIndex : null;
@@ -287,8 +296,8 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
 
   const retryLoad = () => {
     setLoadedStory((current) => ({
-      source: sourceUrl,
-      parts: current.source === sourceUrl ? current.parts : [],
+      source: activeSourceUrl,
+      parts: current.source === activeSourceUrl ? current.parts : [],
       error: null,
     }));
     setLoadAttempt((attempt) => attempt + 1);
@@ -329,11 +338,13 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
         <div className="aurora-container aurora-generic-inner story-reader-shell">
           <PageState
             kind={offline ? 'offline' : 'error'}
-            title={offline ? `${story.title} · 离线时无法载入` : `${story.title} · 正文暂时无法加载`}
-            description={`${error} 当前仍停留在第 ${partId ?? '1'} 篇、第 ${chapterId ?? '1'} 章，网址和阅读位置不会改变。`}
+            title={offline ? `${story.title} · ${englishReader ? 'Cannot load while offline' : '离线时无法载入'}` : `${story.title} · ${englishReader ? 'The text could not be loaded right now' : '正文暂时无法加载'}`}
+            description={englishReader
+              ? `${error} You are still on part ${partId ?? '1'}, chapter ${chapterId ?? '1'}; the URL and reading position do not change.`
+              : L(`${error} 当前仍停留在第 ${partId ?? '1'} 篇、第 ${chapterId ?? '1'} 章，网址和阅读位置不会改变。`)}
             actions={<>
-              <button type="button" data-action="retry" className="aurora-button aurora-button-primary" onClick={retryLoad}>原地重试正文</button>
-              <Link to="/stories" data-action="back" className="aurora-button">返回故事列表</Link>
+              <button type="button" data-action="retry" className="aurora-button aurora-button-primary" onClick={retryLoad}>{L("原地重试正文")}</button>
+              <Link to="/stories" data-action="back" className="aurora-button">{L("返回故事列表")}</Link>
             </>}
           />
         </div>
@@ -345,7 +356,7 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
     return (
       <div className="aurora-ui aurora-generic-page story-reader-aurora" data-aurora-accent={config.theme}>
         <div className="aurora-container aurora-generic-inner story-reader-shell">
-          <PageState kind="loading" title="正在载入正文" description="章节与阅读进度准备好后会自动显示。" />
+          <PageState kind="loading" title={L("正在载入正文")} description="章节与阅读进度准备好后会自动显示。" />
         </div>
       </div>
     );
@@ -357,11 +368,11 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
         <div className="aurora-container aurora-generic-inner story-reader-shell">
           <PageState
             kind="empty"
-            title="未找到该章节"
+            title={L("未找到该章节")}
             description="章节地址可能已更新，可以从第一章重新开始。"
             actions={<>
-              <Link to={`/stories/${story.id}/parts/1/chapters/1`} className="aurora-button aurora-button-primary">返回第一章</Link>
-              <Link to="/stories" className="aurora-button">故事列表</Link>
+              <Link to={`/stories/${story.id}/parts/1/chapters/1`} className="aurora-button aurora-button-primary">{L("返回第一章")}</Link>
+              <Link to="/stories" className="aurora-button">{L("故事列表")}</Link>
             </>}
           />
         </div>
@@ -378,15 +389,14 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
           data-action="back"
           className="story-reader-back aurora-button aurora-button-quiet"
         >
-          <ArrowLeft className="w-4 h-4" /> 返回故事列表
-        </Link>
+          <ArrowLeft className="w-4 h-4" /> {L("返回故事列表\n        ")}</Link>
 
-        <div className="story-reader-tools" aria-label="阅读显示设置">
-          <button type="button" onClick={() => updatePreferences({ ...preferences, fontSize: Math.max(14, preferences.fontSize - 1) })} disabled={preferences.fontSize <= 14} aria-label="减小字号"><Minus /></button>
+        <div className="story-reader-tools" aria-label={L("阅读显示设置")}>
+          <button type="button" onClick={() => updatePreferences({ ...preferences, fontSize: Math.max(14, preferences.fontSize - 1) })} disabled={preferences.fontSize <= 14} aria-label={L("减小字号")}><Minus /></button>
           <span className="story-reader-tool-value">{preferences.fontSize}px</span>
-          <button type="button" onClick={() => updatePreferences({ ...preferences, fontSize: Math.min(22, preferences.fontSize + 1) })} disabled={preferences.fontSize >= 22} aria-label="增大字号"><Plus /></button>
-          <button type="button" onClick={() => updatePreferences({ ...preferences, lineHeight: preferences.lineHeight >= 2.15 ? 1.65 : preferences.lineHeight >= 1.85 ? 2.2 : 1.9 })}>行距 {preferences.lineHeight.toFixed(2)}</button>
-          <span className="story-reader-keyboard-hint"><ChevronLeft /><ChevronRight /> 键盘翻章</span>
+          <button type="button" onClick={() => updatePreferences({ ...preferences, fontSize: Math.min(22, preferences.fontSize + 1) })} disabled={preferences.fontSize >= 22} aria-label={L("增大字号")}><Plus /></button>
+          <button type="button" onClick={() => updatePreferences({ ...preferences, lineHeight: preferences.lineHeight >= 2.15 ? 1.65 : preferences.lineHeight >= 1.85 ? 2.2 : 1.9 })}>{L("行距 ")}{preferences.lineHeight.toFixed(2)}</button>
+          <span className="story-reader-keyboard-hint"><ChevronLeft /><ChevronRight /> {L("键盘翻章")}</span>
         </div>
 
         <motion.div
@@ -400,13 +410,13 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
         </motion.div>
 
         <details className="story-reader-directory story-reader-directory--mobile">
-          <summary><ListTree aria-hidden="true" />章节目录<span>{validPartIndex + 1}.{validChapterIndex + 1}</span></summary>
+          <summary><ListTree aria-hidden="true" />{L("章节目录")}<span>{validPartIndex + 1}.{validChapterIndex + 1}</span></summary>
           <ChapterDirectory parts={parts} activePart={validPartIndex} activeChapter={validChapterIndex} onSelect={goToChapter} />
         </details>
 
         <div className="story-reader-layout">
           <aside className="story-reader-directory story-reader-directory--desktop">
-            <div className="story-reader-directory-heading"><ListTree aria-hidden="true" /><span><small>CONTENTS</small><strong>章节目录</strong></span></div>
+            <div className="story-reader-directory-heading"><ListTree aria-hidden="true" /><span><small>CONTENTS</small><strong>{L("章节目录")}</strong></span></div>
             <ChapterDirectory parts={parts} activePart={validPartIndex} activeChapter={validChapterIndex} onSelect={goToChapter} />
           </aside>
 
@@ -423,7 +433,7 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
                 {partImage && (
                   <SmartImage
                     localSrc={partImage}
-                    alt={`${part.title}插图`}
+                    alt={L(`${part.title}插图`)}
                     responsiveWidths={READER_IMAGE_WIDTHS}
                     sizes="(max-width: 840px) calc(100vw - 32px), 800px"
                     loading="lazy"
@@ -436,19 +446,14 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
                   <p>{part.title}</p>
                   <h2>{chapter.title}</h2>
                 </header>
-                {englishReader && (
-                  <p className="story-reader-translation-note" role="note">
-                    The interface is in English. This novel is being translated chapter by chapter —
-                    the original Chinese text is shown below.
-                  </p>
-                )}
+                {englishReader && null}
                 <div className="story-reader-prose font-serif-cn whitespace-pre-wrap" data-no-translate style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight }}>
-                  {renderStoryContent(chapter.content)}
+                  {englishReader ? renderStoryContentEn(chapter.content) : renderStoryContent(chapter.content)}
                 </div>
               </motion.article>
           </AnimatePresence>
 
-          <nav className="story-reader-nav-area" aria-label="章节翻页">
+          <nav className="story-reader-nav-area" aria-label={L("章节翻页")}>
             {hasPrevChapter && (
               <button
                 type="button"
@@ -456,7 +461,7 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
                 className={`story-reader-nav story-reader-nav--previous ${navClass}`}
               >
                 <ArrowLeft aria-hidden="true" />
-                <span><small>上一章</small><strong>{previousChapterTitle}</strong></span>
+                <span><small>{L("上一章")}</small><strong>{previousChapterTitle}</strong></span>
               </button>
             )}
 
@@ -466,7 +471,7 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
                 onClick={nextChapter}
                 className={`story-reader-nav story-reader-nav--next ${navClass}`}
               >
-                <span><small>下一章</small><strong>{nextChapterTitle}</strong></span>
+                <span><small>{L("下一章")}</small><strong>{nextChapterTitle}</strong></span>
                 <ChevronRight aria-hidden="true" />
               </button>
             )}

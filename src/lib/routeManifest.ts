@@ -1,6 +1,6 @@
 import { characterGuardData } from './generated/routeGuardData.generated';
 
-export type RouteDomain = 'root' | 'world' | 'characters' | 'stories' | 'miia' | 'math' | 'playground' | 'api' | 'chat' | 'settings' | 'codex' | 'analytics';
+export type RouteDomain = 'root' | 'world' | 'characters' | 'stories' | 'miia' | 'math' | 'playground' | 'api' | 'chat' | 'settings' | 'codex' | 'analytics' | 'other';
 
 export interface RouteInfo {
   canonical: string;
@@ -72,6 +72,7 @@ const canonicalRoutes: Record<string, RouteInfo> = {
   '/codex': { canonical: '/codex', domain: 'codex', kind: 'page', label: '全站搜索' },
   '/nctb': { canonical: '/nctb', domain: 'math', kind: 'page', label: 'NCTB 认知实验室' },
   '/analytics': { canonical: '/analytics', domain: 'analytics', kind: 'page', label: '数据统计' },
+  '/other': { canonical: '/other', domain: 'other', kind: 'page', label: '其他入口' },
 };
 
 function normalizePathname(pathname: string): string {
@@ -191,7 +192,8 @@ export const ROUTE_DIRECTORY_GROUPS: RouteDirectoryGroup[] = [
   },
   {
     id: 'other',
-    root: '/codex',
+    // 与 /chat 一致：分组根路由指向 hub 导航页本身，而 hub 页不进入目录 items。
+    root: '/other',
     label: '其他',
     caption: 'OTHER',
     description: '全站搜索、认知实验与本机数据',

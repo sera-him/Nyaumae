@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
+import { useLocale } from '@/hooks/useLocale';
 import {
   getPlaygroundItemCategory,
   getPlaygroundItemLabel,
@@ -14,6 +15,7 @@ import {
 } from '@/lib/routeManifest';
 import { characterGuardData, storyGuardData } from '@/lib/generated/routeGuardData.generated';
 import { getStoryCover } from '@/data/storyCovers';
+import { L } from '@/lib/translations/manual';
 
 const SITE_NAME = 'Neural Connection';
 const SITE_TITLE = 'Neural Connection — nyaumæ 的故事宇宙';
@@ -64,8 +66,8 @@ const charactersById = new Map(characterGuardData.map((character) => [character.
 
 function page(title: string, description: string, canonicalPath: string): PageMetadata {
   return {
-    title: `${title} — ${SITE_NAME}`,
-    description,
+    title: `${L(title)} — ${SITE_NAME}`,
+    description: L(description),
     canonicalPath,
   };
 }
@@ -159,7 +161,7 @@ function getPlaygroundMetadata(canonicalPath: string): PageMetadata {
   const category = segments[1];
   const itemId = segments[2];
   const itemCategory = getPlaygroundItemCategory(itemId);
-  const itemLabel = getPlaygroundItemLabel(itemId);
+  const itemLabel = L(getPlaygroundItemLabel(itemId) ?? '');
   if (!isKnownPlaygroundItem(itemId) || !itemLabel || itemCategory !== category) {
     return notFound(canonicalPath);
   }
@@ -215,8 +217,8 @@ function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
 
   if (canonicalPath === '/') {
     return {
-      title: SITE_TITLE,
-      description: DEFAULT_DESCRIPTION,
+      title: L(SITE_TITLE),
+      description: L(DEFAULT_DESCRIPTION),
       canonicalPath,
     };
   }
@@ -233,7 +235,7 @@ function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
     const section = canonicalPath.slice('/world/'.length);
     if (!isKnownWorldSection(section)) return notFound(canonicalPath);
     return page(
-      WORLD_SECTION_LABELS[section] ?? '世界观',
+      L(WORLD_SECTION_LABELS[section] ?? '世界观'),
       '探索 Neural Connection 的世界观：编年史、组织机构、世界设定、QET 选拔、词典与未来线。',
       canonicalPath,
     );
@@ -241,8 +243,8 @@ function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
 
   if (canonicalPath === '/characters') {
     const requestedFilter = new URLSearchParams(search).get('group') ?? '';
-    const filterLabel = CHARACTER_FILTER_LABELS[requestedFilter];
-    const canonicalWithFilter = filterLabel ? `/characters?group=${encodeURIComponent(requestedFilter)}` : '/characters';
+    const filterLabel = L(CHARACTER_FILTER_LABELS[requestedFilter] ?? '角色档案');
+    const canonicalWithFilter = requestedFilter ? `/characters?group=${encodeURIComponent(requestedFilter)}` : '/characters';
     return page(
       filterLabel ? `${filterLabel}｜角色档案` : '角色档案',
       filterLabel
@@ -256,8 +258,8 @@ function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
     const id = canonicalPath.slice('/characters/'.length);
     if (isKnownCharacterFilter(id)) {
       return page(
-        `${CHARACTER_FILTER_LABELS[id] ?? '角色档案'}｜角色档案`,
-        `浏览 Neural Connection 的${CHARACTER_FILTER_LABELS[id] ?? '角色'}档案与关系设定。`,
+        `${L(CHARACTER_FILTER_LABELS[id] ?? '角色档案')}｜角色档案`,
+        `浏览 Neural Connection 的${L(CHARACTER_FILTER_LABELS[id] ?? '角色')}档案与关系设定。`,
         id === 'all' ? '/characters' : `/characters?group=${encodeURIComponent(id)}`,
       );
     }
@@ -295,7 +297,7 @@ function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
     const section = canonicalPath.slice('/miia/'.length);
     if (!isKnownMiiaSection(section)) return notFound(canonicalPath);
     return page(
-      MIIA_SECTION_LABELS[section] ?? '咪呀空间',
+      L(MIIA_SECTION_LABELS[section] ?? '咪呀空间'),
       '进入咪呀的内心空间，阅读咪呀的世界、数学笔记与诗歌碎片，感受一个二年级生对存在与被爱的温柔质问。',
       canonicalPath,
     );
@@ -313,7 +315,7 @@ function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
     const section = canonicalPath.slice('/math/'.length);
     if (!isKnownMathSection(section)) return notFound(canonicalPath);
     return page(
-      MATH_SECTION_LABELS[section] ?? '数学模型',
+      L(MATH_SECTION_LABELS[section] ?? '数学模型'),
       '查看 FSIII 排名、PEMS-L FLA 与身高体重模型，用公式和数据理解 Neural Connection 中的认知体系。',
       canonicalPath,
     );
@@ -334,7 +336,7 @@ function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
   if (canonicalPath.startsWith('/api/')) {
     const providerId = canonicalPath.slice('/api/'.length);
     if (providerId.includes('/') || !isKnownProviderId(providerId)) return notFound(canonicalPath);
-    const providerLabel = getProviderLabel(providerId);
+    const providerLabel = L(getProviderLabel(providerId) ?? '');
     if (!providerLabel) return notFound(canonicalPath);
     return page(
       `${providerLabel} API 参考`,
@@ -386,12 +388,20 @@ function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
     );
   }
 
+  if (canonicalPath === '/other') {
+    return page(
+      '其他入口',
+      '从全站搜索、NCTB 认知实验室与本机数据统计，进入 Neural Connection 的其他工具空间。',
+      canonicalPath,
+    );
+  }
+
   return notFound(canonicalPath);
 }
 
 function notFound(canonicalPath: string): PageMetadata {
   return {
-    title: '页面未找到 — Neural Connection',
+    title: L('页面未找到 — Neural Connection'),
     description: '这条内容路径不存在。请返回首页，或按 / 打开全站搜索。',
     canonicalPath,
     noIndex: true,
@@ -432,6 +442,7 @@ function getCanonicalUrl(pathname: string): string {
 
 export default function RouteMetadata() {
   const location = useLocation();
+  const locale = useLocale();
 
   useEffect(() => {
     const metadata = getPageMetadata(normalizePath(location.pathname), location.search);
@@ -448,7 +459,7 @@ export default function RouteMetadata() {
     upsertMeta('name', 'twitter:description', metadata.description);
     upsertMeta('name', 'robots', metadata.noIndex ? 'noindex,follow' : 'index,follow');
     upsertCanonical(canonicalUrl);
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, locale]);
 
   return null;
 }

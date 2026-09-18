@@ -18,6 +18,7 @@ import { recordLastViewed } from '@/lib/lastViewed';
 import { finishPageView, startPageView, type ActivePageView } from '@/lib/analytics';
 import { SearchSessionProvider } from '@/contexts/SearchSessionContext';
 import { readJsonStorage, writeJsonStorage } from '@/lib/browserStorage';
+import { useLocale } from '@/hooks/useLocale';
 
 const SCROLL_STORAGE_KEY = 'kimi:scrollPositions';
 
@@ -50,6 +51,10 @@ function getSavedScrollPosition(key: string): ScrollPosition | null {
 }
 
 function App() {
+  // Locale lives outside React state, but parts of the tree localise while
+  // rendering (see semanticHighlight). Subscribing at the root makes one
+  // re-render cascade through every section on a language switch.
+  useLocale();
   const [searchOpen, setSearchOpen] = useState(false);
   const activePageViewRef = useRef<ActivePageView | null>(null);
   const location = useLocation();

@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+import { useLocale } from '@/hooks/useLocale';
+
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   BookOpen, ExternalLink, Gamepad2, Globe2, Menu, Music2,
@@ -40,14 +43,6 @@ const navigationGroups = NAVIGATION_GROUPS
   }))
   .filter((group) => !isNavigationExcluded(group.root) && group.items.length > 0);
 
-const primaryItems: PrimaryItem[] = navigationGroups.map((group) => ({
-  label: group.label,
-  to: group.root,
-  icon: groupIconMap[group.id],
-  paths: [group.root, ...group.items.map((item) => item.to)],
-  description: group.description,
-}));
-
 const navigationGroupCount = navigationGroups.length;
 // Derived from the live directory so adding/removing a route never leaves the
 // advertised entry count stale.
@@ -59,6 +54,7 @@ function routeIsActive(pathname: string, to: string, paths?: string[]) {
 }
 
 export default function Navigation({ onSearchClick, onSearchIntent }: NavigationProps) {
+  const locale = useLocale();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set(['miia']));
@@ -68,7 +64,16 @@ export default function Navigation({ onSearchClick, onSearchIntent }: Navigation
   const { isPlaying, isMuted, toggleMusic } = useMusic();
   const musicOn = isPlaying && !isMuted;
   const prefersReducedMotion = useReducedMotion();
-  const activeArea = useMemo(() => primaryItems.find((item) => routeIsActive(location.pathname, item.to, item.paths))?.label ?? '主页', [location.pathname]);
+  // Rebuild the top-bar entries on every locale change so the eight primary
+  // shortcuts re-translate immediately instead of waiting for a page reload.
+  const primaryItems = useMemo<PrimaryItem[]>(() => navigationGroups.map((group) => ({
+    label: locale === 'en' ? L(group.label) : group.label,
+    to: group.root,
+    icon: groupIconMap[group.id],
+    paths: [group.root, ...group.items.map((item) => item.to)],
+    description: locale === 'en' ? L(group.description) : group.description,
+  })), [locale]);
+  const activeArea = useMemo(() => primaryItems.find((item) => routeIsActive(location.pathname, item.to, item.paths))?.label ?? L('主页'), [location.pathname, primaryItems]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -124,28 +129,28 @@ export default function Navigation({ onSearchClick, onSearchIntent }: Navigation
 
   return (
     <>
-      <motion.nav initial={{ y: -80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .3, ease: [0.22, 1, 0.36, 1] }} className={`aurora-nav aurora-site-navigation ${scrolled || menuOpen ? 'aurora-nav-scrolled' : ''} ${menuOpen ? 'aurora-nav-open' : ''}`} aria-label="全站导航" data-active-area={activeArea} data-motion-loop data-motion-kind="ambient">
+      <motion.nav initial={{ y: -80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .3, ease: [0.22, 1, 0.36, 1] }} className={`aurora-nav aurora-site-navigation ${scrolled || menuOpen ? 'aurora-nav-scrolled' : ''} ${menuOpen ? 'aurora-nav-open' : ''}`} aria-label={L("全站导航")} data-active-area={activeArea} data-motion-loop data-motion-kind="ambient">
         <div className="aurora-nav-inner">
-          <Link to="/" className="aurora-brand" aria-label="Neural Connection 主页"><span className="aurora-brand-mark"><BookOpen /></span><span className="aurora-brand-copy"><strong>NEURAL CONNECTION</strong><small>ACTIVE SPACE / {activeArea}</small></span></Link>
-          <div className="aurora-primary-links" aria-label={`${navigationGroupCount}个空间导航`}>
+          <Link to="/" className="aurora-brand" aria-label={L("Neural Connection 主页")}><span className="aurora-brand-mark"><BookOpen /></span><span className="aurora-brand-copy"><strong>NEURAL CONNECTION</strong><small>ACTIVE SPACE / {activeArea}</small></span></Link>
+          <div className="aurora-primary-links" aria-label={L(`${navigationGroupCount}个空间导航`)}>
             {primaryItems.map(({ label, to, icon: Icon, paths, description }) => { const isActive = routeIsActive(location.pathname, to, paths); return <Link key={to} to={to} className={isActive ? 'is-active' : ''} aria-current={isActive ? 'page' : undefined} title={description ? `${label} · ${description}` : undefined} aria-label={description ? `${label}：${description}` : undefined}><Icon /><span>{label}</span>{isActive && <motion.span className="aurora-nav-active-indicator" layoutId="aurora-nav-active-indicator" transition={{ type: 'spring', stiffness: 420, damping: 34 }} aria-hidden="true" />}</Link>; })}
           </div>
           <div className="aurora-nav-actions">
-            <button type="button" onClick={onSearchClick} onPointerEnter={onSearchIntent} onFocus={onSearchIntent} className="aurora-nav-search" data-motion-ripple="true" aria-label="搜索全站"><Search /><span>搜索</span><kbd>/</kbd></button>
-            <Link to="/settings/ai" className="aurora-icon-button" aria-label="设置" title="设置"><UserRound /></Link>
-            <button ref={menuButtonRef} type="button" onClick={() => setMenuOpen((open) => !open)} className={`aurora-menu-button ${menuOpen ? 'is-active' : ''}`} data-motion-ripple="true" aria-label={menuOpen ? '关闭全站导航' : '打开全站导航'} aria-expanded={menuOpen} aria-controls="aurora-navigation-panel" aria-haspopup="dialog"><span>{menuOpen ? '关闭' : '导航'}</span>{menuOpen ? <X /> : <Menu />}</button>
+            <button type="button" onClick={onSearchClick} onPointerEnter={onSearchIntent} onFocus={onSearchIntent} className="aurora-nav-search" data-motion-ripple="true" aria-label={L("搜索全站")}><Search /><span>{L("搜索")}</span><kbd>/</kbd></button>
+            <Link to="/settings/ai" className="aurora-icon-button" aria-label={L("设置")} title={L("设置")}><UserRound /></Link>
+            <button ref={menuButtonRef} type="button" onClick={() => setMenuOpen((open) => !open)} className={`aurora-menu-button ${menuOpen ? 'is-active' : ''}`} data-motion-ripple="true" aria-label={menuOpen ? L('关闭全站导航') : L('打开全站导航')} aria-expanded={menuOpen} aria-controls="aurora-navigation-panel" aria-haspopup="dialog"><span>{menuOpen ? L('关闭') : L('导航')}</span>{menuOpen ? <X /> : <Menu />}</button>
           </div>
         </div>
       </motion.nav>
 
       <AnimatePresence>
         {menuOpen && <motion.div className="aurora-menu-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .18 }} onClick={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
-          <motion.div id="aurora-navigation-panel" ref={menuPanelRef} role="dialog" aria-modal="true" aria-label="全站内容目录" className="aurora-menu-shell" data-motion-loop data-motion-kind="ambient" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .24, ease: [0.22, 1, 0.36, 1] }}>
-            <div className="aurora-menu-heading"><div><span>NEURAL DIRECTORY / {directoryEntryCount} ENTRIES</span><h2>选择一条<span>神经路径</span></h2></div><p>从故事与角色出发，也可以直接前往世界观、游戏和更多内容。</p></div>
+          <motion.div id="aurora-navigation-panel" ref={menuPanelRef} role="dialog" aria-modal="true" aria-label={L("全站内容目录")} className="aurora-menu-shell" data-motion-loop data-motion-kind="ambient" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: .24, ease: [0.22, 1, 0.36, 1] }}>
+            <div className="aurora-menu-heading"><div><span>NEURAL DIRECTORY / {directoryEntryCount} ENTRIES</span><h2>{L("选择一条")}<span>{L("神经路径")}</span></h2></div><p>{L("从故事与角色出发，也可以直接前往世界观、游戏和更多内容。")}</p></div>
             <div className="aurora-menu-grid">
-              {navigationGroups.map(({ id, label, caption, description, items }, groupIndex) => { const Icon = groupIconMap[id]; const expanded = expandedGroups.has(id); return <section key={id} className={`aurora-menu-group ${expanded ? 'is-expanded' : ''}`}><button type="button" className="aurora-menu-group-header" onClick={() => toggleGroup(id)} aria-expanded={expanded}><span className="aurora-menu-index">{String(groupIndex + 1).padStart(2, '0')}</span><Icon /><span className="aurora-menu-group-copy"><strong>{label}</strong><small>{caption}</small><em>{description}</em></span><span className="aurora-menu-group-chevron" aria-hidden="true">{expanded ? '−' : '+'}</span></button><div className="aurora-menu-links">{items.map((item) => { const isActive = routeIsActive(location.pathname, item.to); return <Link key={item.to} to={item.to} className={isActive ? 'is-active' : ''} aria-current={isActive ? 'page' : undefined}><span>{item.label}</span><span aria-hidden="true">↗</span></Link>; })}</div></section>; })}
+              {navigationGroups.map(({ id, label, caption, description, items }, groupIndex) => { const Icon = groupIconMap[id]; const expanded = expandedGroups.has(id); return <section key={id} className={`aurora-menu-group ${expanded ? 'is-expanded' : ''}`}><button type="button" className="aurora-menu-group-header" onClick={() => toggleGroup(id)} aria-expanded={expanded}><span className="aurora-menu-index">{String(groupIndex + 1).padStart(2, '0')}</span><Icon /><span className="aurora-menu-group-copy"><strong>{L(label)}</strong><small>{L(caption)}</small><em>{L(description)}</em></span><span className="aurora-menu-group-chevron" aria-hidden="true">{expanded ? '−' : '+'}</span></button><div className="aurora-menu-links">{items.map((item) => { const isActive = routeIsActive(location.pathname, item.to); return <Link key={item.to} to={item.to} className={isActive ? 'is-active' : ''} aria-current={isActive ? 'page' : undefined}><span>{L(item.label)}</span><span aria-hidden="true">↗</span></Link>; })}</div></section>; })}
             </div>
-            <div className="aurora-menu-system"><div><span>SITE CONTROL</span><strong>站点偏好</strong></div><div className="aurora-menu-system-links"><button type="button" onClick={toggleMusic}>{musicOn ? <Music2 /> : <VolumeX />}<span>{musicOn ? '关闭声音' : '打开声音'}</span></button></div></div>
+            <div className="aurora-menu-system"><div><span>SITE CONTROL</span><strong>{L("站点偏好")}</strong></div><div className="aurora-menu-system-links"><button type="button" onClick={toggleMusic}>{musicOn ? <Music2 /> : <VolumeX />}<span>{musicOn ? '关闭声音' : '打开声音'}</span></button></div></div>
             <div className="aurora-menu-footer"><a href="https://space.bilibili.com/396073700" target="_blank" rel="noopener noreferrer">nyaumæ <ExternalLink /></a></div>
           </motion.div>
         </motion.div>}

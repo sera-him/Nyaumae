@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import { L } from '@/lib/translations/manual';
+
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Brain, ExternalLink, MessageSquareText } from 'lucide-react';
 import { useState } from 'react';
@@ -95,8 +97,7 @@ export default function Footer() {
 
           <div className="aurora-footer-stats footer-motion-stats inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-nc-bg-secondary border border-nc-cyan/20 mb-8">
             <p className="font-mono text-sm sm:text-base text-nc-text leading-relaxed">
-              <AnimatedWorldStats active={isVisible} /> · 国际几何日 6.26
-            </p>
+              <AnimatedWorldStats active={isVisible} /> {L("· 国际几何日 6.26\n            ")}</p>
           </div>
 
           <div className="aurora-footer-divider w-full max-w-md mx-auto h-px bg-gradient-to-r from-transparent via-nc-violet/20 to-transparent mb-8" />

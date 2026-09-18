@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useMusic } from '@/contexts/MusicContext';
@@ -249,25 +251,22 @@ function GamePanel({ onOpenSetup }: { onOpenSetup: () => void }) {
   if (phase === 'menu') {
     return (
       <div className="bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-8 text-center">
-        <h3 className="text-2xl font-bold text-nc-text mb-4">概率三子棋 v3</h3>
+        <h3 className="text-2xl font-bold text-nc-text mb-4">{L("概率三子棋 v3")}</h3>
         <p className="text-nc-text-secondary mb-6 max-w-md mx-auto">
-          传统三子棋 × 概率机制 × SP 技能系统。每个格子有独立的成功概率，落子需要运气与策略！
-        </p>
+          {L("传统三子棋 × 概率机制 × SP 技能系统。每个格子有独立的成功概率，落子需要运气与策略！\n        ")}</p>
         <div className="flex gap-3 justify-center">
           <button
             onClick={startGame}
             className="px-6 py-3 rounded-lg font-bold text-white bg-nc-violet hover:bg-violet-500 transition-all flex items-center gap-2"
           >
             <Play className="w-5 h-5" />
-            开始对弈
-          </button>
+            {L("开始对弈\n          ")}</button>
           <button
             onClick={onOpenSetup}
             className="px-6 py-3 rounded-lg font-medium text-nc-text border border-nc-violet/20 hover:border-nc-violet/40 transition-all flex items-center gap-2"
           >
             <Settings className="w-5 h-5" />
-            设置
-          </button>
+            {L("设置\n          ")}</button>
         </div>
       </div>
     );
@@ -321,12 +320,12 @@ function GamePanel({ onOpenSetup }: { onOpenSetup: () => void }) {
           {gameState.venture[player] && <span className="text-yellow-400 text-xs">[{s('Venture')}]</span>}
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={onOpenSetup} aria-label="打开对局设置" title="对局设置" className="p-2 rounded-lg bg-nc-bg-tertiary text-nc-text-muted hover:text-nc-text border border-nc-violet/10">
+          <button type="button" onClick={onOpenSetup} aria-label={L("打开对局设置")} title={L("对局设置")} className="p-2 rounded-lg bg-nc-bg-tertiary text-nc-text-muted hover:text-nc-text border border-nc-violet/10">
             <Settings className="w-4 h-4" aria-hidden="true" />
           </button>
           <button type="button" onClick={() => {
             if (confirmAction({ title: '重新开始技能井字棋？', consequence: '当前棋盘、回合、技能与双方资源都会重置。' })) restartWithSameSettings();
-          }} aria-label="重新开始本局" title="重新开始" className="p-2 rounded-lg bg-nc-bg-tertiary text-nc-text-muted hover:text-nc-text border border-nc-violet/10">
+          }} aria-label={L("重新开始本局")} title={L("重新开始")} className="p-2 rounded-lg bg-nc-bg-tertiary text-nc-text-muted hover:text-nc-text border border-nc-violet/10">
             <RotateCcw className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
@@ -557,9 +556,9 @@ function Board({
                   {isOverloaded ? (
                     <span className="text-lg font-bold text-gray-500">???</span>
                   ) : isSealed ? (
-                    <span className="text-xs text-red-400 font-bold">封印</span>
+                    <span className="text-xs text-red-400 font-bold">{L("封印")}</span>
                   ) : isGridRewrite && !isUnlocked ? (
-                    <span className="text-xs text-red-400 font-bold">封锁</span>
+                    <span className="text-xs text-red-400 font-bold">{L("封锁")}</span>
                   ) : gameState.wheelHidden[physicalPos] ? (
                     <span className="text-lg font-bold text-white">???</span>
                   ) : (
@@ -609,7 +608,7 @@ function Board({
       {/* Grid Rewrite 键盘 */}
       {isGridRewrite && (
         <div className="mt-4">
-          <p className="text-xs text-nc-text-muted text-center mb-2">Grid Rewrite 封锁中 — 点击数字解锁并尝试落子</p>
+          <p className="text-xs text-nc-text-muted text-center mb-2">{L("Grid Rewrite 封锁中 — 点击数字解锁并尝试落子")}</p>
           <div className="grid grid-cols-3 gap-2 max-w-[360px] mx-auto">
             {Array.from({ length: 9 }, (_, i) => {
               const used = gameState.gridRewriteKeysUsed[currentPlayer][i];
@@ -961,8 +960,7 @@ function ProfShopModal({
       >
         <h3 className="text-lg font-bold text-nc-text mb-4 flex items-center gap-2">
           <Briefcase className="w-5 h-5 text-nc-gold" />
-          职业商店
-        </h3>
+          {L("职业商店\n        ")}</h3>
 
         <div className="space-y-2 mb-4">
           {allProfs.map((prof) => {
@@ -983,7 +981,7 @@ function ProfShopModal({
                     )}
                   </div>
                   {owned ? (
-                    <span className="text-xs text-green-400 font-medium shrink-0">已拥有</span>
+                    <span className="text-xs text-green-400 font-medium shrink-0">{L("已拥有")}</span>
                   ) : oppOwned ? (
                     <div className="flex gap-1 shrink-0">
                       <button
@@ -991,14 +989,14 @@ function ProfShopModal({
                         disabled={gameState.sp[player] < buyCost}
                         className="px-2 py-1 rounded text-[10px] bg-yellow-500/15 text-yellow-400 border border-yellow-500/20 disabled:opacity-30"
                       >
-                        买断 {buyCost}
+                        {L("买断 ")}{buyCost}
                       </button>
                       <button
                         onClick={() => onBuy(prof, true)}
                         disabled={gameState.sp[player] < snatchCost}
                         className="px-2 py-1 rounded text-[10px] bg-red-500/15 text-red-400 border border-red-500/20 disabled:opacity-30"
                       >
-                        夺取 {snatchCost}
+                        {L("夺取 ")}{snatchCost}
                       </button>
                     </div>
                   ) : (
@@ -1018,7 +1016,7 @@ function ProfShopModal({
 
         {gameState.profs[player].length > 0 && (
           <div className="mb-4">
-            <h4 className="text-xs text-nc-text-muted mb-2">已拥有职业（点击遗忘）</h4>
+            <h4 className="text-xs text-nc-text-muted mb-2">{L("已拥有职业（点击遗忘）")}</h4>
             <div className="flex gap-2 flex-wrap">
               {gameState.profs[player].map((prof, i) => (
                 <button
@@ -1027,7 +1025,7 @@ function ProfShopModal({
                   disabled={gameState.skipPunishTurns[player] > 0}
                   className="px-2 py-1 rounded text-xs bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 disabled:opacity-30"
                 >
-                  遗忘 {PROF_NAME_CN[prof]}
+                  {L("遗忘 ")}{PROF_NAME_CN[prof]}
                 </button>
               ))}
             </div>
@@ -1038,8 +1036,7 @@ function ProfShopModal({
           onClick={onClose}
           className="w-full py-2 rounded-lg text-sm text-nc-text-muted hover:text-nc-text border border-nc-violet/10 hover:border-nc-violet/20 transition-all"
         >
-          关闭
-        </button>
+          {L("关闭\n        ")}</button>
       </motion.div>
     </motion.div>
   );
@@ -1074,11 +1071,11 @@ function SetupModal({ open, onClose }: { open: boolean; onClose: () => void }) {
         exit={{ scale: 0.95 }}
         className="bg-nc-bg-secondary border border-nc-violet/20 rounded-xl p-6 max-w-sm w-full mx-4"
       >
-        <h3 className="text-lg font-bold text-nc-text mb-4">游戏设置</h3>
+        <h3 className="text-lg font-bold text-nc-text mb-4">{L("游戏设置")}</h3>
 
         <div className="space-y-4 mb-6">
           <div>
-            <label className="text-sm text-green-400 font-medium mb-2 block">O (先手)</label>
+            <label className="text-sm text-green-400 font-medium mb-2 block">{L("O (先手)")}</label>
             <div className="flex gap-2">
               {options.map(opt => (
                 <button
@@ -1097,7 +1094,7 @@ function SetupModal({ open, onClose }: { open: boolean; onClose: () => void }) {
           </div>
 
           <div>
-            <label className="text-sm text-rose-400 font-medium mb-2 block">X (后手)</label>
+            <label className="text-sm text-rose-400 font-medium mb-2 block">{L("X (后手)")}</label>
             <div className="flex gap-2">
               {options.map(opt => (
                 <button
@@ -1121,14 +1118,12 @@ function SetupModal({ open, onClose }: { open: boolean; onClose: () => void }) {
             onClick={() => { startGame(); onClose(); }}
             className="flex-1 py-2.5 rounded-lg font-bold text-white bg-nc-violet hover:bg-violet-500 transition-all"
           >
-            开始游戏
-          </button>
+            {L("开始游戏\n          ")}</button>
           <button
             onClick={onClose}
             className="flex-1 py-2.5 rounded-lg text-sm text-nc-text-muted hover:text-nc-text border border-nc-violet/10 hover:border-nc-violet/20 transition-all"
           >
-            取消
-          </button>
+            {L("取消\n          ")}</button>
         </div>
       </motion.div>
     </motion.div>

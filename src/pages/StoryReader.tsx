@@ -1,9 +1,12 @@
 import { useEffect, useRef } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { useParams, useNavigate, Link } from 'react-router';
 import { stories, type StoryChapter } from '@/data/stories';
+import { storiesEn } from '@/data/stories.en';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ChevronRight, ChevronLeft, BookOpen } from 'lucide-react';
-import { renderStoryContent } from '@/lib/renderStoryContent';
+import { renderStoryContent, renderStoryContentEn } from '@/lib/renderStoryContent';
 import TextStoryReader from '@/components/TextStoryReader';
 import ReadingProgress from '@/components/ReadingProgress';
 import { emitRouteReady } from '@/lib/deepLinkCoordinator';
@@ -13,6 +16,7 @@ import { useReadingPreferences } from '@/hooks/useReadingPreferences';
 import { recordReadingProgress } from '@/lib/readingState';
 import SmartImage from '@/components/SmartImage';
 import { READER_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
+import { useLocale } from '@/hooks/useLocale';
 import '@/styles/story-themes.css';
 
 function getTabLabel(chapter: StoryChapter, style: ChapterButtonStyle, index: number): string {
@@ -64,7 +68,10 @@ function getNavClass(style: ChapterButtonStyle): string {
 export default function StoryReader() {
   const { storyId, chapterId } = useParams<{ storyId: string; chapterId?: string }>();
   const navigate = useNavigate();
-  const story = stories.find((s) => s.id === storyId);
+  const locale = useLocale();
+  const isEn = locale === 'en';
+  const source = isEn ? storiesEn : stories;
+  const story = source.find((s) => s.id === storyId);
   const config = story ? getStoryConfig(story.id) : null;
   const topRef = useRef<HTMLDivElement>(null);
   const { preferences, updatePreferences } = useReadingPreferences();
@@ -97,9 +104,9 @@ export default function StoryReader() {
     return (
       <div className="min-h-screen flex items-center justify-center text-nc-text-muted">
         <div className="text-center">
-          <p className="text-lg mb-4">故事未找到</p>
+          <p className="text-lg mb-4">{isEn ? 'Story not found' : '故事未找到'}</p>
           <Link to="/stories" className="tap-safe text-nc-cyan hover:underline">
-            返回故事列表
+            {isEn ? 'Back to story list' : '返回故事列表'}
           </Link>
         </div>
       </div>
@@ -114,9 +121,9 @@ export default function StoryReader() {
     return (
       <div className="min-h-screen flex items-center justify-center text-nc-text-muted">
         <div className="text-center">
-          <p className="text-lg mb-4">未找到该章节</p>
+          <p className="text-lg mb-4">{isEn ? 'Chapter not found' : '未找到该章节'}</p>
           <Link to={`/stories/${storyId}/chapters/1`} className="tap-safe text-nc-cyan hover:underline">
-            返回第一章
+            {isEn ? 'Go to chapter 1' : '返回第一章'}
           </Link>
         </div>
       </div>
@@ -146,7 +153,7 @@ export default function StoryReader() {
           data-action="back"
           className="tap-safe inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> 返回故事列表
+          <ArrowLeft className="w-4 h-4" /> {isEn ? 'Back to story list' : '返回故事列表'}
         </Link>
 
         <StoryReaderTools
@@ -185,7 +192,7 @@ export default function StoryReader() {
               {story.subtitle && <p className="story-cover-subtitle">{story.subtitle}</p>}
               <span className="story-cover-badge">
                 <BookOpen className="w-3 h-3" />
-                {story.chapters.length} 章
+                {story.chapters.length} {isEn ? 'ch.' : '章'}
               </span>
             </div>
           </motion.div>
@@ -200,7 +207,7 @@ export default function StoryReader() {
           </motion.div>
         )}
 
-        <div className={`${tabContainerClass} story-reader-chapter-tabs`} role="tablist" aria-label="故事章节">
+        <div className={`${tabContainerClass} story-reader-chapter-tabs`} role="tablist" aria-label={isEn ? 'Story chapters' : '故事章节'}>
           {story.chapters.flatMap((ch, i) => {
             const elements: React.ReactNode[] = [
               <button
@@ -216,7 +223,7 @@ export default function StoryReader() {
                 aria-selected={validIndex === i}
                 className={tabButtonClass}
                 data-number={i + 1}
-                aria-label={`第 ${i + 1} 章: ${ch.title}`}
+                aria-label={L(`${isEn ? 'Chapter' : '第'} ${i + 1}${isEn ? '' : '章'}: ${ch.title}`)}
               >
                 {getTabLabel(ch, cfg.chapterButtonStyle, i)}
               </button>,
@@ -244,7 +251,7 @@ export default function StoryReader() {
                   <SmartImage
                     key={image}
                     localSrc={image}
-                    alt={`${chapter.title} 图片 ${imageIndex + 1}`}
+                    alt={L(`${chapter.title} ${isEn ? 'image' : '图片'} ${imageIndex + 1}`)}
                     responsiveWidths={READER_IMAGE_WIDTHS}
                     sizes="(max-width: 767px) calc(100vw - 64px), 368px"
                     aspectRatio="16 / 9"
@@ -259,7 +266,7 @@ export default function StoryReader() {
               className={`text-nc-text-secondary space-y-4 whitespace-pre-wrap ${titleFontClass}`}
               style={{ fontSize: `${preferences.fontSize}px`, lineHeight: preferences.lineHeight }}
             >
-              {renderStoryContent(chapter.content)}
+              {isEn ? renderStoryContentEn(chapter.content) : renderStoryContent(chapter.content)}
             </div>
           </motion.div>
         </AnimatePresence>
@@ -270,7 +277,7 @@ export default function StoryReader() {
               onClick={() => goToChapter(validIndex - 1)}
               className={`story-reader-nav flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
             >
-              <ChevronLeft className="w-4 h-4" /> 上一章
+              <ChevronLeft className="w-4 h-4" /> {isEn ? 'Previous chapter' : '上一章'}
             </button>
           ) : <div />}
 
@@ -279,7 +286,7 @@ export default function StoryReader() {
               onClick={() => goToChapter(validIndex + 1)}
               className={`story-reader-nav flex items-center gap-2 px-5 py-2.5 rounded-xl liquid-glass-subtle border border-white/[0.06] text-nc-text transition-all ${navClass}`}
             >
-              下一章 <ChevronRight className="w-4 h-4" />
+              {isEn ? 'Next chapter' : '下一章'} <ChevronRight className="w-4 h-4" />
             </button>
           )}
         </div>

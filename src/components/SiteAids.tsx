@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { Languages } from 'lucide-react';
 import { getLocale, setLocale, type Locale } from '@/lib/i18n';
-import { startPageTranslation } from '@/lib/translations/pageTranslator';
 
 /** Skip link + working page translation + global keyboard: `/` searches, `Esc` blurs. */
 export default function SiteAids() {
@@ -9,14 +8,26 @@ export default function SiteAids() {
   const [hint, setHint] = useState<string | null>(null);
   const hintTimer = useRef<number | null>(null);
 
-  useEffect(() => {
-    // Every locale change re-runs the translator: the disposer restores the
-    // previous nodes, then the new run translates the current DOM.
-    return startPageTranslation(locale === 'en');
-  }, [locale]);
-
   useEffect(() => () => {
     if (hintTimer.current !== null) window.clearTimeout(hintTimer.current);
+  }, []);
+
+  useEffect(() => {
+    // Global keyboard: `/` opens site search (App.tsx listens for
+    // `nc:open-search`); `Esc` blurs inputs/textareas.
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') {
+        if (e.key === 'Escape') (e.target as HTMLElement).blur();
+        return;
+      }
+      if (e.key === '/') {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('nc:open-search'));
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   const showHint = (message: string) => {
@@ -29,9 +40,11 @@ export default function SiteAids() {
     const next: Locale = locale === 'zh-CN' ? 'en' : 'zh-CN';
     setLocale(next);
     setActiveLocale(next);
-    showHint(next === 'en'
-      ? 'Interface and site data are now in English. Long-form chapters and lore stay in the original Chinese.'
-      : '已恢复中文原文。');
+    // Switching back to zh-CN is a pure restore: no banner, because the
+    // Chinese experience must stay exactly as authored.
+    if (next === 'en') {
+      showHint('Site copy is now in English. Novels and poems keep their original Chinese.');
+    }
   };
 
   const isEnglish = locale === 'en';

@@ -1,4 +1,5 @@
 import { fullTextSearch, type FullSearchItem } from '@/data/fullSearchIndex';
+import type { Locale } from '@/lib/i18n';
 
 export interface HybridHit {
   item: FullSearchItem;
@@ -47,12 +48,16 @@ function fuzzyScore(query: string, text: string): number {
 /**
  * Hybrid retrieval: keyword (existing fullTextSearch) + fuzzy + bigram-vector.
  * Drop-in replacement where fullTextSearch is used; no new dependencies.
+ *
+ * locale selects the corpus: zh-CN searches the Chinese index, 'en' searches
+ * the English mirror (the AI assistant knowledge base follows the site
+ * language, per the locale-partitioned corpus agreement).
  */
-export function hybridSearch(query: string, limit = 20): HybridHit[] {
+export function hybridSearch(query: string, limit = 20, locale: Locale = 'zh-CN'): HybridHit[] {
   const trimmed = query.trim();
   if (!trimmed) return [];
   const keywordHits = new Map<string, FullSearchItem>();
-  for (const hit of fullTextSearch(trimmed).slice(0, 100)) {
+  for (const hit of fullTextSearch(trimmed, locale).slice(0, 100)) {
     keywordHits.set(hit.item.id, hit.item);
   }
   const qv = bigrams(trimmed);

@@ -1,4 +1,6 @@
 import { lazy, Suspense, useDeferredValue, useEffect } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { Routes, Route, Navigate, useParams, Link, useLocation } from 'react-router';
 import PageState from '@/components/PageState';
 import {
@@ -32,6 +34,7 @@ const ChatSkin = lazy(routeLoaders.oceanChat);
 const SweetDreamChat = lazy(routeLoaders.sweetDreamChat);
 const AuroraChat = lazy(routeLoaders.auroraChat);
 const ChatSelect = lazy(routeLoaders.chatSelect);
+const OtherSelect = lazy(routeLoaders.otherSelect);
 const AISettingsPage = lazy(routeLoaders.aiSettings);
 const CodexPage = lazy(routeLoaders.codex);
 const NctbPage = lazy(routeLoaders.nctb);
@@ -41,7 +44,7 @@ function PageLoader() {
   return (
     <PageState
       kind="loading"
-      title="正在建立神经连接"
+      title={L("正在建立神经连接")}
       description="时间、角色与规则正在同步，很快就好。"
       fullPage
     />
@@ -78,10 +81,9 @@ function NotFoundPage({ domain, message }: { domain?: string; message?: string }
       actions={<>
         {canGoBack && (
           <button type="button" onClick={() => window.history.back()} className="aurora-button">
-            返回上一页
-          </button>
+            {L("返回上一页\n          ")}</button>
         )}
-        <Link to="/" className="aurora-button aurora-button-primary">返回首页</Link>
+        <Link to="/" className="aurora-button aurora-button-primary">{L("返回首页")}</Link>
       </>}
     />
   );
@@ -90,7 +92,7 @@ function NotFoundPage({ domain, message }: { domain?: string; message?: string }
 function WorldGuard() {
   const { section } = useParams<{ section: string }>();
   if (section && !isKnownWorldSection(section)) {
-    return <NotFoundPage domain="世界" message={`世界领域未找到 "${section}"`} />;
+    return <NotFoundPage domain="世界" message={L(`世界领域未找到 "${section}"`)} />;
   }
   return <SuspenseWrapper area="world"><WorldPage /></SuspenseWrapper>;
 }
@@ -98,7 +100,7 @@ function WorldGuard() {
 function MiiaGuard() {
   const { section } = useParams<{ section: string }>();
   if (section && !isKnownMiiaSection(section)) {
-    return <NotFoundPage domain="咪呀空间" message={`咪呀空间未找到 "${section}"`} />;
+    return <NotFoundPage domain="咪呀空间" message={L(`咪呀空间未找到 "${section}"`)} />;
   }
   return <SuspenseWrapper area="world"><MiiaSpace /></SuspenseWrapper>;
 }
@@ -106,7 +108,7 @@ function MiiaGuard() {
 function MathGuard() {
   const { section } = useParams<{ section: string }>();
   if (section && !isKnownMathSection(section)) {
-    return <NotFoundPage domain="数学模型" message={`数学模型未找到 "${section}"`} />;
+    return <NotFoundPage domain="数学模型" message={L(`数学模型未找到 "${section}"`)} />;
   }
   return <SuspenseWrapper area="other"><MathModelsPage /></SuspenseWrapper>;
 }
@@ -117,7 +119,7 @@ function CharacterGuard() {
     return <Navigate to={id === 'all' ? '/characters' : `/characters?group=${encodeURIComponent(id)}`} replace />;
   }
   if (!id || !isKnownCharacterId(id)) {
-    return <NotFoundPage domain="角色档案" message={`角色未找到 "${id ?? ''}"`} />;
+    return <NotFoundPage domain="角色档案" message={L(`角色未找到 "${id ?? ''}"`)} />;
   }
   return <SuspenseWrapper area="characters"><CharacterDetail /></SuspenseWrapper>;
 }
@@ -131,7 +133,7 @@ function StoriesGuard() {
   const story = storyGuardData.find((entry) => entry.id === storyId);
 
   if (!story) {
-    return <NotFoundPage domain="故事" message={`故事未找到 "${storyId ?? ''}"`} />;
+    return <NotFoundPage domain="故事" message={L(`故事未找到 "${storyId ?? ''}"`)} />;
   }
 
   if ((chapterId && !isPositiveInteger(chapterId)) || (partId && !isPositiveInteger(partId))) {
@@ -165,7 +167,7 @@ function PlaygroundGuard({ category }: { category: 'games' | 'scratch' }) {
   const itemCategory = game ? getPlaygroundItemCategory(game) : null;
 
   if (!game || !isKnownPlaygroundItem(game) || itemCategory !== category) {
-    return <NotFoundPage domain="游戏实验场" message={`未找到该${category === 'scratch' ? ' Scratch 小游戏' : '游戏'}${game ? ` "${game}"` : ''}`} />;
+    return <NotFoundPage domain="游戏实验场" message={L(`未找到该${category === 'scratch' ? ' Scratch 小游戏' : '游戏'}${game ? ` "${game}"` : ''}`)} />;
   }
 
   return <SuspenseWrapper area="games"><Playground /></SuspenseWrapper>;
@@ -174,7 +176,7 @@ function PlaygroundGuard({ category }: { category: 'games' | 'scratch' }) {
 function ApiGuard() {
   const { provider } = useParams<{ provider?: string }>();
   if (!provider || !isKnownProviderId(provider)) {
-    return <NotFoundPage domain="API 目录" message={`未找到 API 供应商 "${provider ?? ''}"`} />;
+    return <NotFoundPage domain="API 目录" message={L(`未找到 API 供应商 "${provider ?? ''}"`)} />;
   }
   return <SuspenseWrapper area="settings"><ApiDocs /></SuspenseWrapper>;
 }
@@ -231,6 +233,7 @@ export default function AppRoutes() {
         <Route path="/nctb" element={<SuspenseWrapper area="settings"><NctbPage /></SuspenseWrapper>} />
         <Route path="/analytics" element={<SuspenseWrapper area="settings"><DataStatsPage /></SuspenseWrapper>} />
         <Route path="/chat" element={<SuspenseWrapper area="chat"><ChatSelect /></SuspenseWrapper>} />
+        <Route path="/other" element={<SuspenseWrapper area="other"><OtherSelect /></SuspenseWrapper>} />
         <Route path="/chat/ocean" element={<SuspenseWrapper area="chat"><ChatSkin /></SuspenseWrapper>} />
         <Route path="/chat/sweetdream" element={<SuspenseWrapper area="chat"><SweetDreamChat /></SuspenseWrapper>} />
         <Route path="/chat/aurora" element={<SuspenseWrapper area="chat"><AuroraChat /></SuspenseWrapper>} />

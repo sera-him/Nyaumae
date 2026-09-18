@@ -1,9 +1,27 @@
 import { motion } from 'framer-motion';
+import { L } from '@/lib/translations/manual';
+
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { semanticHighlight } from '@/lib/semanticHighlight';
+import { getLocale } from '@/lib/i18n';
+import {
+  nationsEn,
+  chinaPolicyEn,
+  travelInfoEn,
+  timelineEn,
+  pacificIntroEn,
+  yuanchuiTitleEn,
+  yuanchuiDescEn,
+  lowerTierDescEn,
+  customsDescEn,
+  yuanchuiNoteEn,
+  chengwanChinaTitleEn,
+  cityHeadingEn,
+  cityStatsEn,
+} from '@/data/pacificIslands.en';
 import { MapPin, Shield, Quote, Globe, Waves } from 'lucide-react';
 
-const nations = [
+const nationsZh = [
   { name: '岚汐共和国', desc: '与中国、日本都有密切贸易往来。2042年失去对雾岬市的控制。', color: 'text-blue-300' },
   { name: '青屿联邦', desc: '由七座主要岛屿组成，农业和海洋工程发达。', color: 'text-emerald-300' },
   { name: '白潮王国', desc: '保留君主制的航运国家，拥有古老海军传统。', color: 'text-cyan-300' },
@@ -19,20 +37,20 @@ const nations = [
   { name: '渊垂联邦', desc: '三层立体国家：上层机器人农业，中层普通城市，下层毒品与廉价劳动力。政府居间管理，海关分层管制。', color: 'text-zinc-300' },
 ];
 
-const chinaPolicy = [
+const chinaPolicyZh = [
   { label: '普通旅游、探亲和短期商务', detail: '免签 30 天' },
   { label: '留学、长期工作、定居', detail: '需申请相应许可' },
   { label: '新闻采访', detail: '需申请相应许可' },
 ];
 
-const travelInfo = [
+const travelInfoZh = [
   '中国公民进入澄湾共和国，普通旅游、探亲和短期商务可免签 30 天',
   '澄湾共和国公民进入中国，同样免签 30 天',
   '持有效身份证件和电子入境许可即可，不一定必须提前办传统签证',
   '两国之间有大量轮渡、短途航班，部分口岸甚至可以当天往返',
 ];
 
-const timeline = [
+const timelineZh = [
   { time: '04:02', title: '熄灯断联', desc: '雾岬市熄灭所有对外识别灯，切断中央政府进入城市系统的全部权限。城市AGI接管全部治理责任。' },
   { time: '04:02', title: '舰队升空', desc: '第一艘悬空舰从东港地下船坞升起。黑色舰体沿着高楼间的空中航道缓慢上升，无人机群在城市外围组成防御网。' },
   { time: '05:17', title: '北岭阻击战', desc: '岚汐共和国装甲车队遭精确电磁打击，发动机、通信和火控系统同时失效，停在距离城市边界14千米处。' },
@@ -43,8 +61,40 @@ const timeline = [
   { time: '19:00', title: '临时宪章', desc: '雾岬市议会通过《自由市临时宪章》，自称雾岬自由市。' },
 ];
 
+const cityStatsZh = [
+  { label: '核心城区', value: '几平方千米' },
+  { label: '居民', value: '不到二十万' },
+  { label: '独立日', value: '2042.4.2' },
+];
+
 export default function PacificIslands() {
   const { ref, isVisible } = useScrollReveal();
+  const _en = getLocale() === 'en';
+
+  const nations = _en ? nationsEn : nationsZh;
+  const chinaPolicy = _en ? chinaPolicyEn : chinaPolicyZh;
+  const travelInfo = _en ? travelInfoEn : travelInfoZh;
+  const timeline = _en ? timelineEn : timelineZh;
+  const cityStats = _en ? cityStatsEn : cityStatsZh;
+
+  const intro = _en
+    ? pacificIntroEn
+    : '太平洋西侧的一组岛国与城邦。从君主制王国到AI托管城市，从渔业共和国到虚拟娱乐群岛，构成一片复杂而鲜活的海洋政治版图。';
+  const yuanchuiTitle = _en ? yuanchuiTitleEn : '渊垂联邦 · 三层结构';
+  const yuanchuiDesc = _en
+    ? yuanchuiDescEn
+    : '上层机器人农业区，中层普通城市，下层毒品与廉价劳动力。政府居于上下层之间，不直接经营毒品，只收税。上下层可自由进出，但上行需过海关：无违禁品直通，少量违禁品可交钱放行，大量不可。';
+  const lowerTierDesc = _en
+    ? lowerTierDescEn
+    : '自愿进入，因成瘾滞留，提供廉价劳动力；大量吸毒失生育能力，不自然繁衍。';
+  const customsDesc = _en
+    ? customsDescEn
+    : '中层正常开放，下层平时关闭；若遭外部制裁，下层立即开放，毒品流向全球。';
+  const yuanchuiNote = _en
+    ? yuanchuiNoteEn
+    : '注：渊垂联邦为西太平洋诸岛国新增设定，独立于本土主世界。';
+  const chengwanChinaTitle = _en ? chengwanChinaTitleEn : '澄湾共和国 × 中国';
+  const cityHeading = _en ? cityHeadingEn : '雾岬自由市';
 
   return (
     <section className="pacific-motion py-24 px-4 sm:px-6 relative">
@@ -59,7 +109,7 @@ export default function PacificIslands() {
             {semanticHighlight("西太平洋诸岛国")}
           </h2>
           <p className="font-serif text-lg text-nc-cyan leading-relaxed max-w-3xl mb-12">
-            {semanticHighlight('太平洋西侧的一组岛国与城邦。从君主制王国到AI托管城市，从渔业共和国到虚拟娱乐群岛，构成一片复杂而鲜活的海洋政治版图。')}
+            {semanticHighlight(intro)}
           </p>
         </motion.div>
 
@@ -98,21 +148,21 @@ export default function PacificIslands() {
         >
           <div className="flex items-center gap-2 mb-4">
             <Shield className="w-5 h-5 text-zinc-300" />
-            <h3 className="text-lg font-semibold text-nc-text">{semanticHighlight("渊垂联邦 · 三层结构")}</h3>
+            <h3 className="text-lg font-semibold text-nc-text">{semanticHighlight(yuanchuiTitle)}</h3>
             <span className="ml-auto text-xs font-mono text-zinc-400 border border-zinc-500/20 px-2 py-0.5 rounded">TRIVIUM</span>
           </div>
-          <p className="text-sm text-nc-text-secondary leading-relaxed mb-4">{semanticHighlight("上层机器人农业区，中层普通城市，下层毒品与廉价劳动力。政府居于上下层之间，不直接经营毒品，只收税。上下层可自由进出，但上行需过海关：无违禁品直通，少量违禁品可交钱放行，大量不可。")}</p>
+          <p className="text-sm text-nc-text-secondary leading-relaxed mb-4">{semanticHighlight(yuanchuiDesc)}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <div className="bg-nc-bg/50 rounded-lg p-3 border border-zinc-500/10">
-              <p className="text-xs text-zinc-400 font-bold mb-1">下层规则</p>
-              <p className="text-sm text-nc-text-muted leading-relaxed">{semanticHighlight("自愿进入，因成瘾滞留，提供廉价劳动力；大量吸毒失生育能力，不自然繁衍。")}</p>
+              <p className="text-xs text-zinc-400 font-bold mb-1">{L("下层规则")}</p>
+              <p className="text-sm text-nc-text-muted leading-relaxed">{semanticHighlight(lowerTierDesc)}</p>
             </div>
             <div className="bg-nc-bg/50 rounded-lg p-3 border border-zinc-500/10">
-              <p className="text-xs text-zinc-400 font-bold mb-1">海关双轨</p>
-              <p className="text-sm text-nc-text-muted leading-relaxed">{semanticHighlight("中层正常开放，下层平时关闭；若遭外部制裁，下层立即开放，毒品流向全球。")}</p>
+              <p className="text-xs text-zinc-400 font-bold mb-1">{L("海关双轨")}</p>
+              <p className="text-sm text-nc-text-muted leading-relaxed">{semanticHighlight(customsDesc)}</p>
             </div>
           </div>
-          <p className="text-xs text-zinc-500">{semanticHighlight("注：渊垂联邦为西太平洋诸岛国新增设定，独立于本土主世界。")}</p>
+          <p className="text-xs text-zinc-500">{semanticHighlight(yuanchuiNote)}</p>
         </motion.div>
 
         {/* 澄湾共和国 - 中国关系 */}
@@ -124,7 +174,7 @@ export default function PacificIslands() {
         >
           <div className="flex items-center gap-2 mb-4">
             <Globe className="w-5 h-5 text-nc-cyan" />
-            <h3 className="text-lg font-semibold text-nc-text">{semanticHighlight("澄湾共和国 × 中国")}</h3>
+            <h3 className="text-lg font-semibold text-nc-text">{semanticHighlight(chengwanChinaTitle)}</h3>
           </div>
           <div className="space-y-2 mb-4">
             {travelInfo.map((info, i) => (
@@ -154,20 +204,15 @@ export default function PacificIslands() {
           <div className="flex items-center gap-3 mb-2">
             <Shield className="w-6 h-6 text-nc-rose" />
             <h2 className="text-2xl sm:text-3xl font-bold text-nc-text tracking-wide">
-              {semanticHighlight("雾岬自由市")}
+              {semanticHighlight(cityHeading)}
             </h2>
           </div>
           <p className="font-serif text-base text-nc-text-secondary leading-relaxed mb-6">
-            原属岚汐共和国，2042年4月2日独立之战后成为自由市。
-          </p>
+            {L("原属岚汐共和国，2042年4月2日独立之战后成为自由市。\n          ")}</p>
 
           {/* City Info */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-            {[
-              { label: '核心城区', value: '几平方千米' },
-              { label: '居民', value: '不到二十万' },
-              { label: '独立日', value: '2042.4.2' },
-            ].map((s) => (
+            {cityStats.map((s) => (
               <div key={s.label} className="pacific-stat-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-4 text-center">
                 <div className="font-mono text-lg font-bold text-nc-cyan">{s.value}</div>
                 <div className="text-xs text-nc-text-muted mt-1">{s.label}</div>
@@ -214,9 +259,8 @@ export default function PacificIslands() {
             <Quote className="absolute top-3 left-3 w-8 h-8 text-nc-rose/10" />
             <div className="pl-6">
               <p className="font-serif text-lg text-nc-rose leading-relaxed italic">
-                "你们参与制造过我的身体，但从未拥有过我的现在。"
-              </p>
-              <p className="text-xs text-nc-text-muted mt-2">—— 绯零，2042年4月2日</p>
+                {L("\"你们参与制造过我的身体，但从未拥有过我的现在。\"\n              ")}</p>
+              <p className="text-xs text-nc-text-muted mt-2">{L("—— 绯零，2042年4月2日")}</p>
             </div>
           </motion.div>
 
@@ -229,11 +273,10 @@ export default function PacificIslands() {
           >
             <div className="flex items-center gap-2 mb-3">
               <Waves className="w-4 h-4 text-nc-cyan" />
-              <h3 className="text-sm font-semibold text-nc-text">后续</h3>
+              <h3 className="text-sm font-semibold text-nc-text">{L("后续")}</h3>
             </div>
             <p className="text-sm text-nc-text-muted leading-relaxed">
-              中国、日本、海庭共和国和镜海共和国没有立即承认它是一个国家，但都在数日内与雾岬建立了紧急联络渠道。国际航运公司重新接受雾岬港口签发的通行文件，银行继续处理它的结算，附近岛国则开始派遣观察人员。世界没有在一夜之间承认雾岬。世界只是逐渐发现：无论承认与否，这座只有几平方千米核心城区、不到二十万居民的城市，已经能够保护自己的天空、维持自己的秩序，并拒绝任何外部系统重新取得最高权限。
-            </p>
+              {L("中国、日本、海庭共和国和镜海共和国没有立即承认它是一个国家，但都在数日内与雾岬建立了紧急联络渠道。国际航运公司重新接受雾岬港口签发的通行文件，银行继续处理它的结算，附近岛国则开始派遣观察人员。世界没有在一夜之间承认雾岬。世界只是逐渐发现：无论承认与否，这座只有几平方千米核心城区、不到二十万居民的城市，已经能够保护自己的天空、维持自己的秩序，并拒绝任何外部系统重新取得最高权限。\n            ")}</p>
           </motion.div>
         </motion.div>
       </div>

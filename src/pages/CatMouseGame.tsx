@@ -1,4 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import {
   BookOpen, Cat, ChevronRight, Crosshair, Eye, Flag, Footprints,
   HelpCircle, Mouse, Play, Radar, RotateCcw, Sparkles, Wind, X,
@@ -161,8 +163,8 @@ function Board({
     .map((f, i) => `${i ? 'L' : 'M'}${sx(f[key].x)},${sy(f[key].y)}`).join(' ');
 
   return (
-    <div className="cm-board-wrap" tabIndex={canPick ? 0 : -1} role="application" aria-label="猫鼠迷逐棋盘目标控制" aria-describedby="cat-mouse-board-help" onKeyDown={handleBoardKeyboard}>
-      <svg className={`cm-board ${canPick ? 'is-pickable' : ''}`} viewBox={`0 0 ${size} ${size}`} onClick={click} aria-label="猫鼠迷踪游戏棋盘">
+    <div className="cm-board-wrap" tabIndex={canPick ? 0 : -1} role="application" aria-label={L("猫鼠迷逐棋盘目标控制")} aria-describedby="cat-mouse-board-help" onKeyDown={handleBoardKeyboard}>
+      <svg className={`cm-board ${canPick ? 'is-pickable' : ''}`} viewBox={`0 0 ${size} ${size}`} onClick={click} aria-label={L("猫鼠迷踪游戏棋盘")}>
         <defs>
           <pattern id="minorGrid" width={scale} height={scale} patternUnits="userSpaceOnUse">
             <path d={`M ${scale} 0 L 0 0 0 ${scale}`} fill="none" stroke="rgba(119,135,164,.12)" strokeWidth="1" />
@@ -195,23 +197,23 @@ function Board({
           <circle r="12" /><circle cx="-8" cy="-9" r="5" /><circle cx="7" cy="-9" r="5" /><circle cx="5" cy="-1" r="1.4" />
         </g>}
         {!revealMouse && <g transform={`translate(${sx(m.x)} ${sy(m.y)})`} opacity="0"><circle r="12" /></g>}
-        <text x={pad+8} y={pad+19} className="cm-zone-label">阻力区 · 速度减半</text>
+        <text x={pad+8} y={pad+19} className="cm-zone-label">{L("阻力区 · 速度减半")}</text>
       </svg>
-      <span id="cat-mouse-board-help" className="sr-only">可行动时，聚焦棋盘后使用方向键将目标移动半格，按住 Shift 移动一格，按 Home 重置到当前角色的位置。也可使用下方的目标控制按钮；鼠标和触控操作保持可用。</span>
-      {canPick && <div className="cm-replay" role="group" aria-label="棋盘键盘操作">
-        <b>目标控制</b>
-        <button type="button" onClick={() => moveKeyboardTarget(0, .5)} aria-label="目标向上移动半格">↑</button>
-        <button type="button" onClick={() => moveKeyboardTarget(-.5, 0)} aria-label="目标向左移动半格">←</button>
-        <button type="button" onClick={() => moveKeyboardTarget(.5, 0)} aria-label="目标向右移动半格">→</button>
-        <button type="button" onClick={() => moveKeyboardTarget(0, -.5)} aria-label="目标向下移动半格">↓</button>
-        <button type="button" onClick={() => onPick(activeOrigin)} aria-label="将目标重置到当前角色的位置">重置</button>
+      <span id="cat-mouse-board-help" className="sr-only">{L("可行动时，聚焦棋盘后使用方向键将目标移动半格，按住 Shift 移动一格，按 Home 重置到当前角色的位置。也可使用下方的目标控制按钮；鼠标和触控操作保持可用。")}</span>
+      {canPick && <div className="cm-replay" role="group" aria-label={L("棋盘键盘操作")}>
+        <b>{L("目标控制")}</b>
+        <button type="button" onClick={() => moveKeyboardTarget(0, .5)} aria-label={L("目标向上移动半格")}>↑</button>
+        <button type="button" onClick={() => moveKeyboardTarget(-.5, 0)} aria-label={L("目标向左移动半格")}>←</button>
+        <button type="button" onClick={() => moveKeyboardTarget(.5, 0)} aria-label={L("目标向右移动半格")}>→</button>
+        <button type="button" onClick={() => moveKeyboardTarget(0, -.5)} aria-label={L("目标向下移动半格")}>↓</button>
+        <button type="button" onClick={() => onPick(activeOrigin)} aria-label={L("将目标重置到当前角色的位置")}>{L("重置")}</button>
         <span className="sr-only" aria-live="polite">{selected ? `当前目标坐标 ${fmt(selected.x)}, ${fmt(selected.y)}。` : '目标位于当前角色的位置。'}</span>
       </div>}
       <div className="cm-board-legend">
-        <span><i className="dot cat" />猫</span>
-        {(revealMouse || replayAt != null) && <span><i className="dot mouse" />老鼠</span>}
-        <span><i className="dot bait" />诱饵</span>
-        {tutorial && role === 'cat' && <span><i className="dot fog" />可能位置</span>}
+        <span><i className="dot cat" />{L("猫")}</span>
+        {(revealMouse || replayAt != null) && <span><i className="dot mouse" />{L("老鼠")}</span>}
+        <span><i className="dot bait" />{L("诱饵")}</span>
+        {tutorial && role === 'cat' && <span><i className="dot fog" />{L("可能位置")}</span>}
       </div>
     </div>
   );
@@ -424,86 +426,86 @@ export default function CatMouseGame() {
       <div className="cm-noise" aria-hidden="true" />
       <header className="cm-header">
         <div>
-          <p className="cm-kicker"><Radar size={15} /> 非对称推理追逐</p>
-          <h2>猫鼠<span>迷踪</span></h2>
+          <p className="cm-kicker"><Radar size={15} /> {L("非对称推理追逐")}</p>
+          <h2>{L("猫鼠")}<span>{L("迷踪")}</span></h2>
         </div>
         <div className="cm-header-actions">
-          <button className="cm-ghost" onClick={() => setRulesOpen(true)}><BookOpen size={17} />规则</button>
-          {phase !== 'setup' && <button className="cm-ghost" onClick={() => setPhase('setup')}><RotateCcw size={17} />重开</button>}
+          <button className="cm-ghost" onClick={() => setRulesOpen(true)}><BookOpen size={17} />{L("规则")}</button>
+          {phase !== 'setup' && <button className="cm-ghost" onClick={() => setPhase('setup')}><RotateCcw size={17} />{L("重开")}</button>}
         </div>
       </header>
 
       {phase === 'setup' ? (
         <div className="cm-setup">
           <section className="cm-hero-copy">
-            <div className="cm-eyebrow">灵感源自 IMO 2017 · 猎人与兔子</div>
-            <h2>你追逐的，<br />是真相还是<span>诱饵？</span></h2>
-            <p>在连续平面上展开一场信息不对称的心理战。猫用三次真实气味收紧可能区域；老鼠用假信号与疾跑，把判断引向错误方向。</p>
+            <div className="cm-eyebrow">{L("灵感源自 IMO 2017 · 猎人与兔子")}</div>
+            <h2>{L("你追逐的，")}<br />{L("是真相还是")}<span>{L("诱饵？")}</span></h2>
+            <p>{L("在连续平面上展开一场信息不对称的心理战。猫用三次真实气味收紧可能区域；老鼠用假信号与疾跑，把判断引向错误方向。")}</p>
             <div className="cm-principles">
-              <div><Crosshair /><b>推断</b><span>从诱饵与轨迹收缩可能区域</span></div>
-              <div><Sparkles /><b>欺骗</b><span>用半径 2 的诱饵制造错误叙事</span></div>
-              <div><Wind /><b>突围</b><span>把握不可连续使用的稀缺资源</span></div>
+              <div><Crosshair /><b>{L("推断")}</b><span>{L("从诱饵与轨迹收缩可能区域")}</span></div>
+              <div><Sparkles /><b>{L("欺骗")}</b><span>{L("用半径 2 的诱饵制造错误叙事")}</span></div>
+              <div><Wind /><b>{L("突围")}</b><span>{L("把握不可连续使用的稀缺资源")}</span></div>
             </div>
           </section>
           <section className="cm-start-card">
             <div className="cm-step">
-              <span>01</span><div><b>选择阵营</b><small>另一方由电脑控制</small></div>
+              <span>01</span><div><b>{L("选择阵营")}</b><small>{L("另一方由电脑控制")}</small></div>
             </div>
             <div className="cm-choice-grid">
-              <button className={role === 'cat' ? 'active cat' : ''} onClick={() => setRole('cat')}><Cat /><b>扮演猫</b><small>观察 · 推断 · 封锁</small></button>
-              <button className={role === 'mouse' ? 'active mouse' : ''} onClick={() => setRole('mouse')}><Mouse /><b>扮演老鼠</b><small>走位 · 欺骗 · 逃脱</small></button>
+              <button className={role === 'cat' ? 'active cat' : ''} onClick={() => setRole('cat')}><Cat /><b>{L("扮演猫")}</b><small>{L("观察 · 推断 · 封锁")}</small></button>
+              <button className={role === 'mouse' ? 'active mouse' : ''} onClick={() => setRole('mouse')}><Mouse /><b>{L("扮演老鼠")}</b><small>{L("走位 · 欺骗 · 逃脱")}</small></button>
             </div>
-            <div className="cm-step"><span>02</span><div><b>选择局长</b><small>规则与资源自动匹配</small></div></div>
+            <div className="cm-step"><span>02</span><div><b>{L("选择局长")}</b><small>{L("规则与资源自动匹配")}</small></div></div>
             <div className="cm-presets">
               {(Object.keys(PRESETS) as PresetKey[]).map(key => (
                 <button key={key} className={presetKey === key ? 'active' : ''} onClick={() => setPresetKey(key)}>
-                  <b>{PRESETS[key].label}</b><small>{PRESETS[key].turns} 回合 · 起距 {PRESETS[key].start}</small>
+                  <b>{PRESETS[key].label}</b><small>{PRESETS[key].turns} {L("回合 · 起距 ")}{PRESETS[key].start}</small>
                 </button>
               ))}
             </div>
             <label className="cm-toggle-row">
-              <span><Eye size={18} /><span><b>教学模式</b><small>为猫自动显示完整可能区域</small></span></span>
+              <span><Eye size={18} /><span><b>{L("教学模式")}</b><small>{L("为猫自动显示完整可能区域")}</small></span></span>
               <input type="checkbox" checked={tutorial} onChange={e => setTutorial(e.target.checked)} />
               <i />
             </label>
-            <button className="cm-primary cm-start" onClick={startGame}><Play size={18} fill="currentColor" />开始追逐<ChevronRight size={18} /></button>
+            <button className="cm-primary cm-start" onClick={startGame}><Play size={18} fill="currentColor" />{L("开始追逐")}<ChevronRight size={18} /></button>
           </section>
         </div>
       ) : (
         <div className="cm-game">
           <section className="cm-game-main">
             <div className="cm-game-bar">
-              <div><span>回合</span><b>{turn}<i>/ {preset.turns}</i></b></div>
+              <div><span>{L("回合")}</span><b>{turn}<i>/ {preset.turns}</i></b></div>
               <div className="cm-phase"><i />{statusText}</div>
-              <div className="cm-distance"><span>当前距离</span><b>{role === 'mouse' || phase === 'ended' ? fmt(currentDistance) : '未知'}</b></div>
+              <div className="cm-distance"><span>{L("当前距离")}</span><b>{role === 'mouse' || phase === 'ended' ? fmt(currentDistance) : '未知'}</b></div>
             </div>
             <Board catPos={catPos} mousePos={mousePos} bait={bait} role={role} phase={phase} tutorial={tutorial} cloud={cloud} selected={selected} onPick={pickPoint} frames={frames} replayAt={replayAt} sprintOn={sprintOn} />
             {phase === 'ended' && frames.length > 0 && (
               <div className="cm-replay">
                 <button onClick={() => setReplayAt(v => v === null ? 0 : v === 0 ? frames.length - 1 : v - 1)}>‹</button>
-                <input aria-label="复盘回合" type="range" min="0" max={frames.length - 1} value={replayAt ?? frames.length - 1} onChange={e => setReplayAt(Number(e.target.value))} />
+                <input aria-label={L("复盘回合")} type="range" min="0" max={frames.length - 1} value={replayAt ?? frames.length - 1} onChange={e => setReplayAt(Number(e.target.value))} />
                 <button onClick={() => setReplayAt(v => v === null || v === frames.length - 1 ? 0 : v + 1)}>›</button>
-                <b>第 {(replayAt ?? frames.length - 1) + 1} 回合</b>
+                <b>{L("第 ")}{(replayAt ?? frames.length - 1) + 1} {L("回合")}</b>
               </div>
             )}
           </section>
 
           <aside className="cm-panel">
             <div className="cm-role-banner">
-              <div className={role}><span>{role === 'cat' ? <Cat /> : <Mouse />}</span><div><small>你正在扮演</small><b>{role === 'cat' ? '追踪者 · 猫' : '欺骗者 · 老鼠'}</b></div></div>
+              <div className={role}><span>{role === 'cat' ? <Cat /> : <Mouse />}</span><div><small>{L("你正在扮演")}</small><b>{role === 'cat' ? '追踪者 · 猫' : '欺骗者 · 老鼠'}</b></div></div>
               <span className="cm-mode">{tutorial ? '教学' : '竞技'}</span>
             </div>
             <div className="cm-message"><HelpCircle size={18} /><p>{message}</p></div>
             <div className="cm-resources">
-              <h3>战术资源</h3>
+              <h3>{L("战术资源")}</h3>
               <div>
                 <span className="resource-icon scent"><Radar /></span>
-                <p><b>真实气味</b><small>揭示本回合真实位置</small></p>
+                <p><b>{L("真实气味")}</b><small>{L("揭示本回合真实位置")}</small></p>
                 <strong>{Array.from({ length: preset.scents }, (_, i) => <i key={i} className={i < scents ? 'on' : ''} />)}</strong>
               </div>
               <div>
                 <span className="resource-icon sprint"><Wind /></span>
-                <p><b>疾跑</b><small>移动上限由 1 变为 2</small></p>
+                <p><b>{L("疾跑")}</b><small>{L("移动上限由 1 变为 2")}</small></p>
                 <strong>{Array.from({ length: preset.sprints }, (_, i) => <i key={i} className={i < sprints ? 'on' : ''} />)}</strong>
               </div>
             </div>
@@ -525,16 +527,16 @@ export default function CatMouseGame() {
             ) : (
               <div className="cm-result-card">
                 <Flag />
-                <small>对局结束</small>
+                <small>{L("对局结束")}</small>
                 <h2>{result}</h2>
-                <p>{frames.length} 回合 · 终局距离 {fmt(frames.at(-1)?.distance ?? currentDistance)}</p>
-                <button className="cm-primary" onClick={() => setPhase('setup')}><RotateCcw size={17} />再来一局</button>
+                <p>{frames.length} {L("回合 · 终局距离 ")}{fmt(frames.at(-1)?.distance ?? currentDistance)}</p>
+                <button className="cm-primary" onClick={() => setPhase('setup')}><RotateCcw size={17} />{L("再来一局")}</button>
               </div>
             )}
             <div className="cm-log">
-              <h3>公开记录</h3>
-              {frames.length === 0 ? <p>对局记录将在这里出现。</p> : [...frames].reverse().slice(0, 5).map(f => (
-                <div key={f.turn}><b>R{f.turn}</b><span>{f.sprint ? '疾跑 ' : ''}{f.scent ? '· 真实气味 ' : ''}· 距离 {fmt(f.distance)}</span></div>
+              <h3>{L("公开记录")}</h3>
+              {frames.length === 0 ? <p>{L("对局记录将在这里出现。")}</p> : [...frames].reverse().slice(0, 5).map(f => (
+                <div key={f.turn}><b>R{f.turn}</b><span>{f.sprint ? '疾跑 ' : ''}{f.scent ? '· 真实气味 ' : ''}{L("· 距离 ")}{fmt(f.distance)}</span></div>
               ))}
             </div>
           </aside>
@@ -544,18 +546,18 @@ export default function CatMouseGame() {
       {rulesOpen && (
         <div className="cm-modal-backdrop" onMouseDown={() => setRulesOpen(false)}>
           <section className="cm-rules" onMouseDown={e => e.stopPropagation()}>
-            <button className="cm-close" onClick={() => setRulesOpen(false)} aria-label="关闭规则"><X /></button>
-            <p className="cm-kicker"><Footprints size={15} /> 规则速览</p>
-            <h2>在 36 × 36 的连续平面上博弈</h2>
+            <button className="cm-close" onClick={() => setRulesOpen(false)} aria-label={L("关闭规则")}><X /></button>
+            <p className="cm-kicker"><Footprints size={15} /> {L("规则速览")}</p>
+            <h2>{L("在 36 × 36 的连续平面上博弈")}</h2>
             <div className="cm-rule-grid">
-              <article><b>01 · 老鼠移动</b><p>每回合移动不超过 1；疾跑时不超过 2，且不可连续使用。</p></article>
-              <article><b>02 · 放置诱饵</b><p>诱饵距离真实位置不超过 2。猫能看见诱饵，却看不见老鼠。</p></article>
-              <article><b>03 · 真实气味</b><p>猫在移动前揭示本回合真实位置，总次数有限且不可连续使用。</p></article>
-              <article><b>04 · 猫移动</b><p>每回合移动不超过 1.25。移动后距离 ≤ 1，立即完成捕获。</p></article>
-              <article><b>阻力区</b><p>回合开始时若 max(|x|, |y|) &gt; 15，本回合移动上限减半。</p></article>
-              <article><b>终局封锁</b><p>最后一回合结束时距离 ≤ 3，猫胜；否则老鼠成功逃脱。</p></article>
+              <article><b>{L("01 · 老鼠移动")}</b><p>{L("每回合移动不超过 1；疾跑时不超过 2，且不可连续使用。")}</p></article>
+              <article><b>{L("02 · 放置诱饵")}</b><p>{L("诱饵距离真实位置不超过 2。猫能看见诱饵，却看不见老鼠。")}</p></article>
+              <article><b>{L("03 · 真实气味")}</b><p>{L("猫在移动前揭示本回合真实位置，总次数有限且不可连续使用。")}</p></article>
+              <article><b>{L("04 · 猫移动")}</b><p>{L("每回合移动不超过 1.25。移动后距离 ≤ 1，立即完成捕获。")}</p></article>
+              <article><b>{L("阻力区")}</b><p>{L("回合开始时若 max(|x|, |y|) &gt; 15，本回合移动上限减半。")}</p></article>
+              <article><b>{L("终局封锁")}</b><p>{L("最后一回合结束时距离 ≤ 3，猫胜；否则老鼠成功逃脱。")}</p></article>
             </div>
-            <button className="cm-primary" onClick={() => setRulesOpen(false)}>明白了，开始判断</button>
+            <button className="cm-primary" onClick={() => setRulesOpen(false)}>{L("明白了，开始判断")}</button>
           </section>
         </div>
       )}

@@ -1,4 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { L } from '@/lib/translations/manual';
+
 import type { KeyboardEvent } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router';
 import { Heart, NotebookPen, Feather } from 'lucide-react';
@@ -43,11 +45,11 @@ export default function MiiaSpace() {
           className="aurora-simple-hero"
         >
           <p className="aurora-eyebrow">04 / INNER SPACE</p>
-          <h1 className="aurora-title">咪呀的空间 <span className="aurora-title-aside">mī yā</span></h1>
-          <p className="aurora-lead">内心独白 · 数学遐想 · 诗歌碎片</p>
+          <h1 className="aurora-title">{L("咪呀的空间 ")}<span className="aurora-title-aside">mī yā</span></h1>
+          <p className="aurora-lead">{L("内心独白 · 数学遐想 · 诗歌碎片")}</p>
         </motion.div>
 
-        <div className="aurora-tabs mb-8" role="tablist" aria-label="咪呀空间章节">
+        <div className="aurora-tabs mb-8" role="tablist" aria-label={L("咪呀空间章节")}>
           {tabs.map((t, index) => {
             const Icon = t.icon;
             return (
@@ -64,7 +66,7 @@ export default function MiiaSpace() {
                 className={({ isActive }) => `aurora-tab miia-space-tab inline-flex items-center gap-2 ${isActive ? 'aurora-tab-active' : ''}`}
               >
                 <Icon className="w-4 h-4" />
-                {t.label}
+                {L(t.label)}
               </NavLink>
             );
           })}

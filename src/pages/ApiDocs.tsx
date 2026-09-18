@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { motion } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useParams, Link } from 'react-router';
@@ -322,7 +324,7 @@ export default function ApiDocs() {
           />
         ) : (
           <>
-            <h2 className="sr-only">API 供应商目录</h2>
+            <h2 className="sr-only">{L("API 供应商目录")}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
               {providers.map((p, i) => (
                 <motion.div

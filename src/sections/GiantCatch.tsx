@@ -1,4 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
 import { BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles } from 'lucide-react';
 import './GiantCatch.css';
 
@@ -24,6 +27,12 @@ const PRESETS: Record<PresetKey, Preset> = {
   quick: { label: '快速局', note: '撑过 16 回合', turns: 16 },
   standard: { label: '标准局', note: '撑过 24 回合', turns: 24 },
   long: { label: '长局', note: '撑过 32 回合', turns: 32 },
+};
+
+const PRESETS_EN: Record<PresetKey, { label: string; note: string }> = {
+  quick: { label: 'Quick', note: 'Survive 16 turns' },
+  standard: { label: 'Standard', note: 'Survive 24 turns' },
+  long: { label: 'Long', note: 'Survive 32 turns' },
 };
 
 const GRID = 9;
@@ -286,22 +295,26 @@ function resolveMouseMove(state: GameState, option: MoveOption): GameState {
   return next;
 }
 
-function outcomeTitle(outcome: Outcome, role: Role): string {
-  if (outcome === 'caught') {
-    return role === 'giant' ? '温柔抓捕成功！' : '被轻轻碰到了';
-  }
-  return role === 'mouse' ? '你撑到了最后！' : '指尖落空了';
-}
-
-function outcomeDetail(outcome: Outcome, role: Role): string {
+function outcomeTitle(outcome: Outcome, role: Role, en: boolean): string {
   if (outcome === 'caught') {
     return role === 'giant'
-      ? '“抓到啦，小仓鼠。”她把你放在掌心，很暖。你们的约定又多了一个。'
-      : '她用一根手指轻轻碰到了你——不疼，但这一局的胜利归她。';
+      ? (en ? 'Gentle catch, well done!' : '温柔抓捕成功！')
+      : (en ? 'Touched so lightly…' : '被轻轻碰到了');
   }
   return role === 'mouse'
-    ? '天色暗了。小满把手收回去：“明天……我还能来找你玩吗？”你赢得了这场追逐，也收获了一个约定。'
-    : '喵呜从石灰格子另一头冲了出去。小满撇撇嘴，但眼睛是弯的。';
+    ? (en ? 'You held out to the end!' : '你撑到了最后！')
+    : (en ? 'The fingertip came up empty.' : '指尖落空了');
+}
+
+function outcomeDetail(outcome: Outcome, role: Role, en: boolean): string {
+  if (outcome === 'caught') {
+    return role === 'giant'
+      ? (en ? '"Got you, little hamster." She holds you in her warm palm. Another promise between you now.' : '“抓到啦，小仓鼠。”她把你放在掌心，很暖。你们的约定又多了一个。')
+      : (en ? 'She tapped you gently with one finger — it doesn\'t hurt, but the win is hers this round.' : '她用一根手指轻轻碰到了你——不疼，但这一局的胜利归她。');
+  }
+  return role === 'mouse'
+    ? (en ? 'Dusk falls. Manman pulls her hand back: "Tomorrow… may I come find you again?" You won the chase, and a promise with it.' : '天色暗了。小满把手收回去：“明天……我还能来找你玩吗？”你赢得了这场追逐，也收获了一个约定。')
+    : (en ? 'Mew-mew dashes off across the other end of the grid. Manman pouts, but her eyes are curved with a smile.' : '喵呜从石灰格子另一头冲了出去。小满撇撇嘴，但眼睛是弯的。');
 }
 
 function cellIcon(p: Point, state: GameState): string {
@@ -314,18 +327,19 @@ function cellIcon(p: Point, state: GameState): string {
   return '';
 }
 
-function cellHint(p: Point, state: GameState): string {
-  if (same(p, state.mouse)) return '喵呜（你操控的小不点）';
-  if (same(p, state.giant)) return '小满的指尖';
-  if (CONES.some((c) => same(c, p))) return '交通锥（会挡住喵呜）';
-  if (TIRES.some((c) => same(c, p))) return '轮胎（会挡住喵呜）';
-  if (BOXES.some((c) => same(c, p))) return '纸箱棋子（会挡住喵呜）';
-  return `${coordLabel(p)}：空格`;
+function cellHint(p: Point, state: GameState, en: boolean): string {
+  if (same(p, state.mouse)) return en ? 'Mew-mew (the little one you control)' : '喵呜（你操控的小不点）';
+  if (same(p, state.giant)) return en ? "Manman's fingertip" : '小满的指尖';
+  if (CONES.some((c) => same(c, p))) return en ? 'Traffic cone (blocks Mew-mew)' : '交通锥（会挡住喵呜）';
+  if (TIRES.some((c) => same(c, p))) return en ? 'Tire (blocks Mew-mew)' : '轮胎（会挡住喵呜）';
+  if (BOXES.some((c) => same(c, p))) return en ? 'Cardboard box piece (blocks Mew-mew)' : '纸箱棋子（会挡住喵呜）';
+  return en ? `${coordLabel(p)}: empty` : `${coordLabel(p)}：空格`;
 }
 
 export default function GiantCatch() {
   const [state, setState] = useState<GameState>(() => createGame('mouse', 'standard'));
   const [showRules, setShowRules] = useState(true);
+  const _en = getLocale() === 'en';
 
   const preset = PRESETS[state.presetKey];
   const playerIsMouse = state.role === 'mouse';
@@ -387,57 +401,63 @@ export default function GiantCatch() {
   }, [pendingGiantTurn, playerIsMouse]);
 
   const statusText = state.phase === 'ended'
-    ? (state.outcome === 'caught' ? '本局结束：被温柔抓住' : '本局结束：成功甩开')
+    ? (state.outcome === 'caught'
+      ? (_en ? 'Round over: gently caught' : '本局结束：被温柔抓住')
+      : (_en ? 'Round over: got away' : '本局结束：成功甩开'))
     : pendingGiantTurn
-      ? (playerIsMouse ? '小满的回合：屏住呼吸——' : '你的回合：选择指尖落点')
-      : (playerIsMouse ? '你的回合：跑！' : '喵呜的回合：它正在找空隙——');
+      ? (playerIsMouse
+        ? (_en ? "Manman's turn — hold your breath…" : '小满的回合：屏住呼吸——')
+        : (_en ? 'Your turn: pick a fingertip landing spot' : '你的回合：选择指尖落点'))
+      : (playerIsMouse
+        ? (_en ? 'Your turn: run!' : '你的回合：跑！')
+        : (_en ? "Mew-mew's turn: it's hunting for a gap…" : '喵呜的回合：它正在找空隙——'));
 
   return (
-    <section className="giant-catch" aria-label="大人国抓小游戏">
+    <section className="giant-catch" aria-label={L("大人国抓小游戏")}>
       <header className="gc-hero">
         <div>
-          <div className="gc-kicker"><Sparkles size={13} /> GIANT &amp; TINY · 停车场 · 石灰格子</div>
-          <h2>大人国抓小人</h2>
-          <p>小满把停车场的石灰格子当成棋盘，用一根手指轻轻地“抓”你。撑过限定回合，或者被她碰到——都是这个下午的一部分。</p>
+          <div className="gc-kicker"><Sparkles size={13} /> {L("GIANT &amp; TINY · 停车场 · 石灰格子")}</div>
+          <h2>{L("大人国抓小人")}</h2>
+          <p>{L("小满把停车场的石灰格子当成棋盘，用一根手指轻轻地“抓”你。撑过限定回合，或者被她碰到——都是这个下午的一部分。")}</p>
         </div>
         <div className="gc-header-actions">
           <button type="button" onClick={() => setShowRules((value) => !value)}>
-            <BookOpen size={15} /> 规则 {showRules ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            <BookOpen size={15} /> {L("规则 ")}{showRules ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
-          <button type="button" onClick={() => restart(state.role, state.presetKey)} aria-label="重新开始">
+          <button type="button" onClick={() => restart(state.role, state.presetKey)} aria-label={L("重新开始")}>
             <RotateCcw size={16} />
           </button>
         </div>
       </header>
 
       {showRules && (
-        <section className="gc-rules" aria-label="游戏规则">
-          <div><h3>1 · 棋盘</h3><p>9×9 石灰格子。🚧 交通锥、🛞 轮胎、📦 纸箱棋子会挡住喵呜，但挡不住小满的指尖——她太大啦。</p></div>
-          <div><h3>2 · 喵呜（🐹）</h3><p>每回合移动 1 格（上下左右）。全场共有 3 次“冲刺”：直线连跑 2 格，中途格也必须可走。不能踏上小满的指尖。</p></div>
-          <div><h3>3 · 小满（👆）</h3><p>她每两回合才郑重地伸一次手指：移动 1 格，或直线 2 格。指尖经过的每一格（包括中途）只要碰到你，就算温柔抓住。</p></div>
-          <div><h3>4 · 胜负</h3><p>喵呜撑过限定回合即获胜；被指尖碰到则小满获胜。追逐从 {coordLabel(MOUSE_START)} 对 {coordLabel(GIANT_START)} 开始。</p></div>
+        <section className="gc-rules" aria-label={L("游戏规则")}>
+          <div><h3>{L("1 · 棋盘")}</h3><p>{L("9×9 石灰格子。🚧 交通锥、🛞 轮胎、📦 纸箱棋子会挡住喵呜，但挡不住小满的指尖——她太大啦。")}</p></div>
+          <div><h3>{L("2 · 喵呜（🐹）")}</h3><p>{L("每回合移动 1 格（上下左右）。全场共有 3 次“冲刺”：直线连跑 2 格，中途格也必须可走。不能踏上小满的指尖。")}</p></div>
+          <div><h3>{L("3 · 小满（👆）")}</h3><p>{L("她每两回合才郑重地伸一次手指：移动 1 格，或直线 2 格。指尖经过的每一格（包括中途）只要碰到你，就算温柔抓住。")}</p></div>
+          <div><h3>{L("4 · 胜负")}</h3><p>{L("喵呜撑过限定回合即获胜；被指尖碰到则小满获胜。追逐从 ")}{coordLabel(MOUSE_START)} {L("对 ")}{coordLabel(GIANT_START)} {L("开始。")}</p></div>
         </section>
       )}
 
       {state.phase === 'ended' && (
         <div className={`gc-banner gc-banner-${state.outcome}`}>
           <div>
-            <h3>{outcomeTitle(state.outcome, state.role)}</h3>
-            <p>{outcomeDetail(state.outcome, state.role)}</p>
+            <h3>{outcomeTitle(state.outcome, state.role, _en)}</h3>
+            <p>{outcomeDetail(state.outcome, state.role, _en)}</p>
           </div>
-          <button type="button" onClick={() => restart(state.role, state.presetKey)}><RotateCcw size={15} /> 再来一局</button>
+          <button type="button" onClick={() => restart(state.role, state.presetKey)}><RotateCcw size={15} /> {L("再来一局")}</button>
         </div>
       )}
 
       <div className="gc-status-row" aria-live="polite">
         <span className={`gc-turn-chip ${pendingGiantTurn ? 'is-giant' : 'is-mouse'}`}>{statusText}</span>
-        <span className="gc-counter">第 <strong>{Math.min(state.turn, preset.turns)}</strong> / {preset.turns} 回合</span>
-        <span className="gc-dash">冲刺余量 <strong>{state.dashesLeft}</strong></span>
+        <span className="gc-counter">{L("第 ")}<strong>{Math.min(state.turn, preset.turns)}</strong> / {preset.turns} {L("回合")}</span>
+        <span className="gc-dash">{L("冲刺余量 ")}<strong>{state.dashesLeft}</strong></span>
       </div>
 
       <div className="gc-workspace">
         <div className="gc-board-panel">
-          <div className="gc-board" role="grid" aria-label="停车场石灰格子棋盘">
+          <div className="gc-board" role="grid" aria-label={L("停车场石灰格子棋盘")}>
             {Array.from({ length: GRID * GRID }, (_, index) => {
               const p = { x: index % GRID, y: Math.floor(index / GRID) };
               const key = obstacleKey(p);
@@ -456,7 +476,7 @@ export default function GiantCatch() {
                   ].join(' ')}
                   onClick={() => handleCellClick(p)}
                   disabled={state.phase !== 'playing' || !clickable}
-                  aria-label={cellHint(p, state)}
+                  aria-label={cellHint(p, state, _en)}
                 >
                   {cellIcon(p, state)}
                 </button>
@@ -464,31 +484,31 @@ export default function GiantCatch() {
             })}
           </div>
           <div className="gc-legend">
-            <span>🐹 喵呜</span><span>👆 小满的指尖</span><span>🚧 交通锥</span><span>🛞 轮胎</span><span>📦 纸箱棋子</span><span className="gc-danger-legend">红框 = 指尖下一跳可覆盖</span>
+            <span>{L("🐹 喵呜")}</span><span>{L("👆 小满的指尖")}</span><span>{L("🚧 交通锥")}</span><span>{L("🛞 轮胎")}</span><span>{L("📦 纸箱棋子")}</span><span className="gc-danger-legend">{L("红框 = 指尖下一跳可覆盖")}</span>
           </div>
           {!playerIsMouse && state.phase === 'playing' && !pendingGiantTurn && (
-            <button type="button" className="gc-primary-button" onClick={passTurn}>让喵呜先跑</button>
+            <button type="button" className="gc-primary-button" onClick={passTurn}>{L("让喵呜先跑")}</button>
           )}
           {playerIsMouse && state.phase === 'playing' && pendingGiantTurn && (
-            <button type="button" className="gc-primary-button" onClick={passTurn}>让小满伸手指</button>
+            <button type="button" className="gc-primary-button" onClick={passTurn}>{L("让小满伸手指")}</button>
           )}
         </div>
 
         <aside className="gc-side-panel">
-          <section className="gc-setup-card" aria-label="对局设置">
+          <section className="gc-setup-card" aria-label={L("对局设置")}>
             <div className="gc-setup-block">
-              <span className="gc-setup-label">你的阵营</span>
+              <span className="gc-setup-label">{L("你的阵营")}</span>
               <div className="gc-role-list">
                 <button type="button" className={state.role === 'mouse' ? 'is-active' : ''} onClick={() => restart('mouse', state.presetKey)}>
-                  <strong>🐹 喵呜</strong><small>逃跑 · 撑过回合</small>
+                  <strong>{L("🐹 喵呜")}</strong><small>{L("逃跑 · 撑过回合")}</small>
                 </button>
                 <button type="button" className={state.role === 'giant' ? 'is-active' : ''} onClick={() => restart('giant', state.presetKey)}>
-                  <strong>👆 小满</strong><small>追逐 · 温柔抓捕</small>
+                  <strong>{L("👆 小满")}</strong><small>{L("追逐 · 温柔抓捕")}</small>
                 </button>
               </div>
             </div>
             <div className="gc-setup-block">
-              <span className="gc-setup-label">对局长短</span>
+              <span className="gc-setup-label">{L("对局长短")}</span>
               <div className="gc-preset-list">
                 {(Object.keys(PRESETS) as PresetKey[]).map((key) => (
                   <button
@@ -497,21 +517,21 @@ export default function GiantCatch() {
                     className={state.presetKey === key ? 'is-active' : ''}
                     onClick={() => restart(state.role, key)}
                   >
-                    <strong>{PRESETS[key].label}</strong><small>{PRESETS[key].note}</small>
+                    <strong>{_en ? PRESETS_EN[key].label : PRESETS[key].label}</strong><small>{_en ? PRESETS_EN[key].note : PRESETS[key].note}</small>
                   </button>
                 ))}
               </div>
             </div>
           </section>
 
-          <section className="gc-log-panel" aria-label="追逐记录">
-            <h3>追逐记录</h3>
-            {state.log.length === 0 ? <p className="gc-empty-log">还没有动作。</p> : (
+          <section className="gc-log-panel" aria-label={L("追逐记录")}>
+            <h3>{L("追逐记录")}</h3>
+            {state.log.length === 0 ? <p className="gc-empty-log">{L("还没有动作。")}</p> : (
               <ol className="gc-log-list">
                 {state.log.map((entry) => (
                   <li key={entry.id} className={`gc-log-${entry.side}`}>
                     <b>{entry.side === 'mouse' ? '🐹' : entry.side === 'giant' ? '👆' : '✳'}</b>
-                    <span>{entry.text}</span>
+                    <span>{L(entry.text)}</span>
                   </li>
                 ))}
               </ol>

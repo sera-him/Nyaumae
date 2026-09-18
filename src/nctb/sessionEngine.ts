@@ -291,8 +291,8 @@ export function openNctbReport(session: NctbSession): NctbSession {
   return { ...session, phase: 'report', updatedAt: nowIso() };
 }
 
-export function orderedQuestionOptions(session: NctbSession): NctbOption[] {
-  const question = getNctbQuestion(session.mode, session.currentItemId, session.bankId);
+export function orderedQuestionOptions(session: NctbSession, locale: 'zh-CN' | 'en' = 'zh-CN'): NctbOption[] {
+  const question = getNctbQuestion(session.mode, session.currentItemId, session.bankId, locale);
   if (!question) return [];
   return seededShuffle(question.options, hashSeed(session.seed, `${question.id}:options`));
 }

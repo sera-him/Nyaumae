@@ -18,6 +18,9 @@ import { BATCH1 } from './entries/batch1';
 import { BATCH2 } from './entries/batch2';
 import { BATCH3 } from './entries/batch3';
 import { BATCH4 } from './entries/batch4';
+import { CHROME_TRANSLATIONS } from './entries/chrome';
+import { UI_ENTRIES } from './entries/ui';
+import { OVERFLOW_TRANSLATIONS } from './entries/overflow';
 
 /** Whole-node replacements (trimmed text must equal the key). */
 export const EXACT_TRANSLATIONS: Record<string, string> = {
@@ -25,6 +28,9 @@ export const EXACT_TRANSLATIONS: Record<string, string> = {
   ...BATCH2,
   ...BATCH3,
   ...BATCH4,
+  ...CHROME_TRANSLATIONS,
+  ...UI_ENTRIES,
+  ...OVERFLOW_TRANSLATIONS,
   // ---------- 站点结构与导航 ----------
   "首页": 'Home',
   "故事": 'Stories',
@@ -465,6 +471,8 @@ export const EXACT_TRANSLATIONS: Record<string, string> = {
   "世界的六个切面": 'Six facets of the world',
   "宇宙总览": 'Universe overview',
   "自动轮播已暂停": 'Autoplay paused',
+  "自动轮播播放中": 'Autoplay running',
+  "还没有记录，从世界观开始": 'No history yet — start with World Lore',
   "完整目录": 'Full directory',
   "五个故事世界与完整阅读目录": 'Five story worlds and the full reading catalogue',
   "搜索全部内容": 'Search all content',
@@ -547,4 +555,23 @@ export const PHRASE_TRANSLATIONS: ReadonlyArray<readonly [string, string]> = [
   ['条结果', 'results'],
   ['个结果', 'results'],
   ['项结果', 'results'],
+  // Giant Catch game — dynamic strings
+  ['喵呜', 'Miaowu'],
+  ['小满', 'Xiaoman'],
+  ['（冲刺！）', '(dash!)'],
+  ['跑到了', 'ran to'],
+  ['温柔抓捕成功！', 'Gentle capture success!'],
+  ['被轻轻碰到了', 'Gently touched'],
+  ['你撑到了最后！', 'You survived to the end!'],
+  ['指尖落空了', 'The fingertip missed'],
+  ['抓到啦，小仓鼠。', 'Got you, little hamster.'],
+  ['她把你放在掌心，很暖。', 'She placed you in her palm; it was warm.'],
+  ['你们的约定又多了一个。', 'One more promise between you.'],
+  ['小仓鼠逃掉了。', 'The little hamster escaped.'],
+  ['你蜷在石灰格子里，', 'You huddled in the chalk square,'],
+  ['被她的指尖够不到的地方。', 'out of reach of her fingertip.'],
+  ['她用一根手指轻轻碰到了你——不疼，但这一局的胜利归她。', 'She gently touched you with one finger—it didn\'t hurt, but she wins this round.'],
+  ['天色暗了。小满把手收回去："明天……我还能来找你玩吗？"你赢得了这场追逐，也收获了一个约定。', 'The sky darkened. Xiaoman pulled her hand back: "Tomorrow... can I still come play with you?" You won the chase and gained a promise.'],
+  ['小满的指尖', "Xiaoman's fingertip"],
+  ['：空格', ': empty'],
 ];

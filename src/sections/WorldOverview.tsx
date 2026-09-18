@@ -1,12 +1,20 @@
 import { motion } from 'framer-motion';
+import { L } from '@/lib/translations/manual';
+
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { worldviewStats, worldviewInfo, regionFsiiiStats } from '@/data/worldview';
+import { worldviewStatsEn, worldviewInfoEn, regionFsiiiStatsEn } from '@/data/worldview.en';
+import { getLocale } from '@/lib/i18n';
 import { semanticHighlight } from '@/lib/semanticHighlight';
 import SmartImage from '@/components/SmartImage';
 import { Calendar, BrainCircuit } from 'lucide-react';
 
 export default function WorldOverview() {
   const { ref, isVisible } = useScrollReveal();
+  const _en = getLocale() === 'en';
+  const stats = _en ? worldviewStatsEn : worldviewStats;
+  const info = _en ? worldviewInfoEn : worldviewInfo;
+  const fsiii = _en ? regionFsiiiStatsEn : regionFsiiiStats;
 
   return (
     <section id="worldview" className="py-24 px-4 sm:px-6 relative">
@@ -20,7 +28,9 @@ export default function WorldOverview() {
             {semanticHighlight("世界设定")}
           </h2>
           <p className="font-serif text-lg text-nc-cyan leading-relaxed max-w-3xl mb-12">
-            {semanticHighlight('Neural Connection 是一个存在 12 亿人口的平行数字宇宙。哲华学校科照真学院与德澜思拓公司构成双核心驱动力，AGI 与意识的边界在此模糊。从冯·诺伊曼班的精英选拔到心界 VR 的沉浸式体验，每个意识体都在这个宇宙中寻找自己的神经频率。')}
+            {_en
+              ? 'Neural Connection is a parallel digital universe home to 1.2 billion people. Kezhaozhen Academy of Zhehua School and Delansi Corporation form its dual driving forces, blurring the line between AGI and consciousness. From the elite selection of the Von Neumann Class to the immersive experience of Heart Realm VR, every conscious being seeks its own neural frequency in this universe.'
+              : semanticHighlight('Neural Connection 是一个存在 12 亿人口的平行数字宇宙。哲华学校科照真学院与德澜思拓公司构成双核心驱动力，AGI 与意识的边界在此模糊。从冯·诺伊曼班的精英选拔到心界 VR 的沉浸式体验，每个意识体都在这个宇宙中寻找自己的神经频率。')}
           </p>
         </motion.div>
 
@@ -56,7 +66,7 @@ export default function WorldOverview() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          {worldviewStats.map((stat, i) => (
+          {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 30 }}
@@ -83,14 +93,14 @@ export default function WorldOverview() {
         >
           <div className="flex items-center gap-2 mb-3">
             <BrainCircuit className="w-5 h-5 text-nc-text-secondary" />
-            <span className="text-sm text-nc-text-muted">FSIII 区域均值</span>
+            <span className="text-sm text-nc-text-muted">{L("FSIII 区域均值")}</span>
           </div>
           <div className="flex items-baseline gap-3">
             <span className="font-mono text-3xl font-bold text-nc-cyan">
-              {regionFsiiiStats.average}
+              {fsiii.average}
             </span>
             <span className="font-mono text-sm text-nc-text-muted">
-              / 各省 {regionFsiiiStats.range[0]}–{regionFsiiiStats.range[1]}
+              {L("/ 各省 ")}{fsiii.range[0]}–{fsiii.range[1]}
             </span>
           </div>
         </motion.div>
@@ -104,10 +114,10 @@ export default function WorldOverview() {
         >
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-nc-text-secondary" />
-            <h3 className="text-lg font-semibold text-nc-text">{semanticHighlight("节日")}</h3>
+            <h3 className="text-lg font-semibold text-nc-text">{_en ? 'Holidays' : semanticHighlight("节日")}</h3>
           </div>
           <div className="space-y-2.5">
-            {worldviewInfo.holidays.map((h) => (
+            {info.holidays.map((h) => (
               <div key={h.date} className="group">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-sm text-nc-text-secondary shrink-0">{h.date}</span>

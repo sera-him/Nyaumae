@@ -1,4 +1,7 @@
 import { motion } from 'framer-motion';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
 import {
   ArrowRight, ArrowUpRight, BrainCircuit, Flower2, MessageCircleMore, Palette, Sparkles, Waves,
 } from 'lucide-react';
@@ -42,20 +45,39 @@ const CHAT_THEMES = [
   },
 ] as const;
 
+const CHAT_THEMES_EN: Record<string, { name: string; description: string }> = {
+  ocean: {
+    name: 'Star Sea Sweet Dream',
+    description: 'A light ocean dream: clouds, planets and soft gradients, like floating through a sweet dream in the star sea.',
+  },
+  sweet: {
+    name: 'Sweet Dream Cottage',
+    description: 'A pink sweetheart cottage: candy bubbles, cream clouds and soft pops — Puff chats with you.',
+  },
+  aurora: {
+    name: 'Aurora Whisper',
+    description: 'A dark aurora night sky: aurora curtains, starlight and night glass, in resonance with the site-wide aurora shell.',
+  },
+};
+
 export default function ChatSelect() {
+  const _en = getLocale() === 'en';
   return (
     <div className="chat-select-page aurora-ui">
       <div className="chat-select-atmosphere" aria-hidden="true" />
       <div className="aurora-container chat-select-inner">
         <header className="chat-select-hero">
-          <p className="aurora-eyebrow">CHAT CONSOLE / 主题选择</p>
-          <h1 className="aurora-title">选择你的聊天空间</h1>
-          <p className="aurora-lead">三个主题，同一颗 AI 核心。对话、记忆与角色设置都会跟着你走。</p>
+          <p className="aurora-eyebrow">{L("CHAT CONSOLE / 主题选择")}</p>
+          <h1 className="aurora-title">{L("选择你的聊天空间")}</h1>
+          <p className="aurora-lead">{L("三个主题，同一颗 AI 核心。对话、记忆与角色设置都会跟着你走。")}</p>
         </header>
 
         <div className="chat-select-grid">
           {CHAT_THEMES.map((theme, index) => {
             const Icon = theme.icon;
+            const en = CHAT_THEMES_EN[theme.id];
+            const name = _en && en ? en.name : theme.name;
+            const description = _en && en ? en.description : theme.description;
             return (
               <motion.article
                 key={theme.id}
@@ -78,10 +100,10 @@ export default function ChatSelect() {
                 </div>
                 <div className="chat-select-body">
                   <span className="chat-select-code">{theme.code}</span>
-                  <h2><Icon />{theme.name}</h2>
-                  <p>{theme.description}</p>
+                  <h2><Icon />{name}</h2>
+                  <p>{description}</p>
                   <Link to={theme.to}>
-                    进入{theme.name}
+                    {L("进入")}{name}
                     <ArrowRight />
                   </Link>
                 </div>
@@ -93,16 +115,16 @@ export default function ChatSelect() {
         <div className="chat-select-workbench">
           <BrainCircuit />
           <div>
-            <strong>AI 连接设置</strong>
-            <span>配置模型、运行方式与隐私选项，三个聊天主题会共享这些设置。</span>
+            <strong>{L("AI 连接设置")}</strong>
+            <span>{L("配置模型、运行方式与隐私选项，三个聊天主题会共享这些设置。")}</span>
           </div>
           <Link to="/settings/ai">
-            打开设置<ArrowUpRight />
+            {L("打开设置")}<ArrowUpRight />
           </Link>
         </div>
 
         <footer className="chat-select-foot">
-          <MessageCircleMore /><span>主题仅影响视觉外观，不会重置对话</span><Palette /><span>随时可以在导航「星海对话」中切换</span>
+          <MessageCircleMore /><span>{L("主题仅影响视觉外观，不会重置对话")}</span><Palette /><span>{L("随时可以在导航「星海对话」中切换")}</span>
         </footer>
       </div>
     </div>

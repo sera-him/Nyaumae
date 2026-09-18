@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { BookOpen, ChevronLeft, ChevronRight, List, Minus, Plus, X } from 'lucide-react';
 import type { ReadingPreferences } from '@/lib/readingState';
 
@@ -72,16 +74,15 @@ export default function StoryReaderTools({
 
   return (
     <>
-      <div className="story-reader-tools" aria-label="阅读工具">
+      <div className="story-reader-tools" aria-label={L("阅读工具")}>
         <button type="button" data-action="menu" onClick={() => setDrawerOpen(true)} aria-expanded={drawerOpen}>
-          <List />章节目录
-        </button>
+          <List />{L("章节目录\n        ")}</button>
         <span className="story-reader-tools-divider" aria-hidden="true" />
-        <button type="button" onClick={() => changeFontSize(-1)} disabled={preferences.fontSize <= 14} aria-label="减小字号"><Minus /></button>
+        <button type="button" onClick={() => changeFontSize(-1)} disabled={preferences.fontSize <= 14} aria-label={L("减小字号")}><Minus /></button>
         <span className="story-reader-tool-value" aria-live="polite">{preferences.fontSize}px</span>
-        <button type="button" onClick={() => changeFontSize(1)} disabled={preferences.fontSize >= 22} aria-label="增大字号"><Plus /></button>
-        <button type="button" onClick={cycleLineHeight} title="切换行距">行距 {preferences.lineHeight.toFixed(2)}</button>
-        <span className="story-reader-keyboard-hint"><ChevronLeft /> <ChevronRight /> 键盘翻章</span>
+        <button type="button" onClick={() => changeFontSize(1)} disabled={preferences.fontSize >= 22} aria-label={L("增大字号")}><Plus /></button>
+        <button type="button" onClick={cycleLineHeight} title={L("切换行距")}>{L("行距 ")}{preferences.lineHeight.toFixed(2)}</button>
+        <span className="story-reader-keyboard-hint"><ChevronLeft /> <ChevronRight /> {L("键盘翻章")}</span>
       </div>
 
       {drawerOpen && (
@@ -90,10 +91,10 @@ export default function StoryReaderTools({
         }}>
           <aside className="story-chapter-drawer" role="dialog" aria-modal="true" aria-labelledby="story-chapter-drawer-title">
             <header>
-              <div><BookOpen /><span><strong id="story-chapter-drawer-title">章节目录</strong><small>{chapters.length} 个章节</small></span></div>
-              <button type="button" data-action="close" onClick={() => setDrawerOpen(false)} aria-label="关闭章节目录"><X /></button>
+              <div><BookOpen /><span><strong id="story-chapter-drawer-title">{L("章节目录")}</strong><small>{chapters.length} {L("个章节")}</small></span></div>
+              <button type="button" data-action="close" onClick={() => setDrawerOpen(false)} aria-label={L("关闭章节目录")}><X /></button>
             </header>
-            <nav aria-label="章节列表">
+            <nav aria-label={L("章节列表")}>
               {chapters.map((chapter) => (
                 <button
                   type="button"
@@ -104,7 +105,7 @@ export default function StoryReaderTools({
                 >
                   {chapter.group && <small>{chapter.group}</small>}
                   <span>{chapter.label}</span>
-                  {chapter.id === activeId && <strong>正在阅读</strong>}
+                  {chapter.id === activeId && <strong>{L("正在阅读")}</strong>}
                 </button>
               ))}
             </nav>

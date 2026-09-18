@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { useParams, Link, useLocation } from 'react-router';
 import { characters, type Character } from '@/data/characters';
 import { extraCharacters } from '@/data/extraCharacters';
@@ -16,7 +18,10 @@ import './CharacterDetail.css';
 import WordFrequencyCloud from '@/components/WordFrequencyCloud';
 import WordFrequencyTable from '@/components/WordFrequencyTable';
 import WordFrequencyDetailedList from '@/components/WordFrequencyDetailedList';
-import { frequencyMeta, getWordFrequencyClouds, getWordFrequencyDetailed, loadWordFrequency, type WordFreqDetailed } from '@/data/wordFrequency';
+import { frequencyMeta, getWordDocumentCount, getWordFrequencyClouds, getWordFrequencyDetailed, loadWordFrequency, type WordFreqDetailed } from '@/data/wordFrequency';
+import { frequencyMetaEn, getEnWordDocumentCount, getWordFrequencyCloudsEn, getWordFrequencyDetailedEn, loadWordFrequencyEn } from '@/data/wordFrequencyEn';
+import { buildMergedFrequency, getMergedWordDocumentCount, type MergedFrequency } from '@/data/wordFrequencyMerge';
+import { getLocale } from '@/lib/i18n';
 
 const DEFAULT_WORD_CLOUD_ALPHA = 1.35;
 
@@ -45,9 +50,20 @@ export default function CharacterDetail() {
   }
   const [frequencyClouds, setFrequencyClouds] = useState(getWordFrequencyClouds);
   const [frequencyDetailed, setFrequencyDetailed] = useState<WordFreqDetailed[]>(() => getWordFrequencyDetailed());
+  // 词频统计的语言范围：默认跟随站点当前语言，可手动切到英文或中英合并
+  const [freqSource, setFreqSource] = useState<'zh' | 'en' | 'merged'>(() => (getLocale() === 'en' ? 'en' : 'zh'));
+  const [enFrequencyReady, setEnFrequencyReady] = useState(false);
+  const [mergedView, setMergedView] = useState<MergedFrequency>(() => buildMergedFrequency());
   const [freqMode, setFreqMode] = useState<'simple' | 'detailed'>('simple');
   const [alphaText, setAlphaText] = useState(String(DEFAULT_WORD_CLOUD_ALPHA));
   const [alpha, setAlpha] = useState(DEFAULT_WORD_CLOUD_ALPHA);
+  // 词云按需加载：默认不生成，点击“刷新词云”后才加载；再次点击刷新（重挂载重排）
+  const [cloudRequested, setCloudRequested] = useState(false);
+  const [cloudRefreshKey, setCloudRefreshKey] = useState(0);
+  const handleRefreshCloud = useCallback(() => {
+    setCloudRequested(true);
+    setCloudRefreshKey((key) => key + 1);
+  }, []);
 
   const parsedAlpha = Number(alphaText.trim());
   const alphaInputIsValid = alphaText.trim() !== '' && Number.isFinite(parsedAlpha);
@@ -71,13 +87,17 @@ export default function CharacterDetail() {
   useEffect(() => {
     if (!showArchive) return;
     let cancelled = false;
-    void loadWordFrequency().then(() => {
-      if (!cancelled) {
+    // 中文与英文统计并行加载；英文正文走网络 fetch，失败也不影响中文档案
+    const zhReady = loadWordFrequency().then(() => true).catch(() => false);
+    const enReady = loadWordFrequencyEn().then(() => true).catch(() => false);
+    void Promise.all([zhReady, enReady]).then(([zhOk, enOk]) => {
+      if (cancelled) return;
+      if (zhOk) {
         setFrequencyClouds(getWordFrequencyClouds());
         setFrequencyDetailed(getWordFrequencyDetailed());
       }
-    }).catch(() => {
-      // The archive is supplementary; keep the character page usable if it fails to load.
+      if (enOk) setEnFrequencyReady(true);
+      setMergedView(buildMergedFrequency());
     });
     return () => { cancelled = true; };
   }, [showArchive]);
@@ -86,10 +106,9 @@ export default function CharacterDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center text-nc-text-muted">
         <div className="text-center">
-          <p className="text-lg mb-4">角色未找到</p>
+          <p className="text-lg mb-4">{L("角色未找到")}</p>
           <Link to="/characters" className="text-nc-cyan hover:underline">
-            返回角色总览
-          </Link>
+            {L("返回角色总览\n          ")}</Link>
         </div>
       </div>
     );
@@ -104,6 +123,29 @@ export default function CharacterDetail() {
   const charStories = stories.filter((s) =>
     s.chapters.some((ch) => ch.content.includes(char.name))
   );
+
+  // 当前语言范围下实际展示的词频数据（云图 / 明细 / 汇总数字 / 文档篇数解析器）
+  const activeFrequency = freqSource === 'en'
+    ? {
+        clouds: getWordFrequencyCloudsEn(),
+        detailed: getWordFrequencyDetailedEn(),
+        meta: frequencyMetaEn,
+        resolveDocCount: getEnWordDocumentCount,
+      }
+    : freqSource === 'merged'
+      ? {
+          clouds: mergedView.clouds,
+          detailed: mergedView.detailed,
+          meta: mergedView.meta,
+          resolveDocCount: getMergedWordDocumentCount,
+        }
+      : {
+          clouds: frequencyClouds,
+          detailed: frequencyDetailed,
+          meta: frequencyMeta,
+          resolveDocCount: getWordDocumentCount,
+        };
+  const freqSourceLabel = freqSource === 'en' ? '英文' : freqSource === 'merged' ? '中英合并' : '中文';
   return (
     <div className="aurora-ui aurora-generic-page aurora-detail-page" data-aurora-accent="characters">
       <div className="aurora-container aurora-generic-inner max-w-[900px]">
@@ -111,8 +153,7 @@ export default function CharacterDetail() {
         to="/characters"
         className="tap-safe inline-flex items-center gap-2 text-sm text-nc-text-muted hover:text-nc-cyan mb-8 transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" /> 返回角色总览
-      </Link>
+        <ArrowLeft className="w-4 h-4" /> {L("返回角色总览\n      ")}</Link>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -152,7 +193,7 @@ export default function CharacterDetail() {
                 <User className="w-16 h-16 text-nc-text-muted opacity-30" />
               )}
             </div>
-            <p className="text-xs text-nc-text-muted mt-2 text-center">示意图，非立绘</p>
+            <p className="text-xs text-nc-text-muted mt-2 text-center">{L("示意图，非立绘")}</p>
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-3xl font-bold text-nc-text mb-1">
@@ -173,22 +214,19 @@ export default function CharacterDetail() {
                   {mainChar.groupLabel}
                 </span>
                 <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-white/[0.06] text-xs text-nc-text-secondary">
-                  {mainChar.approximateAge ? '约 ' : ''}{mainChar.age} 岁
-                </span>
+                  {mainChar.approximateAge ? '约 ' : ''}{mainChar.age} {L("岁\n                ")}</span>
                 {mainChar.birthYear !== null && (
                   <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-white/[0.06] text-xs text-nc-text-secondary">
-                    {mainChar.approximateAge ? '约 ' : ''}公元 {mainChar.birthYear} 年生 {mainChar.birthday ? `· ${mainChar.birthday}` : ''}
+                    {mainChar.approximateAge ? '约 ' : ''}{L("公元 ")}{mainChar.birthYear} {L("年生 ")}{mainChar.birthday ? `· ${mainChar.birthday}` : ''}
                   </span>
                 )}
                 {mainChar.birthYear === null && (
                   <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-white/[0.06] text-xs text-nc-text-secondary">
-                    年龄只是形象年龄
-                  </span>
+                    {L("年龄只是形象年龄\n                  ")}</span>
                 )}
                 {mainChar.giantBirthYear !== undefined && !['miaowu', 'delivery-rider', 'zhouji', 'xiulan'].includes(mainChar.id) && (
                   <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-sky-400/15 text-xs text-sky-300">
-                    {mainChar.approximateAge ? '约 ' : ''}大人国 {mainChar.giantBirthYear} 年生
-                  </span>
+                    {mainChar.approximateAge ? '约 ' : ''}{L("大人国 ")}{mainChar.giantBirthYear} {L("年生\n                  ")}</span>
                 )}
                 {mainChar.fsiii && (() => {
                   const ts = getTierStyle(mainChar.fsiii);
@@ -208,7 +246,7 @@ export default function CharacterDetail() {
                     <Link
                       to="/math/fsiii"
                       className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs border transition-all hover:scale-105 group"
-                      title={`FSIII ${mainChar.fsiii} · 等级 ${ts.tier} · 点击查看完整排名`}
+                      title={L(`FSIII ${mainChar.fsiii} · 等级 ${ts.tier} · 点击查看完整排名`)}
                     >
                       {/* Mini bar */}
                       <span className="w-10 h-1.5 rounded-full bg-nc-bg-tertiary overflow-hidden inline-block relative">
@@ -238,8 +276,7 @@ export default function CharacterDetail() {
       {mainChar?.profile && mainChar.profile.length > 0 && (
         <section className="char-section">
           <h2 className="char-section-title">
-            <Fingerprint className="w-5 h-5 text-nc-cyan" /> 档案
-          </h2>
+            <Fingerprint className="w-5 h-5 text-nc-cyan" /> {L("档案\n          ")}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
             {mainChar.profile.map((item, index) => (
               <motion.div
@@ -265,8 +302,7 @@ export default function CharacterDetail() {
               className="inline-flex items-center gap-1.5 text-xs text-nc-text-muted hover:text-nc-gold mb-4 transition-colors group"
             >
               <FolderKanban className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100" />
-              深层档案
-            </button>
+              {L("深层档案\n            ")}</button>
           )}
           {mainChar?.extra && (
             <div className="space-y-1">
@@ -280,7 +316,7 @@ export default function CharacterDetail() {
           {(() => {
             const extra = extraCharacters.find((c) => c.id === id);
             if (!extra?.hidden) return null;
-            return <AsiHiddenLog title="系统日志" content={extra.hidden} />;
+            return <AsiHiddenLog title={L("系统日志")} content={extra.hidden} />;
           })()}
         </section>
       )}
@@ -288,14 +324,13 @@ export default function CharacterDetail() {
       {localImages && localImages.length > 1 && (
         <section className="char-section">
           <h2 className="char-section-title">
-            <Images className="w-5 h-5 text-nc-violet" /> 形象图集
-          </h2>
+            <Images className="w-5 h-5 text-nc-violet" /> {L("形象图集\n          ")}</h2>
           <div className="char-gallery-grid">
             {localImages.map((src, i) => (
               <div key={src} className="char-gallery-item">
                 <SmartImage
                   localSrc={src}
-                  alt={`${char.name} 形象 ${i + 1}`}
+                  alt={L(`${char.name} 形象 ${i + 1}`)}
                   containerClassName="w-full h-full"
                   className="object-cover w-full h-full"
                 />
@@ -308,8 +343,7 @@ export default function CharacterDetail() {
       {related.length > 0 && (
         <section className="char-section">
           <h2 className="char-section-title">
-            <Network className="w-5 h-5 text-nc-violet" /> 关联
-          </h2>
+            <Network className="w-5 h-5 text-nc-violet" /> {L("关联\n          ")}</h2>
           <div className="char-relation-grid">
             {related.map((r, i) => {
               const otherId = r.from === id ? r.to : r.from;
@@ -357,8 +391,7 @@ export default function CharacterDetail() {
       {charStories.length > 0 && (
         <section className="char-section">
           <h2 className="char-section-title">
-            <BookOpen className="w-5 h-5 text-nc-cyan" /> 出场故事
-          </h2>
+            <BookOpen className="w-5 h-5 text-nc-cyan" /> {L("出场故事\n          ")}</h2>
           <div className="char-story-grid">
             {charStories.map((s) => {
               const cover = getStoryCover(s.id);
@@ -402,8 +435,7 @@ export default function CharacterDetail() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-nc-text-muted flex items-center gap-2">
                   <FolderKanban className="w-4 h-4 text-nc-gold" />
-                  词云与月
-                </h3>
+                  {L("词云与月\n                ")}</h3>
                 <button
                   onClick={() => setShowArchive(false)}
                   className="text-nc-text-muted hover:text-nc-text transition-colors"
@@ -412,15 +444,40 @@ export default function CharacterDetail() {
                 </button>
               </div>
               <p className="text-xs text-nc-text-muted mb-4 leading-relaxed">
-                从当前 {frequencyMeta.sourceItems} 条站内内容实时统计：
-                {frequencyMeta.totalWords.toLocaleString('zh-CN')} 次有效用词，
-                {frequencyMeta.uniqueWords.toLocaleString('zh-CN')} 个唯一词汇。
-                这张 WordClouds 风格的词云与月覆盖完整词频集；文字实际面积按“词频^alpha”分配。
+                {L("当前范围：")}{freqSourceLabel} {L("· 从 ")}{activeFrequency.meta.sourceItems} {L("条站内内容实时统计：\n                ")}{activeFrequency.meta.totalWords.toLocaleString('zh-CN')} {L("次有效用词，\n                ")}{activeFrequency.meta.uniqueWords.toLocaleString('zh-CN')} {L("个唯一词汇。\n                这张 WordClouds 风格的词云与月覆盖完整词频集；文字实际面积按“词频^alpha”分配。\n                ")}{freqSource === 'merged' && ' 合并口径：中文 +1、英文 +1 计为两个词，不做翻译归并。'}
               </p>
-              <div className="word-frequency-alpha-control" aria-label="词云与月面积权重控制">
+              <div className="word-frequency-lang-switch" role="group" aria-label={L("词频统计语言范围切换")}>
+                <button
+                  type="button"
+                  className={freqSource === 'zh' ? 'is-active' : ''}
+                  onClick={() => setFreqSource('zh')}
+                  aria-pressed={freqSource === 'zh'}
+                >
+                  {L("中文统计\n                ")}</button>
+                <button
+                  type="button"
+                  className={freqSource === 'en' ? 'is-active' : ''}
+                  onClick={() => setFreqSource('en')}
+                  disabled={!enFrequencyReady}
+                  title={enFrequencyReady ? '只看英文版词频' : '英文统计仍在加载…'}
+                  aria-pressed={freqSource === 'en'}
+                >
+                  English
+                </button>
+                <button
+                  type="button"
+                  className={`is-merged ${freqSource === 'merged' ? 'is-active' : ''}`}
+                  onClick={() => setFreqSource('merged')}
+                  disabled={!enFrequencyReady}
+                  title={enFrequencyReady ? '中英文词频直接相加（中文 +1、英文 +1 算两个词）' : '合并统计仍在加载…'}
+                  aria-pressed={freqSource === 'merged'}
+                >
+                  {L("合并总结果\n                ")}</button>
+              </div>
+              <div className="word-frequency-alpha-control" aria-label={L("词云与月面积权重控制")}>
                 <div className="word-frequency-alpha-heading">
-                  <label htmlFor="word-frequency-alpha-range">面积权重 alpha</label>
-                  <output htmlFor="word-frequency-alpha-range">当前 {alpha}</output>
+                  <label htmlFor="word-frequency-alpha-range">{L("面积权重 alpha")}</label>
+                  <output htmlFor="word-frequency-alpha-range">{L("当前 ")}{alpha}</output>
                 </div>
                 <input
                   id="word-frequency-alpha-range"
@@ -430,10 +487,10 @@ export default function CharacterDetail() {
                   step="0.01"
                   value={rangeAlpha}
                   onChange={(event) => handleAlphaRangeChange(event.target.value)}
-                  aria-label="alpha 滑条范围 1 到 2"
+                  aria-label={L("alpha 滑条范围 1 到 2")}
                 />
                 <div className="word-frequency-alpha-input-row">
-                  <label htmlFor="word-frequency-alpha-input">自定义 alpha</label>
+                  <label htmlFor="word-frequency-alpha-input">{L("自定义 alpha")}</label>
                   <input
                     id="word-frequency-alpha-input"
                     type="text"
@@ -447,23 +504,26 @@ export default function CharacterDetail() {
               </div>
               <div className="space-y-6 mb-5">
                 <WordFrequencyCloud
-                  id="all-word-cloud"
-                  title="总云图"
-                  entries={frequencyClouds.all}
+                  key={cloudRefreshKey}
+                  requested={cloudRequested}
+                  onRequestRefresh={handleRefreshCloud}
+                  id={freqSource === 'en' ? 'all-word-cloud-en' : freqSource === 'merged' ? 'all-word-cloud-merged' : 'all-word-cloud'}
+                  title={freqSource === 'en' ? '总云图 · English' : freqSource === 'merged' ? '总云图 · 中英合并' : '总云图'}
+                  entries={activeFrequency.clouds.all}
                   alpha={alpha}
                   shape="wordclouds"
                   shapeLabel="WordClouds 风格自然词团"
                   emptyText="正在自动生成总云图"
                 />
               </div>
-              <div className="word-frequency-mode-switch" role="group" aria-label="词频明细模式">
-                <button type="button" className={freqMode === 'simple' ? 'is-active' : ''} onClick={() => setFreqMode('simple')}>简洁</button>
-                <button type="button" className={freqMode === 'detailed' ? 'is-active' : ''} onClick={() => setFreqMode('detailed')}>详细</button>
+              <div className="word-frequency-mode-switch" role="group" aria-label={L("词频明细模式")}>
+                <button type="button" className={freqMode === 'simple' ? 'is-active' : ''} onClick={() => setFreqMode('simple')}>{L("简洁")}</button>
+                <button type="button" className={freqMode === 'detailed' ? 'is-active' : ''} onClick={() => setFreqMode('detailed')}>{L("详细")}</button>
               </div>
               {freqMode === 'simple' ? (
-                <WordFrequencyTable entries={frequencyClouds.all} />
+                <WordFrequencyTable entries={activeFrequency.clouds.all} resolveDocCount={activeFrequency.resolveDocCount} />
               ) : (
-                <WordFrequencyDetailedList entries={frequencyDetailed} />
+                <WordFrequencyDetailedList entries={activeFrequency.detailed} totalWords={activeFrequency.meta.totalWords} />
               )}
             </div>
           </motion.div>

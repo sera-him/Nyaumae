@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { dictionary, bilingualText } from '@/data/dictionary';
+import { L } from '@/lib/translations/manual';
+
+import { dictionary as dictionaryZh, bilingualText as bilingualTextZh } from '@/data/dictionary';
+import { dictionaryEn, bilingualTextEn } from '@/data/dictionary.en';
+import { getLocale } from '@/lib/i18n';
 import { semanticHighlight, posColorHighlight } from '@/lib/semanticHighlight';
 import CollapsibleCard from '@/components/CollapsibleCard';
 import { Search, BookMarked, Languages, BookOpen } from 'lucide-react';
@@ -19,6 +23,9 @@ const tagColors: Record<string, string> = {
 };
 
 export default function Dictionary() {
+  const _en = getLocale() === 'en';
+  const dictionary = _en ? dictionaryEn : dictionaryZh;
+  const bilingualText = _en ? bilingualTextEn.map((line) => ({ dadi: line.dadi, chinese: line.english })) : bilingualTextZh;
   const [search, setSearch] = useState('');
   const [activeLetter, setActiveLetter] = useState('全部');
 
@@ -42,16 +49,15 @@ export default function Dictionary() {
             </h2>
           </div>
           <p className="text-nc-text text-lg">
-            Chinese Dictionary 2.1 · 自创语言对照词典
-          </p>
+            {L("Chinese Dictionary 2.1 · 自创语言对照词典\n          ")}</p>
         </div>
 
         {/* ===== Dictionary Content (Collapsible, default collapsed) ===== */}
-        <CollapsibleCard
+            <CollapsibleCard
           id="dict-main"
           defaultExpanded={false}
-          title={<>词汇表 <span className="text-sm font-normal text-nc-text-muted">· {dictionary.length} 个词条</span></>}
-          summary="搜索、筛选和浏览全部 Dadi Sapichi 词汇"
+          title={<>{L("词汇表 ")}<span className="text-sm font-normal text-nc-text-muted">· {dictionary.length} {L("个词条")}</span></>}
+          summary={L("搜索、筛选和浏览全部 Dadi Sapichi 词汇")}
           icon={<Languages className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
           titleColor="text-[var(--aurora-brand-text)]"
           borderColor="border-[#8B5CF6]/20"
@@ -63,7 +69,7 @@ export default function Dictionary() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-nc-text-muted" />
               <input
                 type="text"
-                placeholder="搜索词汇（支持中文、Dadi Sapichi）..."
+                placeholder={L("搜索词汇（支持中文、Dadi Sapichi）...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/15 rounded-xl pl-12 pr-4 py-3 text-[var(--aurora-brand-text)] placeholder:text-nc-text-muted focus:outline-none focus:border-[#00E5CC]/40 transition-colors"
@@ -82,7 +88,7 @@ export default function Dictionary() {
                       : 'bg-[var(--aurora-brand-bg-raised)] text-nc-text-muted hover:text-nc-text'
                   }`}
                 >
-                  {letter}
+                  {letter === '全部' ? L(letter) : letter}
                 </button>
               ))}
             </div>
@@ -123,8 +129,8 @@ export default function Dictionary() {
         <CollapsibleCard
           id="dict-bilingual"
           defaultExpanded={true}
-          title={<>示例文本 <span className="text-sm font-normal text-nc-text-muted">· The World of We Three</span></>}
-          summary="Dadi Sapichi 原文与中文对照，共 63 行完整段落"
+          title={<>{L("示例文本 ")}<span className="text-sm font-normal text-nc-text-muted">· The World of We Three</span></>}
+          summary={_en ? 'Dadi Sapichi original text alongside its Chinese parallel, 63 full lines' : 'Dadi Sapichi 原文与中文对照，共 63 行完整段落'}
           icon={<BookOpen className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
           titleColor="text-[var(--aurora-brand-text)]"
           borderColor="border-[#8B5CF6]/20"
@@ -146,7 +152,7 @@ export default function Dictionary() {
 
             {/* Right: Chinese */}
             <div className="p-6 sm:p-8">
-              <p className="text-xs font-mono text-[var(--aurora-brand-pink)] mb-5 tracking-widest uppercase">中文翻译</p>
+              <p className="text-xs font-mono text-[var(--aurora-brand-pink)] mb-5 tracking-widest uppercase">{L("中文翻译")}</p>
               <div className="space-y-1">
                 {bilingualText.map((line, i) => (
                   <p key={`c-${i}`} className="font-serif text-[13px] text-nc-text leading-7">
@@ -160,8 +166,7 @@ export default function Dictionary() {
           {/* Footer */}
           <div className="bg-[#1A1025]/50 px-6 sm:px-8 py-3 border-t border-[#8B5CF6]/10">
             <p className="text-xs text-nc-text-muted">
-              63 行完整对照 · 来自 The World of We Three 的 Dadi Sapichi 示例段落
-            </p>
+              {L("63 行完整对照 · 来自 The World of We Three 的 Dadi Sapichi 示例段落\n            ")}</p>
           </div>
         </CollapsibleCard>
       </div>

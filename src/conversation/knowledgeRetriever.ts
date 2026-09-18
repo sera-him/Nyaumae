@@ -1,5 +1,6 @@
 import type { CanonStatus, Citation, KnowledgeDocument, KnowledgeSearchOptions } from './types.ts';
 import { normalizeSearchText, truncateText } from './utils.ts';
+import type { SemanticProvider } from './vectorSearch.ts';
 
 export interface SearchIndexItem {
   id: string;
@@ -124,6 +125,7 @@ export function citationForDocument(document: KnowledgeDocument, query = ''): Ci
 
 export class KnowledgeRetriever {
   private source?: KnowledgeSource;
+  private semanticProvider?: SemanticProvider;
 
   constructor(source?: KnowledgeSource) {
     this.source = source;
@@ -133,23 +135,71 @@ export class KnowledgeRetriever {
     this.source = source;
   }
 
-  search(query: string, options: KnowledgeSearchOptions = {}): KnowledgeDocument[] {
-    if (!query.trim()) return [];
-    if (!this.source) return [];
+  /** Optional BYOK vector retrieval; merged into searchAsync results. */
+  setSemanticProvider(provider: SemanticProvider | undefined): void {
+    this.semanticProvider = provider;
+  }
+
+  private filterDocuments(items: SearchIndexItem[], options: KnowledgeSearchOptions): KnowledgeDocument[] {
     const maxResults = options.maxResults ?? 6;
     const maxSpoilerLevel = options.maxSpoilerLevel ?? 0;
-    const matches = this.source.search(query);
     const results: KnowledgeDocument[] = [];
-    for (const match of matches) {
-      const document = documentFromIndexItem(match.item);
+    for (const item of items) {
+      const document = documentFromIndexItem(item);
       if (document.spoilerLevel > maxSpoilerLevel) continue;
       if (!options.includeDraft && document.canonStatus === 'draft') continue;
       if (options.characterId && !allowedForCharacter(document, options.characterId)) continue;
-      if (results.some((item) => item.id === document.id)) continue;
+      if (results.some((entry) => entry.id === document.id)) continue;
       results.push(document);
       if (results.length >= maxResults) break;
     }
     return results;
+  }
+
+  search(query: string, options: KnowledgeSearchOptions = {}): KnowledgeDocument[] {
+    if (!query.trim()) return [];
+    if (!this.source) return [];
+    const matches = this.source.search(query);
+    return this.filterDocuments(matches.map((match) => match.item), options);
+  }
+
+  /**
+   * Keyword retrieval merged with BYOK vector similarity. Semantic scores only
+   * re-rank and extend the keyword list; any provider failure degrades to the
+   * synchronous keyword-only result.
+   */
+  async searchAsync(query: string, options: KnowledgeSearchOptions = {}): Promise<KnowledgeDocument[]> {
+    const keywordResults = this.search(query, options);
+    if (!query.trim() || !this.source || !this.semanticProvider) return keywordResults;
+    const maxResults = options.maxResults ?? 6;
+    const items = this.source.items.map((item) => ({
+      id: item.id,
+      text: `${item.title} ${item.content}`,
+    }));
+    let semanticScores: Map<string, number> | null = null;
+    try {
+      semanticScores = await this.semanticProvider.rank(query, items);
+    } catch {
+      semanticScores = null;
+    }
+    if (!semanticScores || semanticScores.size === 0) return keywordResults;
+
+    const keywordRank = new Map<string, number>();
+    this.source.search(query).forEach((match, index) => {
+      if (!keywordRank.has(match.item.id)) keywordRank.set(match.item.id, index);
+    });
+    const merged = this.source.items
+      .map((item) => {
+        const rank = keywordRank.get(item.id);
+        const keywordScore = rank === undefined ? 0 : 1 / (rank + 1);
+        const semanticScore = semanticScores.get(item.id) ?? 0;
+        return { item, score: keywordScore + semanticScore * 1.5 };
+      })
+      .filter((entry) => entry.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, Math.max(maxResults * 3, 12))
+      .map((entry) => entry.item);
+    return this.filterDocuments(merged, options);
   }
 
   getById(id: string): KnowledgeDocument | undefined {

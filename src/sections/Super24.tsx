@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
+import { L } from '@/lib/translations/manual';
+
 
 /* ─── SuperNumber (arbitrary precision) ─── */
 
@@ -459,22 +461,22 @@ export default function Super24() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold text-center mb-1" style={{ background: 'linear-gradient(90deg, #00d4ff, #7b2cbf)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>超级24点游戏</h2>
-      <p className="text-center text-sm text-nc-text-muted mb-6">Super 24 Point — 超越极限的数学挑战</p>
+      <h2 className="text-2xl font-bold text-center mb-1" style={{ background: 'linear-gradient(90deg, #00d4ff, #7b2cbf)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{L("超级24点游戏")}</h2>
+      <p className="text-center text-sm text-nc-text-muted mb-6">{L("Super 24 Point — 超越极限的数学挑战")}</p>
 
       <div className="rounded-2xl border border-white/[0.06] bg-nc-bg-tertiary/20 p-5 mb-4">
-        <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>🎮 难度选择</div>
+        <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>{L("🎮 难度选择")}</div>
         <div className="flex gap-2 justify-center flex-wrap">
           {[3, 5, 8, 12, 20, 30, 42].map(n => (
-            <button key={n} onClick={() => newGame(n)} className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${difficulty === n ? 'border-cyan-400 text-cyan-400 bg-cyan-500/10' : 'border-white/10 text-nc-text-muted hover:text-nc-text'}`} style={{ borderWidth: '2px', background: difficulty === n ? 'rgba(0,212,255,0.1)' : 'rgba(0,0,0,0.2)' }}>{n}个数字</button>
+            <button key={n} onClick={() => newGame(n)} className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${difficulty === n ? 'border-cyan-400 text-cyan-400 bg-cyan-500/10' : 'border-white/10 text-nc-text-muted hover:text-nc-text'}`} style={{ borderWidth: '2px', background: difficulty === n ? 'rgba(0,212,255,0.1)' : 'rgba(0,0,0,0.2)' }}>{n}{L("个数字")}</button>
           ))}
         </div>
       </div>
 
       <div className="rounded-2xl border border-white/[0.06] bg-nc-bg-tertiary/20 p-5 mb-4">
-        <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>🎯 当前挑战</div>
+        <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>{L("🎯 当前挑战")}</div>
         <div className="text-center text-xl font-bold py-3 px-4 rounded-xl mb-3" style={{ color: '#ffcc00', background: 'rgba(255,204,0,0.1)', border: '1px solid rgba(255,204,0,0.3)', wordBreak: 'break-all' }}>
-          目标值: {game.target?.display() ?? '--'}
+          {L("目标值: ")}{game.target?.display() ?? '--'}
         </div>
         <div className="flex gap-3 justify-center flex-wrap my-4">
           {game.numbers.map((n, i) => (
@@ -497,13 +499,13 @@ export default function Super24() {
         </div>
 
         <div className="flex gap-2 mb-3">
-          <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && submitExpr()} placeholder="输入表达式, 如: 3^3+√(4!)" className="flex-1 p-3 text-base rounded-xl border-2 bg-black/20 text-white" style={{ borderColor: 'rgba(255,255,255,0.1)' }} />
-          <button onClick={submitExpr} className="px-5 py-3 rounded-xl text-sm font-bold text-white transition-all" style={{ background: 'linear-gradient(135deg, #00d4ff, #7b2cbf)' }}>提交</button>
+          <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && submitExpr()} placeholder={L("输入表达式, 如: 3^3+√(4!)")} className="flex-1 p-3 text-base rounded-xl border-2 bg-black/20 text-white" style={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+          <button onClick={submitExpr} className="px-5 py-3 rounded-xl text-sm font-bold text-white transition-all" style={{ background: 'linear-gradient(135deg, #00d4ff, #7b2cbf)' }}>{L("提交")}</button>
         </div>
 
         <div className="flex gap-3 justify-center">
           <button onClick={() => setShowAnswer(!showAnswer)} className="px-4 py-2 rounded-xl text-xs font-medium transition-all" style={{ background: 'rgba(255,255,255,0.1)', color: '#ccc' }}>{showAnswer ? '隐藏答案' : '👁️ 查看答案'}</button>
-          <button onClick={() => newGame()} className="px-4 py-2 rounded-xl text-xs font-medium transition-all" style={{ background: 'rgba(255,255,255,0.1)', color: '#ccc' }}>🔄 新游戏</button>
+          <button onClick={() => newGame()} className="px-4 py-2 rounded-xl text-xs font-medium transition-all" style={{ background: 'rgba(255,255,255,0.1)', color: '#ccc' }}>{L("🔄 新游戏")}</button>
         </div>
 
         {resultInfo && (
@@ -519,13 +521,13 @@ export default function Super24() {
 
         {showAnswer && (
           <div className="mt-3 p-3 rounded-lg text-sm" style={{ border: '1px solid #7b2cbf', background: 'rgba(123,44,191,0.2)' }}>
-            🔍 精确答案: {game.hiddenExpr}<br />≈ {game.target?.display()}
+            {L("🔍 精确答案: ")}{game.hiddenExpr}<br />≈ {game.target?.display()}
           </div>
         )}
       </div>
 
       <div className="rounded-2xl border border-white/[0.06] bg-nc-bg-tertiary/20 p-5 mb-4">
-        <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>📊 得分</div>
+        <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>{L("📊 得分")}</div>
         <div className="text-4xl font-bold text-center my-3" style={{ color: score !== null ? (score >= 90 ? '#00ff88' : score >= 30 ? '#ffcc00' : '#ff4444') : '#8892b0' }}>{score !== null ? score.toFixed(3) : '--'}</div>
         <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
           <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(score ?? 0, 100)}%`, background: 'linear-gradient(90deg, #00d4ff, #00ff88)' }} />
@@ -534,14 +536,14 @@ export default function Super24() {
 
       {history.length > 0 && (
         <div className="rounded-2xl border border-white/[0.06] bg-nc-bg-tertiary/20 p-5 mb-4">
-          <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>📜 历史记录</div>
+          <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>{L("📜 历史记录")}</div>
           <div className="max-h-[250px] overflow-y-auto space-y-1">
             {[...history].reverse().map((h, i) => {
               const cls = h.score >= 70 ? 'bg-emerald-500/20 text-emerald-400' : h.score >= 30 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400';
               return (
                 <div key={i} className="flex justify-between items-center py-2 px-3 rounded-lg border-b border-white/[0.04] text-sm">
                   <span className="font-mono text-nc-text-secondary">{h.expr}</span>
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${cls}`}>{h.score.toFixed(3)}分</span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${cls}`}>{h.score.toFixed(3)}{L("分")}</span>
                 </div>
               );
             })}
@@ -550,16 +552,16 @@ export default function Super24() {
       )}
 
       <div className="rounded-2xl border border-white/[0.06] bg-nc-bg-tertiary/20 p-5">
-        <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>📖 游戏规则</div>
+        <div className="text-sm font-medium mb-3" style={{ color: '#00d4ff' }}>{L("📖 游戏规则")}</div>
         <div className="text-sm text-nc-text-secondary leading-relaxed space-y-1">
-          <p>1. 系统给出 <strong className="text-nc-text">N 个数字</strong>（N 由难度决定：3~42）</p>
-          <p>2. <strong className="text-nc-text">目标值已显示</strong>，你需要用这 N 个数字构造表达式使结果接近目标</p>
-          <p>3. 可用运算符：<code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>+</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>-</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>*</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>/</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>( )</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>√</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>sqrt(x)</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>!</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>^</code></p>
-          <p>4. 必须<strong className="text-nc-text">恰好使用</strong>给定的 N 个数字各一次</p>
-          <p>5. 阶乘仅对<strong className="text-nc-text">非负整数</strong>有效</p>
-          <p>6. 根号内不能为负数，可用 <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>√x</code> 或 <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>sqrt(x)</code></p>
-          <p>7. 支持<strong className="text-nc-text">无理数</strong>答案（如 √2、√3+1 等），按浮点精度评分</p>
-          <p>8. 数值范围：指数位最大支持 10^10000</p>
+          <p>{L("1. 系统给出 ")}<strong className="text-nc-text">{L("N 个数字")}</strong>{L("（N 由难度决定：3~42）")}</p>
+          <p>2. <strong className="text-nc-text">{L("目标值已显示")}</strong>{L("，你需要用这 N 个数字构造表达式使结果接近目标")}</p>
+          <p>{L("3. 可用运算符：")}<code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>+</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>-</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>*</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>/</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>( )</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>√</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>sqrt(x)</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>!</code> <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>^</code></p>
+          <p>{L("4. 必须")}<strong className="text-nc-text">{L("恰好使用")}</strong>{L("给定的 N 个数字各一次")}</p>
+          <p>{L("5. 阶乘仅对")}<strong className="text-nc-text">{L("非负整数")}</strong>{L("有效")}</p>
+          <p>{L("6. 根号内不能为负数，可用 ")}<code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>√x</code> {L("或 ")}<code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,212,255,0.1)', color: '#00d4ff' }}>sqrt(x)</code></p>
+          <p>{L("7. 支持")}<strong className="text-nc-text">{L("无理数")}</strong>{L("答案（如 √2、√3+1 等），按浮点精度评分")}</p>
+          <p>{L("8. 数值范围：指数位最大支持 10^10000")}</p>
         </div>
       </div>
     </div>

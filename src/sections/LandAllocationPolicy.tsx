@@ -1,4 +1,6 @@
 import { BlockMath } from 'react-katex';
+import { L } from '@/lib/translations/manual';
+
 import {
   ArrowDown,
   BadgeCheck,
@@ -94,37 +96,37 @@ export default function LandAllocationPolicy({ embedded = false }: { embedded?: 
     <section id="land-allocation-policy" className={`land-policy${embedded ? ' land-policy-embedded' : ''}`} aria-labelledby="land-policy-title">
       <header className="land-policy-hero">
         <div className="land-policy-hero-copy">
-          <div className="land-policy-status"><span>制度档案</span><i aria-hidden="true" />{LAND_ALLOCATION_META.edition}</div>
+          <div className="land-policy-status"><span>{L("制度档案")}</span><i aria-hidden="true" />{LAND_ALLOCATION_META.edition}</div>
           <h2 id="land-policy-title">{LAND_ALLOCATION_META.title}</h2>
           <p className="land-policy-intro">{LAND_ALLOCATION_META.summary}</p>
-          <div className="land-policy-tags" aria-label="制度的三项核心特征">
-            <span><Equal aria-hidden="true" />等额权重</span>
-            <span><MapPinned aria-hidden="true" />自主选地</span>
-            <span><Dice5 aria-hidden="true" />公开随机</span>
+          <div className="land-policy-tags" aria-label={L("制度的三项核心特征")}>
+            <span><Equal aria-hidden="true" />{L("等额权重")}</span>
+            <span><MapPinned aria-hidden="true" />{L("自主选地")}</span>
+            <span><Dice5 aria-hidden="true" />{L("公开随机")}</span>
           </div>
           <button className="land-policy-read-button" type="button" onClick={() => scrollToSection('land-policy-reading')}>
-            阅读完整制度<ArrowDown aria-hidden="true" />
+            {L("阅读完整制度")}<ArrowDown aria-hidden="true" />
           </button>
         </div>
 
-        <aside className="land-policy-index-card" aria-label="制度档案摘要">
+        <aside className="land-policy-index-card" aria-label={L("制度档案摘要")}>
           <p>LAND / ALLOCATION</p>
-          <div><strong>22</strong><span>项完整规则</span></div>
-          <div><strong>02</strong><span>条核心公式</span></div>
-          <div><strong>01</strong><span>份平等权重</span></div>
+          <div><strong>22</strong><span>{L("项完整规则")}</span></div>
+          <div><strong>02</strong><span>{L("条核心公式")}</span></div>
+          <div><strong>01</strong><span>{L("份平等权重")}</span></div>
           <small>PUBLIC · VERIFIABLE · NON-TRADABLE</small>
         </aside>
       </header>
 
       <div className="land-policy-note" role="note">
         <ShieldCheck aria-hidden="true" />
-        <div><strong>阅读说明</strong><p>{LAND_ALLOCATION_META.disclaimer}</p></div>
+        <div><strong>{L("阅读说明")}</strong><p>{LAND_ALLOCATION_META.disclaimer}</p></div>
       </div>
 
       <section className="land-policy-overview" aria-labelledby="land-policy-overview-title">
         <div className="land-policy-section-heading">
           <p>WHY IT IS FAIR</p>
-          <h3 id="land-policy-overview-title">公平不来自统一安排，而来自同样的选择能力</h3>
+          <h3 id="land-policy-overview-title">{L("公平不来自统一安排，而来自同样的选择能力")}</h3>
         </div>
         <div className="land-policy-pillar-grid">
           {LAND_ALLOCATION_PILLARS.map((pillar, index) => {
@@ -144,7 +146,7 @@ export default function LandAllocationPolicy({ embedded = false }: { embedded?: 
       <section className="land-policy-flow" aria-labelledby="land-policy-flow-title">
         <div className="land-policy-section-heading">
           <p>ONE ROUND</p>
-          <h3 id="land-policy-flow-title">一轮分配，四个公开步骤</h3>
+          <h3 id="land-policy-flow-title">{L("一轮分配，四个公开步骤")}</h3>
         </div>
         <ol>
           {LAND_ALLOCATION_STEPS.map((step, index) => {
@@ -163,27 +165,27 @@ export default function LandAllocationPolicy({ embedded = false }: { embedded?: 
       <section className="land-policy-equations" aria-labelledby="land-policy-equations-title">
         <div className="land-policy-section-heading">
           <p>THE TWO RULES</p>
-          <h3 id="land-policy-equations-title">整套制度的数学核心</h3>
+          <h3 id="land-policy-equations-title">{L("整套制度的数学核心")}</h3>
         </div>
         <div className="land-policy-equation-grid">
           <article>
-            <span>总量约束</span>
+            <span>{L("总量约束")}</span>
             <div><BlockMath math="\\sum_i w_i\\le 1" /></div>
-            <p>每个人拥有有限且相同的总权重。</p>
+            <p>{L("每个人拥有有限且相同的总权重。")}</p>
           </article>
           <article>
-            <span>相对概率</span>
+            <span>{L("相对概率")}</span>
             <div><BlockMath math="P(i\\mid L)=\\frac{w_{i,L}}{\\sum_j w_{j,L}}" /></div>
-            <p>同一地块按照各申请者投入的相对权重随机分配。</p>
+            <p>{L("同一地块按照各申请者投入的相对权重随机分配。")}</p>
           </article>
         </div>
       </section>
 
       <div id="land-policy-reading" className="land-policy-reading" tabIndex={-1}>
         <aside className="land-policy-toc">
-          <p>完整制度</p>
-          <strong>6 个主题 · 22 项规则</strong>
-          <nav aria-label="制度正文主题">
+          <p>{L("完整制度")}</p>
+          <strong>{L("6 个主题 · 22 项规则")}</strong>
+          <nav aria-label={L("制度正文主题")}>
             {LAND_ALLOCATION_CHAPTERS.map((chapter, index) => {
               const Icon = chapterIcons[index];
               return (
@@ -229,7 +231,7 @@ export default function LandAllocationPolicy({ embedded = false }: { embedded?: 
           <blockquote className="land-policy-conclusion">
             <Scale aria-hidden="true" />
             <p>{LAND_ALLOCATION_META.conclusion}</p>
-            <footer>公平随机土地分配制度 · 一句话版本</footer>
+            <footer>{L("公平随机土地分配制度 · 一句话版本")}</footer>
           </blockquote>
 
           <div className="land-policy-rights-note">

@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { DIFFICULTIES, createMazeState, moveForward, turnLeft, turnRight, getFeedback } from '@/game/hellMaze/mazeGen';
 import type { MazeState } from '@/game/hellMaze/types';
 import { hexKey, hexNeighbor } from '@/game/hellMaze/types';
@@ -198,18 +200,18 @@ export default function HellMaze() {
   if (!state) {
     return (
       <div className="min-h-screen bg-nc-bg text-nc-text flex flex-col items-center gap-6 p-6">
-        <h2 className="text-3xl font-bold">地狱迷宫·VI</h2>
+        <h2 className="text-3xl font-bold">{L("地狱迷宫·VI")}</h2>
 
         <div className="max-w-md text-xs text-nc-text-secondary bg-nc-bg-secondary rounded-xl p-4 space-y-1.5 border border-white/5">
-          <p><span className="text-amber-400">●</span> 六边形蜂窝迷宫，全盲。你看不到地图。</p>
-          <p><span className="text-amber-400">●</span> 起点在正中央，初始方向朝右（→）。</p>
-          <p><span className="text-amber-400">●</span> 终点是围墙上一道打开的边，找到它并朝外穿越即获胜。</p>
-          <p><span className="text-amber-400">●</span> 仅三个操作键：↺ 左转 60° / ↑ 前进 / ↻ 右转 60°。</p>
-          <p><span className="text-amber-400">●</span> 三条布尔反馈：前进成功？目标点？终点了？</p>
-          <p><span className="text-amber-400">●</span> 找到出口的边，面对它按下前进即可逃脱获胜。</p>
-          <p><span className="text-amber-400">●</span> 投降后公布全图 + 位置 + 方向。</p>
+          <p><span className="text-amber-400">●</span> {L("六边形蜂窝迷宫，全盲。你看不到地图。")}</p>
+          <p><span className="text-amber-400">●</span> {L("起点在正中央，初始方向朝右（→）。")}</p>
+          <p><span className="text-amber-400">●</span> {L("终点是围墙上一道打开的边，找到它并朝外穿越即获胜。")}</p>
+          <p><span className="text-amber-400">●</span> {L("仅三个操作键：↺ 左转 60° / ↑ 前进 / ↻ 右转 60°。")}</p>
+          <p><span className="text-amber-400">●</span> {L("三条布尔反馈：前进成功？目标点？终点了？")}</p>
+          <p><span className="text-amber-400">●</span> {L("找到出口的边，面对它按下前进即可逃脱获胜。")}</p>
+          <p><span className="text-amber-400">●</span> {L("投降后公布全图 + 位置 + 方向。")}</p>
         </div>
-        <label htmlFor="hell-maze-difficulty" className="text-sm font-medium text-nc-text">选择难度</label>
+        <label htmlFor="hell-maze-difficulty" className="text-sm font-medium text-nc-text">{L("选择难度")}</label>
         <select
           id="hell-maze-difficulty"
           name="hell-maze-difficulty"
@@ -219,18 +221,17 @@ export default function HellMaze() {
           className="bg-nc-bg-secondary border border-white/10 rounded-lg px-4 py-2 text-nc-text"
         >
           {DIFFICULTIES.map((d, i) => (
-            <option key={i} value={i}>{d.name}（半径{d.radius}，{d.targets}目标）</option>
+            <option key={i} value={i}>{d.name}{L("（半径")}{d.radius}，{d.targets}{L("目标）")}</option>
           ))}
         </select>
-        <p id="hell-maze-difficulty-help" className="sr-only">选择难度会改变迷宫半径和需要收集的目标数量。</p>
+        <p id="hell-maze-difficulty-help" className="sr-only">{L("选择难度会改变迷宫半径和需要收集的目标数量。")}</p>
         <button
           type="button"
           onClick={start}
-          aria-label="使用所选难度开始挑战"
+          aria-label={L("使用所选难度开始挑战")}
           className="px-8 py-3 bg-gradient-to-r from-red-700 to-red-600 rounded-xl font-bold text-lg hover:from-red-600 hover:to-red-500 transition-all"
         >
-          开始挑战
-        </button>
+          {L("开始挑战\n        ")}</button>
       </div>
     );
   }
@@ -240,35 +241,35 @@ export default function HellMaze() {
   if (isOver) {
     return (
       <div className="min-h-screen bg-nc-bg text-nc-text flex flex-col items-center gap-6 p-6">
-        <h2 className="text-3xl font-bold text-red-400">迷 宫 揭 秘</h2>
+        <h2 className="text-3xl font-bold text-red-400">{L("迷 宫 揭 秘")}</h2>
         <p className="text-sm text-nc-text-muted">{DIFFICULTIES[diffIdx].name}</p>
 
         <div className="flex flex-wrap gap-3 justify-center text-xs bg-nc-bg-secondary rounded-lg px-4 py-2">
-          <span>😵 位置：({state.playerPos.q}, {state.playerPos.r})</span>
-          <span>🧭 朝向：{['→','↘','↙','←','↖','↗'][state.playerDir]}</span>
-          <span>🚪 出口：({state.end.q},{state.end.r})→{['→','↘','↙','←','↖','↗'][state.exitDir]}</span>
-          <span>👣 {state.steps}步</span>
+          <span>{L("😵 位置：(")}{state.playerPos.q}, {state.playerPos.r})</span>
+          <span>{L("🧭 朝向：")}{['→','↘','↙','←','↖','↗'][state.playerDir]}</span>
+          <span>{L("🚪 出口：(")}{state.end.q},{state.end.r})→{['→','↘','↙','←','↖','↗'][state.exitDir]}</span>
+          <span>👣 {state.steps}{L("步")}</span>
           <span>⏱ {formatTime(elapsed)}</span>
         </div>
 
         <div className="flex flex-wrap gap-3 text-[10px] text-nc-text-muted">
-          <span><span className="text-red-500">■</span> 墙壁</span>
-          <span><span className="text-amber-500">■</span> 当前位置</span>
-          <span><span className="text-green-800">■</span> 起点</span>
-          <span><span className="text-red-800">■</span> 未收集!</span>
-          <span><span className="text-amber-800">■</span> 已收集✓</span>
-          <span><span className="text-cyan-600">■</span> 终点</span>
+          <span><span className="text-red-500">■</span> {L("墙壁")}</span>
+          <span><span className="text-amber-500">■</span> {L("当前位置")}</span>
+          <span><span className="text-green-800">■</span> {L("起点")}</span>
+          <span><span className="text-red-800">■</span> {L("未收集!")}</span>
+          <span><span className="text-amber-800">■</span> {L("已收集✓")}</span>
+          <span><span className="text-cyan-600">■</span> {L("终点")}</span>
         </div>
 
         <MazeMap state={state} />
 
         {state.won && (
           <p className="text-xs text-amber-400">
-            ✨ 通关！评级：{state.steps <= DIFFICULTIES[diffIdx].radius * 10 ? 'S' : state.steps <= DIFFICULTIES[diffIdx].radius * 20 ? 'A' : state.steps <= DIFFICULTIES[diffIdx].radius * 35 ? 'B' : 'C'}
+            {L("✨ 通关！评级：")}{state.steps <= DIFFICULTIES[diffIdx].radius * 10 ? 'S' : state.steps <= DIFFICULTIES[diffIdx].radius * 20 ? 'A' : state.steps <= DIFFICULTIES[diffIdx].radius * 35 ? 'B' : 'C'}
           </p>
         )}
 
-        <button onClick={() => setState(null)} className="px-6 py-2 rounded-lg bg-nc-bg-secondary border border-white/10 hover:border-white/30 transition-all">返回</button>
+        <button onClick={() => setState(null)} className="px-6 py-2 rounded-lg bg-nc-bg-secondary border border-white/10 hover:border-white/30 transition-all">{L("返回")}</button>
       </div>
     );
   }
@@ -279,22 +280,22 @@ export default function HellMaze() {
   return (
     <div className="min-h-screen bg-nc-bg text-nc-text flex flex-col items-center gap-8 p-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold">地狱迷宫·VI</h2>
+        <h2 className="text-2xl font-bold">{L("地狱迷宫·VI")}</h2>
         <p className="text-sm text-nc-text-muted">{DIFFICULTIES[diffIdx].name}</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 w-full max-w-xs" role="status" aria-live="polite" aria-atomic="true" aria-label="迷宫行动反馈">
+      <div className="grid grid-cols-3 gap-4 w-full max-w-xs" role="status" aria-live="polite" aria-atomic="true" aria-label={L("迷宫行动反馈")}>
         <span className="sr-only">{feedbackSummary}</span>
-        <div className={`maze-feedback rounded-xl p-4 text-center border ${b1 ? 'bg-emerald-900/40 border-emerald-500/40' : 'bg-red-900/40 border-red-500/40'}`} data-status={b1 ? 'success' : 'blocked'} aria-label={`前进${b1 ? '成功' : '受阻'}`}>
-          <div className="text-xs text-nc-text-muted mb-1">前进成功</div>
+        <div className={`maze-feedback rounded-xl p-4 text-center border ${b1 ? 'bg-emerald-900/40 border-emerald-500/40' : 'bg-red-900/40 border-red-500/40'}`} data-status={b1 ? 'success' : 'blocked'} aria-label={L(`前进${b1 ? '成功' : '受阻'}`)}>
+          <div className="text-xs text-nc-text-muted mb-1">{L("前进成功")}</div>
           <div className="text-2xl">{b1 ? '✓' : '✗'}</div>
         </div>
         <div className={`maze-feedback rounded-xl p-4 text-center border ${b2 ? 'bg-amber-900/40 border-amber-500/40' : 'bg-nc-bg-secondary border-white/10'}`} data-status={b2 ? 'target' : 'idle'} aria-label={b2 ? '发现目标点' : '当前没有目标点'}>
-          <div className="text-xs text-nc-text-muted mb-1">目标点</div>
+          <div className="text-xs text-nc-text-muted mb-1">{L("目标点")}</div>
           <div className="text-2xl">{b2 ? '●' : '○'}</div>
         </div>
         <div className={`maze-feedback rounded-xl p-4 text-center border ${b3 ? 'bg-cyan-900/40 border-cyan-500/40' : 'bg-nc-bg-secondary border-white/10'}`} data-status={b3 ? 'finish' : 'idle'} aria-label={b3 ? '出口就在当前位置' : '当前不在出口'}>
-          <div className="text-xs text-nc-text-muted mb-1">终点</div>
+          <div className="text-xs text-nc-text-muted mb-1">{L("终点")}</div>
           <div className="text-2xl">{b3 ? '★' : '☆'}</div>
         </div>
       </div>
@@ -303,35 +304,35 @@ export default function HellMaze() {
         <button
           type="button"
           onClick={() => { turnLeft(state); setState({ ...state }); }}
-          aria-label="向左转六十度"
+          aria-label={L("向左转六十度")}
           className="maze-control w-16 h-16 rounded-full bg-nc-bg-secondary border border-white/10 text-2xl hover:bg-white/5 active:scale-95 transition-all"
         >↺</button>
         <button
           type="button"
           onClick={() => { moveForward(state); setState({ ...state }); }}
-          aria-label="向前移动"
+          aria-label={L("向前移动")}
           className="maze-control is-primary w-20 h-20 rounded-full bg-gradient-to-b from-amber-600/80 to-amber-800/80 text-3xl border border-amber-500/30 hover:from-amber-500/80 active:scale-95 transition-all"
         >↑</button>
         <button
           type="button"
           onClick={() => { turnRight(state); setState({ ...state }); }}
-          aria-label="向右转六十度"
+          aria-label={L("向右转六十度")}
           className="maze-control w-16 h-16 rounded-full bg-nc-bg-secondary border border-white/10 text-2xl hover:bg-white/5 active:scale-95 transition-all"
         >↻</button>
       </div>
 
       <div className="flex gap-2 text-xs text-nc-text-muted">
         <span className="px-2 py-1 rounded bg-nc-bg-secondary">⏱ {formatTime(elapsed)}</span>
-        <span className="px-2 py-1 rounded bg-nc-bg-secondary">步数 {state.steps}</span>
-        <span className="px-2 py-1 rounded bg-nc-bg-secondary">已收集 {state.collected.size}/{state.targets.length}</span>
+        <span className="px-2 py-1 rounded bg-nc-bg-secondary">{L("步数 ")}{state.steps}</span>
+        <span className="px-2 py-1 rounded bg-nc-bg-secondary">{L("已收集 ")}{state.collected.size}/{state.targets.length}</span>
       </div>
 
       <button
         type="button"
         onClick={surrender}
-        aria-label="投降并显示完整迷宫"
+        aria-label={L("投降并显示完整迷宫")}
         className="px-4 py-1.5 text-xs rounded border border-red-800/50 text-red-400 hover:bg-red-900/30 transition-all"
-      >投降</button>
+      >{L("投降")}</button>
     </div>
   );
 }

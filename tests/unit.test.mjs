@@ -30,20 +30,17 @@ test('i18n defaults to zh-CN with en toggle', () => {
   assert.match(html, /feed\.xml/);
 });
 
-test('site language switch translates the rendered page instead of reloading', () => {
+test('site language switch translates via source-level L() dictionary instead of reloading', () => {
   const dict = readFileSync('src/lib/translations/dictionary.ts', 'utf-8');
   assert.match(dict, /EXACT_TRANSLATIONS/);
   assert.match(dict, /PHRASE_TRANSLATIONS/);
 
-  const translator = readFileSync('src/lib/translations/pageTranslator.ts', 'utf-8');
-  assert.match(translator, /export function startPageTranslation/);
-  assert.match(translator, /MutationObserver/);
-  assert.match(translator, /data-no-translate/);
-  // Bare glyphs must never be swapped: split-rendered prose would break.
-  assert.match(translator, /trimmed\.length < 2/);
+  // i18n 重构后：翻译在源头经 L()/MANUAL_EN 完成，运行时 DOM 翻译器（pageTranslator.ts）已移除。
+  const manual = readFileSync('src/lib/translations/manual.ts', 'utf-8');
+  assert.match(manual, /export const MANUAL_EN/);
+  assert.match(manual, /getLocale/);
 
   const aids = readFileSync('src/components/SiteAids.tsx', 'utf-8');
-  assert.match(aids, /startPageTranslation/);
   assert.doesNotMatch(aids, /location\.reload\(\)/);
 });
 

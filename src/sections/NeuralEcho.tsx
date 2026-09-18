@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { Check, Copy, Info, Leaf, RotateCcw, Sparkles } from 'lucide-react';
 import './NeuralEcho.css';
 import { confirmAction } from '@/lib/confirmAction';
@@ -268,12 +270,12 @@ export default function NeuralEcho() {
       <header className="fractal-header">
         <div>
           <div className="fractal-kicker"><Sparkles size={13} /> NEURAL ECHO · GROWTH DUEL</div>
-          <h2>神经回响 <span>Neural Echo</span></h2>
-          <p>在共享的连续平面上生长、迁移与剪枝。32轮，双方严格公平先手。</p>
+          <h2>{L("神经回响 ")}<span>Neural Echo</span></h2>
+          <p>{L("在共享的连续平面上生长、迁移与剪枝。32轮，双方严格公平先手。")}</p>
         </div>
         <div className="fractal-header-actions">
-          <button type="button" className="fractal-icon-button" onClick={() => setShowRules((value) => !value)} aria-label="查看规则"><Info size={17} /></button>
-          <button type="button" className="fractal-icon-button" onClick={reset} aria-label="重新开始"><RotateCcw size={17} /></button>
+          <button type="button" className="fractal-icon-button" onClick={() => setShowRules((value) => !value)} aria-label={L("查看规则")}><Info size={17} /></button>
+          <button type="button" className="fractal-icon-button" onClick={reset} aria-label={L("重新开始")}><RotateCcw size={17} /></button>
         </div>
       </header>
 
@@ -282,26 +284,26 @@ export default function NeuralEcho() {
           <div key={side} className={`fractal-player-card player-${side.toLowerCase()} ${!finished && player === side ? 'is-active' : ''}`}>
             <div className="fractal-player-label"><span /> {PLAYER_NAME[side]}</div>
             <strong>{scores[side].toLocaleString()}</strong>
-            <small>{activeCounts[side]} / 16 生长点 · {echoes[side]} 回声</small>
+            <small>{activeCounts[side]} {L("/ 16 生长点 · ")}{echoes[side]} {L("回声")}</small>
           </div>
         ))}
         <div className="fractal-round-card"><div><span>ROUND</span><strong>{String(round).padStart(2, '0')}</strong><span>/ 32</span></div><p>{finished ? winner : `${PLAYER_NAME[player]} 行动`}</p></div>
       </div>
 
-      <div className="fractal-phase-track" aria-label="游戏阶段">
+      <div className="fractal-phase-track" aria-label={L("游戏阶段")}>
         {[['萌生', '01–04'], ['扩张', '05–16'], ['收束', '17–24'], ['决胜', '25–32']].map(([name, range]) => (
           <div key={name} className={phase.name === name ? 'is-current' : ''}><span>{name}</span><small>{range}</small></div>
         ))}
       </div>
 
-      {showRules && <div className="fractal-rules"><p><b>当前阶段 · {phase.name}</b> {phase.note}</p><p>每次点击一个己方生长点，生成三根计分子枝；第17轮起最多保留一根新生长枝。新枝端点距对手枝条不足6px时剪去该枝及后代。</p><p>每人最多16个有效生长点。回声在第9、17、25轮补充1次，最多储存2次；它会复刻对手最近一次的保留节奏。</p></div>}
+      {showRules && <div className="fractal-rules"><p><b>{L("当前阶段 · ")}{phase.name}</b> {phase.note}</p><p>{L("每次点击一个己方生长点，生成三根计分子枝；第17轮起最多保留一根新生长枝。新枝端点距对手枝条不足6px时剪去该枝及后代。")}</p><p>{L("每人最多16个有效生长点。回声在第9、17、25轮补充1次，最多储存2次；它会复刻对手最近一次的保留节奏。")}</p></div>}
 
       <div className="fractal-board-shell">
         <svg
           className="fractal-board"
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           role="img"
-          aria-label="神经回响游戏棋盘"
+          aria-label={L("神经回响游戏棋盘")}
           onPointerDown={handleBoardPointerDown}
         >
           <defs>
@@ -313,7 +315,7 @@ export default function NeuralEcho() {
           {branches.map((branch) => (
             <g key={branch.id}>
               <line x1={branch.x1} y1={branch.y1} x2={branch.x2} y2={branch.y2} stroke={PLAYER_COLOR[branch.owner]} strokeOpacity={0.38 + Math.min(0.5, branch.depth * 0.035)} strokeWidth={Math.max(1.4, 5.5 - branch.depth * 0.22)} strokeLinecap="round" />
-              {branch.active && <circle cx={branch.x2} cy={branch.y2} r={branch.owner === player && !finished ? 8 : 4.5} fill={PLAYER_COLOR[branch.owner]} className={branch.owner === player && !finished ? 'fractal-tip active-tip' : 'fractal-tip'} onClick={() => selectTip(branch)} role="button" aria-label={`${PLAYER_NAME[branch.owner]}生长点`} />}
+              {branch.active && <circle cx={branch.x2} cy={branch.y2} r={branch.owner === player && !finished ? 8 : 4.5} fill={PLAYER_COLOR[branch.owner]} className={branch.owner === player && !finished ? 'fractal-tip active-tip' : 'fractal-tip'} onClick={() => selectTip(branch)} role="button" aria-label={L(`${PLAYER_NAME[branch.owner]}生长点`)} />}
             </g>
           ))}
           {tip && candidates.map((candidate, index) => (
@@ -325,26 +327,26 @@ export default function NeuralEcho() {
           ))}
         </svg>
 
-        {finished && <div className="fractal-result"><Leaf size={28} /><span>32轮生长结束</span><h3>{winner}</h3><p>A {scores.A.toLocaleString()} · {scores.B.toLocaleString()} B</p><button type="button" onClick={reset}><RotateCcw size={15} /> 再生一局</button></div>}
+        {finished && <div className="fractal-result"><Leaf size={28} /><span>{L("32轮生长结束")}</span><h3>{winner}</h3><p>A {scores.A.toLocaleString()} · {scores.B.toLocaleString()} B</p><button type="button" onClick={reset}><RotateCcw size={15} /> {L("再生一局")}</button></div>}
       </div>
 
-      {!finished && <div className="fractal-rules fractal-keyboard-controls" aria-label="键盘生长控制">
-        <p><b>键盘操作</b>：先选择一个当前玩家的生长点，再选择至少一个保留的子枝；所有控件可用 Tab、Enter 或空格操作。</p>
+      {!finished && <div className="fractal-rules fractal-keyboard-controls" aria-label={L("键盘生长控制")}>
+        <p><b>{L("键盘操作")}</b>{L("：先选择一个当前玩家的生长点，再选择至少一个保留的子枝；所有控件可用 Tab、Enter 或空格操作。")}</p>
         <div className="fractal-buttons">
-          {branches.filter((branch) => branch.owner === player && branch.active).map((branch) => <button type="button" key={`tip-control-${branch.id}`} className={selectedTip === branch.id ? 'is-on' : ''} onClick={() => selectTip(branch)} aria-pressed={selectedTip === branch.id}>生长点 {branch.id}</button>)}
-          {tip && candidates.map((_, index) => <button type="button" key={`child-control-${index}`} className={selectedChildren.includes(index) ? 'is-on' : ''} onClick={() => toggleChild(index)} aria-pressed={selectedChildren.includes(index)} aria-label={`保留第 ${index + 1} 个子枝${selectedChildren.includes(index) ? '，已选择' : ''}`}>子枝 {index + 1}</button>)}
+          {branches.filter((branch) => branch.owner === player && branch.active).map((branch) => <button type="button" key={`tip-control-${branch.id}`} className={selectedTip === branch.id ? 'is-on' : ''} onClick={() => selectTip(branch)} aria-pressed={selectedTip === branch.id}>{L("生长点 ")}{branch.id}</button>)}
+          {tip && candidates.map((_, index) => <button type="button" key={`child-control-${index}`} className={selectedChildren.includes(index) ? 'is-on' : ''} onClick={() => toggleChild(index)} aria-pressed={selectedChildren.includes(index)} aria-label={L(`保留第 ${index + 1} 个子枝${selectedChildren.includes(index) ? '，已选择' : ''}`)}>{L("子枝 ")}{index + 1}</button>)}
         </div>
       </div>}
 
       <footer className="fractal-controls">
         <div className="fractal-notice"><span style={{ background: PLAYER_COLOR[player] }} /> {finished ? '点击“再生一局”重新开始。' : notice}</div>
         <div className="fractal-buttons">
-          <button type="button" className={`fractal-echo-button ${usingEcho ? 'is-on' : ''}`} onClick={toggleEcho} disabled={finished || echoes[player] <= 0}><Copy size={15} /> 克隆回声 <b>{echoes[player]}</b></button>
-          <button type="button" className="fractal-confirm-button" onClick={confirmGrowth} disabled={!tip || !selectedChildren.length || finished}><Check size={16} /> 确认生长</button>
+          <button type="button" className={`fractal-echo-button ${usingEcho ? 'is-on' : ''}`} onClick={toggleEcho} disabled={finished || echoes[player] <= 0}><Copy size={15} /> {L("克隆回声 ")}<b>{echoes[player]}</b></button>
+          <button type="button" className="fractal-confirm-button" onClick={confirmGrowth} disabled={!tip || !selectedChildren.length || finished}><Check size={16} /> {L("确认生长")}</button>
         </div>
       </footer>
 
-      <div className="fractal-sequence"><span>神经节拍</span>{Array.from({ length: 32 }, (_, index) => { const side = firstPlayer(index + 1); return <i key={index} className={`${side === 'A' ? 'a' : 'b'} ${index + 1 === round ? 'now' : ''}`}>{side}</i>; })}</div>
+      <div className="fractal-sequence"><span>{L("神经节拍")}</span>{Array.from({ length: 32 }, (_, index) => { const side = firstPlayer(index + 1); return <i key={index} className={`${side === 'A' ? 'a' : 'b'} ${index + 1 === round ? 'now' : ''}`}>{side}</i>; })}</div>
     </section>
   );
 }

@@ -23,6 +23,9 @@ export function exportSafeAiConfig(config: AiConfig): AiConfigExport {
     retry: config.retry,
     headers: Object.fromEntries(Object.entries(config.headers).filter(([key]) => !SECRET_KEYS.includes(key.toLowerCase()))),
     hasApiKey: Boolean(config.apiKey),
+    semanticSearch: config.semanticSearch,
+    embeddingModel: config.embeddingModel,
+    embeddingBaseUrl: config.embeddingBaseUrl,
     updatedAt: config.updatedAt,
   };
 }
@@ -46,6 +49,9 @@ export function sanitizeImportedConfig(value: unknown, current: AiConfig): AiCon
     headers: typeof candidate.headers === 'object' && candidate.headers !== null
       ? filterHeaders(candidate.headers as Record<string, unknown>)
       : current.headers,
+    semanticSearch: typeof candidate.semanticSearch === 'boolean' ? candidate.semanticSearch : current.semanticSearch,
+    embeddingModel: typeof candidate.embeddingModel === 'string' ? candidate.embeddingModel : current.embeddingModel,
+    embeddingBaseUrl: typeof candidate.embeddingBaseUrl === 'string' ? candidate.embeddingBaseUrl : current.embeddingBaseUrl,
     updatedAt: new Date().toISOString(),
   };
 }

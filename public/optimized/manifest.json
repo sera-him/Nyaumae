@@ -78,6 +78,15 @@
       960
     ]
   },
+  "/cat-machine-og.png": {
+    "sourceWidth": 1672,
+    "sourceHeight": 941,
+    "widths": [
+      320,
+      640,
+      960
+    ]
+  },
   "/characters/alice-card.jpg": {
     "sourceWidth": 1086,
     "sourceHeight": 1086,
@@ -591,6 +600,14 @@
       640,
       960,
       1280
+    ]
+  },
+  "/icons/icon-512x512.png": {
+    "sourceWidth": 1024,
+    "sourceHeight": 1024,
+    "widths": [
+      160,
+      320
     ]
   },
   "/icons/org-delan.png": {
@@ -1108,6 +1125,16 @@
       1280
     ]
   },
+  "/story-miia-wish.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
   "/story-overdose-icu.jpg": {
     "sourceWidth": 1344,
     "sourceHeight": 713,
@@ -1119,6 +1146,16 @@
     ]
   },
   "/story-paradigm.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-poems-banner.jpg": {
     "sourceWidth": 1344,
     "sourceHeight": 713,
     "widths": [
@@ -1151,6 +1188,16 @@
   "/story-xishou-nianshou.jpg": {
     "sourceWidth": 2560,
     "sourceHeight": 1385,
+    "widths": [
+      320,
+      640,
+      960,
+      1280
+    ]
+  },
+  "/story-yingchangwei.jpg": {
+    "sourceWidth": 1344,
+    "sourceHeight": 713,
     "widths": [
       320,
       640,

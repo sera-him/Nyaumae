@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { Activity, ArrowRight, Atom, Bolt, CircleHelp, Crosshair, Eye, Flag, RefreshCcw, Shield, Sparkles, Swords, Waves } from 'lucide-react';
 import {
   applyAction, createGame, endAction, legalTargets, nodeDegreeSummary, previewNode,
@@ -151,14 +153,14 @@ function NeuralCanvas({ game, onNodeClick }: { game: GameState; onNodeClick: (id
   return (
     <div className="nc-board" ref={wrapRef}>
       <canvas
-        ref={canvasRef} tabIndex={0} role="application" aria-describedby="neural-clash-board-help neural-clash-board-status" aria-label={`神经交锋棋盘，当前键盘焦点为${keyboardNodeLabel}`}
+        ref={canvasRef} tabIndex={0} role="application" aria-describedby="neural-clash-board-help neural-clash-board-status" aria-label={L(`神经交锋棋盘，当前键盘焦点为${keyboardNodeLabel}`)}
         onPointerMove={(event) => setHovered(nodeAt(event))} onPointerLeave={() => setHovered(null)}
         onPointerDown={(event) => { const id = nodeAt(event); if (id !== null) { setKeyboardNode(id); onNodeClick(id); } }} onKeyDown={handleKeyboard} onFocus={() => setHovered(keyboardNode)} onBlur={() => setHovered(null)}
       />
-      <p id="neural-clash-board-help" className="sr-only">使用方向键在节点之间移动键盘焦点，按 Enter 或空格选择当前节点。鼠标和触控操作仍可直接选择节点。</p>
-      <p id="neural-clash-board-status" className="sr-only" aria-live="polite">当前键盘焦点：{keyboardNodeLabel}。</p>
+      <p id="neural-clash-board-help" className="sr-only">{L("使用方向键在节点之间移动键盘焦点，按 Enter 或空格选择当前节点。鼠标和触控操作仍可直接选择节点。")}</p>
+      <p id="neural-clash-board-status" className="sr-only" aria-live="polite">{L("当前键盘焦点：")}{keyboardNodeLabel}。</p>
       <div className="nc-board-legend" aria-hidden="true">
-        <span><i />普通突触</span><span><i className="enhanced" />强化突触</span><span><b>⬡</b>神经核</span>
+        <span><i />{L("普通突触")}</span><span><i className="enhanced" />{L("强化突触")}</span><span><b>⬡</b>{L("神经核")}</span>
       </div>
     </div>
   );
@@ -170,9 +172,9 @@ function ScoreStrip({ game }: { game: GameState }) {
     : game.phase === 'final-ready' ? '终局脉冲' : game.phase === 'finished' ? '对局结束' : '脉冲待发';
   return (
     <div className="nc-score-strip">
-      <div className="nc-score blue"><span>蓝方</span><strong>{blue.total}</strong><small>{blue.cores}核 · {blue.stable}稳定</small></div>
-      <div className="nc-round"><small>行动轮</small><strong>{game.round}<em>/24</em></strong><span>{center}</span></div>
-      <div className="nc-score red"><span>红方</span><strong>{red.total}</strong><small>{red.cores}核 · {red.stable}稳定</small></div>
+      <div className="nc-score blue"><span>{L("蓝方")}</span><strong>{blue.total}</strong><small>{blue.cores}{L("核 · ")}{blue.stable}{L("稳定")}</small></div>
+      <div className="nc-round"><small>{L("行动轮")}</small><strong>{game.round}<em>/24</em></strong><span>{center}</span></div>
+      <div className="nc-score red"><span>{L("红方")}</span><strong>{red.total}</strong><small>{red.cores}{L("核 · ")}{red.stable}{L("稳定")}</small></div>
     </div>
   );
 }
@@ -188,8 +190,8 @@ function RuleBook({ onClose }: { onClose: () => void }) {
   ];
   return (
     <div className="nc-modal-backdrop" role="presentation" onPointerDown={onClose}>
-      <article className="nc-rulebook" role="dialog" aria-modal="true" aria-label="游戏规则" onPointerDown={(event) => event.stopPropagation()}>
-        <header><div><small>FIELD MANUAL</small><h2>神经交锋规则速查</h2></div><button onClick={onClose}>关闭</button></header>
+      <article className="nc-rulebook" role="dialog" aria-modal="true" aria-label={L("游戏规则")} onPointerDown={(event) => event.stopPropagation()}>
+        <header><div><small>FIELD MANUAL</small><h2>{L("神经交锋规则速查")}</h2></div><button onClick={onClose}>{L("关闭")}</button></header>
         <div className="nc-rules-grid">{rules.map(([title, body], index) => <section key={title}><b>0{index + 1}</b><h3>{title}</h3><p>{body}</p></section>)}</div>
       </article>
     </div>
@@ -237,31 +239,31 @@ export default function NeuralClash() {
   return (
     <div className="neural-clash">
       <header className="nc-topbar">
-        <div className="nc-brand"><span className="nc-brand-mark"><Atom size={22} /></span><div><small>NEURAL CLASH</small><h2>神经交锋</h2></div></div>
+        <div className="nc-brand"><span className="nc-brand-mark"><Atom size={22} /></span><div><small>NEURAL CLASH</small><h2>{L("神经交锋")}</h2></div></div>
         <ScoreStrip game={game} />
-        <div className="nc-top-actions"><button onClick={() => setRulesOpen(true)}><CircleHelp size={17} />规则</button><button onClick={reset}><RefreshCcw size={16} />新地图</button></div>
+        <div className="nc-top-actions"><button onClick={() => setRulesOpen(true)}><CircleHelp size={17} />{L("规则")}</button><button onClick={reset}><RefreshCcw size={16} />{L("新地图")}</button></div>
       </header>
 
       <div className="nc-layout">
         <aside className="nc-panel nc-command">
           <div className={`nc-turn-card ${game.active ?? 'neutral'}`}>
-            <small>当前阶段</small><strong>{game.phase === 'actions' ? `${sideName(game.active)}行动` : game.phase === 'pulse-ready' ? '神经脉冲' : game.phase === 'final-ready' ? '终局脉冲' : '对局结束'}</strong>
+            <small>{L("当前阶段")}</small><strong>{game.phase === 'actions' ? `${sideName(game.active)}行动` : game.phase === 'pulse-ready' ? '神经脉冲' : game.phase === 'final-ready' ? '终局脉冲' : '对局结束'}</strong>
             {game.active && <div className="nc-ap">{[0, 1, 2].map((index) => <i key={index} className={index < game.ap[game.active!] ? 'filled' : ''} />)}<span>{game.ap[game.active]} AP</span></div>}
           </div>
-          <div className="nc-section-label"><span>行动协议</span><small>{game.phase === 'actions' ? MODE_COPY[game.mode].hint : '查看票数预测后释放脉冲。'}</small></div>
+          <div className="nc-section-label"><span>{L("行动协议")}</span><small>{game.phase === 'actions' ? MODE_COPY[game.mode].hint : '查看票数预测后释放脉冲。'}</small></div>
           <div className="nc-action-grid">
             {actionButtons.map(({ mode, icon: Icon, disabled }) => <button key={mode} className={game.mode === mode ? 'active' : ''} disabled={disabled || game.phase !== 'actions'} onClick={() => setGame((current) => ({ ...current, mode, selected: null }))}><Icon size={18} /><span>{MODE_COPY[mode].title}</span></button>)}
           </div>
           <button className={`nc-primary ${game.phase !== 'actions' ? 'pulse' : ''}`} onClick={nextStep} disabled={game.phase === 'finished'}>
-            {game.phase === 'actions' ? <><Flag size={18} />结束本方行动</> : game.phase === 'pulse-ready' ? <><Activity size={19} />释放第{game.round}轮脉冲</> : game.phase === 'final-ready' ? <><Sparkles size={19} />释放终局脉冲</> : <><Shield size={19} />对局已结束</>}
+            {game.phase === 'actions' ? <><Flag size={18} />{L("结束本方行动")}</> : game.phase === 'pulse-ready' ? <><Activity size={19} />{L("释放第")}{game.round}{L("轮脉冲")}</> : game.phase === 'final-ready' ? <><Sparkles size={19} />{L("释放终局脉冲")}</> : <><Shield size={19} />{L("对局已结束")}</>}
           </button>
-          <div className="nc-log"><div className="nc-section-label"><span>脉冲记录</span></div>{game.log.map((entry, index) => <p key={`${entry}-${index}`} className={index === 0 ? 'latest' : ''}><i />{entry}</p>)}</div>
+          <div className="nc-log"><div className="nc-section-label"><span>{L("脉冲记录")}</span></div>{game.log.map((entry, index) => <p key={`${entry}-${index}`} className={index === 0 ? 'latest' : ''}><i />{entry}</p>)}</div>
         </aside>
 
         <section className="nc-battlefield">
           <div className="nc-field-head">
-            <div><span>突触网络 # {game.map.seed}</span><small>100节点 · 666突触 · 平衡差异 {(game.map.balance * 100).toFixed(1)}%</small></div>
-            <div className="nc-network-counts"><span><b>200</b> 强化</span><span><b>466</b> 普通</span><span><b>10</b> 神经核</span></div>
+            <div><span>{L("突触网络 # ")}{game.map.seed}</span><small>{L("100节点 · 666突触 · 平衡差异 ")}{(game.map.balance * 100).toFixed(1)}%</small></div>
+            <div className="nc-network-counts"><span><b>200</b> {L("强化")}</span><span><b>466</b> {L("普通")}</span><span><b>10</b> {L("神经核")}</span></div>
           </div>
           <NeuralCanvas game={game} onNodeClick={onNodeClick} />
           <div className="nc-tactical-hint"><Swords size={15} /><span>{game.mode === 'inspect' ? '选择节点聚焦一跳战场；双色环表示争议，断裂环表示将在本轮死亡。' : MODE_COPY[game.mode].hint}</span></div>
@@ -274,23 +276,23 @@ export default function NeuralClash() {
               <div><small>{selectedNode.core ? 'NEURAL CORE' : 'NEURAL NODE'}</small><h2>{selectedNode.core ? `${selectedNode.id + 1}号神经核` : `${selectedNode.id + 1}号节点`}</h2><span className={selectedNode.owner}>{selectedNode.owner === 'blue' ? '蓝方控制' : selectedNode.owner === 'red' ? '红方控制' : selectedNode.owner === 'dead' ? '永久失效' : '中立'}</span></div>
             </div>
             <div className="nc-vote-card">
-              <div className="nc-vote-head"><span>本轮预计票数</span><small>快照预览</small></div>
-              <div className="nc-votes"><div className="blue"><strong>{selectedPreview.blue}</strong><span>蓝方票</span></div><div className="versus">:</div><div className="red"><strong>{selectedPreview.red}</strong><span>红方票</span></div></div>
+              <div className="nc-vote-head"><span>{L("本轮预计票数")}</span><small>{L("快照预览")}</small></div>
+              <div className="nc-votes"><div className="blue"><strong>{selectedPreview.blue}</strong><span>{L("蓝方票")}</span></div><div className="versus">:</div><div className="red"><strong>{selectedPreview.red}</strong><span>{L("红方票")}</span></div></div>
               <div className={`nc-outcome ${selectedPreview.outcome}`}>{selectedPreview.outcome === selectedNode.owner ? '脉冲后保持当前状态' : selectedPreview.outcome === 'dead' ? '脉冲后节点死亡' : `脉冲后转为${selectedPreview.outcome === 'blue' ? '蓝方' : '红方'}控制`}</div>
             </div>
             <div className="nc-stats">
-              <div><span>总度数</span><b>{selectedDegree.total}</b></div><div><span>强化突触</span><b>{selectedDegree.enhanced}</b></div>
-              <div><span>普通突触</span><b>{selectedDegree.ordinary}</b></div><div><span>投票加成</span><b>{selectedNode.core ? '+1 / 票' : '—'}</b></div>
+              <div><span>{L("总度数")}</span><b>{selectedDegree.total}</b></div><div><span>{L("强化突触")}</span><b>{selectedDegree.enhanced}</b></div>
+              <div><span>{L("普通突触")}</span><b>{selectedDegree.ordinary}</b></div><div><span>{L("投票加成")}</span><b>{selectedNode.core ? '+1 / 票' : '—'}</b></div>
             </div>
             <div className="nc-neighbors">
-              <div className="nc-section-label"><span>一跳邻居</span><small>{game.map.adjacency[selectedNode.id].length}个连接</small></div>
+              <div className="nc-section-label"><span>{L("一跳邻居")}</span><small>{game.map.adjacency[selectedNode.id].length}{L("个连接")}</small></div>
               <div>{game.map.adjacency[selectedNode.id].map((id) => {
                 const node = game.map.nodes[id];
                 const edge = game.map.edgeLookup.get(selectedNode.id < id ? `${selectedNode.id}:${id}` : `${id}:${selectedNode.id}`);
                 return <button key={id} onClick={() => onNodeClick(id)} className={node.owner}><i />{node.core ? '核' : ''}{id + 1}<em>{edge?.enhanced ? '×2' : '×1'}</em></button>;
               })}</div>
             </div>
-          </> : <div className="nc-empty-inspector"><Atom size={34} /><h2>选择一个节点</h2><p>查看归属、突触构成与本轮脉冲的预计票数。</p></div>}
+          </> : <div className="nc-empty-inspector"><Atom size={34} /><h2>{L("选择一个节点")}</h2><p>{L("查看归属、突触构成与本轮脉冲的预计票数。")}</p></div>}
         </aside>
       </div>
 
@@ -298,8 +300,8 @@ export default function NeuralClash() {
         <small>FINAL SYNAPSE REPORT</small><h2>{game.winner === 'draw' ? '神经网络达成平衡' : `${game.winner === 'blue' ? '蓝方' : '红方'}赢得交锋`}</h2>
         <div className="nc-final-scores">{(['blue', 'red'] as Side[]).map((side) => {
           const score = scoreGame(game, side);
-          return <div key={side} className={side}><span>{side === 'blue' ? '蓝方' : '红方'}</span><strong>{score.total}</strong><small>{score.ordinary}节点 + {score.cores}核 + {score.stable}稳定</small></div>;
-        })}</div><button onClick={reset}><RefreshCcw size={17} />生成新地图再战</button>
+          return <div key={side} className={side}><span>{side === 'blue' ? '蓝方' : '红方'}</span><strong>{score.total}</strong><small>{score.ordinary}{L("节点 + ")}{score.cores}{L("核 + ")}{score.stable}{L("稳定")}</small></div>;
+        })}</div><button onClick={reset}><RefreshCcw size={17} />{L("生成新地图再战")}</button>
       </div></div>}
       {rulesOpen && <RuleBook onClose={() => setRulesOpen(false)} />}
     </div>

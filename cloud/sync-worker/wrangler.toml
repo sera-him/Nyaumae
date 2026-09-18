@@ -1,0 +1,9 @@
+name = "nyaumae-sync"
+main = "worker.mjs"
+compatibility_date = "2026-09-01"
+
+# Create the namespace once and paste the real id below:
+#   npx wrangler kv namespace create SYNC_KV
+[[kv_namespaces]]
+binding = "SYNC_KV"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"

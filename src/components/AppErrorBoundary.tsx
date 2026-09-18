@@ -1,4 +1,6 @@
 import { Component, type ReactNode } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import {
   attemptAsyncModuleRecovery,
   forceAsyncModuleReload,
@@ -45,8 +47,7 @@ export default class AppErrorBoundary extends Component<AppErrorBoundaryProps, A
           fullPage
           actions={(
             <button type="button" onClick={forceAsyncModuleReload} className="aurora-button aurora-button-primary">
-              重新加载
-            </button>
+              {L("重新加载\n            ")}</button>
           )}
         />
       </main>

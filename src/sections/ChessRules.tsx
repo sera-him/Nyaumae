@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { motion } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { chessPieces, chessSpecialRules } from '@/data/chess';
@@ -36,8 +38,7 @@ export default function ChessRules() {
             <h2 className="text-3xl sm:text-4xl font-bold text-nc-text tracking-wide">{semanticHighlight("复合象棋")}</h2>
           </div>
           <p className="text-nc-text-secondary text-lg">
-            12×12 棋盘 · 融合国际象棋、中国象棋及原创机制
-          </p>
+            {L("12×12 棋盘 · 融合国际象棋、中国象棋及原创机制\n          ")}</p>
           <p className="text-sm text-nc-text-secondary mt-2 flex items-center gap-2">
             <Gem className="w-4 h-4" />
             {chessDiamondWarning}
@@ -78,11 +79,11 @@ export default function ChessRules() {
               <table className="min-w-[640px] w-full text-sm">
                 <thead>
                   <tr className="border-b border-nc-violet/10">
-                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">字母</th>
-                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">名称</th>
-                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">移动</th>
-                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">吃子</th>
-                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">备注</th>
+                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">{L("字母")}</th>
+                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">{L("名称")}</th>
+                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">{L("移动")}</th>
+                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">{L("吃子")}</th>
+                    <th className="text-left px-3 sm:px-4 py-3 text-nc-text-muted font-medium">{L("备注")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -123,7 +124,7 @@ export default function ChessRules() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-4"
           >
-            <p className="text-xs text-nc-text-muted">* 表示该棋子进入敌方英语（L）十字1-2格禁区会被消灭</p>
+            <p className="text-xs text-nc-text-muted">{L("* 表示该棋子进入敌方英语（L）十字1-2格禁区会被消灭")}</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {chessPieceTiers.map((piece, i) => {
                 const tierKey = piece.tier.replace('*', '');
@@ -217,8 +218,7 @@ export default function ChessRules() {
             <div className="bg-nc-bg-secondary border border-[#F59E0B]/15 rounded-xl p-4 sm:p-5">
               <h4 className="text-sm font-semibold text-[var(--aurora-brand-amber)] mb-3 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4" />
-                奶酪规则 —— 当老鼠踏入有奶酪的格子时
-              </h4>
+                {L("奶酪规则 —— 当老鼠踏入有奶酪的格子时\n              ")}</h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 text-xs">
                 {cheeseData.map((c) => (
                   <div key={c.name} className={`px-3 py-2 rounded-lg ${c.bg} border ${c.border} text-center`}>
@@ -262,13 +262,12 @@ export default function ChessRules() {
                     </div>
                     {entry.immune && (
                       <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-nc-violet/15 text-nc-violet font-medium shrink-0">
-                        免疫
-                      </span>
+                        {L("免疫\n                      ")}</span>
                     )}
                   </div>
                   <div className="p-3">
                     {entry.immune ? (
-                      <p className="text-xs text-nc-text-muted text-center py-2">不受中毒影响</p>
+                      <p className="text-xs text-nc-text-muted text-center py-2">{L("不受中毒影响")}</p>
                     ) : (
                       <div className="space-y-1">
                         {entry.levels.map((level, idx) => (

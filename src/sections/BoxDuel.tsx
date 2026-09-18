@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { L } from '@/lib/translations/manual';
+
 
 const AMOUNTS = [0.01, 1, 5, 10, 25, 50, 75, 100, 200, 300, 400, 500, 750, 1000, 5000, 10000, 25000, 50000, 75000, 100000, 200000, 300000, 400000, 500000, 750000, 1000000];
 const OFFER_NODES = [6, 11, 15, 18, 20, 21, 22, 23, 24];
@@ -451,39 +453,39 @@ export default function BoxDuel() {
 
   if (phase === 'setup') return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-center mb-2" style={{ color: '#e9c46a' }}>💼 箱子对决</h2>
-      <p className="text-center text-nc-text-muted mb-6">资本与命运的博弈</p>
+      <h2 className="text-2xl font-bold text-center mb-2" style={{ color: '#e9c46a' }}>{L("💼 箱子对决")}</h2>
+      <p className="text-center text-nc-text-muted mb-6">{L("资本与命运的博弈")}</p>
       <div className="rounded-2xl border border-white/[0.06] bg-nc-bg-tertiary/20 p-6 mb-6">
-        <h3 className="text-center text-lg font-medium mb-4" style={{ color: '#e9c46a' }}>🎮 玩家设置</h3>
+        <h3 className="text-center text-lg font-medium mb-4" style={{ color: '#e9c46a' }}>{L("🎮 玩家设置")}</h3>
         {[0, 1].map(i => (
           <div key={i} className="flex items-center justify-between py-3 px-4 rounded-xl bg-black/20 mb-2">
-            <span className="text-sm">玩家 {i + 1}</span>
+            <span className="text-sm">{L("玩家 ")}{i + 1}</span>
             <div className="flex gap-2">
-              <button onClick={() => setPlayerTypes(pts => { const n = [...pts] as [string, string]; n[i] = 'human'; return n; })} className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${playerTypes[i] === 'human' ? 'bg-nc-violet text-white' : 'border border-white/20 text-nc-text-muted'}`}>人类</button>
+              <button onClick={() => setPlayerTypes(pts => { const n = [...pts] as [string, string]; n[i] = 'human'; return n; })} className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${playerTypes[i] === 'human' ? 'bg-nc-violet text-white' : 'border border-white/20 text-nc-text-muted'}`}>{L("人类")}</button>
               <button onClick={() => setPlayerTypes(pts => { const n = [...pts] as [string, string]; n[i] = 'ai'; return n; })} className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${playerTypes[i] === 'ai' ? 'bg-nc-violet text-white' : 'border border-white/20 text-nc-text-muted'}`}>AI</button>
             </div>
           </div>
         ))}
       </div>
       <div className="rounded-2xl border border-white/[0.06] bg-nc-bg-tertiary/20 p-6 mb-6">
-        <h3 className="text-center text-lg font-medium mb-4" style={{ color: '#e9c46a' }}>🔄 回合数（必须为偶数）</h3>
+        <h3 className="text-center text-lg font-medium mb-4" style={{ color: '#e9c46a' }}>{L("🔄 回合数（必须为偶数）")}</h3>
         <div className="flex justify-center gap-3 flex-wrap">
           {[2, 4, 6, 8].map(n => (
-            <button key={n} onClick={() => setTotalRounds(n)} className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${totalRounds === n ? 'bg-nc-violet text-white shadow-lg shadow-nc-violet/20' : 'border border-white/20 text-nc-text-muted hover:text-nc-text'}`}>{n}轮</button>
+            <button key={n} onClick={() => setTotalRounds(n)} className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${totalRounds === n ? 'bg-nc-violet text-white shadow-lg shadow-nc-violet/20' : 'border border-white/20 text-nc-text-muted hover:text-nc-text'}`}>{n}{L("轮")}</button>
           ))}
         </div>
       </div>
       <div className="rounded-2xl border border-white/[0.06] bg-nc-bg-tertiary/20 p-6 mb-6">
-        <h3 className="text-center text-lg font-medium mb-4" style={{ color: '#e9c46a' }}>📋 规则</h3>
+        <h3 className="text-center text-lg font-medium mb-4" style={{ color: '#e9c46a' }}>{L("📋 规则")}</h3>
         <ul className="text-sm text-nc-text-secondary space-y-1.5">
-          <li>• 26个箱子固定编号 1~26，内部金额随机打乱</li>
-          <li>• <strong className="text-nc-text">参赛者</strong>：先选自己的箱子，然后逐个打开其他箱子</li>
-          <li>• <strong className="text-nc-text">资本家</strong>：在阶段节点出价购买参赛者的箱子（手动输入价格）</li>
-          <li>• 打开 <strong className="text-nc-text">6/11/15/18/20/21/22/23/24</strong> 个箱子时触发 I ~ IX 阶段出价</li>
-          <li>• 参赛者可选：<span style={{ color: '#2ecc71' }}>接受</span> / <span style={{ color: '#e74c3c' }}>拒绝</span> / <span style={{ color: '#f39c12' }}>议价</span></li>
-          <li>• 每局参赛者仅有 <strong className="text-nc-text">1点精神力</strong>，议价消耗1点</li>
-          <li>• 资本家<strong className="text-nc-text">扣减出价成本</strong>，净收益 = 箱子实际金额 − 成交价</li>
-          <li>• 多轮后比较<strong className="text-nc-text">净收益</strong>，高者获胜</li>
+          <li>{L("• 26个箱子固定编号 1~26，内部金额随机打乱")}</li>
+          <li>• <strong className="text-nc-text">{L("参赛者")}</strong>{L("：先选自己的箱子，然后逐个打开其他箱子")}</li>
+          <li>• <strong className="text-nc-text">{L("资本家")}</strong>{L("：在阶段节点出价购买参赛者的箱子（手动输入价格）")}</li>
+          <li>{L("• 打开 ")}<strong className="text-nc-text">6/11/15/18/20/21/22/23/24</strong> {L("个箱子时触发 I ~ IX 阶段出价")}</li>
+          <li>{L("• 参赛者可选：")}<span style={{ color: '#2ecc71' }}>{L("接受")}</span> / <span style={{ color: '#e74c3c' }}>{L("拒绝")}</span> / <span style={{ color: '#f39c12' }}>{L("议价")}</span></li>
+          <li>{L("• 每局参赛者仅有 ")}<strong className="text-nc-text">{L("1点精神力")}</strong>{L("，议价消耗1点")}</li>
+          <li>{L("• 资本家")}<strong className="text-nc-text">{L("扣减出价成本")}</strong>{L("，净收益 = 箱子实际金额 − 成交价")}</li>
+          <li>{L("• 多轮后比较")}<strong className="text-nc-text">{L("净收益")}</strong>{L("，高者获胜")}</li>
         </ul>
       </div>
       <div className="text-center">
@@ -499,7 +501,7 @@ export default function BoxDuel() {
           setLogs([]);
           setHistory([]);
           setScores([0, 0]);
-        }} className="px-10 py-3 text-base font-bold rounded-xl transition-all" style={{ background: '#e9c46a', color: '#1a1a2e' }}>开始游戏</button>
+        }} className="px-10 py-3 text-base font-bold rounded-xl transition-all" style={{ background: '#e9c46a', color: '#1a1a2e' }}>{L("开始游戏")}</button>
       </div>
     </div>
   );
@@ -513,12 +515,12 @@ export default function BoxDuel() {
         <div className="rounded-2xl border border-white/[0.06] bg-nc-bg-tertiary/20 p-6 text-left">
           {history.map((h, i) => (
             <div key={i} className="flex justify-between py-3 px-4 border-b border-white/5 text-sm">
-              <span><strong>第{h.round}轮</strong> {h.type === 'accept' ? '接受出价' : h.type === 'negotiate-accept' ? '议价成交' : '保留箱子'} | 箱子: {fmt(h.actual)}</span>
+              <span><strong>{L("第")}{h.round}{L("轮")}</strong> {h.type === 'accept' ? '接受出价' : h.type === 'negotiate-accept' ? '议价成交' : '保留箱子'} {L("| 箱子: ")}{fmt(h.actual)}</span>
               <span className="text-right"><span style={{ color: '#2ecc71' }}>{h.conGain >= 0 ? `+${fmt(h.conGain)}` : fmt(h.conGain)}</span> / <span style={{ color: h.capGain >= 0 ? '#2ecc71' : '#e74c3c' }}>{h.capGain >= 0 ? `+${fmt(h.capGain)}` : fmt(h.capGain)}</span></span>
             </div>
           ))}
           <div className="flex justify-between py-3 px-4 font-bold text-base" style={{ color: '#e9c46a' }}>
-            <span>总计</span>
+            <span>{L("总计")}</span>
             <span>{playerTypes[0] === 'ai' ? 'AI 1' : '玩家 1'}: {fmt(s1)} &nbsp;|&nbsp; {playerTypes[1] === 'ai' ? 'AI 2' : '玩家 2'}: {fmt(s2)}</span>
           </div>
         </div>
@@ -533,7 +535,7 @@ export default function BoxDuel() {
           setLogs([]);
           setHistory([]);
           setScores([0, 0]);
-        }} className="mt-6 px-10 py-3 text-base font-bold rounded-xl transition-all" style={{ background: '#e9c46a', color: '#1a1a2e' }}>再来一局</button>
+        }} className="mt-6 px-10 py-3 text-base font-bold rounded-xl transition-all" style={{ background: '#e9c46a', color: '#1a1a2e' }}>{L("再来一局")}</button>
       </div>
     );
   }
@@ -542,7 +544,7 @@ export default function BoxDuel() {
     return (
       <div className="flex items-center justify-center min-h-[300px]">
         <div className="text-center">
-          <h2 className="text-3xl font-bold mb-3" style={{ color: '#e9c46a' }}>第 {round} 轮结束</h2>
+          <h2 className="text-3xl font-bold mb-3" style={{ color: '#e9c46a' }}>{L("第 ")}{round} {L("轮结束")}</h2>
           <p className="text-nc-text-secondary">{playerTypes[0] === 'ai' ? 'AI 1' : '玩家 1'}: {fmt(scores[0])} &nbsp;|&nbsp; {playerTypes[1] === 'ai' ? 'AI 2' : '玩家 2'}: {fmt(scores[1])}</p>
         </div>
       </div>
@@ -553,8 +555,8 @@ export default function BoxDuel() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold text-center mb-1" style={{ color: '#e9c46a' }}>💼 箱子对决</h2>
-      <p className="text-center text-sm text-nc-text-muted mb-4">第 {round} / {totalRounds} 轮</p>
+      <h2 className="text-2xl font-bold text-center mb-1" style={{ color: '#e9c46a' }}>{L("💼 箱子对决")}</h2>
+      <p className="text-center text-sm text-nc-text-muted mb-4">{L("第 ")}{round} / {totalRounds} {L("轮")}</p>
 
       <div className="text-center py-2 px-4 rounded-xl mb-4 border" style={{ borderColor: 'rgba(233,196,106,0.25)', background: 'rgba(255,255,255,0.04)', minHeight: '44px' }}>
         <span className="text-sm text-nc-text-secondary">{hint || '等待游戏开始...'}</span>
@@ -565,7 +567,7 @@ export default function BoxDuel() {
           <div key={i} className="flex-1 rounded-xl p-4 border-2 transition-all" style={{ borderColor: roles[i] === 'contestant' ? '#e9c46a' : 'transparent', background: roles[i] === 'contestant' ? 'rgba(233,196,106,0.1)' : 'rgba(255,255,255,0.05)' }}>
             <div className="font-bold text-base">{playerTypes[i] === 'ai' ? 'AI' : '玩家'} {i + 1}</div>
             <div className="text-xs mb-2" style={{ color: '#e9c46a' }}>{roles[i] === 'contestant' ? '参赛者' : '资本家'}</div>
-            <div className="text-xs text-nc-text-muted">总净收益: <span style={{ color: scores[i] >= 0 ? '#2ecc71' : '#e74c3c' }}>{fmt(scores[i])}</span></div>
+            <div className="text-xs text-nc-text-muted">{L("总净收益: ")}<span style={{ color: scores[i] >= 0 ? '#2ecc71' : '#e74c3c' }}>{fmt(scores[i])}</span></div>
           </div>
         ))}
       </div>
@@ -609,7 +611,7 @@ export default function BoxDuel() {
 
         <div>
           <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.04)' }}>
-            <h3 className="text-center text-sm mb-3" style={{ color: '#e9c46a' }}>💰 金额面板</h3>
+            <h3 className="text-center text-sm mb-3" style={{ color: '#e9c46a' }}>{L("💰 金额面板")}</h3>
             <div className="flex flex-col gap-0.5 max-h-[400px] overflow-y-auto">
               {[...AMOUNTS].sort((a, b) => a - b).map(amt => {
                 const eliminated = cases.filter(c => c.opened).some(c => c.amount === amt);
@@ -622,8 +624,8 @@ export default function BoxDuel() {
               })}
             </div>
             <div className="mt-3 pt-3 text-xs space-y-1.5" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <div className="flex justify-between"><span>已打开:</span><span style={{ color: '#e9c46a' }}>{openedCount} / 25</span></div>
-              <div className="flex justify-between"><span>精神力:</span><span style={{ color: '#e74c3c', fontWeight: 'bold' }}>{energy} / 1</span></div>
+              <div className="flex justify-between"><span>{L("已打开:")}</span><span style={{ color: '#e9c46a' }}>{openedCount} / 25</span></div>
+              <div className="flex justify-between"><span>{L("精神力:")}</span><span style={{ color: '#e74c3c', fontWeight: 'bold' }}>{energy} / 1</span></div>
             </div>
           </div>
         </div>
@@ -654,8 +656,7 @@ export default function BoxDuel() {
             {modal.showEnergy && (
               <div className="my-3 text-sm" style={{ color: '#aaa' }}>
                 <span className={`inline-block w-2.5 h-2.5 rounded-full mr-1.5 ${energy > 0 ? '' : 'opacity-30'}`} style={{ background: energy > 0 ? '#e74c3c' : '#555', boxShadow: energy > 0 ? '0 0 8px #e74c3c' : 'none' }}></span>
-                剩余 {energy} 点精神力
-              </div>
+                {L("剩余 ")}{energy} {L("点精神力\n              ")}</div>
             )}
             <div className="flex gap-3 justify-center mt-5 flex-wrap">
               {modal.buttons.map((b, i) => (

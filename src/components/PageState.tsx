@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { L } from '@/lib/translations/manual';
 import {
   CheckCircle2,
   CircleOff,
@@ -78,6 +79,8 @@ export default function PageState({
   const defaults = stateDefaults[kind];
   const { Icon } = defaults;
   const role = kind === 'error' || kind === 'offline' || kind === 'forbidden' ? 'alert' : 'status';
+  const resolvedTitle = L(title ?? defaults.title);
+  const resolvedDescription = L(description ?? defaults.description);
 
   return (
     <section
@@ -91,8 +94,8 @@ export default function PageState({
       </div>
       <div className="aurora-state__copy">
         <p className="aurora-state__eyebrow">{eyebrow ?? defaults.eyebrow}</p>
-        <h1>{title ?? defaults.title}</h1>
-        <p className="aurora-state__description">{description ?? defaults.description}</p>
+        <h1>{resolvedTitle}</h1>
+        <p className="aurora-state__description">{resolvedDescription}</p>
       </div>
       {actions && <div className="aurora-state__actions">{actions}</div>}
     </section>

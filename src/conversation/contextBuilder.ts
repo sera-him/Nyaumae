@@ -30,6 +30,8 @@ export interface ContextBuildInput {
   characterId?: string;
   worldTime?: string;
   budget?: Partial<ContextBudget>;
+  /** Pre-resolved knowledge documents (used by buildAsync after vector merge). */
+  preparedDocuments?: import('./types.ts').KnowledgeDocument[];
 }
 
 function promptText(
@@ -131,7 +133,7 @@ export class ContextBuilder {
     const knowledgeQuery = selectedCharacter
       ? [input.currentInput, selectedCharacter.name, selectedCharacter.alias].filter(Boolean).join(' ')
       : input.currentInput;
-    const documents = this.knowledge.search(knowledgeQuery, {
+    const documents = input.preparedDocuments ?? this.knowledge.search(knowledgeQuery, {
       maxResults: 6,
       maxSpoilerLevel,
       characterId: input.conversation.mode === 'character' ? characterId : undefined,
@@ -187,5 +189,31 @@ export class ContextBuilder {
     messages.push({ role: 'user', content: input.currentInput });
     tokenEstimate += estimateTokens(input.currentInput);
     return { messages, blocks, citations, memoryIds, tokenEstimate };
+  }
+
+  /**
+   * Async variant: resolves knowledge documents through the retriever's
+   * semantic-merge path (BYOK vector search) before delegating to the
+   * synchronous build. Falls back to keyword-only retrieval on any failure.
+   */
+  async buildAsync(input: ContextBuildInput): Promise<ContextBuildResult> {
+    const characterId = input.characterId ?? input.conversation.characterId;
+    const selectedCharacter = input.conversation.mode === 'character' && characterId
+      ? characters.find((character) => character.id === characterId)
+      : undefined;
+    const knowledgeQuery = selectedCharacter
+      ? [input.currentInput, selectedCharacter.name, selectedCharacter.alias].filter(Boolean).join(' ')
+      : input.currentInput;
+    let preparedDocuments: ContextBuildInput['preparedDocuments'];
+    try {
+      preparedDocuments = await this.knowledge.searchAsync(knowledgeQuery, {
+        maxResults: 6,
+        maxSpoilerLevel: input.conversation.mode === 'story-query' ? 2 : 0,
+        characterId: input.conversation.mode === 'character' ? characterId : undefined,
+      });
+    } catch {
+      preparedDocuments = undefined;
+    }
+    return this.build({ ...input, preparedDocuments });
   }
 }

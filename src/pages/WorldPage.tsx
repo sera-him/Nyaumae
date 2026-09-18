@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import { L } from '@/lib/translations/manual';
+
 import type { KeyboardEvent } from 'react';
 import { useLocation, useNavigate, NavLink } from 'react-router';
 import { Globe, Trophy, Clock, Building2, ArrowRight, Orbit, BookMarked, Sparkles, Ship } from 'lucide-react';
@@ -65,8 +67,8 @@ export default function WorldPage() {
         >
           <div className="aurora-content-copy">
             <p className="aurora-eyebrow">01 / WORLD ARCHIVE</p>
-            <h1 className="aurora-title">世界</h1>
-            <p className="aurora-lead">12 亿人口的平行数字宇宙。沿着时间、组织与选拔制度，进入这套持续生长的世界观。</p>
+            <h1 className="aurora-title">{L("世界")}</h1>
+            <p className="aurora-lead">{L("12 亿人口的平行数字宇宙。沿着时间、组织与选拔制度，进入这套持续生长的世界观。")}</p>
             <div className="aurora-hero-signal"><Orbit /><span>NEURAL WORLD SIGNAL</span><ArrowRight /></div>
           </div>
           <AuroraPanel className="aurora-hero-stats">
@@ -76,7 +78,7 @@ export default function WorldPage() {
           </AuroraPanel>
         </motion.div>
 
-        <div className="aurora-tabs aurora-content-tabs" role="tablist" aria-label="世界观章节">
+        <div className="aurora-tabs aurora-content-tabs" role="tablist" aria-label={L("世界观章节")}>
           {tabs.map((t, index) => {
             const Icon = t.icon;
             return (
@@ -93,7 +95,7 @@ export default function WorldPage() {
                 className={({ isActive }) => `aurora-tab inline-flex items-center gap-2 ${isActive ? 'aurora-tab-active' : ''}`}
               >
                 <Icon className="w-4 h-4" />
-                {t.label}
+                {L(t.label)}
               </NavLink>
             );
           })}

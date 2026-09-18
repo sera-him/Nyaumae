@@ -9,7 +9,7 @@
  *   set CLOUDFLARE_PAGES_PROJECT=my-site
  *   set DEPLOY_TOOL_BUILD_COMMAND=npm run build
  *   set DEPLOY_TOOL_OUTPUT_DIR=dist
- *   node deploy-tool.mjs
+ *   node scripts\deploy-tool.mjs
  *
  * PowerShell:
  *   $env:CLOUDFLARE_API_TOKEN="cfat_xxx"
@@ -17,7 +17,7 @@
  *   $env:CLOUDFLARE_PAGES_PROJECT="my-site"
  *   $env:DEPLOY_TOOL_BUILD_COMMAND="npm run build"
  *   $env:DEPLOY_TOOL_OUTPUT_DIR="dist"
- *   node .\deploy-tool.mjs
+ *   node scripts\deploy-tool.mjs
  */
 
 import http from 'node:http';

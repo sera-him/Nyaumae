@@ -1,4 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { motion } from 'framer-motion';
 // tsparticles (~45KB gzipped) is pure eye-candy — load the React wrapper and
 // the slim engine as separate lazy chunks only when motion is active.
@@ -136,9 +138,9 @@ export default function HeroCompact() {
               ただみてほしいそんであいしてほしい
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-xs text-nc-text-muted font-mono">
-              <span>积分结果 = 2e</span>
+              <span>{L("积分结果 = 2e")}</span>
               <span className="hidden sm:inline">·</span>
-              <span>你好～我是∫₀¹[...]d(2x)的二年级生 · 只想被你看见然后被爱</span>
+              <span>{L("你好～我是∫₀¹[...]d(2x)的二年级生 · 只想被你看见然后被爱")}</span>
             </div>
           </div>
         </motion.div>
@@ -149,7 +151,7 @@ export default function HeroCompact() {
           transition={{ duration: 0.4, delay: 0.12 }}
           className="font-serif text-lg text-nc-text-secondary/70 mb-6"
         >
-          {'一个由意识编织的数字宇宙'}
+          {L("一个由意识编织的数字宇宙")}
         </motion.p>
 
         <motion.div
@@ -167,7 +169,7 @@ export default function HeroCompact() {
           transition={{ duration: 0.4, delay: 0.16 }}
           className="text-sm text-nc-text-secondary mb-8"
         >
-          创作者 <span className="font-semibold text-nc-text">nyaumæ</span>
+          {L("创作者 ")}<span className="font-semibold text-nc-text">nyaumæ</span>
         </motion.p>
 
         <motion.div
@@ -180,20 +182,17 @@ export default function HeroCompact() {
             to="/characters"
             className="px-6 sm:px-8 py-3 rounded-lg bg-nc-violet text-white font-medium hover:bg-[var(--aurora-brand-violet-deep)] transition-all duration-300"
           >
-            探索角色
-          </Link>
+            {L("探索角色\n          ")}</Link>
           <Link
             to="/stories"
             className="px-6 sm:px-8 py-3 rounded-lg border border-nc-text-muted text-nc-text font-medium hover:bg-nc-bg-tertiary transition-all duration-300"
           >
-            阅读故事
-          </Link>
+            {L("阅读故事\n          ")}</Link>
           <Link
             to="/playground"
             className="px-6 sm:px-8 py-3 rounded-lg border border-nc-text-muted text-nc-text font-medium hover:bg-nc-bg-tertiary transition-all duration-300"
           >
-            进入游戏
-          </Link>
+            {L("进入游戏\n          ")}</Link>
         </motion.div>
       </div>
 

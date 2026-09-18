@@ -8,6 +8,8 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { RotateCcw } from 'lucide-react';
 import { DIFFICULTIES, createPuzzleState } from '@/game/threeHoles/puzzleGen';
 import type { PuzzleState } from '@/game/threeHoles/puzzleGen';
@@ -261,14 +263,12 @@ export default function ThreeHoles() {
     return (
       <div className="rabbit-game rabbit-game--welcome">
         <section className="rabbit-welcome" aria-labelledby="rabbit-title">
-          <p className="rabbit-kicker">逻辑填格</p>
-          <h2 id="rabbit-title">狡兔三窟</h2>
+          <p className="rabbit-kicker">{L("逻辑填格")}</p>
+          <h2 id="rabbit-title">{L("狡兔三窟")}</h2>
           <p>
-            在 n×n 草原上标出兔子洞。每行、每列和每个猞猁活动区都恰好有 k 个兔子洞，
-            且兔子洞之间不能相邻。
-          </p>
+            {L("在 n×n 草原上标出兔子洞。每行、每列和每个猞猁活动区都恰好有 k 个兔子洞，\n            且兔子洞之间不能相邻。\n          ")}</p>
           <label className="rabbit-field">
-            <span>难度</span>
+            <span>{L("难度")}</span>
             <select
               value={difficultyIndex}
               onChange={(event) => setDifficultyIndex(Number(event.target.value))}
@@ -281,13 +281,12 @@ export default function ThreeHoles() {
             </select>
           </label>
           <div className="rabbit-empty" role="status">
-            <span>本局目标兔子洞</span>
+            <span>{L("本局目标兔子洞")}</span>
             <strong>{DIFFICULTIES[difficultyIndex].n * DIFFICULTIES[difficultyIndex].k}</strong>
           </div>
           {error && <p className="rabbit-error" role="alert">{error}</p>}
           <button className="rabbit-primary-button" type="button" onClick={start}>
-            开始游戏
-          </button>
+            {L("开始游戏\n          ")}</button>
         </section>
       </div>
     );
@@ -363,14 +362,13 @@ export default function ThreeHoles() {
     <div className="rabbit-game">
       <header className="rabbit-header">
         <div>
-          <p className="rabbit-kicker">逻辑填格</p>
-          <h2>狡兔三窟</h2>
-          <p>{DIFFICULTIES[difficultyIndex].name} · {n}×{n} · 每行 / 列 / 区 {k} 洞</p>
+          <p className="rabbit-kicker">{L("逻辑填格")}</p>
+          <h2>{L("狡兔三窟")}</h2>
+          <p>{DIFFICULTIES[difficultyIndex].name} · {n}×{n} {L("· 每行 / 列 / 区 ")}{k} {L("洞")}</p>
         </div>
         <button className="rabbit-secondary-button" type="button" onClick={resetToMenu}>
           <RotateCcw aria-hidden="true" />
-          重新开始
-        </button>
+          {L("重新开始\n        ")}</button>
       </header>
 
       {state.won || state.surrendered ? (
@@ -386,8 +384,8 @@ export default function ThreeHoles() {
       ) : null}
 
       <div className="rabbit-layout">
-        <section className="rabbit-board-panel" aria-label="游戏棋盘">
-          <div className="rabbit-tools" role="group" aria-label="标记工具">
+        <section className="rabbit-board-panel" aria-label={L("游戏棋盘")}>
+          <div className="rabbit-tools" role="group" aria-label={L("标记工具")}>
             <button
               type="button"
               className={paintMark === 2 ? 'is-active' : ''}
@@ -395,8 +393,7 @@ export default function ThreeHoles() {
               onClick={() => setPaintMark(2)}
             >
               <i className="rabbit-legend-hole" aria-hidden="true">●</i>
-              兔子洞
-            </button>
+              {L("兔子洞\n            ")}</button>
             <button
               type="button"
               className={paintMark === 1 ? 'is-active' : ''}
@@ -404,15 +401,14 @@ export default function ThreeHoles() {
               onClick={() => setPaintMark(1)}
             >
               <i className="rabbit-legend-excluded" aria-hidden="true">×</i>
-              排除
-            </button>
+              {L("排除\n            ")}</button>
           </div>
           <div className="rabbit-board-scroll">
             <div
               className="rabbit-board"
               style={boardStyle}
               role="grid"
-              aria-label={`${n}乘${n}草原棋盘`}
+              aria-label={L(`${n}乘${n}草原棋盘`)}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
@@ -462,21 +458,21 @@ export default function ThreeHoles() {
               )}
             </div>
           </div>
-          <div className="rabbit-legend" aria-label="棋盘图例">
-            <span><i className="rabbit-legend-empty" />未判断</span>
-            <span><i className="rabbit-legend-excluded">×</i>排除</span>
-            <span><i className="rabbit-legend-hole">●</i>兔子洞</span>
+          <div className="rabbit-legend" aria-label={L("棋盘图例")}>
+            <span><i className="rabbit-legend-empty" />{L("未判断")}</span>
+            <span><i className="rabbit-legend-excluded">×</i>{L("排除")}</span>
+            <span><i className="rabbit-legend-hole">●</i>{L("兔子洞")}</span>
             {givenHoleCount > 0 && (
-              <span><i className="rabbit-legend-given">●</i>已知兔洞</span>
+              <span><i className="rabbit-legend-given">●</i>{L("已知兔洞")}</span>
             )}
             {givenExcludedCount > 0 && (
-              <span><i className="rabbit-legend-given-excluded">×</i>已知排除</span>
+              <span><i className="rabbit-legend-given-excluded">×</i>{L("已知排除")}</span>
             )}
           </div>
         </section>
 
         <aside className="rabbit-sidebar">
-          <section className="rabbit-status" aria-label="当前状态">
+          <section className="rabbit-status" aria-label={L("当前状态")}>
             <div>
               <span>{state.surrendered ? '答案中的兔子洞' : '已标记兔子洞'}</span>
               <strong>{displayedRabbitCount}<small> / {targetCount}</small></strong>
@@ -486,20 +482,17 @@ export default function ThreeHoles() {
               <strong>{state.surrendered ? n * n - targetCount : excludedCount}</strong>
             </div>
             <div>
-              <span>用时</span>
+              <span>{L("用时")}</span>
               <strong>{formatTime(elapsed)}</strong>
             </div>
           </section>
 
           {givenCount > 0 && (
             <p className="rabbit-notice" role="status">
-              本题有 {givenCount} 个不可修改的题面线索：
-              {givenHoleCount} 个已知兔洞、{givenExcludedCount} 个已知排除；
-              它们已计入当前标记。
-            </p>
+              {L("本题有 ")}{givenCount} {L("个不可修改的题面线索：\n              ")}{givenHoleCount} {L("个已知兔洞、")}{givenExcludedCount} {L("个已知排除；\n              它们已计入当前标记。\n            ")}</p>
           )}
           {rabbitCount === 0 && isActive && (
-            <p className="rabbit-notice" role="status">当前没有兔子洞标记。选择“兔子洞”后点击格子即可放置。</p>
+            <p className="rabbit-notice" role="status">{L("当前没有兔子洞标记。选择“兔子洞”后点击格子即可放置。")}</p>
           )}
           {(overfilled || adjacentConflictCount > 0) && isActive && (
             <p className="rabbit-warning" role="status">
@@ -507,27 +500,25 @@ export default function ThreeHoles() {
             </p>
           )}
 
-          <section className="rabbit-progress" aria-label="完成进度">
-            <h2>约束进度</h2>
-            <div><span>行</span><strong>{rowCounts.filter((count) => count === k).length} / {n}</strong></div>
-            <div><span>列</span><strong>{colCounts.filter((count) => count === k).length} / {n}</strong></div>
-            <div><span>猞猁活动区</span><strong>{regionCounts.filter((count) => count === k).length} / {n}</strong></div>
+          <section className="rabbit-progress" aria-label={L("完成进度")}>
+            <h2>{L("约束进度")}</h2>
+            <div><span>{L("行")}</span><strong>{rowCounts.filter((count) => count === k).length} / {n}</strong></div>
+            <div><span>{L("列")}</span><strong>{colCounts.filter((count) => count === k).length} / {n}</strong></div>
+            <div><span>{L("猞猁活动区")}</span><strong>{regionCounts.filter((count) => count === k).length} / {n}</strong></div>
           </section>
 
           <section className="rabbit-help">
-            <h2>操作</h2>
-            <p>先选择“兔子洞”或“排除”，再点击格子放置标记；再次点击相同标记可清除。支持拖动连续标记。</p>
+            <h2>{L("操作")}</h2>
+            <p>{L("先选择“兔子洞”或“排除”，再点击格子放置标记；再次点击相同标记可清除。支持拖动连续标记。")}</p>
           </section>
 
           {isActive && (
             <button className="rabbit-danger-button" type="button" onClick={revealSolution}>
-              结束并查看答案
-            </button>
+              {L("结束并查看答案\n            ")}</button>
           )}
           {!isActive && (
             <button className="rabbit-primary-button" type="button" onClick={start}>
-              再来一局
-            </button>
+              {L("再来一局\n            ")}</button>
           )}
         </aside>
       </div>

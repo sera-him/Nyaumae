@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useSyncExternalStore, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+
 import { p } from '@/lib/utils';
 import imageVariants from '@/lib/generated/imageVariants.json';
+import { getShowOriginalImages, subscribeShowOriginalImages } from '@/lib/imagePreference';
 
 export const THUMBNAIL_IMAGE_WIDTHS = [160, 320] as const;
 export const CARD_IMAGE_WIDTHS = [320, 640] as const;
@@ -87,25 +90,30 @@ export default function ResponsiveImage({
     attempt: number;
   }>({ src, stage: 'optimized', attempt: 0 });
   const stage = fallbackState.src === src ? fallbackState.stage : 'optimized';
+  const showOriginalImages = useSyncExternalStore(subscribeShowOriginalImages, getShowOriginalImages);
   const localRaster = isLocalRaster(src);
   const localOriginal = localRaster ? p(src) : src;
   const fallback = fallbackSrc ?? localOriginal;
   // Only trust the variant pipeline when the manifest knows this exact file.
+  // The "show original" preference switches the pipeline off entirely so the
+  // untouched source file is rendered.
   const manifestWidths = localRaster ? existingWidths(src, widths) : null;
-  const hasOptimizedSources = localRaster && stage === 'optimized' && manifestWidths !== null;
+  const hasOptimizedSources = localRaster && stage === 'optimized' && manifestWidths !== null && !showOriginalImages;
   // The picture sources win in supporting browsers; this src is what renders
   // when they don't (or before hydration), so it must also point at a file
   // that exists rather than a pruned original.
   const optimizedFallbackSrc = manifestWidths && manifestWidths.length > 0
     ? responsiveImageUrl(src, Math.max(...manifestWidths), 'webp')
     : null;
-  const imageSrc = stage === 'backup' && backupSrc
-    ? backupSrc
-    : stage === 'original'
-      ? localOriginal
-      : hasOptimizedSources && optimizedFallbackSrc
-        ? p(optimizedFallbackSrc)
-        : fallback;
+  const imageSrc = showOriginalImages
+    ? localOriginal
+    : stage === 'backup' && backupSrc
+      ? backupSrc
+      : stage === 'original'
+        ? localOriginal
+        : hasOptimizedSources && optimizedFallbackSrc
+          ? p(optimizedFallbackSrc)
+          : fallback;
 
   if (stage === 'error') {
     return (
@@ -114,10 +122,9 @@ export default function ResponsiveImage({
           type="button"
           onClick={() => setFallbackState((state) => ({ src, stage: 'optimized', attempt: state.attempt + 1 }))}
           className={`flex h-full min-h-20 w-full items-center justify-center bg-nc-bg-secondary px-3 py-4 text-center text-xs text-nc-text-muted ${imgProps.className ?? ''}`}
-          aria-label={`${typeof imgProps.alt === 'string' && imgProps.alt ? imgProps.alt : '图片'}加载失败，点击重试`}
+          aria-label={L(`${typeof imgProps.alt === 'string' && imgProps.alt ? imgProps.alt : '图片'}加载失败，点击重试`)}
         >
-          图片加载失败 · 点击重试
-        </button>
+          {L("图片加载失败 · 点击重试\n        ")}</button>
       </picture>
     );
   }
@@ -146,6 +153,15 @@ export default function ResponsiveImage({
         loading={loading}
         decoding={decoding}
         onError={(event) => {
+          if (showOriginalImages) {
+            if (stage !== 'backup' && backupSrc && imageSrc !== backupSrc) {
+              setFallbackState((state) => ({ src, stage: 'backup', attempt: state.attempt }));
+              return;
+            }
+            setFallbackState((state) => ({ src, stage: 'error', attempt: state.attempt }));
+            onError?.(event);
+            return;
+          }
           if (localRaster && stage === 'optimized') {
             setFallbackState((state) => ({ src, stage: 'original', attempt: state.attempt }));
             return;

@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import { L } from '@/lib/translations/manual';
+
 import { useNavigate, useParams } from 'react-router';
 import { BookMarked, Sparkles } from 'lucide-react';
 import Dictionary from '@/sections/Dictionary';
@@ -26,11 +28,11 @@ export default function SettingsHub() {
           className="aurora-simple-hero"
         >
           <p className="aurora-eyebrow">07 / KNOWLEDGE BASE</p>
-          <h1 className="aurora-title">设定集</h1>
-          <p className="aurora-lead">术语 · 诗歌 · 未来线</p>
+          <h1 className="aurora-title">{L("设定集")}</h1>
+          <p className="aurora-lead">{L("术语 · 诗歌 · 未来线")}</p>
         </motion.div>
 
-        <div className="aurora-tabs mb-8" role="tablist" aria-label="设定集章节">
+        <div className="aurora-tabs mb-8" role="tablist" aria-label={L("设定集章节")}>
           {tabs.map((t) => {
             const Icon = t.icon;
             return (

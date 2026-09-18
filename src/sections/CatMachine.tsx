@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { L } from '@/lib/translations/manual';
+import { getLocale } from '@/lib/i18n';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Bell,
@@ -21,6 +24,7 @@ import type {
   SoundKind,
   Cat,
   MachineModule,
+  RoundEvent,
   RoundResult,
   SavedProgress,
 } from './catMachineModel';
@@ -42,7 +46,62 @@ import {
   getRank,
 } from './catMachineModel';
 
+/* ─── English overrides for model content (used only when locale is en) ─── */
+
+const NEEDS_EN: Record<Need, { label: string; station: string; short: string }> = {
+  snack: { label: 'wants fish', station: 'Feeding Bay', short: 'fish' },
+  play: { label: 'wants play', station: 'Play Bay', short: 'play' },
+  nap: { label: 'wants nap', station: 'Box Bay', short: 'nap' },
+};
+
+const CATS_EN: Record<string, { name: string; traitName: string; traitText: string }> = {
+  'ju-bao': { name: 'Marmalade', traitName: 'Share a bite', traitText: 'When content at the Feeding Bay, each satisfied left/right neighbor adds +2 purr.' },
+  'mo-mo': { name: 'Inky', traitName: 'Night patrol', traitText: 'Content, and when the three cats in a column all want different things, +4 purr.' },
+  'nai-tang': { name: 'Taffy', traitName: 'Snuggles', traitText: 'Content with a satisfied neighbor beside it, +3 purr.' },
+  'hua-juan': { name: 'Swirl', traitName: 'Calico', traitText: 'Content, and when the three cats on a floor all want different things, +4 purr.' },
+  'dou-bao': { name: 'Doubao', traitName: 'Zoomies', traitText: 'Content at the Play Bay, +4 purr.' },
+  'tuan-zhang': { name: 'Captain', traitName: 'Box bully', traitText: 'Content at the Box Bay, +4 purr.' },
+  'bai-wa': { name: 'Socks', traitName: 'Edge seat', traitText: 'Content and sitting at the left or right end of a floor, +2 purr.' },
+  'zhi-ma': { name: 'Sesame', traitName: 'Lucky', traitText: 'Content always adds at least +1 purr; every fourth time it lands on the lucky seat, +6.' },
+  'bu-ding': { name: 'Pudding', traitName: 'Choir', traitText: 'Content, and when the whole floor of three is satisfied, +4 purr.' },
+};
+
+const EVENTS_EN: Record<string, { name: string; description: string }> = {
+  sunbeam: { name: 'Afternoon sun', description: 'Warm boxes are best: each satisfied napping cat +2 purr.' },
+  'paper-bag': { name: 'Paper bag drop', description: 'The paper bag smells like fish: each satisfied fish cat +2 purr.' },
+  'moth-party': { name: 'Moth convention', description: 'Eyes everywhere: each satisfied playing cat +2 purr.' },
+  'cat-live': { name: 'Cat livestream', description: 'Viewers love neat rows: each perfect floor +4 purr.' },
+  'window-rain': { name: 'Window rain', description: 'End seats feel cozier: each satisfied edge cat +2 purr.' },
+  'treat-day': { name: 'Treat payday', description: 'Each perfect floor brings back 1 extra fish snack.' },
+  robot: { name: 'Robovac on the prowl', description: 'Chase time: each satisfied playing cat +3 purr.' },
+  'quiet-hour': { name: 'Late-night quiet', description: 'Purrs ring clearer: each perfect floor +5 purr.' },
+};
+
+const MODULES_EN: Record<string, { name: string; description: string }> = {
+  'snack-press': { name: 'Treat press', description: 'Each satisfied fish cat +2 purr.' },
+  'laser-prism': { name: 'Laser prism', description: 'Each satisfied playing cat +2 purr.' },
+  'warm-box': { name: 'Heated box', description: 'Each satisfied napping cat +2 purr.' },
+  'purr-amp': { name: 'Purr amplifier', description: 'Each perfect floor +4 purr.' },
+  'buddy-radar': { name: 'Snuggle radar', description: 'Each adjacent satisfied pair +2 purr.' },
+  'paw-cache': { name: 'Paw cache', description: 'Each unused move at bell time +3 purr.' },
+  'gold-polish': { name: 'Gold ball polisher', description: 'Gold purr multiplier starts at ×1.5, +0.15 per level (Lv1=×1.65, Lv2=×1.8, cap Lv6).' },
+  'fish-bank': { name: 'Fish stash bank', description: 'Each perfect floor earns 1 extra fish snack.' },
+  'treat-drawer': { name: 'Treat drawer', description: 'Buying an extra paw only costs 2 fish snacks.' },
+};
+
 export default function CatMachine() {
+  const _en = getLocale() === 'en';
+  const needLabel = (n: Need) => (_en ? NEEDS_EN[n].label : NEEDS[n].label);
+  const needStation = (n: Need) => (_en ? NEEDS_EN[n].station : NEEDS[n].station);
+  const needShort = (n: Need) => (_en ? NEEDS_EN[n].short : NEEDS[n].short);
+  const catName = (c: Cat) => (_en ? (CATS_EN[c.id]?.name ?? c.name) : c.name);
+  const catTraitName = (c: Cat) => (_en ? (CATS_EN[c.id]?.traitName ?? c.traitName) : c.traitName);
+  const catTraitText = (c: Cat) => (_en ? (CATS_EN[c.id]?.traitText ?? c.traitText) : c.traitText);
+  const eventName = (e: RoundEvent) => (_en ? (EVENTS_EN[e.id]?.name ?? e.name) : e.name);
+  const eventDesc = (e: RoundEvent) => (_en ? (EVENTS_EN[e.id]?.description ?? e.description) : e.description);
+  const moduleName = (m: MachineModule) => (_en ? (MODULES_EN[m.id]?.name ?? m.name) : m.name);
+  const moduleDesc = (m: MachineModule) => (_en ? (MODULES_EN[m.id]?.description ?? m.description) : m.description);
+
   const [initialSave] = useState(loadSavedProgress);
   const [phase, setPhase] = useState<Phase>('intro');
   const [round, setRound] = useState(initialSave?.round ?? 1);
@@ -207,7 +266,9 @@ export default function CatMachine() {
     if (!isArrangePhase) return;
 
     if (goldReady && !goldArmed) {
-      setHint('金色毛球已经充满。点亮它，再摇铃可以把这一班的总呼噜放大。');
+      setHint(_en
+        ? 'The gold ball is fully charged. Light it up and ring the bell to multiply this shift\'s total purr.'
+        : '金色毛球已经充满。点亮它，再摇铃可以把这一班的总呼噜放大。');
       playSound('tap');
       return;
     }
@@ -229,7 +290,9 @@ export default function CatMachine() {
     }
 
     if (bestStationGain > 0) {
-      setHint(`把第 ${bestStationRow + 1} 层改成“${NEEDS[bestStationNeed].station}”，会立刻多照顾 ${bestStationGain} 只猫。`);
+      setHint(_en
+        ? `Switch floor ${bestStationRow + 1} to "${needStation(bestStationNeed)}" to immediately please ${bestStationGain} more cat(s).`
+        : `把第 ${bestStationRow + 1} 层改成“${NEEDS[bestStationNeed].station}”，会立刻多照顾 ${bestStationGain} 只猫。`);
       playSound('tap');
       return;
     }
@@ -251,11 +314,17 @@ export default function CatMachine() {
     }
 
     if (bestSwap) {
-      setHint(`试试交换“${cats[bestSwap[0]].name}”和“${cats[bestSwap[1]].name}”，有机会拼出更长的呼噜连锁。`);
+      setHint(_en
+        ? `Try swapping "${catName(cats[bestSwap[0]])}" and "${catName(cats[bestSwap[1]])}" to build a longer purr chain.`
+        : `试试交换“${cats[bestSwap[0]].name}”和“${cats[bestSwap[1]].name}”，有机会拼出更长的呼噜连锁。`);
     } else if (movesLeft > 0) {
-      setHint('现在的站位已经很顺。可以保留猫爪，让“软爪缓存”类模块在以后把余量变成分数。');
+      setHint(_en
+        ? 'The layout already works. Keep paws in reserve so modules like Paw Cache can convert them into points later.'
+        : '现在的站位已经很顺。可以保留猫爪，让“软爪缓存”类模块在以后把余量变成分数。');
     } else {
-      setHint('本班已经安排完毕，摇铃看看猫咪们会触发哪些天赋吧。');
+      setHint(_en
+        ? 'This shift is set. Ring the bell and see which traits the cats trigger.'
+        : '本班已经安排完毕，摇铃看看猫咪们会触发哪些天赋吧。');
     }
     playSound('tap');
   };
@@ -355,11 +424,11 @@ export default function CatMachine() {
       + moduleLevel(modules, 'fish-bank') * perfectRows.length;
     const energyGain = matches * 9 + perfectRows.length * 10;
 
-    let headline = '有几只猫还在等合适的工位';
-    if (perfectRows.length >= 3) headline = '全楼大合唱！猫咪机彻底沸腾';
-    else if (perfectRows.length === 2) headline = '两层连响，呼噜像瀑布一样';
-    else if (perfectRows.length === 1) headline = '完美整层！连锁已经启动';
-    else if (matches >= 6) headline = '照顾得很稳，下一班冲整层';
+    let headline = _en ? 'A few cats are still waiting for the right station' : '有几只猫还在等合适的工位';
+    if (perfectRows.length >= 3) headline = _en ? 'Full-house chorus! The Cat Machine is boiling over' : '全楼大合唱！猫咪机彻底沸腾';
+    else if (perfectRows.length === 2) headline = _en ? 'Two floors ringing, purring like a waterfall' : '两层连响，呼噜像瀑布一样';
+    else if (perfectRows.length === 1) headline = _en ? 'Perfect floor! The chain is underway' : '完美整层！连锁已经启动';
+    else if (matches >= 6) headline = _en ? 'Well tended; go for a full floor next shift' : '照顾得很稳，下一班冲整层';
 
     return {
       total,
@@ -450,7 +519,9 @@ export default function CatMachine() {
   };
 
   const resetProgress = () => {
-    if (!window.confirm('确定清空这台设备上的猫咪机进度吗？店铺等级、模块和累计呼噜都会归零。')) return;
+    if (!window.confirm(_en
+      ? 'Reset all Cat Machine progress on this device? Shop level, modules and total purr will be wiped.'
+      : '确定清空这台设备上的猫咪机进度吗？店铺等级、模块和累计呼噜都会归零。')) return;
     resolutionTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     resolutionTimersRef.current = [];
     removeStorageValue(SAVE_KEY);
@@ -484,56 +555,56 @@ export default function CatMachine() {
   };
 
   return (
-    <section className="cat-machine" data-phase={phase} aria-label="猫咪机游戏">
+    <section className="cat-machine" data-phase={phase} aria-label={L("猫咪机游戏")}>
       <div className="cm-ambient cm-ambient-one" aria-hidden="true" />
       <div className="cm-ambient cm-ambient-two" aria-hidden="true" />
 
       <header className="cm-titlebar">
         <div className="cm-brand">
           <div className="cm-brand-mark" aria-hidden="true">
-            <span>猫</span>
+            <span>{L("猫")}</span>
             <i />
           </div>
           <div>
             <p>CAT-O-MATIC · NIGHT SHIFT</p>
-            <h2>猫咪机</h2>
-            <span>把九只猫送进刚刚好的工位</span>
+            <h2>{L("猫咪机")}</h2>
+            <span>{L("把九只猫送进刚刚好的工位")}</span>
           </div>
         </div>
         <div className="cm-header-actions">
-          <button type="button" onClick={() => setShowGuide(true)} aria-label="打开玩法说明">
+          <button type="button" onClick={() => setShowGuide(true)} aria-label={L("打开玩法说明")}>
             <HelpCircle />
-            <span>玩法</span>
+            <span>{L("玩法")}</span>
           </button>
-          <button type="button" onClick={() => setSoundOn((value) => !value)} aria-label={soundOn ? '关闭音效' : '开启音效'}>
+          <button type="button" onClick={() => setSoundOn((value) => !value)} aria-label={_en ? (soundOn ? 'Turn off sound' : 'Turn on sound') : (soundOn ? '关闭音效' : '开启音效')}>
             {soundOn ? <Volume2 /> : <VolumeX />}
-            <span>{soundOn ? '有声' : '静音'}</span>
+            <span>{_en ? (soundOn ? 'Sound on' : 'Muted') : (soundOn ? '有声' : '静音')}</span>
           </button>
         </div>
       </header>
 
       <div className="cm-scoreboard">
-        <div className="cm-shift-counter" aria-label={`当前第 ${round} 班，无限营业`}>
-          <span className="cm-kicker">无限营业中</span>
+        <div className="cm-shift-counter" aria-label={L(`当前第 ${round} 班，无限营业`)}>
+          <span className="cm-kicker">{L("无限营业中")}</span>
           <strong>SHIFT {String(round).padStart(2, '0')}</strong>
-          <small>再过 {shiftsUntilModule} 班选模块</small>
+          <small>{L("再过 ")}{shiftsUntilModule} {L("班选模块")}</small>
         </div>
         <div className="cm-score-stat">
-          <span>累计呼噜</span>
+          <span>{L("累计呼噜")}</span>
           <strong>{score}</strong>
-          <small>永久保留</small>
+          <small>{L("永久保留")}</small>
         </div>
         <div className="cm-rank-stat">
           <span>{currentRank.icon}</span>
           <div>
-            <small>店铺 Lv.{shopLevel}</small>
-            <strong>{currentRank.name}</strong>
+            <small>{L("店铺 Lv.")}{shopLevel}</small>
+            <strong>{_en ? (shopLevel >= 20 ? `Infinite Cat Tower · ${shopLevel}F` : shopLevel >= 12 ? 'Legendary cat manager' : shopLevel >= 7 ? 'Gold meowster' : shopLevel >= 4 ? 'Skilled clerk' : shopLevel >= 2 ? 'Reliable helper' : 'Trainee scooper') : currentRank.name}</strong>
           </div>
         </div>
         <div className="cm-fish-stat">
           <Fish />
           <div>
-            <small>鱼干</small>
+            <small>{L("鱼干")}</small>
             <strong>{fish}</strong>
           </div>
         </div>
@@ -546,12 +617,14 @@ export default function CatMachine() {
             playSound('gold');
           }}
           disabled={!goldReady || !isArrangePhase}
-          aria-label={goldReady ? (goldArmed ? '取消释放金色毛球' : '释放金色毛球') : `金色毛球能量 ${energy}%`}
+          aria-label={_en
+            ? (goldReady ? (goldArmed ? 'Cancel gold ball release' : 'Release the gold ball') : `Gold ball energy ${energy}%`)
+            : (goldReady ? (goldArmed ? '取消释放金色毛球' : '释放金色毛球') : `金色毛球能量 ${energy}%`)}
         >
           <span className="cm-gold-orb"><Sparkles /></span>
           <span className="cm-gold-copy">
-            <small>{goldArmed ? '本班已点亮' : goldReady ? '点击释放' : '金色毛球'}</small>
-            <strong>{goldReady ? (goldArmed ? '× 金色呼噜' : 'READY') : `${energy}%`}</strong>
+            <small>{_en ? (goldArmed ? 'Lit this shift' : goldReady ? 'Click to release' : 'Gold ball') : (goldArmed ? '本班已点亮' : goldReady ? '点击释放' : '金色毛球')}</small>
+            <strong>{goldReady ? (_en ? (goldArmed ? '× Gold purr' : 'READY') : (goldArmed ? '× 金色呼噜' : 'READY')) : `${energy}%`}</strong>
           </span>
           <span className="cm-meter-track"><i style={{ width: `${energy}%` }} /></span>
         </button>
@@ -560,10 +633,10 @@ export default function CatMachine() {
       <div className="cm-event-banner">
         <span className="cm-event-icon" aria-hidden="true">{event.icon}</span>
         <div>
-          <small>本班突发状况 · SHIFT {String(round).padStart(2, '0')}</small>
-          <strong>{event.name}</strong>
+          <small>{L("本班突发状况 · SHIFT ")}{String(round).padStart(2, '0')}</small>
+          <strong>{eventName(event)}</strong>
         </div>
-        <p>{event.description}</p>
+        <p>{eventDesc(event)}</p>
       </div>
 
       <div className="cm-main-layout">
@@ -574,7 +647,7 @@ export default function CatMachine() {
             <span />
           </div>
 
-          <div className="cm-board" aria-label="三层猫咪工位">
+          <div className="cm-board" aria-label={L("三层猫咪工位")}>
             {[0, 1, 2].map((row) => {
               const rowMatches = cats
                 .slice(row * 3, row * 3 + 3)
@@ -584,10 +657,10 @@ export default function CatMachine() {
                   <div className="cm-station-panel">
                     <div className="cm-row-label">
                       <span>0{row + 1}F</span>
-                      <strong>{NEEDS[stations[row]].station}</strong>
-                      <small>{rowMatches}/3 对味</small>
+                      <strong>{needStation(stations[row])}</strong>
+                      <small>{rowMatches}{L("/3 对味")}</small>
                     </div>
-                    <div className="cm-station-switcher" role="group" aria-label={`第 ${row + 1} 层工位类型`}>
+                    <div className="cm-station-switcher" role="group" aria-label={L(`第 ${row + 1} 层工位类型`)}>
                       {NEED_ORDER.map((need) => (
                         <button
                           type="button"
@@ -595,11 +668,11 @@ export default function CatMachine() {
                           className={stations[row] === need ? 'is-active' : ''}
                           onClick={() => changeStation(row, need)}
                           disabled={!isArrangePhase || movesLeft <= 0 || stations[row] === need}
-                          aria-label={`把第 ${row + 1} 层改成${NEEDS[need].station}`}
+                          aria-label={L(`把第 ${row + 1} 层改成${NEEDS[need].station}`)}
                           aria-pressed={stations[row] === need}
                         >
                           <span>{NEEDS[need].icon}</span>
-                          <small>{NEEDS[need].short}</small>
+                          <small>{needShort(need)}</small>
                         </button>
                       ))}
                     </div>
@@ -619,8 +692,8 @@ export default function CatMachine() {
                           className={`cm-cat-card coat-${cat.coat} ${selected ? 'is-selected' : ''} ${canSwap ? 'can-swap' : ''} ${matched ? 'is-happy' : ''}`}
                           onClick={() => selectOrSwapCat(index)}
                           disabled={!isArrangePhase || movesLeft <= 0}
-                          title={`${cat.traitName}：${cat.traitText}`}
-                          aria-label={`${cat.name}，${NEEDS[cat.need].label}。天赋${cat.traitName}：${cat.traitText}${selected ? '，已选中' : canSwap ? '，可与已选猫交换' : ''}`}
+                          title={`${catTraitName(cat)}: ${catTraitText(cat)}`}
+                          aria-label={L(`${cat.name}，${NEEDS[cat.need].label}。天赋${cat.traitName}：${cat.traitText}${selected ? '，已选中' : canSwap ? '，可与已选猫交换' : ''}`)}
                           whileTap={{ scale: 0.97 }}
                         >
                           <span className="cm-seat-number">{index + 1}</span>
@@ -630,14 +703,14 @@ export default function CatMachine() {
                             <b>{cat.face}</b>
                             <em />
                           </span>
-                          <span className="cm-cat-name">{cat.name}</span>
+                          <span className="cm-cat-name">{catName(cat)}</span>
                           <span className={`cm-need-pill need-${cat.need}`}>
                             <i>{NEEDS[cat.need].icon}</i>
-                            {NEEDS[cat.need].label}
+                            {needLabel(cat.need)}
                           </span>
                           <span className="cm-trait-pill">
                             <i>{cat.traitIcon}</i>
-                            {cat.traitName}
+                            {catTraitName(cat)}
                           </span>
                           <AnimatePresence>
                             {matched && (
@@ -647,8 +720,7 @@ export default function CatMachine() {
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
                               >
-                                +呼噜
-                              </motion.span>
+                                {L("+呼噜\n                              ")}</motion.span>
                             )}
                           </AnimatePresence>
                         </motion.button>
@@ -663,8 +735,8 @@ export default function CatMachine() {
           <div className="cm-control-deck">
             <div className="cm-move-panel">
               <div>
-                <small>本班可用猫爪</small>
-                <span role="status" aria-label={`剩余 ${movesLeft} 次操作`}>
+                <small>{L("本班可用猫爪")}</small>
+                <span role="status" aria-label={L(`剩余 ${movesLeft} 次操作`)}>
                   {[0, 1, 2].map((index) => (
                     <PawPrint key={index} className={index < movesLeft ? 'is-live' : ''} />
                   ))}
@@ -673,8 +745,8 @@ export default function CatMachine() {
               </div>
               <p>
                 {selectedCat === null
-                  ? '改工位，或点一只猫再点相邻猫交换。'
-                  : `已选 ${cats[selectedCat].name}，现在点发光的相邻座位。`}
+                  ? (_en ? 'Change a station, or tap a cat then an adjacent cat to swap.' : '改工位，或点一只猫再点相邻猫交换。')
+                  : (_en ? `Selected ${catName(cats[selectedCat])}; now tap a lit adjacent seat.` : `已选 ${cats[selectedCat].name}，现在点发光的相邻座位。`)}
               </p>
             </div>
 
@@ -686,8 +758,8 @@ export default function CatMachine() {
             >
               <PawPrint />
               <span>
-                <strong>{extraMoveBought ? '本班已加餐' : '加一只猫爪'}</strong>
-                <small>{extraMoveBought ? '下班再来' : `${extraMovePrice} 鱼干 · 每班一次`}</small>
+                <strong>{_en ? (extraMoveBought ? 'Upgraded this shift' : 'Add a paw') : (extraMoveBought ? '本班已加餐' : '加一只猫爪')}</strong>
+                <small>{_en ? (extraMoveBought ? 'Back next shift' : `${extraMovePrice} fish · once per shift`) : (extraMoveBought ? '下班再来' : `${extraMovePrice} 鱼干 · 每班一次`)}</small>
               </span>
             </button>
 
@@ -699,8 +771,8 @@ export default function CatMachine() {
             >
               <span className="cm-lever-handle" aria-hidden="true"><i /><b /></span>
               <span>
-                <small>{phase === 'resolving' ? '猫咪正在就位' : goldArmed ? '金色档已点亮' : '安排好了吗？'}</small>
-                <strong>{phase === 'resolving' ? '呼噜计算中…' : '摇铃开机'}</strong>
+                <small>{_en ? (phase === 'resolving' ? 'Cats are getting into place' : goldArmed ? 'Gold lever lit' : 'All set?') : (phase === 'resolving' ? '猫咪正在就位' : goldArmed ? '金色档已点亮' : '安排好了吗？')}</small>
+                <strong>{_en ? (phase === 'resolving' ? 'Calculating purr…' : 'Ring the bell') : (phase === 'resolving' ? '呼噜计算中…' : '摇铃开机')}</strong>
               </span>
               <Bell />
             </button>
@@ -710,25 +782,25 @@ export default function CatMachine() {
         <aside className="cm-side-panel">
           <section className="cm-side-card cm-goal-card">
             <div className="cm-side-heading">
-              <span>店铺成长 · Lv.{shopLevel}</span>
+              <span>{L("店铺成长 · Lv.")}{shopLevel}</span>
               <Trophy />
             </div>
-            <strong>距离 Lv.{shopLevel + 1} 还差 {Math.max(0, nextLevelScore - score)} 呼噜</strong>
-            <p>没有最终关。店铺升级会放大每班收益，模块也可以不断叠级，但高收益仍要靠你亲手排出完美整层。</p>
-            <div className="cm-goal-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(levelProgress)} aria-label={`店铺等级进度 ${Math.round(levelProgress)}%`}>
+            <strong>{L("距离 Lv.")}{shopLevel + 1} {L("还差 ")}{Math.max(0, nextLevelScore - score)} {L("呼噜")}</strong>
+            <p>{L("没有最终关。店铺升级会放大每班收益，模块也可以不断叠级，但高收益仍要靠你亲手排出完美整层。")}</p>
+            <div className="cm-goal-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(levelProgress)} aria-label={L(`店铺等级进度 ${Math.round(levelProgress)}%`)}>
               <i style={{ width: `${levelProgress}%` }} />
             </div>
           </section>
 
           <section className="cm-side-card">
             <div className="cm-side-heading">
-              <span>永久模块 · {installedModules.length} 种</span>
+              <span>{L("永久模块 · ")}{installedModules.length} {L("种")}</span>
               <Sparkles />
             </div>
             {modules.length === 0 ? (
               <div className="cm-empty-modules">
                 <span>?</span>
-                <p>每 3 班选一个模块；抽到已有模块会升一级。</p>
+                <p>{L("每 3 班选一个模块；抽到已有模块会升一级。")}</p>
               </div>
             ) : (
               <div className="cm-module-list">
@@ -736,8 +808,8 @@ export default function CatMachine() {
                   <div key={module.id} style={{ '--module-color': module.color } as React.CSSProperties}>
                     <span>{module.icon}</span>
                     <p>
-                      <strong>{module.name}<b className="cm-module-level">Lv.{level}</b></strong>
-                      <small>{module.description}</small>
+                      <strong>{moduleName(module)}<b className="cm-module-level">Lv.{level}</b></strong>
+                      <small>{moduleDesc(module)}</small>
                     </p>
                   </div>
                 ))}
@@ -747,24 +819,24 @@ export default function CatMachine() {
 
           <section className="cm-side-card cm-hint-card">
             <div className="cm-side-heading">
-              <span>小爪提示</span>
+              <span>{L("小爪提示")}</span>
               <Lightbulb />
             </div>
-            <p>{hint ?? '看不出最优站位时，可以让值班小猫给一句方向。提示不消耗猫爪。'}</p>
+            <p>{hint ?? (_en ? 'When the best layout is unclear, the on-duty cat offers a hint. Hints cost no paws.' : '看不出最优站位时，可以让值班小猫给一句方向。提示不消耗猫爪。')}</p>
             <button type="button" onClick={revealHint} disabled={!isArrangePhase}>
               <Lightbulb />
-              {hint ? '再看一眼' : '给我一点提示'}
+              {hint ? (_en ? 'Peek again' : '再看一眼') : (_en ? 'Give me a hint' : '给我一点提示')}
             </button>
           </section>
 
           <section className="cm-side-card cm-legend-card">
             <div className="cm-side-heading">
-              <span>只记住这三件事</span>
+              <span>{L("只记住这三件事")}</span>
             </div>
             <ol>
-              <li><i>1</i><span>愿望与工位一致，猫就满意。</span></li>
-              <li><i>2</i><span>整层满意，会触发大额连锁。</span></li>
-              <li><i>3</i><span>长按或悬停猫卡，可看天赋。</span></li>
+              <li><i>1</i><span>{L("愿望与工位一致，猫就满意。")}</span></li>
+              <li><i>2</i><span>{L("整层满意，会触发大额连锁。")}</span></li>
+              <li><i>3</i><span>{L("长按或悬停猫卡，可看天赋。")}</span></li>
             </ol>
           </section>
         </aside>
@@ -788,51 +860,50 @@ export default function CatMachine() {
               exit={{ opacity: 0, y: 16, scale: 0.97 }}
             >
               {showGuide && phase !== 'intro' && (
-                <button type="button" className="cm-modal-close" onClick={() => setShowGuide(false)} aria-label="关闭玩法说明">
+                <button type="button" className="cm-modal-close" onClick={() => setShowGuide(false)} aria-label={L("关闭玩法说明")}>
                   <X />
                 </button>
               )}
-              <div className="cm-guide-kicker"><span>🐾</span> 一分钟上手</div>
-              <h3 id="cm-guide-title">不是抽奖，是一台会“贴贴连锁”的猫咪服务机</h3>
-              <p className="cm-guide-lead">这里没有最后一班。每班用两只猫爪调整工位与座位，摇铃赚呼噜、升级店铺，再把永久模块一层层叠高。</p>
+              <div className="cm-guide-kicker"><span>🐾</span> {L("一分钟上手")}</div>
+              <h3 id="cm-guide-title">{L("不是抽奖，是一台会“贴贴连锁”的猫咪服务机")}</h3>
+              <p className="cm-guide-lead">{L("这里没有最后一班。每班用两只猫爪调整工位与座位，摇铃赚呼噜、升级店铺，再把永久模块一层层叠高。")}</p>
               {offlineNotice > 0 && (
                 <div className="cm-offline-notice">
                   <span>🌙</span>
-                  <p><strong>猫咪替你看了一会儿店</strong><small>离线获得 +{offlineNotice} 呼噜（最多累计 4 小时）</small></p>
+                  <p><strong>{L("猫咪替你看了一会儿店")}</strong><small>{L("离线获得 +")}{offlineNotice} {L("呼噜（最多累计 4 小时）")}</small></p>
                 </div>
               )}
               <div className="cm-guide-steps">
                 <div>
                   <span>01</span>
                   <i>👀</i>
-                  <strong>看愿望</strong>
-                  <p>鱼、羽毛、纸箱分别对应吃、玩、睡。</p>
+                  <strong>{L("看愿望")}</strong>
+                  <p>{L("鱼、羽毛、纸箱分别对应吃、玩、睡。")}</p>
                 </div>
                 <div>
                   <span>02</span>
                   <i>🐾</i>
-                  <strong>花猫爪</strong>
-                  <p>改一层工位，或交换两只相邻猫。</p>
+                  <strong>{L("花猫爪")}</strong>
+                  <p>{L("改一层工位，或交换两只相邻猫。")}</p>
                 </div>
                 <div>
                   <span>03</span>
                   <i>🔔</i>
-                  <strong>摇铃连锁</strong>
-                  <p>整层满意、天赋、事件和模块一起结算。</p>
+                  <strong>{L("摇铃连锁")}</strong>
+                  <p>{L("整层满意、天赋、事件和模块一起结算。")}</p>
                 </div>
               </div>
               <div className="cm-guide-footer">
-                <p><Sparkles /> 进度保存在这台设备；金色毛球可以留到最漂亮的一班再释放。</p>
+                <p><Sparkles /> {L("进度保存在这台设备；金色毛球可以留到最漂亮的一班再释放。")}</p>
                 {phase === 'intro' ? (
-                  <button type="button" onClick={startGame}>{hasSavedProgress ? '继续营业' : '懂了，开第一班'} <Bell /></button>
+                  <button type="button" onClick={startGame}>{_en ? (hasSavedProgress ? 'Keep going' : 'Got it, start shift one') : (hasSavedProgress ? '继续营业' : '懂了，开第一班')} <Bell /></button>
                 ) : (
-                  <button type="button" onClick={() => setShowGuide(false)}>继续值班 <PawPrint /></button>
+                  <button type="button" onClick={() => setShowGuide(false)}>{L("继续值班 ")}<PawPrint /></button>
                 )}
               </div>
               {hasSavedProgress && (
                 <button type="button" className="cm-reset-progress" onClick={resetProgress}>
-                  <RotateCcw /> 清空本机进度
-                </button>
+                  <RotateCcw /> {L("清空本机进度\n                ")}</button>
               )}
             </motion.div>
           </motion.div>
@@ -849,27 +920,27 @@ export default function CatMachine() {
               exit={{ opacity: 0, y: 18 }}
             >
               <div className="cm-result-icon">{roundResult.perfectRows.length > 0 ? '😻' : '😺'}</div>
-              <small>SHIFT {String(round).padStart(2, '0')} · 结算完成</small>
+              <small>SHIFT {String(round).padStart(2, '0')} {L("· 结算完成")}</small>
               <h3>{roundResult.headline}</h3>
               <div className="cm-result-score">
                 <span>+{roundResult.total}</span>
-                <p>本班呼噜<small>{roundResult.matches}/9 只满意 · {roundResult.perfectRows.length} 条完美整层</small></p>
+                <p>{L("本班呼噜")}<small>{roundResult.matches}{L("/9 只满意 · ")}{roundResult.perfectRows.length} {L("条完美整层")}</small></p>
               </div>
               <div className="cm-breakdown">
-                <div><span>基础照顾</span><strong>+{roundResult.base}</strong></div>
-                <div><span>猫咪天赋</span><strong>+{roundResult.traitBonus}</strong></div>
-                <div><span>整层与连班</span><strong>+{roundResult.rowBonus}</strong></div>
-                <div><span>机器模块</span><strong>+{roundResult.moduleBonus}</strong></div>
-                <div><span>{event.icon} {event.name}</span><strong>+{roundResult.eventBonus}</strong></div>
-                {roundResult.growthBonus > 0 && <div><span>店铺 Lv.{shopLevel} 成长</span><strong>+{roundResult.growthBonus}</strong></div>}
-                {roundResult.goldBonus > 0 && <div className="is-gold"><span>✨ 金色呼噜</span><strong>+{roundResult.goldBonus}</strong></div>}
+                <div><span>{L("基础照顾")}</span><strong>+{roundResult.base}</strong></div>
+                <div><span>{L("猫咪天赋")}</span><strong>+{roundResult.traitBonus}</strong></div>
+                <div><span>{L("整层与连班")}</span><strong>+{roundResult.rowBonus}</strong></div>
+                <div><span>{L("机器模块")}</span><strong>+{roundResult.moduleBonus}</strong></div>
+                <div><span>{event.icon} {eventName(event)}</span><strong>+{roundResult.eventBonus}</strong></div>
+                {roundResult.growthBonus > 0 && <div><span>{L("店铺 Lv.")}{shopLevel} {L("成长")}</span><strong>+{roundResult.growthBonus}</strong></div>}
+                {roundResult.goldBonus > 0 && <div className="is-gold"><span>{L("✨ 金色呼噜")}</span><strong>+{roundResult.goldBonus}</strong></div>}
               </div>
               <div className="cm-result-rewards">
-                <span><Fish /> +{roundResult.fishEarned} 鱼干</span>
-                <span><Sparkles /> +{roundResult.energyGain} 毛球能量</span>
+                <span><Fish /> +{roundResult.fishEarned} {L("鱼干")}</span>
+                <span><Sparkles /> +{roundResult.energyGain} {L("毛球能量")}</span>
               </div>
               <button type="button" onClick={continueAfterResult}>
-                {round % MODULE_INTERVAL === 0 ? '选择永久模块' : '进入下一班'}
+                {round % MODULE_INTERVAL === 0 ? (_en ? 'Choose a permanent module' : '选择永久模块') : (_en ? 'Next shift' : '进入下一班')}
                 <span aria-hidden="true">→</span>
               </button>
             </motion.div>
@@ -886,9 +957,9 @@ export default function CatMachine() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 18 }}
             >
-              <div className="cm-guide-kicker"><span>🧰</span> 猫咪机升级时间</div>
-              <h3>选一个永久模块，或者把旧模块再升一级</h3>
-              <p>每 3 班都会再选一次，没有安装上限。重复模块的效果会继续叠加。</p>
+              <div className="cm-guide-kicker"><span>🧰</span> {L("猫咪机升级时间")}</div>
+              <h3>{L("选一个永久模块，或者把旧模块再升一级")}</h3>
+              <p>{L("每 3 班都会再选一次，没有安装上限。重复模块的效果会继续叠加。")}</p>
               <div className="cm-upgrade-grid">
                 {upgradeChoices.map((module) => (
                   <button
@@ -898,10 +969,10 @@ export default function CatMachine() {
                     style={{ '--module-color': module.color } as React.CSSProperties}
                   >
                     <span>{module.icon}</span>
-                    <small>{moduleLevel(modules, module.id) > 0 ? `Lv.${moduleLevel(modules, module.id)} → Lv.${moduleLevel(modules, module.id) + 1}` : '获得 Lv.1'}</small>
-                    <strong>{module.name}</strong>
-                    <p>{module.description}</p>
-                    <i>{moduleLevel(modules, module.id) > 0 ? '升级它' : '装上它'} <b>→</b></i>
+                    <small>{moduleLevel(modules, module.id) > 0 ? `Lv.${moduleLevel(modules, module.id)} → Lv.${moduleLevel(modules, module.id) + 1}` : (_en ? 'Gain Lv.1' : '获得 Lv.1')}</small>
+                    <strong>{moduleName(module)}</strong>
+                    <p>{moduleDesc(module)}</p>
+                    <i>{moduleLevel(modules, module.id) > 0 ? (_en ? 'Upgrade it' : '升级它') : (_en ? 'Install it' : '装上它')} <b>→</b></i>
                   </button>
                 ))}
               </div>

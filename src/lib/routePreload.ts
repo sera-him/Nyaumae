@@ -37,6 +37,7 @@ export const routeLoaders = {
   sweetDreamChat: memoizePageLoader(() => import('@/pages/SweetDreamChat')),
   auroraChat: memoizePageLoader(() => import('@/pages/AuroraChat')),
   chatSelect: memoizePageLoader(() => import('@/pages/ChatSelect')),
+  otherSelect: memoizePageLoader(() => import('@/pages/OtherSelect')),
   aiSettings: memoizePageLoader(() => import('@/pages/AISettingsPage')),
   codex: memoizePageLoader(() => import('@/pages/CodexPage')),
   nctb: memoizePageLoader(() => import('@/pages/NctbPage')),
@@ -81,6 +82,7 @@ export function getRouteLoader(pathname: string): PageLoader | null {
   if (path === '/chat/ocean') return routeLoaders.oceanChat;
   if (path === '/chat/sweetdream') return routeLoaders.sweetDreamChat;
   if (path === '/chat/aurora') return routeLoaders.auroraChat;
+  if (path === '/other') return routeLoaders.otherSelect;
 
   return null;
 }
