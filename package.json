@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/generate-font-css.mjs && vite",
-    "build": "node scripts/generate-font-css.mjs && node scripts/generate-image-variants.mjs && tsc -b && vite build && node scripts/prepare-sites.mjs",
+    "build": "node scripts/generate-font-css.mjs && node scripts/generate-image-variants.mjs && node scripts/generate-frequency-corpus.mjs && tsc -b && vite build && node scripts/prepare-sites.mjs",
     "optimize:images": "python scripts/generate_responsive_images.py",
     "lint": "eslint .",
     "test:nctb": "node --experimental-strip-types scripts/nctb/nctb-smoke.ts",

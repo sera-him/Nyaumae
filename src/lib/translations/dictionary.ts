@@ -21,6 +21,11 @@ import { BATCH4 } from './entries/batch4';
 import { CHROME_TRANSLATIONS } from './entries/chrome';
 import { UI_ENTRIES } from './entries/ui';
 import { OVERFLOW_TRANSLATIONS } from './entries/overflow';
+import { BATCH5_NCTB_TASKS } from './entries/batch5-nctb-tasks';
+import { BATCH5_NCTB_CARD } from './entries/batch5-nctb-card';
+import { BATCH5_GAMES } from './entries/batch5-games';
+import { BATCH5_LORE } from './entries/batch5-lore';
+import { BATCH5_CHROME_MISC } from './entries/batch5-chrome';
 
 /** Whole-node replacements (trimmed text must equal the key). */
 export const EXACT_TRANSLATIONS: Record<string, string> = {
@@ -31,6 +36,11 @@ export const EXACT_TRANSLATIONS: Record<string, string> = {
   ...CHROME_TRANSLATIONS,
   ...UI_ENTRIES,
   ...OVERFLOW_TRANSLATIONS,
+  ...BATCH5_NCTB_TASKS,
+  ...BATCH5_NCTB_CARD,
+  ...BATCH5_GAMES,
+  ...BATCH5_LORE,
+  ...BATCH5_CHROME_MISC,
   // ---------- 站点结构与导航 ----------
   "首页": 'Home',
   "故事": 'Stories',
@@ -98,6 +108,8 @@ export const EXACT_TRANSLATIONS: Record<string, string> = {
   "跳到正文": 'Skip to content',
   "打开声音": 'Turn sound on',
   "关闭声音": 'Turn sound off',
+  "开启音乐": 'Turn music on',
+  "关闭音乐": 'Turn music off',
   "网站助手": 'Site assistant',
 
   // ---------- 通用动作 ----------

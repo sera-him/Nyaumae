@@ -1,6 +1,7 @@
 import { Volume2, VolumeX } from 'lucide-react';
 import { useMusic } from '@/contexts/MusicContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { L } from '@/lib/translations/manual';
 
 export default function MusicToggle() {
   const { isPlaying, isMuted, toggleMusic } = useMusic();
@@ -15,7 +16,7 @@ export default function MusicToggle() {
           : 'bg-nc-bg-secondary border-nc-violet/20 text-nc-text-muted hover:text-nc-text hover:border-nc-violet/40'
       }`}
       onClick={toggleMusic}
-      title={isPlaying && !isMuted ? '关闭音乐' : '开启音乐'}
+      title={isPlaying && !isMuted ? L('关闭音乐') : L('开启音乐')}
     >
       <AnimatePresence mode="wait">
         {isPlaying && !isMuted ? (

@@ -118,6 +118,7 @@ import { FORMAL_A_V1_QUESTIONS_EN } from '@/nctb/banks/formal-a.v1.en';
 import { FORMAL_FOUNDATION_V1_QUESTIONS_EN } from '@/nctb/banks/formal-foundation.v1.en';
 import { PEMS_DIMENSIONS_EN } from '@/lib/pemsLModel.en';
 import type { Locale } from '@/lib/i18n';
+import { frequencyCorpusZh, frequencyCorpusEn } from './generated/frequencyCorpus';
 
 export interface FullSearchItem {
   id: string;
@@ -650,6 +651,17 @@ for (const dimension of PEMS_DIMENSIONS_EN) {
 addEn('fla-model', 'PEMS-L FLA v2.1 functional legal age model', 'Functional legal age model PEMS-L FLA from weighted five dimensions to population-curve lookup does not overturn the life-course function the last step of reconstructing the age mapping the old formula assumed abilities can compensate each other infinitely the five dimensions are mutually independent real-world cognitive peak timing is highly heterogeneous executive function includes both a common factor and distinct subcomponents social cognition even shifts in different directions with age', '设定', '/math/fla');
 addEn('fla-dimensions', 'PEMS-L five dimensions', 'Physical development executive function emotional regulation social interaction language symbols P E M S L does not measure height muscle or puberty level avoids letting stronger young people earn a higher legal age for no reason measures decision stability not emotional quantity crying easily or strong emotions should not automatically mean immaturity does not judge by mainstream sociability focuses on whether legally meaningful symbol systems are understood', '设定', '/math/fla');
 addEn('fla-formula', 'PEMS-L formula notes', 'Geometric mean soft bottleneck effect adulthood line 18 calibrated by population targets adult legal identity is irreversible the elderly do not see their age regress 80 to 17 to 15 to 12 and reacquire minor status current capacity decline should enter specific capacity assessment rather than making age flow backward', '设定', '/math/fla');
+
+
+// Catch-all corpus: every prose-bearing string from component / page /
+// interactive sources that the structured add() list below does not cover.
+// The engine de-duplicates segments that overlap the already-indexed data.
+for (const doc of frequencyCorpusZh) {
+  items.push({ id: doc.id, title: doc.title, content: doc.content, category: doc.category, href: doc.href, frequencySegments: doc.segments });
+}
+for (const doc of frequencyCorpusEn) {
+  enItems.push({ id: doc.id, title: doc.title, content: doc.content, category: doc.category, href: doc.href, frequencySegments: doc.segments });
+}
 
 export const fullSearchIndexEn: FullSearchItem[] = enItems;
 

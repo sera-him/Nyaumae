@@ -4,6 +4,11 @@
 // only inside the runtime translator's safe zone (never over prose).
 
 import { EXACT_TRANSLATIONS } from '../dictionary';
+import { applyNctbTasksRules } from './rules-nctb-tasks';
+import { applyNctbCardRules } from './rules-nctb-card';
+import { applyGamesRules } from './rules-games';
+import { applyLoreRules } from './rules-lore';
+import { applyChromeMiscRules } from './rules-chrome';
 
 const CJK_DIGITS: Record<string, number> = {
   '零': 0, '一': 1, '二': 2, '两': 2, '三': 3, '四': 4, '五': 5,
@@ -323,6 +328,15 @@ export function applyTranslationRules(input: string): string | null {
     const m = trimmed.match(/^浏览 Neural Connection 的(.+?)档案与关系设定。$/);
     if (m) return input.replace(trimmed, () => "Browse Neural Connection's " + m[1] + ' files and relationship settings.');
   }
+
+  // ── 2026-09 batch-5 team rule families (render-time compositional strings) ──
+  const team =
+    applyNctbTasksRules(trimmed) ??
+    applyNctbCardRules(trimmed) ??
+    applyGamesRules(trimmed) ??
+    applyLoreRules(trimmed) ??
+    applyChromeMiscRules(trimmed);
+  if (team !== null) return input.replace(trimmed, () => team);
 
   return null;
 }
