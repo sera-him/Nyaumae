@@ -43,11 +43,13 @@ import {
 } from '@/lib/lastViewed';
 import { loadSearchData } from '@/lib/searchDataLoader';
 import {
+  EXPORT_EXCLUSIONS,
   EXPORT_FORMATS,
   downloadCorpus,
   estimateExportBytes,
   exportSources,
   formatBytes,
+  isExcluded,
   measureCorpus,
   serializeCorpus,
   type ExportFormat,
@@ -132,7 +134,7 @@ const EN_SEARCH_EXAMPLES = [
 const anchorRoutes: Record<string, string> = {
   hero: '/',
   footer: '/',
-  worldview: '/world/overview',
+  worldview: '/world/settings',
   characters: '/characters',
   'extra-characters': '/characters?group=other',
   'character-network': '/characters',
@@ -501,12 +503,37 @@ export default function CodexPage() {
     searchIndex?.fullSearchIndexEn,
   ), [searchIndex]);
 
-  const exportItems = useMemo(() => exportChoices
+  // 语言选中的原始条目（未排除）。语言按钮上的条数与排除项的「省下多少」都读它，
+  // 所以排除与否不影响「中文 868 条」这类描述可用量的数字。
+  const selectedItems = useMemo(() => exportChoices
     .filter((source) => (exportLocale === 'both' ? true : source.key === exportLocale))
     .flatMap((source) => source.items), [exportChoices, exportLocale]);
 
-  // 度量只随语言变化跑一次（约 1.5M 字符的 UTF-8 计数），换格式只是常数运算。
+  const exportItems = useMemo(() => (
+    exportExcluded.size === 0
+      ? selectedItems
+      : selectedItems.filter((item) => !isExcluded(item, EXPORT_EXCLUSIONS, exportExcluded))
+  ), [exportExcluded, selectedItems]);
+
+  // 每个排除项在当前语言下会省下多少，供面板直接显示。存的是度量结果而非字节数，
+  // 因为省下的体积与所选格式有关：中文 JSON 还要丢掉 6,441 个分词（约 1.5 MB），
+  // TXT/CSV 则只丢正文本身（约 730 KB）。estimateExportBytes 是常数运算，
+  // 所以换格式时这里跟着变但不重新遍历语料。
+  const exportExclusionSavings = useMemo(() => EXPORT_EXCLUSIONS.map((exclusion) => ({
+    exclusion,
+    size: measureCorpus(selectedItems.filter(exclusion.matches)),
+  })), [selectedItems]);
+
+  // 度量只随语言/排除项变化跑一次（约 1.5M 字符的 UTF-8 计数），换格式只是常数运算。
   const exportSize = useMemo(() => measureCorpus(exportItems), [exportItems]);
+
+  const toggleExportExclusion = useCallback((id: string) => {
+    setExportExcluded((previous) => {
+      const next = new Set(previous);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
+  }, []);
 
   const exportSelection = useMemo(() => ({
     count: exportSize.records,
@@ -915,6 +942,32 @@ export default function CodexPage() {
                   <small>{option.hint}</small>
                 </button>
               ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="full-search-export-group" disabled={exportPending}>
+            <legend>{isEn ? 'Exclude' : '排除'}</legend>
+            <div className="full-search-export-exclusions">
+              {exportExclusionSavings.map(({ exclusion, size }) => {
+                const checked = exportExcluded.has(exclusion.id);
+                return (
+                  <label key={exclusion.id} className={checked ? 'is-active' : ''}>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleExportExclusion(exclusion.id)}
+                    />
+                    <span>
+                      <strong>{isEn ? exclusion.labelEn : exclusion.label}</strong>
+                      <small>{isEn ? exclusion.detailEn : exclusion.detail}</small>
+                    </span>
+                    <b>
+                      {size.records.toLocaleString('zh-CN')} {isEn ? 'entry' : '条'}
+                      <small>−{formatBytes(estimateExportBytes(size, exportFormat))}</small>
+                    </b>
+                  </label>
+                );
+              })}
             </div>
           </fieldset>
 

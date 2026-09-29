@@ -334,6 +334,29 @@
 .full-search-export-choices strong { font-size: .72rem; font-weight: 620; }
 .full-search-export-choices small { color: var(--site-theme-text-muted, #8fa6ab); font-size: .6rem; line-height: 1.5; }
 
+/* Exclusions read as opt-out rows rather than choices, so they get a checkbox
+   affordance and show what they would save on the right. */
+.full-search-export-exclusions { display: grid; gap: .4rem; }
+.full-search-export-exclusions label {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .7rem;
+  padding: .58rem .7rem; border: 1px solid rgba(255,255,255,.09); border-radius: .6rem;
+  background: rgba(255,255,255,.025); cursor: pointer;
+  transition: border-color .16s ease, background .16s ease;
+}
+.full-search-export-exclusions label:hover { border-color: rgba(120,225,213,.3); }
+.full-search-export-exclusions label.is-active { border-color: rgba(120,225,213,.5); background: rgba(120,225,213,.09); }
+.full-search-export-exclusions input { width: .9rem; height: .9rem; margin: 0; accent-color: var(--aurora-cyan-dim, #78e1d5); cursor: pointer; }
+.full-search-export-exclusions input:disabled { cursor: not-allowed; }
+.full-search-export-exclusions span { display: grid; gap: .18rem; }
+.full-search-export-exclusions strong { color: var(--site-theme-text-secondary, #bdd3d5); font-size: .72rem; font-weight: 620; }
+.full-search-export-exclusions small { color: var(--site-theme-text-muted, #8fa6ab); font-size: .6rem; line-height: 1.5; }
+.full-search-export-exclusions b {
+  display: grid; justify-items: end; gap: .1rem; white-space: nowrap;
+  color: var(--site-theme-text-muted, #8fa6ab); font: .62rem/1.3 'JetBrains Mono', monospace; font-weight: 500;
+}
+.full-search-export-exclusions label.is-active b { color: var(--aurora-cyan-dim, #78e1d5); }
+.full-search-export-exclusions b small { font: inherit; color: inherit; opacity: .75; }
+
 .full-search-export-panel footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-top: .2rem; }
 .full-search-export-summary { margin: 0; display: grid; gap: .12rem; }
 .full-search-export-summary span { color: var(--site-theme-text-muted, #8fa6ab); font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; }

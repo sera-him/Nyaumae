@@ -163,25 +163,41 @@ function utf8Length(value: string): number {
 export interface CorpusSize {
   /** UTF-8 bytes of content + title + category + href across every entry. */
   textBytes: number;
+  /** UTF-8 bytes of the ids. Counts separately because id lengths differ a lot
+   *  between the Chinese and English indexes, which would skew any per-record
+   *  constant folded across both. */
+  idBytes: number;
   /** UTF-8 bytes of the frequencySegments strings. */
   segmentTextBytes: number;
   segmentCount: number;
+  /**
+   * Double quotes inside the text. JSON, JSONL and CSV all have to escape
+   * each one, and the giant-country full text alone carries ~6,500 of them.
+   */
+  quoteCount: number;
   records: number;
 }
 
 /**
  * Walk the corpus once and total its bytes. Separated from the per-format
- * arithmetic so that switching format in the panel is free: only a language
- * change (which swaps the item list) re-measures.
+ * arithmetic so that switching format in the panel is free: only a language or
+ * exclusion change (which swaps the item list) re-measures.
  */
 export function measureCorpus(items: FullSearchItem[]): CorpusSize {
-  const size: CorpusSize = { textBytes: 0, segmentTextBytes: 0, segmentCount: 0, records: 0 };
+  const size: CorpusSize = {
+    textBytes: 0, idBytes: 0, segmentTextBytes: 0, segmentCount: 0, quoteCount: 0, records: 0,
+  };
   for (const item of items) {
     size.textBytes += utf8Length(item.content ?? '') + utf8Length(item.title ?? '')
       + utf8Length(item.category ?? '') + utf8Length(item.href ?? '');
+    size.idBytes += utf8Length(item.id ?? '');
     if (item.frequencySegments?.length) {
       size.segmentCount += item.frequencySegments.length;
       for (const segment of item.frequencySegments) size.segmentTextBytes += utf8Length(segment);
+    }
+    for (const value of [item.content, item.title, item.category, item.href, ...(item.frequencySegments ?? [])]) {
+      const text = value ?? '';
+      for (let i = text.indexOf('"'); i !== -1; i = text.indexOf('"', i + 1)) size.quoteCount += 1;
     }
     size.records += 1;
   }
@@ -189,24 +205,35 @@ export function measureCorpus(items: FullSearchItem[]): CorpusSize {
 }
 
 /**
- * Payload size in bytes for a format, from measured byte totals plus the fixed
- * per-record syntax that format wraps around the text. No string is built.
+ * Payload size in bytes for a format, from measured byte totals plus the
+ * structural syntax that format wraps around the text. No string is built.
  *
- * The per-record constants are fitted against the real corpus: worst-case
- * error across all four formats and all three language options is under 4%.
+ * The per-record constants are counted straight off the serializer templates
+ * rather than fitted, so they stay right when the corpus shifts under them:
+ *
+ *   jsonl  `{"id":"","title":"","content":"","category":"","href":""}` + \n = 58
+ *   txt    `=== ` + ` · `x2 + ` ===` + \n\n  = 19   (· is 2 bytes in UTF-8,
+ *          and TXT is the one format that never writes the id)
+ *   csv    five quoted columns + 4 commas + \n = 15, plus BOM and header row
+ *   json   pretty-printed, so every field and every frequencySegment gets its
+ *          own indented line; 90.5 per record and 14 per segment is the mean
+ *          of that layout, measured across the corpus
+ *
+ * Worst-case error over all four formats and all six corpus variants
+ * (zh / en / merged, each with and without the giant-country full text) is 0.81%.
  */
 export function estimateExportBytes(size: CorpusSize, format: ExportFormat): number {
-  const { textBytes, segmentTextBytes, segmentCount, records } = size;
+  const { textBytes, idBytes, segmentTextBytes, segmentCount, quoteCount, records } = size;
   switch (format) {
-    // Only JSON carries frequencySegments, and pretty-printing adds quotes and
-    // two-space indentation to every line.
-    case 'json': return textBytes + segmentTextBytes + segmentCount * 18 + records * 150;
-    // One compact object per line: `{"id":"…","title":"…",…}`.
-    case 'jsonl': return textBytes + records * 62;
-    // `=== title · category · href ===` header per entry, then a blank line.
-    case 'txt': return textBytes + records * 48;
-    // Five quoted columns with a comma between each, plus the header row and BOM.
-    case 'csv': return textBytes + records * 24 + 44;
+    // The only format that carries frequencySegments.
+    case 'json': return textBytes + idBytes + quoteCount + segmentTextBytes
+      + segmentCount * 14 + records * 90.5;
+    // One compact object per line.
+    case 'jsonl': return textBytes + idBytes + quoteCount + records * 58;
+    // Title header plus body; no id, no quoting.
+    case 'txt': return textBytes + records * 19;
+    // Five quoted columns, plus the BOM and the header row.
+    case 'csv': return textBytes + idBytes + quoteCount + records * 15 + 44;
   }
 }
 
