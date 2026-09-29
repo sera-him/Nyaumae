@@ -3,9 +3,13 @@
 // The zh-CN instance lives in ./wordFrequency and the English instance in
 // ./wordFrequencyEn; both share the exact same tokenizing, weighting and
 // metric logic so the two languages stay statistically comparable. The only
-// per-language inputs are the Intl.Segmenter locale, the comparison locale
-// and the id of the document that receives the 0.1 story weight
+// per-language inputs are the comparison locale and the id of the document
+// that receives the 0.1 story weight
 // (《大人国的小女孩》 / The Little Girl in the Giant Country).
+//
+// Tokenizing is handled by ./wordSegmenter, which is fully self-contained —
+// it never touches Intl.Segmenter, so the published numbers are identical on
+// every browser and server. See ./wordSegmenter for the rules.
 
 export interface WordFreq {
   word: string;
@@ -20,6 +24,9 @@ export interface WordFreqDetailed extends WordFreq {
   length: number;
   isCharacter: boolean;
 }
+
+import { HAN_LEXICON_SIZE } from './segmenterLexicon';
+import { tokenizeForFrequency, tokenizeWithoutLexicon } from './wordSegmenter';
 
 export interface WordFrequencyClouds {
   ordinary: WordFreq[];
@@ -44,7 +51,7 @@ export interface SearchIndexItem {
 }
 
 export interface FrequencyEngineOptions {
-  /** Intl.Segmenter / localeCompare locale ('zh-CN' or 'en'). */
+  /** localeCompare locale ('zh-CN' or 'en'). */
   locale: 'zh-CN' | 'en';
   /** Document id whose words receive the 0.1 story weighting. */
   weightedStoryId: string;
@@ -124,9 +131,8 @@ export function createFrequencyEngine(options: FrequencyEngineOptions): Frequenc
     generatedAt: new Date(),
   };
 
-  const segmenter = typeof Intl.Segmenter === 'function'
-    ? new Intl.Segmenter(locale, { granularity: 'word' })
-    : null;
+  // Degrade to the lexicon-free rule set only if the lexicon ever ships empty.
+  const tokenizeText = HAN_LEXICON_SIZE > 0 ? tokenizeForFrequency : tokenizeWithoutLexicon;
 
   function normalizeWord(value: string): string {
     return value.normalize('NFKC').trim().replace(/^[^\p{L}\p{N}+]+|[^\p{L}\p{N}+]+$/gu, '');
@@ -155,35 +161,7 @@ export function createFrequencyEngine(options: FrequencyEngineOptions): Frequenc
   }
 
   function mergeSegmentedWords(text: string): string[] {
-    if (!segmenter) {
-      return text.split(/[\s·.,，。！？：；/()（）-]+/).filter(word => word.length > 0);
-    }
-    const parts = [...segmenter.segment(text)];
-    const words: string[] = [];
-
-    for (let index = 0; index < parts.length; index += 1) {
-      const part = parts[index];
-      if (!part.isWordLike) continue;
-
-      let end = index;
-      let tokenEnd = part.index + part.segment.length;
-      while (text[tokenEnd] === '+') tokenEnd += 1;
-
-      while (end + 2 < parts.length) {
-        const connector = text.slice(parts[end].index + parts[end].segment.length, parts[end + 2].index);
-        const next = parts[end + 2];
-        if (!next?.isWordLike || !/^[+/#.-]+$/u.test(connector)) break;
-        if (!/^[\p{L}\p{N}]/u.test(parts[end].segment) || !/^[\p{L}\p{N}]/u.test(next.segment)) break;
-        end += 2;
-        tokenEnd = next.index + next.segment.length;
-        while (text[tokenEnd] === '+') tokenEnd += 1;
-      }
-
-      words.push(text.slice(part.index, tokenEnd));
-      index = end;
-    }
-
-    return words;
+    return tokenizeText(text);
   }
 
   function tokenize(text: string): string[] {
@@ -204,12 +182,7 @@ export function createFrequencyEngine(options: FrequencyEngineOptions): Frequenc
     const mapToken = (value: string): string => markers.get(normalizeWord(value)) ?? normalizeWord(value);
     const filterToken = (value: string): boolean => markers.has(normalizeWord(value)) || isUsefulWord(value);
 
-    if (segmenter) {
-      return mergeSegmentedWords(protectedText)
-        .map(mapToken)
-        .filter(filterToken);
-    }
-    return (protectedText.match(/[\p{Script=Han}]{2,}|[\p{L}][\p{L}\p{N}]+/gu) ?? [])
+    return mergeSegmentedWords(protectedText)
       .map(mapToken)
       .filter(filterToken);
   }
