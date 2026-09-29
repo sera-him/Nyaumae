@@ -26,6 +26,53 @@ export const EXPORT_FORMATS: readonly ExportOption[] = [
   { id: 'csv', label: 'CSV', hint: 'id/title/category/href/content 五列' },
 ];
 
+/**
+ * An optional slice the user can drop from the export.
+ *
+ * Declared here rather than in the page so the rule lives next to the data it
+ * filters, and so the panel can show what each exclusion would cost without
+ * duplicating the predicate.
+ */
+export interface ExportExclusion {
+  id: string;
+  /** Shown in the panel; Chinese, since the entry is a Chinese-language arc. */
+  label: string;
+  labelEn: string;
+  /** Why it is worth excluding, in one clause. */
+  detail: string;
+  detailEn: string;
+  matches: (item: FullSearchItem) => boolean;
+}
+
+/**
+ * The id the full text is registered under in both locale indexes. It is the
+ * single largest entry by a wide margin — around 730 KB, which is roughly 70%
+ * of the whole Chinese corpus — so anyone exporting the site probably wants
+ * the option to skip it. Characters, story metadata and the Giant Catch game
+ * are separate entries and are deliberately kept.
+ */
+const GIANT_COUNTRY_FULL_TEXT = 'storytext_little-girl-in-giant-country';
+
+export const EXPORT_EXCLUSIONS: readonly ExportExclusion[] = [
+  {
+    id: 'giant-country-full-text',
+    label: '《大人国的小女孩》全套正文',
+    labelEn: 'The Little Girl in the Giant Country full text',
+    detail: '单条约 730 KB，占中文语料七成，角色与其他条目仍保留',
+    detailEn: 'One ~730 KB entry, about 70% of the Chinese corpus; characters stay',
+    matches: (item) => item.id === GIANT_COUNTRY_FULL_TEXT,
+  },
+];
+
+/** True when the item is dropped by any of the given exclusions. */
+export function isExcluded(
+  item: FullSearchItem,
+  exclusions: readonly ExportExclusion[],
+  enabled: ReadonlySet<string>,
+): boolean {
+  return exclusions.some((exclusion) => enabled.has(exclusion.id) && exclusion.matches(item));
+}
+
 export interface ExportSource {
   key: ExportLocale;
   label: string;

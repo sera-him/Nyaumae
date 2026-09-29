@@ -318,6 +318,8 @@ export default function CodexPage() {
   const [exportOpen, setExportOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('json');
   const [exportLocale, setExportLocale] = useState<ExportLocale>('zh');
+  // 勾选的排除项 id，默认全不排除——导出内容与之前一致。
+  const [exportExcluded, setExportExcluded] = useState<ReadonlySet<string>>(() => new Set<string>());
   const [exportPending, setExportPending] = useState(false);
   const exportButtonRef = useRef<HTMLButtonElement | null>(null);
   const inputFocusRestoreRef = useRef<{ start: number; end: number } | null>(null);

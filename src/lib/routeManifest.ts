@@ -119,11 +119,11 @@ export const ROUTE_DIRECTORY_GROUPS: RouteDirectoryGroup[] = [
     caption: 'WORLD',
     description: '世界设定、历史、组织与未来线',
     items: directoryItems([
+      '/world/settings',
       '/world/overview',
       '/world/qet',
       '/world/timeline',
       '/world/organizations',
-      '/world/settings',
       '/world/dictionary',
       '/world/prime-focus',
       '/world/pacific-islands',

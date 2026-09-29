@@ -16,11 +16,11 @@ import { AuroraPage, AuroraPanel, AuroraStat } from '@/components/aurora';
 import '@/styles/world-textures.css';
 
 const tabs = [
+  { key: 'settings', label: '世界设定', icon: Globe, component: WorldSettings },
   { key: 'overview', label: '概览', icon: Globe, component: WorldOverview },
   { key: 'qet', label: 'QET选拔', icon: Trophy, component: QETSection },
   { key: 'timeline', label: '编年史', icon: Clock, component: Timeline },
   { key: 'organizations', label: '组织机构', icon: Building2, component: Organizations },
-  { key: 'settings', label: '世界设定', icon: Globe, component: WorldSettings },
   { key: 'dictionary', label: '词典与诗歌', icon: BookMarked, component: Dictionary },
   { key: 'pacific-islands', label: '西太平洋', icon: Ship, component: PacificIslands },
   { key: 'prime-focus', label: '未来线', icon: Sparkles, component: PrimeFocus },
