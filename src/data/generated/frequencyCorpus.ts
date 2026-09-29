@@ -2491,7 +2491,7 @@ export const frequencyCorpusZh: CorpusDoc[] = [
   {
     "id": "corpus_pages/CodexPage.tsx",
     "title": "pages/CodexPage.tsx",
-    "content": "角色 故事 技能 设定 棋子 词典 页面 游戏 测评 章节与叙事内容 人物与关系资料 世界观 设定、词典与档案 游戏、规则与棋子 其他 技能与页面索引 咪呀是谁？ 猫鼠迷踪怎么玩？ 世界观里有哪些区域？ 谁和小满关系最好？ 完全匹配 短语匹配 前缀匹配 标题匹配 整词匹配 内容匹配 模糊匹配 相关内容 刚刚 分钟前 小时前 搜索结果 内容浏览 搜索索引加载失败，可重新加载。 正在搜索共享索引…… 正在准备全站搜索…… 搜索全站内容 搜索人物、故事、设定、游戏…… 清除搜索内容 全站搜索 从故事、角色、世界观和游戏中，找到一个人、一段设定或一个可以继续探索的入口。 已载入 条内容 正在载入全站内容 条索引内容 共享站内搜索数据 搜索中 搜索异常 全站索引 全站内容加载失败 搜索索引暂时不可用，可以立即重试。 重新加载 正在搜索全站内容 正在载入全站索引 故事、角色、设定、词典和游戏资料正在汇入同一个结果列表。 发现彩蛋 结果分布 按内容筛选 点击分类只看对应结果 全部 高频关联 · 保留一位小数 全部索引内容 已显示 / · ↑↓ 选择，Enter 打开 这个分类没有匹配结果 换一个内容分类，或恢复查看全部结果。 查看全部结果 继续加载 没有找到“ ” 可以缩短句子、换用人物别名，或从下面的搜索示例重新开始。 查看探索入口 按内容探索 条索引 最近搜索 条结果 这里会显示本机搜索过的词，一键即可重新搜索。 试试这样搜 继续浏览 打开故事、角色或世界设定后，它们会出现在这里。 随机发现 换一组随机发现 高频词 · 保留一位小数 收起 展开全部 热门词为概览，仅展示 高频 且计数保留一位小数（如 1.2w / 1.5k）。完整 项 全量 词频、文档数与“词云与月”请前往 咪呀 · 深层档案 查看。",
+    "content": "角色 故事 技能 设定 棋子 词典 页面 游戏 测评 章节与叙事内容 人物与关系资料 世界观 设定、词典与档案 游戏、规则与棋子 其他 技能与页面索引 咪呀是谁？ 猫鼠迷踪怎么玩？ 世界观里有哪些区域？ 谁和小满关系最好？ 完全匹配 短语匹配 前缀匹配 标题匹配 整词匹配 内容匹配 模糊匹配 相关内容 刚刚 分钟前 小时前 搜索结果 内容浏览 搜索索引加载失败，可重新加载。 正在搜索共享索引…… 正在准备全站搜索…… 搜索全站内容 搜索人物、故事、设定、游戏…… 清除搜索内容 全站搜索 从故事、角色、世界观和游戏中，找到一个人、一段设定或一个可以继续探索的入口。 已载入 条内容 正在载入全站内容 条索引内容 共享站内搜索数据 导出全站内容 搜索中 搜索异常 全站索引 全站内容加载失败 搜索索引暂时不可用，可以立即重试。 重新加载 正在搜索全站内容 正在载入全站索引 故事、角色、设定、词典和游戏资料正在汇入同一个结果列表。 发现彩蛋 结果分布 按内容筛选 点击分类只看对应结果 全部 高频关联 · 保留一位小数 全部索引内容 已显示 / · ↑↓ 选择，Enter 打开 这个分类没有匹配结果 换一个内容分类，或恢复查看全部结果。 查看全部结果 继续加载 没有找到“ ” 可以缩短句子、换用人物别名，或从下面的搜索示例重新开始。 查看探索入口 按内容探索 条索引 最近搜索 条结果 这里会显示本机搜索过的词，一键即可重新搜索。 试试这样搜 继续浏览 打开故事、角色或世界设定后，它们会出现在这里。 随机发现 换一组随机发现 高频词 · 保留一位小数 收起 展开全部 热门词为概览，仅展示 高频 且计数保留一位小数（如 1.2w / 1.5k）。完整 项 全量 词频、文档数与“词云与月”请前往 咪呀 · 深层档案 查看。 导出全站索引内容 关闭 文件只在你确认之后才生成。面板打开期间不会做任何序列化。 语言 中文 中英合并 条 格式 即将导出 取消 生成中… 下载",
     "href": "#",
     "category": "组件文案",
     "segments": [
@@ -2540,6 +2540,7 @@ export const frequencyCorpusZh: CorpusDoc[] = [
       "正在载入全站内容",
       "条索引内容",
       "共享站内搜索数据",
+      "导出全站内容",
       "搜索中",
       "搜索异常",
       "全站索引",
@@ -2584,7 +2585,19 @@ export const frequencyCorpusZh: CorpusDoc[] = [
       "全量",
       "词频、文档数与“词云与月”请前往",
       "咪呀 · 深层档案",
-      "查看。"
+      "查看。",
+      "导出全站索引内容",
+      "关闭",
+      "文件只在你确认之后才生成。面板打开期间不会做任何序列化。",
+      "语言",
+      "中文",
+      "中英合并",
+      "条",
+      "格式",
+      "即将导出",
+      "取消",
+      "生成中…",
+      "下载"
     ]
   },
   {
@@ -6481,7 +6494,7 @@ export const frequencyCorpusEn: CorpusDoc[] = [
   {
     "id": "corpus_pages/CodexPage.tsx",
     "title": "pages/CodexPage.tsx",
-    "content": "Lore, dictionary & archives Games, rules & pieces Skills & page index Who is Miia? How do I play Cat-Mouse Mystery? Which regions exist in the world? Who is closest to Xiaoman? miia-math-notes skill-tic-tac-toe full-search-results full-search-results-list full-search-result- full-search-result full-search-result-icon category- full-search-result-copy full-search-result-heading full-search-result-snippet full-search-result-open Failed to load the search index. You can reload. full-search-input-wrap full-search-visually-hidden Search all content full-search-page full-search-ambient full-search-shell full-search-hero full-search-eyebrow Find a person, a piece of lore or a new entry point across stories, characters, world and games. full-search-index-stat Loading site content shared site search data full-search-workspace full-search-input-sentinel full-search-meta-line full-search-state Failed to load site content The search index is temporarily unavailable. You can retry now. full-search-spinner Searching site content Loading the site index Stories, characters, lore, dictionary and games are merging into one result list. full-search-results-wrap full-search-easter Easter egg found full-search-refine full-search-refine-heading Filter by content Click a category to narrow results full-search-filter-chips full-search-filter-chip full-search-related full-search-results-toolbar All indexed content full-search-state full-search-filter-empty No matches in this category Try another category, or view all results again. View all results full-search-load-more Shorten the sentence, use an alias, or restart from the search examples below. full-search-en-hint English mode searches the English mirror only — Chinese words are not indexed here. Try English keywords, or switch to Chinese mode. Explore entry points full-search-discovery full-search-section full-search-explore-section full-search-explore-title full-search-category-explore full-search-section-heading full-search-section-kicker Explore by content full-search-category-grid full-search-category-card full-search-category-card-icon full-search-discovery-columns full-search-section full-search-module full-search-recent-title full-search-recent-searches full-search-history-list full-search-history-item full-search-history-icon full-search-module-empty Words searched on this device will appear here — one click to search again. full-search-examples-title full-search-examples Try searching like this full-search-example-list full-search-continue-title full-search-continue-browsing full-search-history-icon domain- Open a story, character or world page and it will appear here. full-search-random-title full-search-random-discovery full-search-icon-button full-search-random-list full-search-random-item full-search-random-dot category- full-search-section full-search-popular-section full-search-popular-title full-search-popular-words full-search-expand-button full-search-popular-tags full-search-popular-hint word cloud by month full-search-popular-link",
+    "content": "Lore, dictionary & archives Games, rules & pieces Skills & page index Who is Miia? How do I play Cat-Mouse Mystery? Which regions exist in the world? Who is closest to Xiaoman? miia-math-notes skill-tic-tac-toe full-search-results full-search-results-list full-search-result- full-search-result full-search-result-icon category- full-search-result-copy full-search-result-heading full-search-result-snippet full-search-result-open Failed to load the search index. You can reload. full-search-input-wrap full-search-visually-hidden Search all content full-search-page full-search-ambient full-search-shell full-search-hero full-search-eyebrow Find a person, a piece of lore or a new entry point across stories, characters, world and games. full-search-index-stat Loading site content shared site search data full-search-export-trigger full-search-workspace full-search-input-sentinel full-search-meta-line full-search-state Failed to load site content The search index is temporarily unavailable. You can retry now. full-search-spinner Searching site content Loading the site index Stories, characters, lore, dictionary and games are merging into one result list. full-search-results-wrap full-search-easter Easter egg found full-search-refine full-search-refine-heading Filter by content Click a category to narrow results full-search-filter-chips full-search-filter-chip full-search-related full-search-results-toolbar All indexed content full-search-state full-search-filter-empty No matches in this category Try another category, or view all results again. View all results full-search-load-more Shorten the sentence, use an alias, or restart from the search examples below. full-search-en-hint English mode searches the English mirror only — Chinese words are not indexed here. Try English keywords, or switch to Chinese mode. Explore entry points full-search-discovery full-search-section full-search-explore-section full-search-explore-title full-search-category-explore full-search-section-heading full-search-section-kicker Explore by content full-search-category-grid full-search-category-card full-search-category-card-icon full-search-discovery-columns full-search-section full-search-module full-search-recent-title full-search-recent-searches full-search-history-list full-search-history-item full-search-history-icon full-search-module-empty Words searched on this device will appear here — one click to search again. full-search-examples-title full-search-examples Try searching like this full-search-example-list full-search-continue-title full-search-continue-browsing full-search-history-icon domain- Open a story, character or world page and it will appear here. full-search-random-title full-search-random-discovery full-search-icon-button full-search-random-list full-search-random-item full-search-random-dot category- full-search-section full-search-popular-section full-search-popular-title full-search-popular-words full-search-expand-button full-search-popular-tags full-search-popular-hint word cloud by month full-search-popular-link full-search-export-backdrop full-search-export-panel full-search-export-title full-search-export-kicker Export the full indexed corpus full-search-export-note The file is generated only after you confirm. Nothing is serialized while this panel is open. full-search-export-group full-search-export-choices full-search-export-summary Ready to export full-search-export-actions",
     "href": "#",
     "category": "component copy",
     "segments": [
@@ -6516,6 +6529,7 @@ export const frequencyCorpusEn: CorpusDoc[] = [
       "full-search-index-stat",
       "Loading site content",
       "shared site search data",
+      "full-search-export-trigger",
       "full-search-workspace",
       "full-search-input-sentinel",
       "full-search-meta-line",
@@ -6587,7 +6601,19 @@ export const frequencyCorpusEn: CorpusDoc[] = [
       "full-search-popular-tags",
       "full-search-popular-hint",
       "word cloud by month",
-      "full-search-popular-link"
+      "full-search-popular-link",
+      "full-search-export-backdrop",
+      "full-search-export-panel",
+      "full-search-export-title",
+      "full-search-export-kicker",
+      "Export the full indexed corpus",
+      "full-search-export-note",
+      "The file is generated only after you confirm. Nothing is serialized while this panel is open.",
+      "full-search-export-group",
+      "full-search-export-choices",
+      "full-search-export-summary",
+      "Ready to export",
+      "full-search-export-actions"
     ]
   },
   {

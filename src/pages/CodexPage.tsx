@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   Clock3,
+  Download,
   Gamepad2,
   Globe2,
   History,
@@ -41,6 +42,17 @@ import {
   type LastViewedEntry,
 } from '@/lib/lastViewed';
 import { loadSearchData } from '@/lib/searchDataLoader';
+import {
+  EXPORT_FORMATS,
+  downloadCorpus,
+  estimateExportBytes,
+  exportSources,
+  formatBytes,
+  measureCorpus,
+  serializeCorpus,
+  type ExportFormat,
+  type ExportLocale,
+} from '@/lib/corpusExport';
 import { useSearchSession } from '@/hooks/useSearchSession';
 import { useLocale } from '@/hooks/useLocale';
 import type { Locale } from '@/lib/i18n';
@@ -301,6 +313,13 @@ export default function CodexPage() {
   const [showAllPopular, setShowAllPopular] = useState(false);
   const [randomSeed, setRandomSeed] = useState(() => Date.now());
   const [isInputPinned, setIsInputPinned] = useState(false);
+  // 全站内容导出。面板打开期间只读取已经加载好的索引做计数与体积预估，
+  // 序列化 / Blob / 下载全部推迟到用户确认后的那一次点击。
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('json');
+  const [exportLocale, setExportLocale] = useState<ExportLocale>('zh');
+  const [exportPending, setExportPending] = useState(false);
+  const exportButtonRef = useRef<HTMLButtonElement | null>(null);
   const inputFocusRestoreRef = useRef<{ start: number; end: number } | null>(null);
   const trimmedQuery = query.trim();
 
@@ -471,6 +490,49 @@ export default function CodexPage() {
   const isSearching = Boolean(trimmedQuery && (!searchIndex || searchedQuery !== trimmedQuery));
   const hasQueryResults = Boolean(trimmedQuery && results.length > 0);
   const hasBrowseResults = Boolean(!trimmedQuery && activeFilter !== 'all' && browseResults.length > 0);
+
+  // ── 导出全站内容 ──
+  // 两个语言的索引本来就在同一个动态 chunk 里（loadSearchData 一次性 import），
+  // 所以切换语言不会触发第二次网络请求。
+  const exportChoices = useMemo(() => exportSources(
+    searchIndex?.fullSearchIndex,
+    searchIndex?.fullSearchIndexEn,
+  ), [searchIndex]);
+
+  const exportItems = useMemo(() => exportChoices
+    .filter((source) => (exportLocale === 'both' ? true : source.key === exportLocale))
+    .flatMap((source) => source.items), [exportChoices, exportLocale]);
+
+  // 度量只随语言变化跑一次（约 1.5M 字符的 UTF-8 计数），换格式只是常数运算。
+  const exportSize = useMemo(() => measureCorpus(exportItems), [exportItems]);
+
+  const exportSelection = useMemo(() => ({
+    count: exportSize.records,
+    bytes: estimateExportBytes(exportSize, exportFormat),
+    fileLocale: exportLocale === 'both' ? 'zh-en' : exportLocale,
+  }), [exportFormat, exportLocale, exportSize]);
+
+  const closeExportPanel = useCallback(() => {
+    setExportOpen(false);
+    exportButtonRef.current?.focus();
+  }, []);
+
+  const confirmExport = useCallback(() => {
+    if (exportSelection.count === 0) return;
+    setExportPending(true);
+    // 先让按钮画出 pending 态再进主线程：几 MB 的 stringify 会阻塞几十到
+    // 一百多毫秒，不让开就是「点了没反应」。
+    window.setTimeout(() => {
+      try {
+        const payload = serializeCorpus(exportItems, exportFormat);
+        downloadCorpus(payload, exportFormat, exportSelection.fileLocale);
+        closeExportPanel();
+      } finally {
+        setExportPending(false);
+      }
+    }, 0);
+  }, [closeExportPanel, exportFormat, exportItems, exportSelection]);
+
   const filterCounts = trimmedQuery
     ? resultGroupSummary
     : contentGroups.filter((group) => (groupCounts.get(group.key) ?? 0) > 0).map((group) => ({
@@ -628,6 +690,16 @@ export default function CodexPage() {
           <strong>{searchIndex ? corpusTotal : '—'}</strong>
           <span>{isEn ? 'indexed entries' : '条索引内容'}</span>
           <small>{isEn ? 'shared site search data' : '共享站内搜索数据'}</small>
+          <button
+            type="button"
+            ref={exportButtonRef}
+            onClick={() => setExportOpen(true)}
+            className="full-search-export-trigger"
+            disabled={exportChoices.length === 0}
+          >
+            <Download size={13} aria-hidden="true" />
+            {isEn ? 'Export corpus' : '导出全站内容'}
+          </button>
         </div>
       </header>
 
@@ -771,5 +843,105 @@ export default function CodexPage() {
         </div>}
       </section>
     </div>
+
+    {exportOpen && createPortal(
+      <div className="full-search-export-backdrop" role="presentation" onMouseDown={(event) => {
+        if (event.currentTarget === event.target && !exportPending) closeExportPanel();
+      }}>
+        <section
+          className="full-search-export-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="full-search-export-title"
+          onKeyDown={(event) => {
+            if (event.key === 'Escape' && !exportPending) { event.preventDefault(); closeExportPanel(); }
+          }}
+        >
+          <header>
+            <div>
+              <span className="full-search-export-kicker">EXPORT / CORPUS</span>
+              <h2 id="full-search-export-title">{isEn ? 'Export the full indexed corpus' : '导出全站索引内容'}</h2>
+            </div>
+            <button type="button" onClick={closeExportPanel} disabled={exportPending} aria-label={isEn ? 'Close' : '关闭'}>
+              <X size={16} />
+            </button>
+          </header>
+
+          <p className="full-search-export-note">
+            {isEn
+              ? 'The file is generated only after you confirm. Nothing is serialized while this panel is open.'
+              : '文件只在你确认之后才生成。面板打开期间不会做任何序列化。'}
+          </p>
+
+          <fieldset className="full-search-export-group" disabled={exportPending}>
+            <legend>{isEn ? 'Language' : '语言'}</legend>
+            <div className="full-search-export-choices">
+              {(['zh', 'en', 'both'] as ExportLocale[]).map((key) => {
+                const available = key === 'both' || exportChoices.some((source) => source.key === key);
+                if (!available) return null;
+                const count = key === 'both'
+                  ? exportChoices.reduce((sum, source) => sum + source.items.length, 0)
+                  : exportChoices.find((source) => source.key === key)?.items.length ?? 0;
+                return (
+                  <button
+                    type="button"
+                    key={key}
+                    className={exportLocale === key ? 'is-active' : ''}
+                    onClick={() => setExportLocale(key)}
+                    aria-pressed={exportLocale === key}
+                  >
+                    <strong>{key === 'zh' ? '中文' : key === 'en' ? 'English' : (isEn ? 'Both' : '中英合并')}</strong>
+                    <small>{count.toLocaleString('zh-CN')} {isEn ? 'entries' : '条'}</small>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <fieldset className="full-search-export-group" disabled={exportPending}>
+            <legend>{isEn ? 'Format' : '格式'}</legend>
+            <div className="full-search-export-choices">
+              {EXPORT_FORMATS.map((option) => (
+                <button
+                  type="button"
+                  key={option.id}
+                  className={exportFormat === option.id ? 'is-active' : ''}
+                  onClick={() => setExportFormat(option.id)}
+                  aria-pressed={exportFormat === option.id}
+                >
+                  <strong>{option.label}</strong>
+                  <small>{option.hint}</small>
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <footer>
+            <p className="full-search-export-summary">
+              <span>{isEn ? 'Ready to export' : '即将导出'}</span>
+              <strong>
+                {exportSelection.count.toLocaleString('zh-CN')} {isEn ? 'entries' : '条'} · {formatBytes(exportSelection.bytes)}
+              </strong>
+            </p>
+            <div className="full-search-export-actions">
+              <button type="button" onClick={closeExportPanel} disabled={exportPending}>
+                {isEn ? 'Cancel' : '取消'}
+              </button>
+              <button
+                type="button"
+                className="is-primary"
+                onClick={confirmExport}
+                disabled={exportPending || exportSelection.count === 0}
+              >
+                {exportPending
+                  ? (isEn ? 'Generating…' : '生成中…')
+                  : (isEn ? 'Download' : '下载')}
+              </button>
+            </div>
+          </footer>
+        </section>
+      </div>,
+      document.body,
+    )}
   </div>;
 }
