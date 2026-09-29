@@ -197,6 +197,8 @@ export function createInitialState(): GameState {
     currentPlayer: 'white',
     phase: 'playing',
     moveCount: 0,
+    maxRoundsEnabled: true,
+    maxRounds: 325,
     poison: {},
     fears: {},
     history: [],
@@ -230,6 +232,8 @@ export function cloneState(state: GameState): GameState {
     currentPlayer: state.currentPlayer,
     phase: state.phase,
     moveCount: state.moveCount,
+    maxRoundsEnabled: state.maxRoundsEnabled,
+    maxRounds: state.maxRounds,
     poison: { ...state.poison },
     fears: { ...state.fears },
     history: state.history.map(h => ({

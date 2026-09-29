@@ -116,6 +116,10 @@ export interface GameState {
   currentPlayer: Player;
   phase: GamePhase;
   moveCount: number;
+  /** 回合上限开关（默认开启）：走满 maxRounds 回合（白+黑=1回合）后自动和棋 */
+  maxRoundsEnabled: boolean;
+  /** 回合上限（默认 325） */
+  maxRounds: number;
   poison: PoisonMap;          // 棋子中毒次数
   fears: FearMap;             // 老鼠恐惧
   history: HistoryEntry[];

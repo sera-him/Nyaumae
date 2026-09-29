@@ -245,30 +245,8 @@ export default function ExtraStories() {
 
         {/* Number Fragments Row - 降临 */}
         <div className="mb-4">
-          <h3 className="text-lg font-bold text-nc-cyan mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 shrink-0" />
-            {semanticHighlight("碎片：降临")}
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 mb-8">
-            {numberFragments.slice(0, 8).map((frag, i) => (
-              <div key={i} className={`miia-story-card bg-nc-bg-secondary border rounded-lg p-3 sm:p-4 text-center hover:scale-[1.02] transition-transform ${
-                [
-                  'border-pink-400/20',
-                  'border-cyan-400/20',
-                  'border-violet-400/20',
-                  'border-amber-400/20',
-                  'border-rose-400/20',
-                  'border-sky-400/20',
-                  'border-fuchsia-400/20',
-                  'border-emerald-400/20',
-                ][i % 8]
-              }`}>
-                <p className="text-sm text-nc-text leading-relaxed">{rainbowLine(frag)}</p>
-              </div>
-            ))}
-          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-            {numberFragments.slice(8).map((frag, i) => (
+            {numberFragments.map((frag, i) => (
               <div key={i} className={`miia-story-card bg-nc-bg-secondary border rounded-lg p-3 sm:p-4 text-center hover:scale-[1.02] transition-transform ${
                 ['border-nc-gold/20', 'border-nc-cyan/20'][i % 2]
               }`}>
@@ -336,32 +314,39 @@ export default function ExtraStories() {
 
         {/* Extra Poems */}
         <div className="grid md:grid-cols-2 gap-5 mb-10">
-          {extraPoems.filter(p => p.content).map((poem, i) => (
-            <div
-              key={i}
-              className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6 hover:border-nc-violet/20 transition-all"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Feather className="w-4 h-4 text-nc-rose shrink-0" />
-                <h4 className="text-lg font-bold text-nc-text">{poem.title}</h4>
-                {poem.period && <span className="text-xs text-nc-text-muted font-mono ml-auto">{poem.period}</span>}
+          {extraPoems.filter(p => p.content).map((poem, i) => {
+            // Several fragments are a single line whose heading is the line itself;
+            // echoing the title above the body would print it twice.
+            const titleEchoesBody = Boolean(poem.title) && poem.content.trim().startsWith(poem.title.trim());
+            return (
+              <div
+                key={i}
+                className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6 hover:border-nc-violet/20 transition-all"
+              >
+                {(!titleEchoesBody || poem.period) && (
+                  <div className="flex items-center gap-2 mb-4">
+                    <Feather className="w-4 h-4 text-nc-rose shrink-0" />
+                    {!titleEchoesBody && <h4 className="text-lg font-bold text-nc-text">{poem.title}</h4>}
+                    {poem.period && <span className="text-xs text-nc-text-muted font-mono ml-auto">{poem.period}</span>}
+                  </div>
+                )}
+                {poem.image && (
+                  <SmartImage
+                    localSrc={poem.image}
+                    alt={poem.title}
+                    aspectRatio="16/9"
+                    containerClassName="w-full rounded-lg border border-nc-violet/10 mb-4"
+                    className="object-cover"
+                  />
+                )}
+                <pre className="font-serif text-nc-text leading-[2.2] whitespace-pre-wrap text-base sm:text-lg">
+                  {poem.period === '13, 21, 41'
+                    ? colorizePeriod2(poem.content)
+                    : semanticHighlightProse(poem.content)}
+                </pre>
               </div>
-              {poem.image && (
-                <SmartImage
-                  localSrc={poem.image}
-                  alt={poem.title}
-                  aspectRatio="16/9"
-                  containerClassName="w-full rounded-lg border border-nc-violet/10 mb-4"
-                  className="object-cover"
-                />
-              )}
-              <pre className="font-serif text-nc-text leading-[2.2] whitespace-pre-wrap text-base sm:text-lg">
-                {poem.period === '13, 21, 41'
-                  ? colorizePeriod2(poem.content)
-                  : semanticHighlightProse(poem.content)}
-              </pre>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* id().val.exp.redir()?dif:dis — standalone code fragment */}
@@ -431,7 +416,7 @@ export default function ExtraStories() {
           </div>
         </div>
 
-        {/* Short poems row - 3 columns after removing duplicate mimiAndMiiaPoem */}
+        {/* Short poems row - 3 columns */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-10">
           <div className="miia-story-card bg-nc-bg-secondary border border-nc-violet/10 rounded-xl p-6">
             <Flower2 className="w-4 h-4 text-nc-rose mb-3" />
@@ -506,7 +491,7 @@ export default function ExtraStories() {
               <article key={story.title} className="miia-story-card miia-story-fragment-card rounded-2xl border border-nc-rose/20 p-6 sm:p-7">
                 <div className="mb-5 flex items-start justify-between gap-4 border-b border-nc-rose/15 pb-4">
                   <div>
-                    <p className="mb-2 font-mono text-[10px] tracking-[0.18em] text-nc-rose/75 uppercase">STORY FRAGMENT / 0{i + 1}</p>
+                    <p className="mb-2 font-mono text-[10px] tracking-[0.18em] text-nc-rose/75 uppercase">STORY FRAGMENT / {String(i + 1).padStart(2, '0')}</p>
                     <h4 className="text-xl font-bold text-nc-text sm:text-2xl">{semanticHighlightProse(story.title)}</h4>
                   </div>
                   <span className="shrink-0 rounded-full border border-nc-rose/20 px-2.5 py-1 text-[10px] text-nc-text-muted">

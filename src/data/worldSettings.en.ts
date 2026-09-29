@@ -276,3 +276,47 @@ export const specialChildrenNotesEn = [
     content: 'I propose replacing the third-grade curriculum of generalized linear models, artificial intelligence, operating systems, and compiler principles with: teaching them to pound a soft cushion instead of banging their heads; pointing at a picture when they want water, without needing to read the character "water"; allowing stereotypy, while secretly slipping 0.1% of new variation into it.',
   },
 ];
+
+// English mirror of miiaSchoolRules. Same order, same length.
+export const miiaSchoolRulesEn = [
+  {
+    title: 'Teachers',
+    content: 'The dogs chase the teachers out too, even when a teacher is asleep. The staff includes people who went to school in the 80s, in the 90s, and in 2017. 1990s cleanup takes 20 minutes and is very slow; they have gotten smarter now, and it takes under 3 minutes.',
+  },
+  {
+    title: 'Page table',
+    content: 'Every teacher has a little notebook called a page table, because many of the pages are tables again, so it is called a page table. Teachers use their own page table to record how things are arranged, so next time they put them back exactly as they were. The children have little notebooks too.',
+  },
+  {
+    title: 'The dogs',
+    content: 'It is called a watchdog: watch = wristwatch, dog = dog. Every dog has a watch. It does not bite, it does not listen to the teacher, it only listens to the watch. Each dog looks after exactly one desk — whether a child or a teacher sits there, it applies. Teachers may feed the dogs, children may not; once a dog has eaten, it resets its watch. They are all Chinese rural dogs and they all look exactly the same, which is a bit boring — it would be more fun if they differed: border collies, golden retrievers, corgis, Shiba Inus, huskies, and so on.',
+  },
+  {
+    title: 'Class period',
+    content: 'A class period is 45 minutes, which is very long — ordinary schools use 40. A dog watch is about 45 minutes too, the same length as a class, and when time is up the dog chases everyone out. If a child is chased out, the teacher reassigns seats and toys; if a teacher is chased out, someone else takes over. Cleanup now takes 3 minutes, leaving about 42 minutes for class or play; back when cleanup took 20 minutes, the dogs had to wait a long time before chasing anyone out, otherwise all the time would go to cleanup, and the children could neither study nor play.',
+  },
+  {
+    title: 'The ink accident',
+    content: 'If you spill ink, the exam papers and exercise books get dirty and the dogs chase people out too; after that the teacher cleans up. This is done so nobody steps in the ink, nobody dirties anyone else, and the teacher gets to clean up properly. If you spill it, stop your hands at once, do not wipe with your hands, step back, and tell the teacher quietly. Do not run and do not push.',
+  },
+  {
+    title: 'Between classes',
+    content: 'School is free here, so you may dismiss yourself. You must pack away your bag and your things; anything left lying around, the school will throw away. Everything must be packed and taken home, which makes the bag very heavy. You may bring books according to the timetable, clear your bag out every day, sort things into separate bags, and use light stationery.',
+  },
+  {
+    title: 'The safe',
+    content: 'The school has a safe, and inside it are maps and many other things. You may copy toys over, and nobody loses the original; you may broadcast to the whole school, and do all sorts of things. But to get anything you have to go into the trap. The trap is like a game of animal chess: everyone knows it is a trap, and still people walk into it.',
+  },
+  {
+    title: 'The trap',
+    content: 'Go into the trap and you lose your memory and automatically become a teacher; only a teacher can open the safe. It is not you — it is a proxy teacher. The teacher is very clever, and if you want to invade someone else’s privacy, the teacher will not help. Once the teacher has done everything everyone wanted done, you may turn back into a child. Once you turn back you get your memory again, but from then on you can never touch the safe again, until the next time you go into the trap.',
+  },
+  {
+    title: 'Grades',
+    content: 'Grades 1 to 4 have about the same number of children; grade 5 has very very few; grade 6 basically has none — maybe because a sixth-grader can become a teacher? Grade 1 learns math first, grade 2 learns about page tables, homework, other children, and blueprints, and grade 3 learns about the school, how to turn a blueprint into a child’s body, and smart children.',
+  },
+  {
+    title: 'What children may do',
+    content: 'On your own you can do homework and play with toys; you can find a teacher to report that you want to sleep, set an alarm, zone out until the swing frees up, tidy your bag, go home, look in the mirror, drink water, or use the toilet. With other children you can chat, pass notes, read together, build with blocks together, queue for the swing, lock the door so nobody else can get in, agree to leave together — you can also each wait for the other, and end up neither of you moving at all.',
+  },
+];

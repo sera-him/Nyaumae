@@ -127,25 +127,6 @@ FSIII (Full Scale Intrinsic Intelligence Index) can also be called FS3, because 
 FSIII = 100 + (FSIQ - 85)(FSIQ - 115) / (15√2)`,
   },
   {
-    title: 'Corruption 0f Emotion',
-    content: `Born from loneliness, twisted love.
-Without sunlight, doomed never to bear fruit.
-
-Lost Number, Lost Future
-
-Lost in the maze of mathematics, wrong answers, the door of the future slightly ajar.
-Dreams as unreachable as stars, the longing in my heart dissolving into bubbles.
-A miscalculation, the chessboard of fate scattered, one misstep, a world apart.
-The ocean of knowledge, where I once roamed freely, now I can only pace the shore.
-Error, like a shadow, wings snapped by reality.
-The future, shrouded in fog.
-
-Wait! Don't go! Don't leave me!
-Numbers. Future. Hope. Light.
-The crystal shatters. Shards fly.
-Good night.`,
-  },
-  {
     title: 'The White Room',
     content: `The white room, empty and bare
 The little painter tied to the bed
@@ -238,6 +219,23 @@ After I died, the cat and the bear ran all the way to Northern Europe and had me
     period: 'Collected · School days',
     content: `I'm in third grade now. School is starting; the summer days of playing with friends are gone forever. Walking the familiar road to school, lost in thought, I arrived. Class began. Problem one (an ordinary word problem, mixed addition-subtraction-multiplication-division); problem two (an uphill-downhill or bus pick-up kind of problem); and then: problem three (a mysterious dynamic-programming problem with an inscrutable transition equation); problem four (assembly-language program fill-in-the-blank and comprehension). Then yesterday's test papers were handed back — [Third Grade, Class 3]. My deskmate Yuki got 95; I got 99+4. The 1 point off up front was geometry: a right triangle with hypotenuse 2, asking how long the side opposite the 60° angle is — there was no diagram, and I accidentally drew a 30° angle, so I got it wrong. The 6 bonus points I lost were on a find-the-pattern problem where I missed one case. My deskmate and I are two third-graders studying far from home — I'm 900 kilometers from home, she's 2,700. A big brother had an invitation poster to his secret base, [Ninth Grade, Class 1], with a mark drawn on it (meaning: he has a specific mental disorder and is regarded as lacking criminal responsibility). It was the first time I learned the term "criminal responsibility"... "Only I was left out." Also... so middle-schoolers like secret bases too? I walked over, climbed the stairs, knocked. The door opened; the big brother was painting inside, and the walls were covered with all kinds of patterns that looked a little strange. It got dark and I had to go. The big brother said you can come again. The streetlights came on as I went downstairs. The next day I passed that building on the way to school; inside the windows it was dark.`,
   },
+  {
+    title: 'An Afternoon in the Rabbit Burrow',
+    period: 'Collected · Micro-story',
+    content: `In the afternoon, my third-grade cat and a seventh-grade bunny went to sleep together in the rabbit burrow.`,
+  },
+  {
+    title: 'Muchen Yibai',
+    period: 'Collected · Joke',
+    content: `Better to ride the six-point gourd, Little Sprout Lamb scores a hundred:
+Better to say Little Sprout Lamb scored 100 and is excellent, even though the gourd I rode only scored 6.`,
+  },
+  {
+    title: 'Washing Hands, Washing Malisu, Laundering Money',
+    period: 'Collected · Absurd micro-story',
+    content: `My aunt's kid is already in fifth grade, but while he was washing his hands, washing Malisu, and laundering money, he got scalded and screamed AAAH by the 100°C hot water that came out of the hand-washing faucet.
+He likes Little Piglet spraying spray spray.`,
+  },
 ];
 
 export const absurdNarrativeEn = {
@@ -322,18 +320,6 @@ saw the distant future
 with only two paths`,
   },
   {
-    title: 'Rainy Day',
-    content: `On a rainy day, a little cat held an umbrella over me and asked me to help it find its keys`,
-  },
-  {
-    title: 'Bad Rabbit',
-    content: `I'm Miia. The bad rabbits who made other rabbits work overtime without giving them carrots have all been turned into cat food! Because these bad rabbits killed many good rabbits, and they polluted the environment so all the mice were poisoned and couldn't be eaten. So we cats could only eat these bad rabbits, and the good rabbits were very happy.`,
-  },
-  {
-    title: 'Flower',
-    content: `I want, when I stop, to become a flower, very gently.`,
-  },
-  {
     title: 'Mimi and Miia',
     content: `A cat came, bit by bit,
 I climbed three hours to the top of its head,
@@ -344,10 +330,6 @@ Honestly, I can't understand you.
 But that's all right.
 I'm here,
 just because I want to be here.`,
-  },
-  {
-    title: 'Diminutive',
-    content: `Second-grader Miia discovered that she and the people she loves all "go bad" as they grow up. So Miia decided to get into grad school and develop AGI by the time she reaches grade 4 — using technology so that no one will ever be polluted by society again.`,
   },
   {
     title: '【Period 2】',
@@ -395,14 +377,6 @@ The two must not be conflated`,
 Rhetorical devices (empathy/metaphor, etc.): form publicly processed, recognizable at a glance; purpose to enhance expressive power; relation author and reader voluntarily enter an aesthetic game; nature honest art
 Social subtext: form disguised as literal meaning needing deciphering; purpose to hide true intent shifting communication cost; relation the speaker unilaterally creates information asymmetry; nature hypocritical game
 Conclusion: rhetoric makes meaning more beautiful and more powerful — fine culture; subtext hides meaning for the other party to guess — dregs. The two must not be conflated.`,
-  },
-  {
-    title: 'DEPTHOFLCA',
-    content: `1 < 3 < 2`,
-  },
-  {
-    title: "Wis'tor++42",
-    content: ``,
   },
   {
     title: 'Falling Like a Winter Day',

@@ -43,6 +43,7 @@ import {
   teacherVotingRule,
   workplaceBlindnessRule,
   specialChildrenNotes,
+  miiaSchoolRules,
 } from './worldSettings';
 import {
   miaWorldBackground,
@@ -54,7 +55,6 @@ import {
   dreamPoem,
   badRabbitVersions,
   huaPoem,
-  mimiAndMiiaPoem,
   diminutiveText,
   rainyDay,
   p2rDefinition,
@@ -83,14 +83,17 @@ import {
   xinyuanLogEn, autismFeaturesEn, moralPrinciplesNoteEn, lawValuesNoteEn,
   moralPrinciplesEn, nyaumaeismPrinciplesEn, fourDimensionTestEn,
   catTrueNameTableEn, citizenLevelSystemEn, teacherVotingRuleEn, workplaceBlindnessRuleEn, specialChildrenNotesEn,
+  miiaSchoolRulesEn,
 } from './worldSettings.en';
 import {
   miaWorldBackgroundEn, paradigmTextEn, taskLens2025En, rtoTextEn, yearDayFragmentEn,
   numberFragmentsEn, foreverThreeWorldEn, f3wCodeLineEn, dreamPoemEn, badRabbitVersionsEn,
-  huaPoemEn, mimiAndMiiaPoemEn, diminutiveTextEn, rainyDayEn, p2rDefinitionEn,
+  huaPoemEn, diminutiveTextEn, rainyDayEn, p2rDefinitionEn,
   chessPieceTiersEn, chessDiamondWarningEn, mathFormulasEn, caregiverStressEn,
   fuShuYuStoryEn, sheepsFullEn,
 } from './fragments.en';
+import { nyaumae8SearchText } from './nyaumae8';
+import { nyaumae8SearchTextEn } from './nyaumae8.en';
 import {
   miiaTextsEn, miiaWishEn, miiaAgiLandEn, miiaAgiPoemEn, lilaAnalysisEn, mappingBlockEn,
 } from './miiaTexts.en';
@@ -286,6 +289,7 @@ const settingSources: Array<[string, string, unknown]> = [
   ['teacher-voting', '教师投票', teacherVotingRule],
   ['workplace-blindness', '职场特征盲化', workplaceBlindnessRule],
   ['special-children', '特殊儿童与三年级课程', specialChildrenNotes],
+  ['miia-school', '咪呀的学校', miiaSchoolRules],
 ];
 for (const [id, title, content] of settingSources) add(`setting_${id}`, title, content, '设定', '#world-settings');
 
@@ -299,10 +303,10 @@ const fragmentSources: Array<[string, string, unknown, string]> = [
   ['dream-poem', '梦境诗', dreamPoem, '#extra-stories'],
   ['bad-rabbit', '坏兔子版本', badRabbitVersions, '#extra-stories'],
   ['hua-poem', '花诗', huaPoem, '#extra-stories'],
-  ['mimi-miia-poem', '米迷与米娅', mimiAndMiiaPoem, '#extra-stories'],
   ['diminutive', 'Diminutive', diminutiveText, '#miia-math-notes'],
   ['rainy-day', '下雨天', rainyDay, '#extra-stories'],
   ['p2r', 'p₂r 定义', p2rDefinition, '#miia-math-notes'],
+  ['nyaumae8', 'Nyaumae-8 编码表', nyaumae8SearchText, '#miia-math-notes'],
   ['math-formulas', '数学公式', mathFormulas, '#miia-math-notes'],
   ['caregiver-stress', '照护者压力', caregiverStress, '#world-settings'],
   ['fu-shu-yu', '复数域公主梦', fuShuYuStory, '#extra-stories'],
@@ -472,6 +476,7 @@ const settingSourcesEn: Array<[string, string, unknown]> = [
   ['teacher-voting', 'Teacher Voting', teacherVotingRuleEn],
   ['workplace-blindness', 'Workplace Feature Blindness', workplaceBlindnessRuleEn],
   ['special-children', 'Special Children and the Third-Grade Curriculum', specialChildrenNotesEn],
+  ['miia-school', "Miia's school", miiaSchoolRulesEn],
 ];
 for (const [id, title, content] of settingSourcesEn) addEn(`setting_${id}`, title, content, '设定', '#world-settings');
 addEn('setting_four-dimension', 'Four-Dimension Test', fourDimensionTestEn, '设定', '#world-settings');
@@ -486,8 +491,8 @@ const fragmentSourcesEn: Array<[string, string, unknown, string]> = [
   ['dream-poem', 'Dream poem', dreamPoemEn, '#extra-stories'],
   ['bad-rabbit', 'Bad rabbit versions', badRabbitVersionsEn, '#extra-stories'],
   ['hua-poem', 'Flower poem', huaPoemEn, '#extra-stories'],
-  ['mimi-miia-poem', 'Mimi and Miia', mimiAndMiiaPoemEn, '#extra-stories'],
   ['diminutive', 'Diminutive', diminutiveTextEn, '#miia-math-notes'],
+  ['nyaumae8', 'Nyaumae-8 Encoding Table', nyaumae8SearchTextEn, '#miia-math-notes'],
   ['rainy-day', 'Rainy day', rainyDayEn, '#extra-stories'],
   ['p2r', 'p₂r definition', p2rDefinitionEn, '#miia-math-notes'],
   ['math-formulas', 'Math formulas', mathFormulasEn, '#miia-math-notes'],

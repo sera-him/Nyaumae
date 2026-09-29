@@ -69,6 +69,9 @@ interface ChessStoreState {
   // 棋钟
   tick: () => void;
   setClockConfig: (id: number) => void;
+  // ── 回合上限 ──
+  setMaxRoundsEnabled: (enabled: boolean) => void;
+  setMaxRounds: (rounds: number) => void;
 }
 
 /**
@@ -144,7 +147,8 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
   clockRunning: false,
 
   startGame: () => {
-    const preset = getPreset(get().gameState.clockConfigId ?? 15); // default 正计时
+    const prev = get().gameState;
+    const preset = getPreset(prev.clockConfigId ?? 15); // default 正计时
     if (!preset) return;
     const initial = createInitialState();
     const clockMs = preset.isCountUp
@@ -170,6 +174,8 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
     set({
       gameState: {
         ...initial,
+        maxRoundsEnabled: prev.maxRoundsEnabled,
+        maxRounds: prev.maxRounds,
         clock: clockMs,
         clockConfigId: preset.id,
         clockAccelStep: { white: 1, black: 1 },
@@ -217,6 +223,21 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
   setClockConfig: (id: number) => {
     set(state => ({
       gameState: { ...state.gameState, clockConfigId: id },
+    }));
+  },
+
+  setMaxRoundsEnabled: (enabled: boolean) => {
+    set(state => ({
+      gameState: { ...state.gameState, maxRoundsEnabled: enabled },
+    }));
+  },
+
+  setMaxRounds: (rounds: number) => {
+    const v = Math.floor(rounds);
+    if (!Number.isFinite(v)) return;
+    const clamped = Math.min(2000, Math.max(10, v));
+    set(state => ({
+      gameState: { ...state.gameState, maxRounds: clamped },
     }));
   },
 

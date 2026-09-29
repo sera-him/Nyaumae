@@ -12,6 +12,12 @@ import {
   miiaMathHighlightsEn,
   miiaMathRedMarksEn,
 } from '@/data/miiaMathNotes.en';
+import { nyaumae8Classes, nyaumae8Capacity, nyaumae8Emoji, nyaumae8EmojiTotals } from '@/data/nyaumae8';
+import {
+  nyaumae8ClassesEn, nyaumae8CapacityEn, nyaumae8EmojiEn, nyaumae8EmojiTotalsEn,
+  nyaumae8LeadZh, nyaumae8LeadEn, nyaumae8EmojiLeadZh, nyaumae8EmojiLeadEn,
+  nyaumae8TableHeadZh, nyaumae8TableHeadEn,
+} from '@/data/nyaumae8.en';
 
 const paragraphsZh = [
   `我2年级啦，我在想，1是奇数，3是奇数，5是奇数，能不能有一个东西自己判断一个数字是不是奇数？那么就叫做"数是奇数"。`,
@@ -151,6 +157,203 @@ function NoteParagraph({
   );
 }
 
+/** Nyaumae-8 — P.2 of the notebook. Mirrors the P.1 paper/grid styling. */
+function Nyaumae8Page({ en }: { en: boolean }) {
+  const classes = en ? nyaumae8ClassesEn : nyaumae8Classes;
+  const capacity = en ? nyaumae8CapacityEn : nyaumae8Capacity;
+  const clusters = en ? nyaumae8EmojiEn : nyaumae8Emoji;
+  const totals = en ? nyaumae8EmojiTotalsEn : nyaumae8EmojiTotals;
+  const lead = en ? nyaumae8LeadEn : nyaumae8LeadZh;
+  const emojiLead = en ? nyaumae8EmojiLeadEn : nyaumae8EmojiLeadZh;
+  const head = en ? nyaumae8TableHeadEn : nyaumae8TableHeadZh;
+  const hand = '"ZCOOL KuaiLe", "Ma Shan Zheng", "KaiTi", "STKaiti", cursive';
+  const mono = '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace';
+  const ink = '#3d3b38';
+
+  return (
+    <div
+      className="relative rounded-lg shadow-2xl overflow-hidden"
+      style={{
+        backgroundColor: '#faf6ed',
+        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 0 60px rgba(139,119,95,0.08)',
+      }}
+    >
+      <div
+        className="absolute inset-0 pointer-events-none opacity-40"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          mixBlendMode: 'multiply',
+        }}
+      />
+      <div
+        className="relative px-6 sm:px-10 py-10 miia-grid-paper"
+        style={{
+          backgroundImage: `
+            linear-gradient(90deg, transparent 39px, #e8a5a5 39px, #e8a5a5 40px, transparent 40px),
+            repeating-linear-gradient(
+              to bottom,
+              transparent,
+              transparent 35px,
+              #c4d7e8 35px,
+              #c4d7e8 36px
+            )
+          `,
+          backgroundSize: '100% 100%, 100% 36px',
+          backgroundPosition: '0 0, 0 10px',
+          paddingLeft: '56px',
+          paddingRight: '24px',
+          paddingTop: '14px',
+          paddingBottom: '36px',
+        }}
+      >
+        <div
+          className="absolute top-3 right-5 text-xs"
+          style={{ fontFamily: '"ZCOOL KuaiLe", cursive', color: '#c4b8a8' }}
+        >
+          P.2
+        </div>
+        <div
+          className="absolute top-3 left-14 text-xs"
+          style={{ fontFamily: '"ZCOOL KuaiLe", cursive', color: '#c4b8a8' }}
+        >
+          {en ? 'byte table' : '字节表'}
+        </div>
+
+        <h3
+          className="m-0 mb-3"
+          style={{ fontFamily: hand, fontSize: '30px', lineHeight: '36px', color: ink }}
+        >
+          Nyaumae-8
+        </h3>
+        <p
+          className="m-0 mb-6"
+          style={{ fontFamily: hand, fontSize: '20px', lineHeight: '34px', color: ink, textIndent: '2em' }}
+        >
+          {lead}
+        </p>
+
+        {/* Byte-class patterns */}
+        <div className="space-y-2 mb-6">
+          {classes.map((cls) => (
+            <div key={cls.bytes} className="flex items-baseline gap-3 flex-wrap">
+              <span
+                className="shrink-0"
+                style={{ fontFamily: hand, fontSize: '20px', color: ink }}
+              >
+                {cls.bytes} {en ? 'bytes' : '字节'}：
+              </span>
+              <span className="font-mono text-[15px] sm:text-base" style={{ color: ink, letterSpacing: '0.06em' }}>
+                {cls.pattern.join(' ')}
+              </span>
+            </div>
+          ))}
+        </div>
+        {classes.filter((c) => c.leadExcludes.length > 0).map((cls) => (
+          <div key={`ex-${cls.bytes}`} className="mb-1 pl-1">
+            {cls.leadExcludes.map((ex) => (
+              <p
+                key={ex}
+                className="m-0 font-mono text-[13px] sm:text-sm"
+                style={{ color: '#a16207', letterSpacing: '0.04em' }}
+              >
+                {en ? 'but ' : '但 '}
+                {ex}
+              </p>
+            ))}
+          </div>
+        ))}
+
+        {/* Capacity table */}
+        <table className="w-full my-6 text-sm" style={{ fontFamily: hand, color: ink, borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              {head.map((h) => (
+                <th
+                  key={h}
+                  className="text-left font-normal pb-2 pr-4"
+                  style={{ borderBottom: '1.5px solid #c9b8a4' }}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {capacity.map((row) => (
+              <tr key={row.bytes}>
+                <td className="py-1.5 pr-4">{row.bytes} {en ? 'bytes' : '字节'}</td>
+                <td className="py-1.5 pr-4 font-mono" style={{ fontFamily: mono }}>
+                  {row.utf8.toLocaleString('en-US')}
+                </td>
+                <td className="py-1.5 font-mono" style={{ fontFamily: mono, color: '#0e7490' }}>
+                  {row.nyaumae8.toLocaleString('en-US')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div style={{ height: '48px' }} />
+
+        {/* Emoji: the worked example for the 4-byte class */}
+        <h3 className="m-0 mb-3" style={{ fontFamily: hand, fontSize: '24px', lineHeight: '36px', color: ink }}>
+          🧑‍🦯🧏🤐🧑‍🦼🧠💭🧩
+        </h3>
+        <p
+          className="m-0 mb-4"
+          style={{ fontFamily: hand, fontSize: '20px', lineHeight: '34px', color: ink, textIndent: '2em' }}
+        >
+          {emojiLead}
+        </p>
+
+        <div className="space-y-2 mb-4">
+          {clusters.map((c) => (
+            <div
+              key={c.cluster}
+              className="flex items-baseline gap-3 flex-wrap text-[22px] leading-[30px]"
+            >
+              <span className="w-10 shrink-0 text-center" style={{ fontFamily: hand, color: ink }}>
+                {c.cluster}
+              </span>
+              <span className="font-mono text-[13px] sm:text-sm flex-1 min-w-[180px]" style={{ color: ink }}>
+                {c.codePoints.map((cp) => `${cp.hex}(${cp.bytes})`).join(' + ')}
+              </span>
+              <span className="font-mono text-[13px] sm:text-sm" style={{ color: '#0e7490' }}>
+                = {c.bytes}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <p
+          className="m-0 mb-4"
+          style={{ fontFamily: hand, fontSize: '20px', lineHeight: '34px', color: ink }}
+        >
+          {en ? 'In total' : '一共'}
+          <span className="font-mono" style={{ fontFamily: mono }}>
+            {totals.clusters} {en ? 'clusters' : '簇'} / {totals.codePoints} {en ? 'code points' : '码点'} / {totals.bytes} {en ? 'bytes' : '字节'}
+          </span>
+        </p>
+
+        <div style={{ height: '48px' }} />
+        <p
+          className="m-0 pr-8"
+          style={{
+            fontFamily: '"Ma Shan Zheng", "ZCOOL KuaiLe", cursive',
+            fontSize: '26px',
+            lineHeight: '36px',
+            color: '#5d4e6d',
+            transform: 'rotate(-2deg)',
+            textAlign: 'right',
+          }}
+        >
+          {en ? '—— Miia' : '——咪呀'}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function MiiaMathNotes() {
   const _en = getLocale() === 'en';
   const paragraphs = _en ? miiaMathParagraphsEn : paragraphsZh;
@@ -277,6 +480,10 @@ export default function MiiaMathNotes() {
               (ฅ&apos;ω&apos;ฅ)
             </motion.div>
           </div>
+        </div>
+
+        <div className="mt-10">
+          <Nyaumae8Page en={_en} />
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-nc-text-muted">

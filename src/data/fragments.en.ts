@@ -27,15 +27,7 @@ export const yearDayFragmentEn = `Year   Day
 43₄₀`;
 
 export const numberFragmentsEn = [
-  "The date of arrival is looking into the mirror",
-  "Animals turn once in 12 hours — see you at 10",
-  "She and I fall into the same grid",
-  "First year entering the ocean of knowledge",
-  "Swimming to the intersection of two multiplications — her integers, my matrices",
-  "Seven candles on the cake",
-  "The harbor earns six coins a year",
   "DEPTHOFLCA 1<3<2",
-  "Wis'tor++42",
 ];
 
 export const foreverThreeWorldEn = [
@@ -89,11 +81,6 @@ Good bunnies clap their paws: "Yay! The big bad guys are gone!"`,
 };
 
 export const huaPoemEn = `I want, when I stop, to become a flower, very gently.`;
-
-export const mimiAndMiiaPoemEn = `A cat came, bit by bit,
-I climbed three hours to the top of its head,
-I took selfies buried in the fluff of its ears,
-A cat left, shimmering.`;
 
 export const diminutiveTextEn = `Diminutive
 Second-grader Miia discovered that she and the people she loves all "go bad" as they grow up. So Miia decided to get into grad school and develop AGI by the time she reaches grade 4 — using technology so that no one will ever be polluted by society again.`;

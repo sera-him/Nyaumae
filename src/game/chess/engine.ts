@@ -242,6 +242,15 @@ function finalizeMove(newState: GameState, oldState: GameState): GameState {
     newState.phase = 'draw';
   }
 
+  // 回合上限：走满 maxRounds 回合（白+黑=1回合，即 moveCount >= maxRounds*2）后自动和棋
+  // 胜负优先：仅在仍为 playing 时判和，终局/将死/逼和/三次重复优先
+  if (newState.phase === 'playing' && newState.maxRoundsEnabled) {
+    const limit = Math.max(1, Math.floor(newState.maxRounds));
+    if (newState.moveCount >= limit * 2) {
+      newState.phase = 'draw';
+    }
+  }
+
   return newState;
 }
 

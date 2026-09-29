@@ -23,11 +23,12 @@ export function ChessGameBoard() {
     antennaPushMode, antennaPushTargets, antennaPushPlayer,
     ostrichRevertChoice, confirmOstrichRevert, cancelOstrichRevert,
     starshipDeployMode, starshipDeployTarget, setStarshipDeployMode, confirmStarshipDeploy, synthesizeStarship,
-    clockRunning, tick, setClockConfig,
+    clockRunning, tick, setClockConfig, setMaxRoundsEnabled, setMaxRounds,
   } = useChessStore();
 
   const preset = gameState.clockConfigId ? (CLOCK_PRESETS.find(p => p.id === gameState.clockConfigId) ?? null) : null;
-  const { board, currentPlayer, phase, moveCount, poison, clock } = gameState;
+  const { board, currentPlayer, phase, moveCount, poison, clock, maxRoundsEnabled, maxRounds } = gameState;
+  const currentRound = Math.floor(moveCount / 2) + 1;
 
   // 棋钟 tick —— 每秒一次
   useEffect(() => {
@@ -124,6 +125,30 @@ export function ChessGameBoard() {
             </div>
           ) : null;
         })()}
+        {/* 回合上限（走满自动和棋，默认开启 325 回合=650手） */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setMaxRoundsEnabled(!maxRoundsEnabled)}
+            className={`px-2 py-0.5 rounded text-[11px] font-medium transition-all border ${
+              maxRoundsEnabled
+                ? 'bg-nc-violet/30 text-nc-violet border-nc-violet/40'
+                : 'bg-nc-bg-tertiary text-nc-text-secondary border-transparent hover:border-nc-violet/20'
+            }`}
+          >
+            {maxRoundsEnabled ? '✓' : '○'} {L("回合上限和棋")}
+          </button>
+          <input
+            type="number"
+            min={10}
+            max={2000}
+            value={maxRounds}
+            disabled={!maxRoundsEnabled}
+            onChange={(e) => setMaxRounds(Number(e.target.value))}
+            className="w-16 px-1.5 py-0.5 rounded text-[11px] bg-nc-bg-tertiary text-nc-text border border-nc-violet/10 disabled:opacity-40"
+            aria-label="回合上限"
+          />
+          <span className="text-[10px] text-nc-text-muted select-none">{L("回合（白+黑=1回合，走满自动和棋）")}</span>
+        </div>
       </>)}
 
       {/* Controls Bar */}
@@ -640,7 +665,7 @@ export function ChessGameBoard() {
         <span className="flex items-center gap-1.5">
           <span className="w-4 h-4 rounded bg-nc-rose/30 inline-block" /> {L("黑方（小写字母）\n        ")}</span>
         {gameStarted && (
-          <span className="text-nc-text-muted">{L("第 ")}{moveCount} {L("手")}</span>
+          <span className="text-nc-text-muted">{L("第 ")}{moveCount} {L("手")}{maxRoundsEnabled ? ` · 第${currentRound}/${maxRounds}回合` : ''}</span>
         )}
       </div>
 

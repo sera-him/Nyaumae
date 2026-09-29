@@ -9,9 +9,11 @@ import {
   miyaCircle, muGuangPlan, xinyuanLog,
   fourDimensionTest, moralPrinciples, moralPrinciplesNote, lawValuesNote, nyaumaeismPrinciples,
   catTrueNameTable, citizenLevelSystem, teacherVotingRule, workplaceBlindnessRule, specialChildrenNotes,
+  miiaSchoolRules,
 } from '@/data/worldSettings';
 import {
   catTrueNameTableEn, citizenLevelSystemEn, teacherVotingRuleEn, workplaceBlindnessRuleEn, specialChildrenNotesEn,
+  miiaSchoolRulesEn,
 } from '@/data/worldSettings.en';
 import {
   p2rDefinition,
@@ -273,6 +275,7 @@ export default function WorldSettings() {
   const teacherVotingText = _en ? teacherVotingRuleEn : teacherVotingRule;
   const workplaceBlindText = _en ? workplaceBlindnessRuleEn : workplaceBlindnessRule;
   const specialChildren = _en ? specialChildrenNotesEn : specialChildrenNotes;
+  const schoolRules = _en ? miiaSchoolRulesEn : miiaSchoolRules;
   return (
     <section id="world-settings" className="py-24 px-4 sm:px-6 relative">
       <div className="max-w-[1100px] mx-auto">
@@ -579,6 +582,33 @@ export default function WorldSettings() {
                 <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlightProse(note.content)}</p>
               </div>
             ))}
+          </div>
+        </CollapsibleCard>
+
+        {/* 咪呀的学校 — 与上一张卡互为"批评/规则"两面 */}
+        <CollapsibleCard
+          id="setting-miia-school"
+          title={semanticHighlight("咪呀的学校")}
+          summary={semanticHighlight("老师、页表、watchdog、45 分钟一节课、保险箱与陷阱——3 年级学校的十条运行规则")}
+          icon={<GraduationCap className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#00E5CC]/15"
+        >
+          <div className="p-6">
+            <p className="text-sm text-nc-text-secondary mb-5 italic">
+              {semanticHighlightProse(_en ? "I am in 3rd grade now! Our school has these rules:" : "我今年3年级啦！我们的学校有这些规则：")}
+            </p>
+            <div className="space-y-4">
+              {schoolRules.map((rule, i) => (
+                <div key={rule.title} className="border-l-2 border-[#00E5CC]/30 pl-4">
+                  <h4 className="text-base font-semibold text-nc-text mb-1">
+                    <span className="text-nc-cyan/60 font-mono text-xs mr-2">{String(i + 1).padStart(2, '0')}</span>
+                    {semanticHighlight(rule.title)}
+                  </h4>
+                  <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlightProse(rule.content)}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </CollapsibleCard>
 

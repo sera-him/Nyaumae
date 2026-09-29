@@ -25,16 +25,7 @@ export const yearDayFragment = `Year   Day
 43₄₀`;
 
 export const numberFragments = [
-  "降临的日期正在照镜子",
-  "动物转一圈12小时 我们10点见",
-  "她和我落入同一个格子",
-  "初入知识的海洋 第一年",
-  "游到两种乘法—她的整数 我的矩阵",
-  "的交点",
-  "蛋糕上插着七根蜡烛",
-  "港湾一年赚六个金币",
   "DEPTHOFLCA 1<3<2",
-  "Wis'tor++42",
 ];
 
 export const foreverThreeWorld = [
@@ -88,11 +79,6 @@ export const badRabbitVersions = {
 };
 
 export const huaPoem = `我想要在，停下来的时候。做一朵花，非常温柔地。`;
-
-export const mimiAndMiiaPoem = `一只猫咪陆陆续续地来了，
-我爬了三个小时到猫头顶，
-我埋在猫耳朵绒毛里自拍，
-一只猫咪波光粼粼地走了。`;
 
 export const diminutiveText = `Diminutive
 二年级学生咪呀发现自己和喜欢的人都会在长大中"变质"。于是，咪呀决定在4年级上考上研究生、研发出AGI，用科技让所有人都再也不会受到社会的污染。`;
