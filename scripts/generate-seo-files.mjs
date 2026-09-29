@@ -24,7 +24,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scriptDir, '..');
 const dist = resolve(root, 'dist');
 
-const FALLBACK_SITE_URL = 'https://zhi-yi-dialogue-os.nyaumae.chatgpt.site/';
+const FALLBACK_SITE_URL = 'https://nyaumae.pages.dev/';
 const OG_IMAGE = '/icons/icon-512x512.png';
 
 async function loadRouteSource() {
