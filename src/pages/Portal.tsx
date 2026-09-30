@@ -218,7 +218,7 @@ export default function Portal() {
     return () => window.clearInterval(timer);
   }, [advance, carouselPaused, timerReset]);
 
-  const lastViewedTarget = lastViewed?.path ?? '/world';
+  const lastViewedTarget = lastViewed?.path ?? '/world/settings';
   const lastViewedDescription = lastViewed
     ? (_en ? `Back to: ${lastViewed.label}` : `回到：${lastViewed.label}`)
     : (_en ? 'No history yet — start with World Lore' : '还没有记录，从世界观开始');
@@ -255,7 +255,7 @@ export default function Portal() {
         <div className="portal-section-head"><div><p>01 / FIRST CONNECTION</p><h2 id="portal-activity-title">{L("从这里继续")}</h2></div><span>{L("回到上次停下的地方，或从世界观、故事与角色开启新的旅程。")}</span></div>
         <div className="portal-activity-grid">
           <Link to={lastViewedTarget} className="portal-activity-card portal-activity-resume"><History /><span><small>CONTINUE / LAST VIEWED</small><strong>{L("上次在看")}</strong><em>{lastViewedDescription}</em></span><ArrowRight /></Link>
-          <Link to="/world" className="portal-activity-card portal-activity-world"><Globe2 /><span><small>WORLD LORE / CANON</small><strong>{L("世界观")}</strong><em>{L("从地点、规则、组织和时间线，找到这座世界的坐标。")}</em></span><ArrowRight /></Link>
+          <Link to="/world/settings" className="portal-activity-card portal-activity-world"><Globe2 /><span><small>WORLD LORE / CANON</small><strong>{L("世界观")}</strong><em>{L("从地点、规则、组织和时间线，找到这座世界的坐标。")}</em></span><ArrowRight /></Link>
           <Link to="/stories" className="portal-activity-card portal-activity-story"><BookOpen /><span><small>STORY DIRECTORY / READ</small><strong>{L("故事")}</strong><em>{L("打开故事目录，选择一个宇宙和一段章节开始阅读。")}</em></span><ArrowRight /></Link>
           <Link to="/characters" className="portal-activity-card portal-activity-character"><Users /><span><small>CHARACTER NETWORK / MEET</small><strong>{L("角色")}</strong><em>{L("从人物档案、阵营和关系网，认识每一次相遇。")}</em></span><ArrowRight /></Link>
         </div>
@@ -360,7 +360,7 @@ export default function Portal() {
             const caption = _en && en ? en.caption : group.caption;
             const label = _en && en ? en.label : group.label;
             const description = _en && en ? en.description : group.description;
-            return <Link to={group.root} key={group.id} className={`portal-entry portal-entry-${group.id}`} style={{ '--card': directoryAccentMap[group.id] } as React.CSSProperties}>
+            return <Link to={group.landing ?? group.root} key={group.id} className={`portal-entry portal-entry-${group.id}`} style={{ '--card': directoryAccentMap[group.id] } as React.CSSProperties}>
               <div className="portal-entry-top"><span>{String(index + 1).padStart(2, '0')}</span><span>{caption}</span></div>
               <div className="portal-entry-title"><Icon /><div><p>SPACE / {caption}</p><h3>{label}</h3></div></div>
               <p>{description}</p>

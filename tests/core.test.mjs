@@ -29,7 +29,7 @@ import {
 } from '../src/lib/imagePreference.ts';
 
 test('routeManifest resolves legacy aliases to canonical paths', () => {
-  assert.equal(resolveAlias('/world'), '/world/overview');
+  assert.equal(resolveAlias('/world'), '/world/settings');
   assert.equal(resolveAlias('/miia'), '/miia/world');
   assert.equal(resolveAlias('/math'), '/math/fsiii');
   assert.equal(resolveAlias('/settings'), '/settings/ai');
@@ -106,7 +106,16 @@ test('routeManifest directory groups only contain canonicalised routes', () => {
   }
   for (const group of NAVIGATION_GROUPS) {
     assert.ok(!isNavigationExcluded(group.root), `group root ${group.root} is not excluded`);
+    if (group.landing) {
+      assert.ok(canonical[group.landing] !== undefined, `group landing ${group.landing} (${group.id}) exists in the canonical manifest`);
+      assert.ok(group.items.some((item) => item.to === group.landing), `group landing ${group.landing} (${group.id}) is listed in the group`);
+    }
   }
+  // 世界设定 is the first entry under /world, so every way into the space has to
+  // open there instead of /world/overview.
+  const world = NAVIGATION_GROUPS.find((group) => group.id === 'world');
+  assert.equal(world?.landing, '/world/settings', 'world space opens on 世界设定');
+  assert.equal(world?.items[0]?.to, '/world/settings', '世界设定 is the first world entry');
 });
 
 test('hybridSearch returns known story hits for a Chinese query on the real index', () => {

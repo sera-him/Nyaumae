@@ -223,14 +223,8 @@ function resolvePageMetadata(pathname: string, search = ''): PageMetadata {
     };
   }
 
-  if (canonicalPath === '/world/overview') {
-    return page(
-      '世界观',
-      '探索 Neural Connection 的世界观：编年史、组织机构、世界设定、QET 选拔、词典与未来线。',
-      canonicalPath,
-    );
-  }
-
+  // No umbrella branch for /world/overview: the world space opens on 世界设定,
+  // so every world page is titled from its own section label.
   if (canonicalPath.startsWith('/world/')) {
     const section = canonicalPath.slice('/world/'.length);
     if (!isKnownWorldSection(section)) return notFound(canonicalPath);

@@ -12,7 +12,7 @@ export const NEURAL_SYSTEMS_EN: NeuralSystem[] = [
   },
   {
     id: 'universe', index: '03', title: 'World Lore', english: 'WORLD LORE', tier: 'S',
-    description: 'The shared coordinate system of chronicles, maps, organizations, rules and the future timeline.', route: '/world', accent: '#91c7ff', icon: 'globe',
+    description: 'The shared coordinate system of chronicles, maps, organizations, rules and the future timeline.', route: '/world/settings', accent: '#91c7ff', icon: 'globe',
   },
   {
     id: 'games', index: '04', title: 'Game Universe', english: 'GAME UNIVERSE', tier: 'S',

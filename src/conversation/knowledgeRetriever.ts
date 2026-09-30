@@ -24,8 +24,8 @@ export interface KnowledgeSource {
 
 const ROUTE_BY_ANCHOR: Record<string, string> = {
   '#hero': '/',
-  '#worldview': '/world/overview',
-  '#world': '/world/overview',
+  '#worldview': '/world/settings',
+  '#world': '/world/settings',
   '#characters': '/characters',
   '#extra-characters': '/characters?group=other',
   '#stories': '/stories',

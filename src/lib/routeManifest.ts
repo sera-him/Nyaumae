@@ -17,6 +17,12 @@ export interface RouteDirectoryItem {
 export interface RouteDirectoryGroup {
   id: 'stories' | 'characters' | 'world' | 'miia' | 'math' | 'playground' | 'ai' | 'other';
   root: string;
+  /**
+   * Target the top bar and the homepage directory open for this space. Defaults
+   * to `root`; set it when a space opens on a section other than its root (the
+   * world space opens on 世界设定, `/world` itself is only a bare alias).
+   */
+  landing?: string;
   label: string;
   caption: string;
   description: string;
@@ -115,6 +121,7 @@ export const ROUTE_DIRECTORY_GROUPS: RouteDirectoryGroup[] = [
   {
     id: 'world',
     root: '/world',
+    landing: '/world/settings',
     label: '世界观',
     caption: 'WORLD',
     description: '世界设定、历史、组织与未来线',
@@ -209,7 +216,7 @@ export const NAVIGATION_GROUPS: RouteDirectoryGroup[] = ROUTE_DIRECTORY_GROUPS.f
 );
 
 const aliasMap: Record<string, string> = {
-  '/world': '/world/overview',
+  '/world': '/world/settings',
   '/miia': '/miia/world',
   '/math': '/math/fsiii',
   '/settings': '/settings/ai',

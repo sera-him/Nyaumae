@@ -200,7 +200,7 @@ export default function AppRoutes() {
       ) : <Routes location={deferredLocation}>
         <Route path="/" element={<SuspenseWrapper area="home"><Portal /></SuspenseWrapper>} />
 
-        <Route path="/world" element={<Navigate to="/world/overview" replace />} />
+        <Route path="/world" element={<Navigate to="/world/settings" replace />} />
         <Route path="/world/:section" element={<WorldGuard />} />
 
         <Route path="/characters" element={<SuspenseWrapper area="characters"><CharactersPage /></SuspenseWrapper>} />

@@ -96,7 +96,7 @@ function resolveRoute(item: FullSearchItem): string {
   if (id.startsWith('page_') || id.startsWith('nav_')) {
     const target = href.replace('#', '');
     const pageMap: Record<string, string> = {
-      'hero': '/', 'footer': '/', 'worldview': '/world/overview',
+      'hero': '/', 'footer': '/', 'worldview': '/world/settings',
       'characters': '/characters', 'extra-characters': '/characters?group=other', 'character-network': '/characters',
       'stories': '/stories', 'extra-stories': '/miia/world', 'miia-world': '/miia/world',
       'miia-math-notes': '/miia/math', 'organizations': '/world/organizations',
@@ -112,7 +112,7 @@ function resolveRoute(item: FullSearchItem): string {
 
   const anchor = href.replace('#', '');
   const anchorMap: Record<string, string> = {
-    'hero': '/', 'footer': '/', 'worldview': '/world/overview',
+    'hero': '/', 'footer': '/', 'worldview': '/world/settings',
     'characters': '/characters', 'extra-characters': '/characters?group=other', 'character-network': '/characters',
     'stories': '/stories', 'extra-stories': '/miia/world', 'miia-world': '/miia/world',
     'miia-math-notes': '/miia/math', 'organizations': '/world/organizations',

@@ -6,7 +6,7 @@ const REQUEST_TIMEOUT_MS = 8_000;
 
 const ROUTES = [
   { label: '首页', path: '/' },
-  { label: '世界', path: '/world/overview' },
+  { label: '世界', path: '/world/settings' },
   { label: '角色', path: '/characters/all' },
   { label: '故事', path: '/stories' },
   { label: '咪呀空间', path: '/miia/world' },

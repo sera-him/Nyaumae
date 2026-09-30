@@ -27,7 +27,7 @@ export const NEURAL_SYSTEMS: NeuralSystem[] = [
   },
   {
     id: 'universe', index: '03', title: '世界观', english: 'WORLD LORE', tier: 'S',
-    description: '编年史、地图、组织、规则与未来线的共同坐标系。', route: '/world', accent: '#91c7ff', icon: 'globe',
+    description: '编年史、地图、组织、规则与未来线的共同坐标系。', route: '/world/settings', accent: '#91c7ff', icon: 'globe',
   },
   {
     id: 'games', index: '04', title: '游戏宇宙', english: 'GAME UNIVERSE', tier: 'S',

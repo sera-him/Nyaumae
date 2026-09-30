@@ -27,7 +27,7 @@ const entries: Entry[] = [
     enDesc: 'A parallel digital universe of 1.2 billion people. Zhehua School\'s Kezhaozhen Academy and Delansi form its twin engines, where the line between AGI and consciousness blurs. From the von Neumann class\' elite selection to immersive Heart-World VR, every sentient being hunts for its own neural frequency.',
     icon: Globe,
     color: 'text-nc-cyan',
-    href: '/world',
+    href: '/world/settings',
   },
   {
     id: 'characters',

@@ -68,7 +68,7 @@ export default function Navigation({ onSearchClick, onSearchIntent }: Navigation
   // shortcuts re-translate immediately instead of waiting for a page reload.
   const primaryItems = useMemo<PrimaryItem[]>(() => navigationGroups.map((group) => ({
     label: locale === 'en' ? L(group.label) : group.label,
-    to: group.root,
+    to: group.landing ?? group.root,
     icon: groupIconMap[group.id],
     paths: [group.root, ...group.items.map((item) => item.to)],
     description: locale === 'en' ? L(group.description) : group.description,
