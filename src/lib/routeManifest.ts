@@ -80,6 +80,7 @@ const canonicalRoutes: Record<string, RouteInfo> = {
   '/nctb': { canonical: '/nctb', domain: 'math', kind: 'page', label: 'NCTB 认知实验室' },
   '/analytics': { canonical: '/analytics', domain: 'analytics', kind: 'page', label: '数据统计' },
   '/other': { canonical: '/other', domain: 'other', kind: 'page', label: '其他入口' },
+  '/okcomputer': { canonical: '/okcomputer', domain: 'other', kind: 'page', label: '自我观察档案' },
 };
 
 function normalizePathname(pathname: string): string {
@@ -206,7 +207,7 @@ export const ROUTE_DIRECTORY_GROUPS: RouteDirectoryGroup[] = [
     label: '其他',
     caption: 'OTHER',
     description: '全站搜索、认知实验与本机数据',
-    items: directoryItems(['/codex', '/nctb', '/analytics']),
+    items: directoryItems(['/codex', '/nctb', '/analytics', '/okcomputer']),
   },
 ];
 
