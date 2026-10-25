@@ -3,6 +3,7 @@ import { L } from '@/lib/translations/manual';
 
 import { BookOpen, ChevronLeft, ChevronRight, List, Minus, Plus, X } from 'lucide-react';
 import type { ReadingPreferences } from '@/lib/readingState';
+import { useKeepActiveEntryVisible } from '@/hooks/useKeepActiveEntryVisible';
 
 export interface StoryReaderChapterItem {
   id: string;
@@ -40,6 +41,10 @@ export default function StoryReaderTools({
   onPreferencesChange,
 }: StoryReaderToolsProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // 抽屉每次打开都是新挂载的，滚动条会回到最上面；用它停在正在读的那一章上。
+  const drawerListRef = useKeepActiveEntryVisible<HTMLElement>(
+    `${drawerOpen ? 'open' : 'closed'}:${activeId}:${chapters.length}`,
+  );
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -94,7 +99,7 @@ export default function StoryReaderTools({
               <div><BookOpen /><span><strong id="story-chapter-drawer-title">{L("章节目录")}</strong><small>{chapters.length} {L("个章节")}</small></span></div>
               <button type="button" data-action="close" onClick={() => setDrawerOpen(false)} aria-label={L("关闭章节目录")}><X /></button>
             </header>
-            <nav aria-label={L("章节列表")}>
+            <nav ref={drawerListRef} aria-label={L("章节列表")}>
               {chapters.map((chapter) => (
                 <button
                   type="button"

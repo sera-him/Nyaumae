@@ -4,7 +4,7 @@
 
 import type { Board, Position, Player, Piece, PieceType } from './types';
 import {
-  BOARD_SIZE, CANNOT_CAPTURE,
+  BOARD_SIZE, CANNOT_CAPTURE, IMMOBILE_PIECES,
 } from './types';
 import {
   inBounds, getPiece, isEmptyOrExtra, isEmpty,
@@ -522,6 +522,8 @@ function whaleMovesSep(board: Board, pos: Position, player: Player): SeparatedMo
 
 /** X — 火箭：不可主动移动 */
 function rocketMovesSep(): SeparatedMoves {
+  // 火箭（X）不可移动。IMMOBILE_PIECES 表声明的正是这批棋子，getRawMoves
+  // 会在分发前按表短路，这里保留空实现以维持 25 种棋子的分发结构完整。
   return { moves: [], captures: [] };
 }
 
@@ -724,6 +726,11 @@ export function getRawMoves(
 ): { to: Position; isCapture: boolean }[] {
   const { type, owner: player } = piece;
 
+  // 不可移动的棋子（火箭 X）在此按表短路。
+  // IMMOBILE_PIECES 此前只有定义、无人引用，「X 不能动」这条规则实际只靠
+  // rocketMovesSep() 返回空数组隐式成立——表与实现可以各走各的。
+  if (IMMOBILE_PIECES.includes(type)) return [];
+
   let sep: SeparatedMoves = { moves: [], captures: [] };
 
   switch (type) {
@@ -758,7 +765,14 @@ export function getRawMoves(
 
 /**
  * 获取某棋子的所有走子位置（不含吃子）
- * 走子/吃子逻辑已分离，直接返回 moves
+ *
+ * 这两个函数此前各自维护一份与 getRawMoves 平行的 switch，与真实生成器
+ * 逐条重复，且绕过了 filterMovesByPoison——也就是说：一旦有人调用它们，
+ * 中毒的 Q/R/B/N 会拿到完整射程，规则直接被绕过。24 种棋子的分支还各自
+ * 写着 `case 'X': return []` 之类的字面量，与规则表脱钩。
+ *
+ * 现改为按 getRawMoves 的结果过滤，走子/吃子只差一个 isCapture 标志。
+ * 保留导出是为了不破坏潜在的外部引用，同时让它们重新与真实规则一致。
  */
 export function getMoves(
   board: Board,
@@ -766,34 +780,9 @@ export function getMoves(
   piece: Piece,
   poisonCount: number = 0,
 ): Position[] {
-  const { type, owner: player } = piece;
-  switch (type) {
-    case 'K': return kingMovesSep(board, pos, player).moves;
-    case 'Q': return queenMovesSep(board, pos, player).moves;
-    case 'R': return rookMovesSep(board, pos, player).moves;
-    case 'B': return bishopMovesSep(board, pos, player).moves;
-    case 'N': return knightMovesSep(board, pos, player).moves;
-    case 'P': return pawnMovesSep(board, pos, player).moves;
-    case 'T': return tigerMovesSep(board, pos, player).moves;
-    case 'Y': return maineCoonMovesSep(board, pos).moves;
-    case 'M': return mouseMovesSep(board, pos, player, poisonCount).moves;
-    case 'E': return elephantMovesSep(board, pos, player).moves;
-    case 'L': return englishMovesSep(board, pos, player).moves;
-    case 'A': return antennaMovesSep(board, pos, player).moves;
-    case 'C': return cannonMovesSep(board, pos, player).moves;
-    case 'W': return witchMovesSep(board, pos).moves;
-    case 'Z': return skeletonMovesSep(board, pos, player).moves;
-    case 'IW': return antiWitchMovesSep(board, pos).moves;
-    case 'IZ': return antiSkeletonMovesSep(board, pos, player).moves;
-    case 'J': return paladinMovesSep(board, pos, player).moves;
-    case 'H': return whaleMovesSep(board, pos, player).moves;
-    case 'X': return [];
-    case 'U': return spacemanMovesSep(board, pos).moves;
-    case 'S': return starshipMovesSep(board, pos, player).moves;
-    case 'O': return ostrichMovesSep(board, pos).moves;
-    case 'G': return catgirlMovesSep(board, pos, player).moves;
-  }
-  return [];
+  return getRawMoves(board, pos, piece, poisonCount)
+    .filter(m => !m.isCapture)
+    .map(m => m.to);
 }
 
 /**
@@ -805,32 +794,7 @@ export function getCaptures(
   piece: Piece,
   poisonCount: number = 0,
 ): Position[] {
-  const { type, owner: player } = piece;
-  switch (type) {
-    case 'K': return kingMovesSep(board, pos, player).captures;
-    case 'Q': return queenMovesSep(board, pos, player).captures;
-    case 'R': return rookMovesSep(board, pos, player).captures;
-    case 'B': return bishopMovesSep(board, pos, player).captures;
-    case 'N': return knightMovesSep(board, pos, player).captures;
-    case 'P': return pawnMovesSep(board, pos, player).captures;
-    case 'T': return tigerMovesSep(board, pos, player).captures;
-    case 'Y': return [];
-    case 'M': return mouseMovesSep(board, pos, player, poisonCount).captures;
-    case 'E': return elephantMovesSep(board, pos, player).captures;
-    case 'L': return englishMovesSep(board, pos, player).captures;
-    case 'A': return antennaMovesSep(board, pos, player).captures;
-    case 'C': return cannonMovesSep(board, pos, player).captures;
-    case 'W': return [];
-    case 'Z': return skeletonMovesSep(board, pos, player).captures;
-    case 'IW': return [];
-    case 'IZ': return antiSkeletonMovesSep(board, pos, player).captures;
-    case 'J': return paladinMovesSep(board, pos, player).captures;
-    case 'H': return whaleMovesSep(board, pos, player).captures;
-    case 'X': return [];
-    case 'U': return [];
-    case 'S': return starshipMovesSep(board, pos, player).captures;
-    case 'O': return [];
-    case 'G': return catgirlMovesSep(board, pos, player).captures;
-  }
-  return [];
+  return getRawMoves(board, pos, piece, poisonCount)
+    .filter(m => m.isCapture)
+    .map(m => m.to);
 }

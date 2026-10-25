@@ -392,6 +392,11 @@ function fireWeapon(state: BattleState, weapon: Weapon, dt: number) {
   while (fireAccumulators[idx] >= interval) {
     fireAccumulators[idx] -= interval;
 
+    // Track the lowest weapon level actually fired during the run.
+    // stats.lowestHpWeaponLevel is what the "new_weapon" stage condition reads
+    // (data.ts: `stats.lowestHpWeaponLevel < 5`), so it must be recorded on fire.
+    state.stats.lowestHpWeaponLevel = Math.min(state.stats.lowestHpWeaponLevel, weapon.level);
+
     // Direction toward mouse
     const dx = state.player.x - inputCache.mouseX;
     const dy = state.player.y - inputCache.mouseY;

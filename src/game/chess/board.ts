@@ -7,7 +7,7 @@ import type {
   Board, Position, Player, Piece, PieceType,
   GameState, PoisonMap,
 } from './types';
-import { BOARD_SIZE, ALL_PIECE_TYPES } from './types';
+import { BOARD_SIZE, ALL_PIECE_TYPES, CRITICAL_PIECES } from './types';
 
 // ---- 基础工具 ----
 
@@ -82,7 +82,10 @@ export function findCriticalPieces(board: Board, player: Player): Position[] {
   for (let row = 0; row < BOARD_SIZE; row++) {
     for (let col = 0; col < BOARD_SIZE; col++) {
       const p = getPiece(board, { row, col });
-      if (p && p.owner === player && (p.type === 'K' || p.type === 'G')) {
+      // 走 CRITICAL_PIECES 表，不在此处硬编码 'K'/'G'。
+      // 这张表此前从未被引用，导致「谁是关键棋子」在 board.ts、moves.ts
+      // 和 types.ts 三处各写一份，改一处就会漏掉另外两处。
+      if (p && p.owner === player && CRITICAL_PIECES.includes(p.type)) {
         result.push({ row, col });
       }
     }

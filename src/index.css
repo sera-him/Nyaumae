@@ -38,6 +38,31 @@ section {
     --input: 270 30% 12%;
     --ring: 262 83% 58%;
     --radius: 0.75rem;
+
+    /* OKComputer 自我观察档案：暖纸编辑风 */
+    --paper: oklch(0.912 0.024 78);
+    --cream: oklch(0.945 0.014 80);
+    --cardok: oklch(0.982 0.009 85);
+    --ink: oklch(0.40 0.022 75);
+    --ink-strong: oklch(0.32 0.02 75);
+    --mute: oklch(0.49 0.025 75);
+    --line: oklch(0.845 0.02 78);
+    --acc: oklch(0.552 0.207 40);
+    --acc-deep: oklch(0.43 0.16 40);
+    --tint: oklch(0.83 0.09 58);
+    --sage: oklch(0.46 0.065 128);
+    --sage-soft: oklch(0.90 0.035 125);
+    --umber: oklch(0.46 0.06 72);
+    --umber-soft: oklch(0.91 0.03 78);
+  }
+
+  /* OKComputer 字体类 */
+  .font-display {
+    font-family: 'Fraunces', 'Noto Serif CJK SC', 'Songti SC', 'STSong', 'SimSun', serif;
+  }
+  .font-mono2 {
+    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, 'Noto Sans Mono CJK SC', monospace;
+    font-feature-settings: 'calt', 'liga';
   }
 
   body {

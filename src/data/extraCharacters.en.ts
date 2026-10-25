@@ -7,6 +7,7 @@ export const extraCharactersEn: ExtraChar[] = [
     name: 'Linkmo',
     alias: 'linkmo',
     category: '角色',
+    age: 16,
     fsiii: 105,
     bio: 'The heroine of "Princess Dream of the Complex Domain" — a small-town exam-grinder who dreams of becoming a princess. In truth she was always a princess: the digital-circuit archdemon Quartus forcibly rewrote the worldview, used fractals to map it onto the complex-domain worldview, and warped everyone\'s perception.',
   },

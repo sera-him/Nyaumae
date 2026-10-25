@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/generate-font-css.mjs && vite",
-    "build": "node scripts/generate-font-css.mjs && node scripts/generate-image-variants.mjs && node scripts/generate-frequency-corpus.mjs && tsc -b && vite build && node scripts/prepare-sites.mjs",
+    "build": "node scripts/generate-font-css.mjs && node scripts/generate-image-variants.mjs && node scripts/generate-frequency-corpus.mjs && node scripts/verify-corpus-coverage.mjs && tsc -b && vite build && node scripts/prepare-sites.mjs",
     "optimize:images": "python scripts/generate_responsive_images.py",
     "lint": "eslint .",
     "test:nctb": "node --experimental-strip-types scripts/nctb/nctb-smoke.ts",
@@ -18,7 +18,7 @@
     "nctb:freeze": "node --experimental-strip-types scripts/nctb/freeze-item.ts",
     "test:conversation": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/conversation-smoke.mjs",
     "test:site": "node scripts/site-smoke.mjs",
-    "test:unit": "node --test --experimental-strip-types --experimental-specifier-resolution=node --import ./tests/ts-resolve-hooks.mjs tests/unit.test.mjs tests/core.test.mjs",
+    "test:unit": "node --test --experimental-strip-types --experimental-specifier-resolution=node --import ./tests/ts-resolve-hooks.mjs tests/unit.test.mjs tests/core.test.mjs tests/dead-code.test.mjs",
     "test:e2e": "node scripts/site-smoke.mjs",
     "check:budget": "node scripts/check-budget.mjs",
     "content:report": "node --experimental-strip-types scripts/content-gap-report.ts",
@@ -28,7 +28,8 @@
     "preview": "vite preview",
     "start": "node scripts/serve-dist.mjs",
     "three-holes:generate": "python scripts/three_holes_unique_generator.py --output src/game/threeHoles/puzzles.generated.json",
-    "three-holes:verify": "python scripts/three_holes_unique_generator.py --verify src/game/threeHoles/puzzles.generated.json --unique-time 360"
+    "three-holes:verify": "python scripts/three_holes_unique_generator.py --verify src/game/threeHoles/puzzles.generated.json --unique-time 360",
+    "verify:corpus": "node scripts/verify-corpus-coverage.mjs"
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.3.0",

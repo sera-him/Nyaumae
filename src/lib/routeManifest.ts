@@ -58,6 +58,7 @@ const canonicalRoutes: Record<string, RouteInfo> = {
   '/stories/zhenhai-refining': { canonical: '/stories/zhenhai-refining', domain: 'stories', kind: 'detail', label: '镇海炼化录' },
   '/stories/agi-land': { canonical: '/stories/agi-land', domain: 'stories', kind: 'detail', label: 'AGI 应许之地' },
   '/stories/little-girl-in-giant-country': { canonical: '/stories/little-girl-in-giant-country', domain: 'stories', kind: 'detail', label: '大人国的小女孩' },
+  '/stories/delan-succession': { canonical: '/stories/delan-succession', domain: 'stories', kind: 'detail', label: '德澜思拓继位事件' },
   '/miia/world': { canonical: '/miia/world', domain: 'miia', kind: 'section', label: '咪呀的世界' },
   '/miia/math': { canonical: '/miia/math', domain: 'miia', kind: 'section', label: '数学笔记' },
   '/miia/poems': { canonical: '/miia/poems', domain: 'miia', kind: 'section', label: '诗歌碎片' },
@@ -141,7 +142,7 @@ export const ROUTE_DIRECTORY_GROUPS: RouteDirectoryGroup[] = [
     root: '/stories',
     label: '故事',
     caption: 'STORIES',
-    description: '五个故事世界与完整阅读目录',
+    description: '六个故事世界与完整阅读目录',
     items: directoryItems([
       '/stories',
       '/stories/mia-world',
@@ -149,6 +150,7 @@ export const ROUTE_DIRECTORY_GROUPS: RouteDirectoryGroup[] = [
       '/stories/zhenhai-refining',
       '/stories/agi-land',
       '/stories/little-girl-in-giant-country',
+      '/stories/delan-succession',
     ]),
   },
   {
@@ -265,7 +267,7 @@ const providerLabels: Record<string, string> = {
 const knownProviderIds = new Set(Object.keys(providerLabels));
 
 interface PlaygroundItem {
-  category: 'games' | 'scratch';
+  category: 'games' | 'scratch' | 'rules';
   label: string;
 }
 
@@ -296,6 +298,7 @@ const playgroundItems: Record<string, PlaygroundItem> = {
   'cat-mouse-38': { category: 'scratch', label: '猫捉老鼠38' },
   'honeycomb-maze': { category: 'scratch', label: '蜂巢迷宫' },
   'reinforcement-simulator': { category: 'scratch', label: '强化模拟器' },
+  'reach-finish': { category: 'rules', label: '到达终点' },
 };
 
 const worldSections = new Set(['overview', 'qet', 'timeline', 'organizations', 'settings', 'dictionary', 'pacific-islands', 'prime-focus']);
@@ -335,7 +338,7 @@ export function isKnownPlaygroundItem(id: string): boolean {
   return id in playgroundItems;
 }
 
-export function getPlaygroundItemCategory(id: string): 'games' | 'scratch' | null {
+export function getPlaygroundItemCategory(id: string): 'games' | 'scratch' | 'rules' | null {
   return playgroundItems[id]?.category ?? null;
 }
 

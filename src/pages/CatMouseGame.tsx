@@ -26,6 +26,8 @@ type Frame = {
   mouse: Point;
   bait: Point;
   catAim: Point;
+  /** 该回合猫的可信位置集合（抽稀后），复盘时用来回看它当时的推断。 */
+  belief: Point[];
   distance: number;
   sprint: boolean;
   scent: boolean;
@@ -38,9 +40,33 @@ const PRESETS: Record<PresetKey, Preset> = {
 };
 
 const WORLD = 18;
+const MOUSE_MOVE = 1;
+const SPRINT_MOVE = 2;
+/**
+ * 猫与老鼠同速。
+ *
+ * 曾经猫固定 1.25、老鼠 1.0。在没有障碍的连续平面上，任何恒定的速度优势
+ * 都会让追逐退化成「距离单调收缩」，诱饵与真实气味全部失去意义：老鼠唯一
+ * 能做的就是延后结局。同速之后规则才真正成立——
+ *   · 诚实摆放诱饵 → 猫完全瞄准 → 双方保持原距离，卡在终局阈值上；
+ *   · 偏置摆放诱饵 → 猫的瞄准偏掉一��� → 双方都走满但猫在做无用功，距离不减。
+ * 所以「诱饵半径」必须大于「终局阈值」，否则老鼠无论如何 deception 都够不到
+ * 阈值之外，诱饵就只是装饰。
+ */
+const CAT_MOVE = 1;
+/** 老鼠可以把诱饵抛到多远 = 猫的信息误差上限。必须 > ENDGAME_CAPTURE。 */
+const BAIT_RADIUS = 4;
+const BAIT_EPS = .02;
+const BAIT_SENSE = BAIT_RADIUS + .03;
+const CAPTURE_RADIUS = 1;
+/** 最后一回合结束时仍小于等于它，猫胜。 */
+const ENDGAME_CAPTURE = 3;
 const clamp = (v: number) => Math.max(-WORLD, Math.min(WORLD, v));
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 const moveLimit = (p: Point, normal: number) => Math.max(Math.abs(p.x), Math.abs(p.y)) > 15 ? normal / 2 : normal;
+/** 复盘只需要看形状，抽稀到固定上限，避免每回合存 320 个点。 */
+const thinBelief = (cloud: Point[], cap = 70): Point[] =>
+  cloud.length <= cap ? cloud : cloud.filter((_, i) => i % Math.ceil(cloud.length / cap) === 0).slice(0, cap);
 const toward = (from: Point, target: Point, limit: number): Point => {
   const d = distance(from, target);
   if (!d || d <= limit) return { x: clamp(target.x), y: clamp(target.y) };
@@ -55,7 +81,7 @@ function randomMouseStart(radius: number): Point {
 }
 
 function aiMouseMove(mouse: Point, cat: Point, sprint: boolean): Point {
-  const limit = moveLimit(mouse, sprint ? 2 : 1);
+  const limit = moveLimit(mouse, sprint ? SPRINT_MOVE : MOUSE_MOVE);
   const dx = mouse.x - cat.x;
   const dy = mouse.y - cat.y;
   const len = Math.hypot(dx, dy) || 1;
@@ -94,13 +120,13 @@ function evolveCloud(cloud: Point[], bait: Point, maxMove: number, truth?: Point
       const a = (index * 2.399 + i * 1.257) % (Math.PI * 2);
       const r = maxMove * (i / 4);
       const q = { x: clamp(p.x + Math.cos(a) * r), y: clamp(p.y + Math.sin(a) * r) };
-      if (distance(q, bait) <= 2.03) expanded.push(q);
+      if (distance(q, bait) <= BAIT_SENSE) expanded.push(q);
     }
   });
   if (expanded.length < 30) {
     return Array.from({ length: 140 }, (_, i) => {
       const a = i / 140 * Math.PI * 2;
-      const r = 2 * Math.sqrt((i % 17) / 17);
+      const r = BAIT_RADIUS * Math.sqrt((i % 17) / 17);
       return { x: clamp(bait.x + Math.cos(a) * r), y: clamp(bait.y + Math.sin(a) * r) };
     });
   }
@@ -128,10 +154,13 @@ function Board({
   const m = shown?.mouse ?? mousePos;
   const b = shown?.bait ?? bait;
   const canPick = replayAt == null && ['mouse-move', 'bait', 'cat-move'].includes(phase);
-  const activeLimit = phase === 'cat-move' ? moveLimit(c, 1.25) : phase === 'bait' ? 2 : moveLimit(m, sprintOn ? 2 : 1);
+  const activeLimit = phase === 'cat-move' ? moveLimit(c, CAT_MOVE) : phase === 'bait' ? BAIT_RADIUS : moveLimit(m, sprintOn ? SPRINT_MOVE : MOUSE_MOVE);
   const activeOrigin = phase === 'cat-move' ? c : m;
   const revealMouse = role === 'mouse' || phase === 'ended' || replayAt != null;
-  const showCloud = role === 'cat' && tutorial && replayAt == null;
+  // 教学模式下实时显示；复盘时显示该回合猫真正持有的那一帧信念。
+  const showCloud = (role === 'cat' && tutorial && replayAt == null) || replayAt != null;
+  const drawnCloud = replayAt != null ? (shown?.belief ?? []) : cloud;
+  const drawnAim = replayAt != null ? shown?.catAim : null;
   const click = (event: React.MouseEvent<SVGSVGElement>) => {
     if (!canPick) return;
     const rect = event.currentTarget.getBoundingClientRect();
@@ -178,7 +207,11 @@ function Board({
         <rect x={sx(-15)} y={sy(15)} width={30*scale} height={30*scale} fill="none" stroke="#e58a5a" strokeOpacity=".32" strokeDasharray="8 8" />
         <line x1={sx(0)} y1={pad} x2={sx(0)} y2={size-pad} className="cm-axis" />
         <line x1={pad} y1={sy(0)} x2={size-pad} y2={sy(0)} className="cm-axis" />
-        {showCloud && cloud.map((p, i) => <circle key={i} cx={sx(p.x)} cy={sy(p.y)} r="2.2" fill="#8b5cf6" opacity=".3" />)}
+        {showCloud && drawnCloud.map((p, i) => <circle key={i} cx={sx(p.x)} cy={sy(p.y)} r="2.2" fill="#8b5cf6" opacity=".3" />)}
+        {drawnAim && <>
+          <line x1={sx(c.x)} y1={sy(c.y)} x2={sx(drawnAim.x)} y2={sy(drawnAim.y)} stroke="#e879f9" strokeWidth="1.5" strokeDasharray="4 4" opacity=".7" />
+          <g transform={`translate(${sx(drawnAim.x)} ${sy(drawnAim.y)})`} className="cm-aim"><circle r="7" /><path d="M-11 0H11M0-11V11" /></g>
+        </>}
         {b && <circle cx={sx(b.x)} cy={sy(b.y)} r={2*scale} fill="url(#fog)" stroke="#a78bfa" strokeWidth="2" strokeDasharray="7 6" />}
         {phase !== 'setup' && replayAt == null && (
           <circle cx={sx(activeOrigin.x)} cy={sy(activeOrigin.y)} r={activeLimit*scale} fill="none" stroke={phase === 'cat-move' ? '#67e8f9' : '#f8b4cc'} strokeWidth="2" strokeDasharray="6 6" opacity=".75" />
@@ -213,7 +246,8 @@ function Board({
         <span><i className="dot cat" />{L("猫")}</span>
         {(revealMouse || replayAt != null) && <span><i className="dot mouse" />{L("老鼠")}</span>}
         <span><i className="dot bait" />{L("诱饵")}</span>
-        {tutorial && role === 'cat' && <span><i className="dot fog" />{L("可能位置")}</span>}
+        {showCloud && <span><i className="dot fog" />{L("可能位置")}</span>}
+        {replayAt != null && <span><i className="dot aim" />{L("猫的推断点")}</span>}
       </div>
     </div>
   );
@@ -313,18 +347,18 @@ export default function CatMouseGame() {
 
   const pickPoint = (p: Point) => {
     if (phase === 'mouse-move') {
-      const limit = moveLimit(mousePos, sprintOn ? 2 : 1);
+      const limit = moveLimit(mousePos, sprintOn ? SPRINT_MOVE : MOUSE_MOVE);
       if (distance(mousePos, p) > limit + .02) {
         setMessage(`超出本回合移动范围（最多 ${fmt(limit)}）。`);
         return;
       }
     }
-    if (phase === 'bait' && distance(mousePos, p) > 2.02) {
-      setMessage('诱饵必须放在真实位置半径 2 内。');
+    if (phase === 'bait' && distance(mousePos, p) > BAIT_RADIUS + BAIT_EPS) {
+      setMessage(`诱饵必须放在真实位置半径 ${BAIT_RADIUS} 内。`);
       return;
     }
     if (phase === 'cat-move') {
-      const limit = moveLimit(catPos, 1.25);
+      const limit = moveLimit(catPos, CAT_MOVE);
       if (distance(catPos, p) > limit + .02) {
         setMessage(`猫本回合最多移动 ${fmt(limit)}。`);
         return;
@@ -334,14 +368,18 @@ export default function CatMouseGame() {
   };
 
   const endOrNext = (frame: Frame, nextCloud: Point[]) => {
-    const captured = frame.distance <= 1;
+    const captured = frame.distance <= CAPTURE_RADIUS;
     const final = frame.turn >= preset.turns;
     if (captured || final) {
-      const catWin = captured || frame.distance <= 3;
-      setResult(catWin ? (captured ? '猫完成捕获' : '猫完成终局封锁') : '老鼠成功逃脱');
+      const catWin = captured || frame.distance <= ENDGAME_CAPTURE;
+      setResult(catWin
+        ? (captured ? '猫完成捕获' : `终局距离 ${fmt(frame.distance)} ≤ ${ENDGAME_CAPTURE}，猫胜`)
+        : `终局距离 ${fmt(frame.distance)} > ${ENDGAME_CAPTURE}，老鼠成功逃脱`);
       setPhase('ended');
       setReplayAt(frame.turn - 1);
-      setMessage(catWin ? '猎手锁定了真相。打开复盘，看看诱饵在哪些回合奏效。' : '假信号拖慢了追踪。打开复盘，检查关键误判。');
+      setMessage(catWin
+        ? '复盘已就绪：拖动下方滑块，看清每一回合猫把推断点放在了哪里。'
+        : '距离撑住了。打开复盘，看诱饵在哪几个回合成功带偏了猫。');
       return;
     }
     const next = frame.turn + 1;
@@ -379,17 +417,21 @@ export default function CatMouseGame() {
       }
       setSelected(null);
       setPhase('bait');
-      setMessage('现在放置诱饵：离真实位置不超过 2。猫只会看见它。');
+      setMessage(`现在放置诱饵：离真实位置不超过 ${BAIT_RADIUS}。猫只会看见它。`);
       return;
     }
     if (phase === 'bait' && role === 'mouse') {
       const newBait = selected;
       const aiCanScent = scents > 0 && turn - lastScent > 1;
       const aiUsesScent = aiCanScent && (distance(catPos, mousePos) < 4.5 || Math.random() < .1);
-      const knownCloud = evolveCloud(cloud, newBait, sprintThisTurn ? 2 : 1, aiUsesScent ? mousePos : undefined);
+      const knownCloud = evolveCloud(cloud, newBait, sprintThisTurn ? SPRINT_MOVE : MOUSE_MOVE, aiUsesScent ? mousePos : undefined);
       const aim = aiUsesScent ? mousePos : centroid(knownCloud, newBait);
-      const nextCat = toward(catPos, aim, moveLimit(catPos, 1.25));
-      const frame: Frame = { turn, cat: nextCat, mouse: mousePos, bait: newBait, catAim: aim, distance: distance(nextCat, mousePos), sprint: sprintThisTurn, scent: aiUsesScent };
+      const nextCat = toward(catPos, aim, moveLimit(catPos, CAT_MOVE));
+      const frame: Frame = {
+        turn, cat: nextCat, mouse: mousePos, bait: newBait, catAim: aim,
+        belief: thinBelief(knownCloud), distance: distance(nextCat, mousePos),
+        sprint: sprintThisTurn, scent: aiUsesScent,
+      };
       setBait(newBait);
       setCatPos(nextCat);
       setCloud(knownCloud);
@@ -407,8 +449,12 @@ export default function CatMouseGame() {
     if (phase === 'cat-move' && role === 'cat') {
       const nextCat = selected;
       const aim = scentThisTurn ? mousePos : centroid(cloud, bait ?? mousePos);
-      const frame: Frame = { turn, cat: nextCat, mouse: mousePos, bait: bait ?? mousePos, catAim: aim, distance: distance(nextCat, mousePos), sprint: sprintThisTurn, scent: scentThisTurn };
       const nextCloud = scentThisTurn ? evolveCloud(cloud, bait ?? mousePos, 0, mousePos) : cloud;
+      const frame: Frame = {
+        turn, cat: nextCat, mouse: mousePos, bait: bait ?? mousePos, catAim: aim,
+        belief: thinBelief(nextCloud), distance: distance(nextCat, mousePos),
+        sprint: sprintThisTurn, scent: scentThisTurn,
+      };
       setCatPos(nextCat);
       setFrames(v => [...v, frame]);
       setSelected(null);
@@ -440,10 +486,10 @@ export default function CatMouseGame() {
           <section className="cm-hero-copy">
             <div className="cm-eyebrow">{L("灵感源自 IMO 2017 · 猎人与兔子")}</div>
             <h2>{L("你追逐的，")}<br />{L("是真相还是")}<span>{L("诱饵？")}</span></h2>
-            <p>{L("在连续平面上展开一场信息不对称的心理战。猫用三次真实气味收紧可能区域；老鼠用假信号与疾跑，把判断引向错误方向。")}</p>
+            <p>{L("在连续平面上展开一场信息不对称的推理追逐。猫与老鼠同速，猫唯一能做的就是从诱饵里推断真相，并用有限次真实气味强行揭穿；老鼠靠半径 4 的诱饵半径把猫的推断点带偏，用疾跑把距离撑开。")}</p>
             <div className="cm-principles">
               <div><Crosshair /><b>{L("推断")}</b><span>{L("从诱饵与轨迹收缩可能区域")}</span></div>
-              <div><Sparkles /><b>{L("欺骗")}</b><span>{L("用半径 2 的诱饵制造错误叙事")}</span></div>
+              <div><Sparkles /><b>{L("欺骗")}</b><span>{L(`用半径 ${BAIT_RADIUS} 的诱饵制造错误叙事`)}</span></div>
               <div><Wind /><b>{L("突围")}</b><span>{L("把握不可连续使用的稀缺资源")}</span></div>
             </div>
           </section>
@@ -452,7 +498,7 @@ export default function CatMouseGame() {
               <span>01</span><div><b>{L("选择阵营")}</b><small>{L("另一方由电脑控制")}</small></div>
             </div>
             <div className="cm-choice-grid">
-              <button className={role === 'cat' ? 'active cat' : ''} onClick={() => setRole('cat')}><Cat /><b>{L("扮演猫")}</b><small>{L("观察 · 推断 · 封锁")}</small></button>
+              <button className={role === 'cat' ? 'active cat' : ''} onClick={() => setRole('cat')}><Cat /><b>{L("扮演猫")}</b><small>{L("观察 · 推断 · 收网")}</small></button>
               <button className={role === 'mouse' ? 'active mouse' : ''} onClick={() => setRole('mouse')}><Mouse /><b>{L("扮演老鼠")}</b><small>{L("走位 · 欺骗 · 逃脱")}</small></button>
             </div>
             <div className="cm-step"><span>02</span><div><b>{L("选择局长")}</b><small>{L("规则与资源自动匹配")}</small></div></div>
@@ -487,6 +533,30 @@ export default function CatMouseGame() {
                 <button onClick={() => setReplayAt(v => v === null || v === frames.length - 1 ? 0 : v + 1)}>›</button>
                 <b>{L("第 ")}{(replayAt ?? frames.length - 1) + 1} {L("回合")}</b>
               </div>
+            )}
+            {phase === 'ended' && replayAt != null && frames[replayAt] && (
+              <dl className="cm-replay-detail">
+                <div>
+                  <dt>{L("猫的推断点")}</dt>
+                  <dd>({fmt(frames[replayAt].catAim.x)}, {fmt(frames[replayAt].catAim.y)})</dd>
+                </div>
+                <div>
+                  <dt>{L("推断误差")}</dt>
+                  <dd className={distance(frames[replayAt].catAim, frames[replayAt].mouse) <= 1 ? 'is-low' : 'is-high'}>
+                    {fmt(distance(frames[replayAt].catAim, frames[replayAt].mouse))}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{L("诱饵偏移")}</dt>
+                  <dd className={distance(frames[replayAt].bait, frames[replayAt].mouse) >= BAIT_RADIUS - .5 ? 'is-low' : 'is-high'}>
+                    {fmt(distance(frames[replayAt].bait, frames[replayAt].mouse))}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{L("该回合结局")}</dt>
+                  <dd>{frames[replayAt].scent ? L("真实气味") : frames[replayAt].sprint ? L("老鼠疾跑") : L("常规回合")}</dd>
+                </div>
+              </dl>
             )}
           </section>
 
@@ -536,7 +606,7 @@ export default function CatMouseGame() {
             <div className="cm-log">
               <h3>{L("公开记录")}</h3>
               {frames.length === 0 ? <p>{L("对局记录将在这里出现。")}</p> : [...frames].reverse().slice(0, 5).map(f => (
-                <div key={f.turn}><b>R{f.turn}</b><span>{f.sprint ? '疾跑 ' : ''}{f.scent ? '· 真实气味 ' : ''}{L("· 距离 ")}{fmt(f.distance)}</span></div>
+                <div key={f.turn}><b>R{f.turn}</b><span>{f.sprint ? '疾跑 ' : ''}{f.scent ? '· 真实气味 ' : ''}{L("· 距离 ")}{fmt(f.distance)}{L(" · 推断误差 ")}{fmt(distance(f.catAim, f.mouse))}</span></div>
               ))}
             </div>
           </aside>
@@ -551,11 +621,11 @@ export default function CatMouseGame() {
             <h2>{L("在 36 × 36 的连续平面上博弈")}</h2>
             <div className="cm-rule-grid">
               <article><b>{L("01 · 老鼠移动")}</b><p>{L("每回合移动不超过 1；疾跑时不超过 2，且不可连续使用。")}</p></article>
-              <article><b>{L("02 · 放置诱饵")}</b><p>{L("诱饵距离真实位置不超过 2。猫能看见诱饵，却看不见老鼠。")}</p></article>
+              <article><b>{L("02 · 放置诱饵")}</b><p>{L(`诱饵距离真实位置不超过 ${BAIT_RADIUS}。猫能看见诱饵，却看不见老鼠。`)}</p></article>
               <article><b>{L("03 · 真实气味")}</b><p>{L("猫在移动前揭示本回合真实位置，总次数有限且不可连续使用。")}</p></article>
-              <article><b>{L("04 · 猫移动")}</b><p>{L("每回合移动不超过 1.25。移动后距离 ≤ 1，立即完成捕获。")}</p></article>
+              <article><b>{L("04 · 猫移动")}</b><p>{L(`每回合移动不超过 ${CAT_MOVE}，与老鼠同速。移动后距离 ≤ ${CAPTURE_RADIUS}，立即完成捕获。`)}</p></article>
               <article><b>{L("阻力区")}</b><p>{L("回合开始时若 max(|x|, |y|) &gt; 15，本回合移动上限减半。")}</p></article>
-              <article><b>{L("终局封锁")}</b><p>{L("最后一回合结束时距离 ≤ 3，猫胜；否则老鼠成功逃脱。")}</p></article>
+              <article><b>{L("终局判定")}</b><p>{L(`最后一回合结束时距离 ≤ ${ENDGAME_CAPTURE}，猫胜；否则老鼠成功逃脱。世界不会收缩。`)}</p></article>
             </div>
             <button className="cm-primary" onClick={() => setRulesOpen(false)}>{L("明白了，开始判断")}</button>
           </section>

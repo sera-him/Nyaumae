@@ -39,6 +39,7 @@ const AISettingsPage = lazy(routeLoaders.aiSettings);
 const CodexPage = lazy(routeLoaders.codex);
 const NctbPage = lazy(routeLoaders.nctb);
 const DataStatsPage = lazy(routeLoaders.analytics);
+const OKComputerPage = lazy(() => import('@/pages/OKComputer'));
 
 function PageLoader() {
   return (
@@ -162,12 +163,12 @@ function StoriesGuard() {
   return <SuspenseWrapper area="stories"><StoryReader /></SuspenseWrapper>;
 }
 
-function PlaygroundGuard({ category }: { category: 'games' | 'scratch' }) {
+function PlaygroundGuard({ category }: { category: 'games' | 'scratch' | 'rules' }) {
   const { game } = useParams<{ game?: string }>();
   const itemCategory = game ? getPlaygroundItemCategory(game) : null;
 
   if (!game || !isKnownPlaygroundItem(game) || itemCategory !== category) {
-    return <NotFoundPage domain="游戏实验场" message={L(`未找到该${category === 'scratch' ? ' Scratch 小游戏' : '游戏'}${game ? ` "${game}"` : ''}`)} />;
+    return <NotFoundPage domain="游戏实验场" message={L(`未找到该${category === 'scratch' ? ' Scratch 小游戏' : category === 'rules' ? '游戏规则' : '游戏'}${game ? ` "${game}"` : ''}`)} />;
   }
 
   return <SuspenseWrapper area="games"><Playground /></SuspenseWrapper>;
@@ -224,6 +225,8 @@ export default function AppRoutes() {
         <Route path="/cat-mouse" element={<Navigate to="/playground/games/cat-mouse" replace />} />
         <Route path="/playground/scratch" element={<SuspenseWrapper area="games"><Playground /></SuspenseWrapper>} />
         <Route path="/playground/scratch/:game" element={<PlaygroundGuard category="scratch" />} />
+        <Route path="/playground/rules" element={<SuspenseWrapper area="games"><Playground /></SuspenseWrapper>} />
+        <Route path="/playground/rules/:game" element={<PlaygroundGuard category="rules" />} />
 
         <Route path="/api" element={<SuspenseWrapper area="settings"><ApiDocs /></SuspenseWrapper>} />
         <Route path="/api/:provider" element={<ApiGuard />} />
@@ -239,6 +242,7 @@ export default function AppRoutes() {
         <Route path="/chat/aurora" element={<SuspenseWrapper area="chat"><AuroraChat /></SuspenseWrapper>} />
         <Route path="/chat/legacy" element={<Navigate to="/chat" replace />} />
         <Route path="/neural-clash" element={<Navigate to="/playground/games/neural-clash" replace />} />
+        <Route path="/okcomputer" element={<SuspenseWrapper area="other"><OKComputerPage /></SuspenseWrapper>} />
 
         <Route path="*" element={<NotFoundPage message="页面未找到" />} />
       </Routes>}

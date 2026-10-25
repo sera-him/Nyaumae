@@ -57,6 +57,15 @@ const configs: Record<string, StoryThemeConfig> = {
     bgTextureClass: '',
     titleFontClass: 'font-serif-cn',
   },
+  'delan-succession': {
+    theme: 'story-ocean',
+    coverImage: '/org-delan.jpg',
+    accentColor: '#F472B6',
+    chapterButtonStyle: 'bubble',
+    paperStyle: 'dark',
+    bgTextureClass: 'ocean-bg-bubbles',
+    titleFontClass: '',
+  },
 };
 
 export function getStoryConfig(storyId: string): StoryThemeConfig {

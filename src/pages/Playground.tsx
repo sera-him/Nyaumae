@@ -28,18 +28,20 @@ interface GameEntry {
   id: string;
   name: string;
   desc: string;
-  category: 'games' | 'scratch';
+  category: 'games' | 'scratch' | 'rules';
   icon: string;
   color: string;
   component?: React.ComponentType;
   scratchId?: number;
   sessionNote?: string;
   sessionNoteEn?: string;
+  rulesText?: string;
 }
 
 const CATEGORIES: { key: GameEntry['category']; label: string }[] = [
   { key: 'games', label: '可玩游戏' },
   { key: 'scratch', label: 'Scratch 小游戏' },
+  { key: 'rules', label: '游戏规则' },
 ];
 
 /* ─── Game data ─── */
@@ -101,7 +103,7 @@ const games: GameEntry[] = [
   },
   {
     id: 'fractal-echo', name: '递归回响',
-    desc: '用32次操作编写、攻击和重构无限递归程序。规则继承、祖先改写、克隆回声与尺度剪断。',
+    desc: '3×3 同坐标广播的递归棋盘：每一步在所有已存在的子盘同一坐标落子，8/16/32/64 步可选。行动方按 Thue–Morse 序列分配，蓝橙严格对半，单人同时执两方；开局可撒入敌对双方的地形子。占住根盘 5 票即胜。',
     category: 'games', icon: '❋', color: '#10b981',
     component: LazyFractalEcho,
   },
@@ -122,7 +124,7 @@ const games: GameEntry[] = [
   },
   {
     id: 'cat-mouse', name: '猫鼠迷踪',
-    desc: '连续平面上的非对称追逐。诱饵骗术、真实气味、疾跑与终局封锁。支持双阵营实战与完整复盘。',
+    desc: '回合制的信息推理对决，猫与老鼠在连续平面上同速。猫看不见老鼠、只看得见诱饵，用有限次真实气味强行揭穿；老鼠靠偏置诱饵把猫的推断点带偏，用疾跑把距离撑开。终局按最后距离判定，复盘可回看每一回合猫的推断。',
     category: 'games', icon: '🐱', color: '#9d7df6',
     component: LazyCatMouseGame,
   },
@@ -145,6 +147,34 @@ const games: GameEntry[] = [
   { id: 'cat-mouse-38', name: '猫捉老鼠38', desc: '案达成苹果创作的 Scratch 小游戏', category: 'scratch', icon: '🐭', color: '#ec4899', scratchId: 1696466 },
   { id: 'honeycomb-maze', name: '蜂巢迷宫', desc: '案达成苹果创作的 Scratch 小游戏', category: 'scratch', icon: '🐝', color: '#f59e0b', scratchId: 1783262 },
   { id: 'reinforcement-simulator', name: '强化模拟器', desc: '案达成苹果创作的 Scratch 小游戏', category: 'scratch', icon: '⚡', color: '#f59e0b', scratchId: 1896461 },
+
+  /* ─── Game rules ─── */
+  {
+    id: 'reach-finish', name: '到达终点',
+    desc: '赚钱升级、拉人过河、绕开 BOSS 抵达终点——9 个区域的策略棋盘。',
+    category: 'rules', icon: '🏁', color: '#10b981',
+    rulesText: `赚钱效率 → 荣誉等级
+等级 → 战斗等级
+
+地图（错位布局）：
+
+  1 - 2   3
+      |   |
+  4 - 5 - 6
+  |   |   |
+  7 - 8   9
+
+各区说明：
+1  赚钱区：左上角外卖 / 左下角 pdd 拉人 / 右上角狩猎 / 右下角采集（有时间限制，可升级）
+2  集市：可以升级
+3  拉人区
+4  BOSS 区：BOSS 守着终点
+5  初始区
+6  被过河拆桥区：河对岸有木头，到达终点可以获得木头
+7  暗道：可以绕开 BOSS 到达终点
+8  暗道：有木头，但不够造桥
+9  彩蛋区：只是玩游戏`,
+  },
 ];
 
 /* ─── English overrides (only consulted when getLocale() === 'en') ─── */
@@ -152,6 +182,7 @@ const games: GameEntry[] = [
 const EN_CATEGORY: Record<GameEntry['category'], string> = {
   games: 'Playable games',
   scratch: 'Scratch mini-games',
+  rules: 'Game rules',
 };
 
 interface GameEn { name?: string; desc?: string; sessionNote?: string; }
@@ -199,7 +230,7 @@ const EN_GAMES: Record<string, GameEn> = {
   },
   'fractal-echo': {
     name: 'Fractal Echo',
-    desc: 'Write, attack and rewrite infinite recursive programs in 32 moves. Rule inheritance, ancestor rewrite, cloned echo and scale cuts.',
+    desc: 'A recursive 3×3 board tree: every action broadcasts to the same coordinate in all existing sub-boards, over 8/16/32/64 actions. Sides are assigned by the Thue–Morse schedule so blue and orange stay exactly even — one player drives both. Seed hostile opening terrain. Holding 5 of the 9 root votes wins.',
   },
   'neural-echo': {
     name: 'Neural Echo',
@@ -211,7 +242,7 @@ const EN_GAMES: Record<string, GameEn> = {
   },
   'cat-mouse': {
     name: 'Cat & Mouse Chase',
-    desc: 'Asymmetric chase on a continuous plane. Decoys, real scent, dashes and endgame lockdown. Playable on both sides with full replay.',
+    desc: 'Turn-based deduction on a continuous plane where cat and mouse move at the same speed. The cat never sees the mouse, only the bait, and can spend limited real scents to unmask it; the mouse offsets the bait to drag the cat\'s inference away and sprints to hold the distance open. The last turn is decided by distance, and the replay shows where the cat aimed every round.',
   },
   'giant-catch': {
     name: 'Giant Catch',
@@ -230,6 +261,10 @@ const EN_GAMES: Record<string, GameEn> = {
   'cat-mouse-38': { name: 'Cat & Mouse 38', desc: SCRATCH_DESC_EN },
   'honeycomb-maze': { name: 'Honeycomb Maze', desc: SCRATCH_DESC_EN },
   'reinforcement-simulator': { name: 'Reinforcement Simulator', desc: SCRATCH_DESC_EN },
+  'reach-finish': {
+    name: 'Reach the Finish',
+    desc: 'Earn, upgrade, ferry people, dodge the BOSS — a 9-zone strategy board.',
+  },
 };
 
 const EN_LEGACY: Record<string, GameEn> = {
@@ -238,8 +273,6 @@ const EN_LEGACY: Record<string, GameEn> = {
     desc: 'Each item has a passage followed by several choices. Read the passage and pick the best answer.',
   },
 };
-
-const EN_FRACTAL_DESC = 'A recursive board that broadcasts on a shared 3×3 coordinate: blue and orange act in turns. Speeds from blitz to intense, with opening AI terrain.';
 
 /* ─── Legacy alias map (backward compat) ─── */
 
@@ -276,7 +309,7 @@ function resolvePlaygroundPath(pathname: string) {
   if (parts.length === 0) return { category: null as GameEntry['category'] | null, item: null as string | null };
 
   const rawCategory = parts[0];
-  const category = (rawCategory === 'games' || rawCategory === 'scratch') ? rawCategory as GameEntry['category'] : null;
+  const category = (rawCategory === 'games' || rawCategory === 'scratch' || rawCategory === 'rules') ? rawCategory as GameEntry['category'] : null;
   const item = parts.length > 1 ? parts.slice(1).join('/') : null;
 
   if (category) return { category, item };
@@ -299,10 +332,8 @@ const SCRATCH_DESKTOP_HEIGHT = 650;
 
 const gameOverride = (game: GameEntry): GameEn | undefined => EN_GAMES[game.id] ?? EN_LEGACY[game.id];
 const displayGameName = (game: GameEntry, en: boolean) => (en ? (gameOverride(game)?.name ?? game.name) : game.name);
-const displayGameDescription = (game: GameEntry, en: boolean) => {
-  if (game.id === 'fractal-echo') return en ? EN_FRACTAL_DESC : '3×3 同坐标广播的递归棋盘：蓝橙对半行动，支持极速到高强度与开局 AI 地形。';
-  return en ? (gameOverride(game)?.desc ?? game.desc) : game.desc;
-};
+const displayGameDescription = (game: GameEntry, en: boolean) =>
+  en ? (gameOverride(game)?.desc ?? game.desc) : game.desc;
 
 /* ─── GameIcon ─── */
 
@@ -476,6 +507,46 @@ function ScratchDetail({ game, onBack }: { game: GameEntry; onBack: () => void }
   );
 }
 
+/* ─── Game rules detail ─── */
+
+function RulesDetail({ game, onBack }: { game: GameEntry; onBack: () => void }) {
+  const en = getLocale() === 'en';
+  const name = displayGameName(game, en);
+  const desc = displayGameDescription(game, en);
+  return (
+    <div
+      className="rounded-2xl overflow-hidden border border-white/[0.06] pg-lab-frame"
+      data-game={game.id}
+      data-motion-loop
+      style={{ '--game-accent': game.color } as React.CSSProperties}
+    >
+      <div className="pg-experiment-bar">
+        <span className="pg-status-dot" style={{ backgroundColor: game.color }} />
+        <span className="text-xs font-mono font-semibold" style={{ color: game.color }}>{name}</span>
+        <span className="text-xs text-nc-text-muted/50">GAME RULES / 规则说明</span>
+      </div>
+      <div className="flex items-center justify-between px-4 py-2.5 bg-nc-bg-tertiary/50">
+        <div className="flex items-center gap-2">
+          <GameIcon icon={game.icon} color={game.color} />
+          <div>
+            <div className="text-sm font-medium">{name}</div>
+            <div className="text-xs text-nc-text-muted/50">{desc}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button type="button" data-action="back" onClick={onBack} aria-label={L("返回游戏规则列表")} className="flex items-center gap-1 text-xs text-nc-text-muted hover:text-nc-text transition-colors px-2 py-1">
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+            <span>{L("返回")}</span>
+          </button>
+        </div>
+      </div>
+      <div className="p-6">
+        <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-mono">{game.rulesText}</pre>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Playable game component ─── */
 
 function PlayableGame({ game, onBack }: { game: GameEntry; onBack: () => void }) {
@@ -639,6 +710,11 @@ export default function Playground() {
         {selectedGame && category === 'scratch' && (
           <motion.div key={selectedGame.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
             <ScratchDetail game={selectedGame} onBack={goBack} />
+          </motion.div>
+        )}
+        {selectedGame && category === 'rules' && (
+          <motion.div key={selectedGame.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+            <RulesDetail game={selectedGame} onBack={goBack} />
           </motion.div>
         )}
       </AnimatePresence>

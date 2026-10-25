@@ -15,8 +15,9 @@ export function RulesPanel() {
         <h3 className="text-lg font-bold text-nc-text mb-3">{L("核心机制")}</h3>
         <div className="space-y-2 text-sm text-nc-text-secondary">
           <p>{L("• 每个格子有独立的成功概率，落子时掷概率骰判定是否成功")}</p>
-          <p>{L("• 失败跳过回合，但根据格子位置获得 SP 补偿：中心 +3，角 +4，边 +6")}</p>
+          <p>{L("• 落子失败则这一回合没有棋子落下，但会按格子位置获得 SP 补偿：中心 +3，角 +4，边 +6")}</p>
           <p>{L("• SP 上限 30，每回合 +3 收入，可用技能/购买职业")}</p>
+          <p>{L("• 暴君之握会让对手在那一回合内无法使用任何技能，回合结束后解除")}</p>
           <p>{L("• 先连成三连者获胜")}</p>
         </div>
       </div>

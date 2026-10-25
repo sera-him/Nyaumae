@@ -1,4 +1,4 @@
-import { hexKey, hexNeighbor, wallKey } from './types';
+import { hexKey, hexNeighbor, wallKey, DIR_COUNT } from './types';
 import type { HexCoord, MazeState, Difficulty } from './types';
 
 export const DIFFICULTIES: Difficulty[] = [
@@ -25,6 +25,12 @@ function hexCells(radius: number): HexCoord[] {
     for (let r = r1; r <= r2; r++) cells.push({ q, r });
   }
   return cells;
+}
+
+/** Number of hex cells in a radius-R hex disc (generateMaze floors the radius). */
+export function hexCellCount(radius: number): number {
+  const R = Math.floor(radius);
+  return 3 * R * (R + 1) + 1;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -161,4 +167,39 @@ export function getFeedback(state: MazeState): [boolean, boolean, boolean] {
   const ek = hexKey(state.end.q, state.end.r);
   const facingExit = pk === ek && state.playerDir === state.exitDir;
   return [canMove, onTarget, facingExit];
+}
+
+/**
+ * "Par": the fewest forward steps from start to exit, i.e. BFS over the cells,
+ * only crossing edges that are not in `walls`. The maze is a spanning tree, so
+ * that path is unique. Returns -1 when the exit is unreachable.
+ */
+export function shortestPathLength(state: MazeState): number {
+  const startKey = hexKey(state.start.q, state.start.r);
+  const endKey = hexKey(state.end.q, state.end.r);
+  if (!state.cells.has(startKey) || !state.cells.has(endKey)) return -1;
+  if (startKey === endKey) return 0;
+
+  const seen = new Set<string>([startKey]);
+  let frontier: HexCoord[] = [state.start];
+  let steps = 0;
+
+  while (frontier.length > 0) {
+    const next: HexCoord[] = [];
+    steps++;
+    for (const cur of frontier) {
+      for (let d = 0; d < DIR_COUNT; d++) {
+        const n = hexNeighbor(cur.q, cur.r, d);
+        const nk = hexKey(n.q, n.r);
+        if (!state.cells.has(nk) || seen.has(nk)) continue;
+        if (state.walls.has(wallKey(cur, n))) continue;
+        if (nk === endKey) return steps;
+        seen.add(nk);
+        next.push(n);
+      }
+    }
+    frontier = next;
+  }
+
+  return -1;
 }

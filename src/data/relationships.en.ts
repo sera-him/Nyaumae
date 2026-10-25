@@ -22,13 +22,15 @@ export const relationColors: Record<RelationType, string> = {
 };
 
 export const networkNodesEn: NetworkNode[] = [
-  // mia-family (6)
+  // mia-family (7)
   { id: 'mimi',       name: 'Mimi',      group: 'mia-family', x: 23.67, y: 19.14 },
   { id: 'qicheng',    name: 'Qicheng',   group: 'mia-family', x: 36.26, y: 22.28 },
   { id: 'miia',       name: 'Miia',      group: 'mia-family', x: 44.13, y: 41.17 },
   { id: 'mia',        name: 'Mia',       group: 'mia-family', x: 26.82, y: 49.04 },
   { id: 'amiya',      name: 'Amiya',     group: 'mia-family', x: 15.80, y: 39.60 },
   { id: 'miya',       name: 'Miya',      group: 'mia-family', x: 12.65, y: 23.86 },
+  // 咪娅坐标经渲染几何校验：与最近节点 11.53、与既有连线 6.38，四条家族连线净空 ≥5.22
+  { id: 'miiya',      name: 'Mi-iya',    group: 'mia-family', x:  6.75, y: 46.75 },
 
   // zhihua (7)
   { id: 'zhaozhao',   name: 'Zhao Zhao', group: 'zhihua',   x: 89.80, y: 45.57 },
@@ -99,6 +101,10 @@ export const characterRelations: CharacterRelation[] = [
   { from: 'haruka',  to: 'mia',      type: 'friend' },
   { from: 'qicheng', to: 'mia',      type: 'friend' },
   { from: 'qicheng', to: 'amiya',    type: 'friend' },
+  { from: 'miiya',    to: 'miia',     type: 'friend' },
+  { from: 'miiya',    to: 'mia',      type: 'friend' },
+  { from: 'miiya',    to: 'amiya',    type: 'friend' },
+  { from: 'miiya',    to: 'miya',     type: 'friend' },
 
   // Zhehua School
   { from: 'zhaozhao', to: 'nimfa',   type: 'colleague' },

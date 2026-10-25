@@ -1,4 +1,30 @@
 <!DOCTYPE html>
+<!--
+  ============================================================================
+  遗留独立镜像 / LEGACY STANDALONE MIRROR — 请勿让它与主实现分叉
+  ============================================================================
+
+  本文件是 src/sections/Super24.tsx 的完整 1:1 原生 JS 移植。
+  应用内没有任何地方引用它（grep src/ 与 index.html 均为 0 命中），
+  但它位于 public/ 下，因此仍可通过 /super24.html 直接访问。
+
+  唯一权威实现是 React 组件 src/sections/Super24.tsx。
+  任何规则改动都必须同时落到两处，或者把本镜像撤下；
+  绝不允许只改一处——这正是本文件存在的原因（它是分叉的温床）。
+
+  两处已知的既有差异，改动时注意：
+    1. 难度按钮：HTML 版渲染 3..42 全部整数；TSX 版只暴露
+       [3, 5, 8, 12, 20, 30, 42]。
+    2. HTML 版保留一个从未被调用的 getHint()；TSX 版已移除。
+
+  —— 中文如上，英文摘要：
+  This file is a 1:1 vanilla-JS mirror of src/sections/Super24.tsx. Nothing
+  in the app references it, but it is served from public/ at /super24.html.
+  The React component is the canonical implementation. Any rule change must
+  land in both, or this mirror must be retired — do not let them diverge.
+  Known existing differences: difficulty buttons (3..42 vs the 7 presets),
+  and an unused getHint() that only this copy retains.
+-->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">

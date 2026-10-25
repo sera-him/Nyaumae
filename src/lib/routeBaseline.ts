@@ -231,6 +231,7 @@ export const ROUTE_MANIFEST: RouteEntry[] = [
       '/story-agi-land.jpg',
       '/story-zhenhai-refining.png',
       '/story-miia-dream-generated.png',
+      '/org-delan.jpg',
     ],
   },
   {
@@ -279,7 +280,7 @@ export const ROUTE_MANIFEST: RouteEntry[] = [
   {
     path: '/stories/little-girl-in-giant-country',
     title: '大人国的小女孩',
-    description: '第一卷 · 小满来到这里的三十天，65 章节',
+    description: '两卷合订 · 小满与小谷的三十天，85 章节',
     parentRoute: '/stories',
     theme: 'story-giant',
     imageAssets: [
@@ -288,6 +289,14 @@ export const ROUTE_MANIFEST: RouteEntry[] = [
       '/story-giant-part-7.png', '/story-giant-part-8.png',
       '/story-miia-dream-generated.png',
     ],
+  },
+  {
+    path: '/stories/delan-succession',
+    title: '德澜思拓继位事件',
+    description: '外传 · 深海公地的博弈，5 章节',
+    parentRoute: '/stories',
+    theme: 'story-ocean',
+    imageAssets: ['/org-delan.jpg'],
   },
   {
     path: '/miia/world',

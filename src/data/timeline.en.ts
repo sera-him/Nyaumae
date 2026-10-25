@@ -28,6 +28,11 @@ export const timelineEventsEn: TimelineEvent[] = [
     desc: 'Yin Pai launches the "Heart Realm" VR project, investing $100 million in the country\'s first anime-style VR game',
   },
   {
+    year: '2024',
+    title: 'The Delansi succession',
+    desc: 'The former CEO (Miya\'s teacher) passes away; the will is read publicly and student Miya inherits Delansi; Zhao Zhao\'s Vigil Alliance holds the conservative-development line',
+  },
+  {
     year: '2025',
     title: "M/I/As' World",
     desc: 'Star Realm Pavilion. Miya, Amiya, Mia, Miia and mia³ — five "selves" from different points in time share one spacetime',

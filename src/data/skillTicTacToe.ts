@@ -26,7 +26,7 @@ export const skillTicTacToeOverview = {
   title: 'Skill Tic-Tac-Toe — 概率三子棋',
   subtitle: '传统三子棋 × 概率机制 × SP技能系统',
   objective: '将三个己方符号（O 或 X）连成一行、一列或一条对角线',
-  coreMechanic: '每个格子有独立的行动成功概率。落子时掷概率骰，若失败则跳过本回合。游戏没有平局（棋盘满时仍可 Rolling Thunder 清空）。',
+  coreMechanic: '每个格子有独立的行动成功概率。落子时掷概率骰，若失败则这一回合没有棋子落下（回合照常结束，并按格子位置返还 SP）。游戏没有平局（棋盘满时仍可 Rolling Thunder 清空）。',
 };
 
 // 概率生成算法说明
@@ -93,7 +93,7 @@ export const professions: Profession[] = [
     name: 'Tyrant',
     type: 'Profession',
     spCost: 18,
-    effect: '获得专属技能「Tyrant\'s Grip」。使用后对手下回合所有 SP 消耗涨价',
+    effect: '获得专属技能「Tyrant\'s Grip」。使用后对手下回合所有 SP 消耗涨价，并在该回合内无法使用技能',
     color: 'from-purple-500 to-violet-500',
   },
   {
@@ -249,7 +249,7 @@ export const activeSkills: Skill[] = [
     name: 'Tyrant\'s Grip',
     type: 'Active',
     spCost: '0 + 每用 +5 / 每停 -3（最低 0）',
-    effect: '对手下回合所有 SP 消耗涨价为 ceil(1.5x+5)，最低 -5。职业价格也受影响。必须拥有 Tyrant 职业',
+    effect: '对手下回合所有 SP 消耗涨价为 ceil(1.5x+5)，最低 -5。职业价格也受影响，并且对手在那一回合内无法使用任何技能。必须拥有 Tyrant 职业',
   },
 ];
 

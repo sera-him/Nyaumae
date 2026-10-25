@@ -286,9 +286,11 @@ function resolveMouseMove(state: GameState, option: MoveOption): GameState {
     dashesLeft: state.dashesLeft - (option.dash ? 1 : 0),
   };
   next = appendLog(next, 'mouse', `喵呜${dashNote}跑到了 ${coordLabel(option.target)}。`);
-  if (same(option.target, state.giant)) {
-    return { ...next, phase: 'ended', outcome: 'caught' };
-  }
+  // 这里的「踏上指尖格即被抓」永远不会触发：mouseMoveOptions 在生成走法时
+  // 已经用 same(target, state.giant) 过滤掉了小满所在格（冲刺的中间格同样过滤），
+  // 所以 option.target 必定不等于 state.giant。
+  // 真正的捕获判定在 resolveGiantMove —— 小满的指尖扫过喵呜所在格才算。
+  // 保留此注释是为了避免有人看到「分支没被覆盖」就再加一次检查。
   if (!giantActsOn(next.turn)) {
     return { ...next, turn: next.turn + 1 };
   }
@@ -320,6 +322,9 @@ function outcomeDetail(outcome: Outcome, role: Role, en: boolean): string {
 function cellIcon(p: Point, state: GameState): string {
   if (state.phase !== 'ended' && same(p, state.giant)) return '👆';
   if (same(p, state.mouse)) return '🐹';
+  // 终局后的第二次巨型格检查永远不可达：上面的分支在 phase === 'ended' 时
+  // 刻意不返回，所以走不到这里；但对局结束时喵呜与小满必然同格，
+  // 上面的 '🐹' 会先命中并把指针图标盖掉。这是既有显示优先级，不是缺陷。
   if (state.phase === 'ended' && same(p, state.giant)) return '👆';
   if (CONES.some((c) => same(c, p))) return '🚧';
   if (TIRES.some((c) => same(c, p))) return '🛞';

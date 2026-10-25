@@ -14,11 +14,12 @@
 // Word count leads because the lexicon only contains entries that passed a
 // cohesion and branching-entropy test, so a real word is always worth more
 // than the pair of junk bigrams that would cover the same span. Maximising
-// coverage first would prefer junk instead: given 老师|有小|本子|叫页 that
-// split tiles all eight characters, while 老师|本子|页表 leaves 有, 叫 and 表
+// coverage first would prefer junk instead: given 老师|有小|本子|叫摆 that
+// split tiles all eight characters, while 老师|本子|摆位表 leaves 有, 叫
 // unmatched and would lose. Characters the lexicon has never seen are paired
 // off in fixed two-character units so freshly coined terms still register;
-// single stray characters are left for isUsefulWord to drop.
+// single stray characters are emitted as one-character tokens and counted by
+// isUsefulWord (单字也计入统计，不再丢弃).
 //
 // Non-Han runs use plain character classes, and interior `+ # . - /` count as
 // term connectors so notation like `U+1F9D1`, `SdN+` and `bice-om` stays in one
@@ -81,8 +82,9 @@ function segmentHanRun(run: string, out: RunSegment[]): void {
   }
 
   // Walk the chosen split forward. Characters the lexicon never saw are emitted
-  // as single-character segments and then dropped by isUsefulWord, which is what
-  // the old Intl path did with unknown words. Pairing them up instead is worse:
+  // as single-character segments; isUsefulWord now counts them, which is what
+  // makes every character in the corpus show up in the statistics. Pairing them
+  // up instead is worse:
   // an unmatched character wedged between two matches (the 有 in 老师|本子) would
   // drag a real character out of the neighbouring word and invent 有小.
   let index = 0;
@@ -101,7 +103,7 @@ function segmentHanRun(run: string, out: RunSegment[]): void {
 /**
  * Split text into candidate word tokens. Punctuation, whitespace, symbols and
  * emoji are separators. Han and non-Han runs are scanned independently so mixed
- * text like `咪呀page table` yields `咪呀` then `page` then `table`.
+ * text like `咪呀layout book` yields `咪呀` then `layout` then `book`.
  */
 export function tokenizeForFrequency(text: string): string[] {
   const tokens: string[] = [];
@@ -152,10 +154,10 @@ export function tokenizeForFrequency(text: string): string[] {
 }
 
 /**
- * Reduced mode used only if the lexicon ever ships empty. Keeps every Han run of
- * two or more characters and every Latin/number run whole — cruder than
- * {@link tokenizeForFrequency}, but still fully deterministic.
+ * Reduced mode used only if the lexicon ever ships empty. Keeps every Han run
+ * whole — including single characters, which now count — and every Latin/number
+ * run whole. Cruder than {@link tokenizeForFrequency}, but still deterministic.
  */
 export function tokenizeWithoutLexicon(text: string): string[] {
-  return (text.match(/[\p{Script=Han}]{2,}|[\p{L}][\p{L}\p{N}+]*/gu) ?? []).filter(Boolean);
+  return (text.match(/[\p{Script=Han}]+|[\p{L}][\p{L}\p{N}+]*/gu) ?? []).filter(Boolean);
 }

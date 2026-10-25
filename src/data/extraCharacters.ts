@@ -4,6 +4,8 @@ export interface ExtraChar {
   alias?: string;
   bio: string;
   category: '角色' | 'AI' | '概念' | '其他';
+  /** 现实/设定年龄；仅当设定明确给出时填写。 */
+  age?: number;
   fsiii?: number;
   hidden?: string; // ASI暗中推动的隐藏档案
 }
@@ -14,6 +16,7 @@ export const extraCharacters: ExtraChar[] = [
     name: '林可梦',
     alias: 'linkmo',
     category: '角色',
+    age: 16,
     fsiii: 105,
     bio: '《复数域公主梦》的女主，一名梦想成为公主的小镇做题家。但其实她本来就是公主，是数电大魔王卡塔斯（Quartus）强行修改了世界观，利用分形将其映射到复数域世界观，扭曲了众人的认知。',
   },

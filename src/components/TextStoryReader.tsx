@@ -13,6 +13,7 @@ import type { Story, StoryChapter } from '@/data/stories';
 import SmartImage from '@/components/SmartImage';
 import { READER_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
 import { useReadingPreferences } from '@/hooks/useReadingPreferences';
+import { useKeepActiveEntryVisible } from '@/hooks/useKeepActiveEntryVisible';
 import { useLocale } from '@/hooks/useLocale';
 import { recordReadingProgress } from '@/lib/readingState';
 
@@ -71,9 +72,9 @@ function parseTextStory(source: string): TextStoryPart[] {
     commitChapter();
     const title = line.slice(3).trim();
 
-    // 中文文件：`## 第一篇 …` / `## 第一章：…` / `## 尾声 …`
+    // 中文文件：`## 第一篇 …` / `## 第二卷 …` / `## 第一章：…` / `## 尾声 …`
     // 英文文件：`## Part 1: …` / `## Part Six: …` / `## Chapter 1: …` / `## Epilogue: …`
-    const isPartHeading = /^第.+篇/.test(title) || /^Part\b/i.test(title);
+    const isPartHeading = /^第.+[篇卷]/.test(title) || /^Part\b/i.test(title);
     const isChapterHeading = /^(第.+章|尾声)/.test(title) || /^(Chapter|Epilogue)\b/i.test(title);
 
     if (isPartHeading) {
@@ -157,8 +158,13 @@ interface ChapterDirectoryProps {
 }
 
 function ChapterDirectory({ parts, activePart, activeChapter, onSelect }: ChapterDirectoryProps) {
+  // 换章会整块重挂载，这里负责把滚动条重新停在正在读的那一章。
+  const listRef = useKeepActiveEntryVisible<HTMLElement>(
+    `${activePart}:${activeChapter}:${parts.length}`,
+  );
+
   return (
-    <nav className="story-reader-directory-list" aria-label={L("章节目录")}>
+    <nav ref={listRef} className="story-reader-directory-list" aria-label={L("章节目录")}>
       {parts.map((partItem, partIndex) => (
         <section key={partItem.title} className={partIndex === activePart ? 'is-active' : undefined}>
           <p>{partItem.title}</p>
@@ -411,7 +417,9 @@ export default function TextStoryReader({ story }: TextStoryReaderProps) {
 
         <details className="story-reader-directory story-reader-directory--mobile">
           <summary><ListTree aria-hidden="true" />{L("章节目录")}<span>{validPartIndex + 1}.{validChapterIndex + 1}</span></summary>
-          <ChapterDirectory parts={parts} activePart={validPartIndex} activeChapter={validChapterIndex} onSelect={goToChapter} />
+          <div className="story-reader-directory-collapse">
+            <ChapterDirectory parts={parts} activePart={validPartIndex} activeChapter={validChapterIndex} onSelect={goToChapter} />
+          </div>
         </details>
 
         <div className="story-reader-layout">

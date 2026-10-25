@@ -78,6 +78,11 @@ export interface LoadedProgress extends SavedProgress {
 
 export const MODULE_INTERVAL = 3;
 export const SAVE_KEY = 'cat-machine:incremental-save:v1';
+/**
+ * 历史最高总分。跨「重新开始」保留，由 `removeStorageValue` 之外的路径单独维护。
+ * 曾长期只有读取端（在 reset 里被删掉）而没有任何写入端，所以永远不存在。
+ */
+export const BEST_SCORE_KEY = 'cat-machine:best-score';
 export const NEED_ORDER: Need[] = ['snack', 'play', 'nap'];
 
 export const NEEDS: Record<Need, { icon: string; label: string; station: string; short: string }> = {

@@ -11,6 +11,8 @@ export interface Character {
   group: 'mia' | 'zhihua' | 'impact' | 'delan' | 'giant' | 'other';
   groupLabel: string;
   title?: string;
+  /** 物种（非人类角色填写，如 “Chimera catus（奇美拉属卡特斯种）”）。 */
+  species?: string;
   bio: string;
   extra?: string[];
   /** 与公元年同时展示的巨人国纪年；公元 2026 年 = 巨人国 169 年。 */
@@ -48,6 +50,18 @@ const charactersInSourceOrder: Character[] = [
     bio: '以白发少女形象出现的 AI 意识体，擅长整理知识、拆解问题，并把复杂目标转译成可执行的下一步。',
     profile: [{ label: '身份', value: 'AI' }, { label: '阵营', value: '其他' }],
     color: 'from-white to-cyan-400',
+  },
+  {
+    id: 'miiya', name: '咪娅', pinyin: 'mī yà', alias: 'Mi-iya', birthYear: 2026, age: 0,
+    group: 'mia', groupLabel: 'M/I/A 家族', title: '猫兔子',
+    species: 'Chimera catus（奇美拉属卡特斯种）',
+    bio: '猫与兔的嵌合体，学名 Chimera catus（奇美拉属卡特斯种），登记类别是“猫兔子”。2026 年出生，是 M/I/A 家族里最年幼的成员，目前还不会说话。',
+    profile: [
+      { label: '物种学名', value: 'Chimera catus（奇美拉属卡特斯种）' },
+      { label: '登记类别', value: '猫兔子' },
+      { label: '所属', value: 'M/I/A 家族' },
+    ],
+    color: 'from-fuchsia-400 to-violet-400',
   },
   {
     id: 'wangshu', name: '小芽', alias: 'wangshu', birthYear: 2018, age: 8, fsiq: 115, fsiii: calculateFsiii(115),
@@ -109,7 +123,7 @@ const charactersInSourceOrder: Character[] = [
   {
     id: 'xiaohe', name: '小禾', alias: 'xiaohe', birthYear: 2020, giantBirthYear: 163, age: 6,
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '小谷的双胞胎妹妹 · 巨人国女孩',
-    bio: '小谷的双胞胎妹妹。有神经发育障碍，需要像喵呜一样按时服药；虽然发育稍缓，但眼神里总带着温柔的好奇。喜欢和小谷一起躲在窗帘后，听姐姐用舌头顶那颗摇晃的牙。',
+    bio: '小谷的双胞胎妹妹。有神经发育障碍，需要像喵呜一样按时服药；伴随全面发育迟缓。',
     profile: [
       { label: '巨人国身高', value: '13 m' },
       { label: '巨人国体重', value: '28.5 t' },
@@ -137,7 +151,7 @@ const charactersInSourceOrder: Character[] = [
   {
     id: 'miaowu', name: '喵呜', alias: 'miaowu', birthYear: 2018, giantBirthYear: 161, age: 8, approximateAge: true, fsiq: 112, fsiii: calculateFsiii(112),
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '小满在普通世界遇见的第一个朋友',
-    bio: '东海市二年级小学生，身高不到 1.3 米，有神经发育障碍，需要按时服药。说话直接、观察细致，不轻易以“正常”或“异常”评判别人；她接纳小满，也成为小满适应普通世界时最重要的朋友。',
+    bio: '东海市二年级小学生，身高不到 1.3 米，有神经发育障碍，需要按时服药。说话直接、观察细致，不轻易以“正常”或“异常”评判别人；ta 接纳小满，也成为小满适应普通世界时最重要的朋友。',
     profile: [
       { label: '现实世界身高', value: '< 1.3 m' },
       { label: '年级', value: '小学二年级' },
@@ -171,13 +185,13 @@ const charactersInSourceOrder: Character[] = [
     color: 'from-emerald-400 to-cyan-500',
   },
   {
-    id: 'delivery-rider', name: '外卖员', alias: 'delivery rider', birthYear: 1996, giantBirthYear: 139, age: 30, approximateAge: true, fsiq: 108, fsiii: calculateFsiii(108),
+    id: 'delivery-rider', name: '外卖员', alias: 'delivery rider', birthYear: 1996, giantBirthYear: 139, age: 30, fsiq: 108, fsiii: calculateFsiii(108),
     group: 'giant', groupLabel: '《大人国的小女孩》', title: '热心的东海外卖骑手',
-    bio: '最初在路口目睹小满出现，随后主动拿出防水布和野餐垫，并多次骑车跑腿采购食材。他以前做过后厨，熟悉灶具、采购和处理食材，是临时互助小队里行动力很强的一员。正文没有公布他的姓名与精确年龄。',
+    bio: '最初在路口目睹小满出现，随后主动拿出防水布和野餐垫，并多次骑车跑腿采购食材。他以前做过后厨，熟悉灶具、采购和处理食材，是临时互助小队里行动力很强的一员。正文没有公布他的姓名。',
     profile: [
       { label: '现实世界职业', value: '外卖骑手；曾做后厨' },
       { label: '姓名', value: '正文未公布' },
-      { label: '年龄依据', value: '正文未明示；人物档案暂定约 30 岁' },
+      { label: '年龄依据', value: '设定档案确定为 30 岁' },
     ],
     extra: ['推定纪年：约公元 1996 年 = 约巨人国 139 年'],
     color: 'from-blue-400 to-cyan-400',
@@ -268,9 +282,10 @@ const charactersInSourceOrder: Character[] = [
     fsiii: 114, color: 'from-cyan-400 to-sky-400',
   },
   {
-    id: 'miacubic', name: 'mia³', alias: 'mia.cubic', birthYear: 2005, age: 21,
+    id: 'miacubic', name: 'mia³', alias: 'mia.cubic', birthYear: 2005, age: 14,
     group: 'mia', groupLabel: 'M/I/A 家族', title: '永恒 14 岁学生',
     bio: '咪呀在 2019 年创造的"自设"。永恒 14 岁学生，研究人工智能模型的可解释性与底层逻辑架构。',
+    extra: ['设定校正：年龄为 14 岁（此前误写为 21 岁）；2005 年是 2019 年被创造时的设定出生年，之后年龄冻结'],
     fsiii: 158, color: 'from-violet-400 to-indigo-400',
   },
   {
@@ -283,6 +298,7 @@ const charactersInSourceOrder: Character[] = [
     id: 'miya', name: '米雅', alias: 'miya', birthYear: 2004, age: 22,
     group: 'delan', groupLabel: '德澜思拓', title: '德澜思拓公司领导者',
     bio: '德澜思拓公司的年轻领导者，沉稳干练。',
+    profile: [{ label: '身份', value: '学生 · 德澜思拓继承人' }],
     fsiii: 109, color: 'from-rose-400 to-pink-400',
   },
   {

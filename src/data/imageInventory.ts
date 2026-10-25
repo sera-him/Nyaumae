@@ -395,7 +395,7 @@ export const IMAGE_INVENTORY: ImageAsset[] = [
   },
   {
     src: '/org-delan.jpg',
-    usedIn: ['src/data/organizations.ts → src/sections/Organizations.tsx'],
+    usedIn: ['src/data/organizations.ts → src/sections/Organizations.tsx', 'src/data/storyCovers.ts → src/pages/StoriesPage.tsx（delan-succession 封面）'],
     type: 'decoration',
     hasAlt: true,
     altText: '德澜思拓',

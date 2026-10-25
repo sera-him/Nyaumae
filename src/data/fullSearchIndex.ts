@@ -1,12 +1,13 @@
 import { characters, zeroChar } from './characters';
 import { ATTRIBUTE_DEFINITIONS } from '@/game/cityBuilder/model';
 import { extraCharacters } from './extraCharacters';
+import { rawCharacterVideos } from './characterImages';
 import { stories } from './stories';
 import { storyText } from './storyText';
 import { storyTextEn } from './storyText.en';
 import { gameHintTexts } from './gameHintTexts';
 import { dictionary, bilingualText } from './dictionary';
-import { poems, extraPoems, miiaStoryFragments, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory, chapterIndex, wishSection, correctOverdose, xishouStory, revolutionTable, vppRules, iqTests, gaoKaiTableData, jingBeiGouFragment, penPoemFragment, starChildStory, dualAxisModel, sanYiCollegeInfo, theoremFragments, sanCengNationInfo, wageFragment, shengYuQiYueInfo, superIntelligenceRule, gaoKaoVolunteerRule, subwayPricingRule, unifiedRecruitmentRule, agiEmploymentRegulation, openExamRegistrationRule, laborValueTheory } from './extraStories';
+import { poems, extraPoems, miiaStoryFragments, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory, chapterIndex, wishSection, correctOverdose, xishouStory, revolutionTable, vppRules, iqTests, gaoKaiTableData, jingBeiGouFragment, penPoemFragment, starChildStory, dualAxisModel, sanYiCollegeInfo, theoremFragments, sanCengNationInfo, wageFragment, shengYuQiYueInfo, superIntelligenceRule, gaoKaoVolunteerRule, subwayPricingRule, unifiedRecruitmentRule, agiEmploymentRegulation, openExamRegistrationRule, laborValueTheory, sumoAngleNote, emotionVectorNote, unnecessaryDoorStory } from './extraStories';
 import { organizations, zhihuaClasses } from './organizations';
 import { timelineEvents } from './timeline';
 import { characterRelations, relationLabels } from './relationships';
@@ -44,6 +45,10 @@ import {
   workplaceBlindnessRule,
   specialChildrenNotes,
   miiaSchoolRules,
+  elderSystemNote,
+  aiEnergyNote,
+  combatSkillCosts,
+  sentencingRule,
 } from './worldSettings';
 import {
   miaWorldBackground,
@@ -84,6 +89,7 @@ import {
   moralPrinciplesEn, nyaumaeismPrinciplesEn, fourDimensionTestEn,
   catTrueNameTableEn, citizenLevelSystemEn, teacherVotingRuleEn, workplaceBlindnessRuleEn, specialChildrenNotesEn,
   miiaSchoolRulesEn,
+  elderSystemNoteEn, aiEnergyNoteEn, combatSkillCostsEn, sentencingRuleEn,
 } from './worldSettings.en';
 import {
   miaWorldBackgroundEn, paradigmTextEn, taskLens2025En, rtoTextEn, yearDayFragmentEn,
@@ -114,6 +120,7 @@ import {
   sanCengNationInfoEn, wageFragmentEn, shengYuQiYueInfoEn, superIntelligenceRuleEn,
   gaoKaoVolunteerRuleEn, subwayPricingRuleEn, unifiedRecruitmentRuleEn, agiEmploymentRegulationEn,
   openExamRegistrationRuleEn, laborValueTheoryEn,
+  sumoAngleNoteEn, emotionVectorNoteEn, unnecessaryDoorStoryEn,
 } from './extraStories.en';
 import { NCTB_DIMENSIONS_EN } from '@/nctb/catalog.en';
 import { DIMENSION_SPECS_EN } from '@/nctb/specs/index.en';
@@ -121,6 +128,18 @@ import { FORMAL_A_V1_QUESTIONS_EN } from '@/nctb/banks/formal-a.v1.en';
 import { FORMAL_FOUNDATION_V1_QUESTIONS_EN } from '@/nctb/banks/formal-foundation.v1.en';
 import { PEMS_DIMENSIONS_EN } from '@/lib/pemsLModel.en';
 import type { Locale } from '@/lib/i18n';
+import {
+  nationsZh, chinaPolicyZh, travelInfoZh, timelineZh, cityStatsZh,
+  pacificIntroZh, yuanchuiTitleZh, yuanchuiDescZh, lowerTierDescZh,
+  customsDescZh, yuanchuiNoteZh, chengwanChinaTitleZh, cityHeadingZh,
+} from './pacificIslands.zh';
+import {
+  nationsEn, chinaPolicyEn, travelInfoEn, timelineEn,
+  pacificIntroEn, yuanchuiTitleEn, yuanchuiDescEn, lowerTierDescEn,
+  customsDescEn, yuanchuiNoteEn, chengwanChinaTitleEn, cityHeadingEn, cityStatsEn,
+} from './pacificIslands.en';
+import { modes, rules, largeHc, calendar } from './hyperCommunication.zh';
+import { modesEn, rulesEn, largeHcEn, calendarEn } from './hyperCommunication.en';
 import { frequencyCorpusZh, frequencyCorpusEn } from './generated/frequencyCorpus';
 
 export interface FullSearchItem {
@@ -201,6 +220,13 @@ for (const character of extraCharacters) {
   add(`extra_char_${character.id}`, character.name, `${character.bio}${hiddenText}`, character.category === 'AI' ? '技能' : '角色', '#extra-characters');
 }
 
+// 角色影像素材的 caption 文案（如咪娅视频）也纳入词频。
+for (const [id, videos] of Object.entries(rawCharacterVideos)) {
+  for (const v of videos) {
+    if (v.caption) add(`char-video_${id}_${v.src}`, `${id} 影像素材`, v.caption, '角色', '#characters');
+  }
+}
+
 for (const story of stories) {
   const chapterText = story.chapters.map((chapter, index) => `第 ${index + 1} 章 ${chapter.title} ${chapter.content}`).join(' ');
   add(`story_${story.id}`, story.title, `${story.subtitle ?? ''} ${chapterText}`, '故事', '#stories');
@@ -208,6 +234,9 @@ for (const story of stories) {
 if (storyText) {
   add('storytext_little-girl-in-giant-country', '大人国的小女孩正文', storyText, '故事', '/stories/little-girl-in-giant-country');
 }
+// 游戏搜索元数据。texts 已迁至语料通道（见 data/gameHintTexts.ts 头注释）：
+// 有源码游戏的 texts 为空数组，这里只剩标题元数据 + 跳转路由；
+// giant-catch 无源码，其 texts 是唯一副本，仍在此登记。
 for (const hint of gameHintTexts) {
   add(`game-hint_${hint.game}`, hint.name, hint.texts.join(' '), '游戏', hint.href);
 }
@@ -253,6 +282,9 @@ add('extra-unified-recruitment', '统一招聘', unifiedRecruitmentRule, '设定
 add('extra-agi-employment', 'AGI就业调节', agiEmploymentRegulation, '设定', '#prime-focus');
 add('extra-open-exam-registration', '强制开放报名', openExamRegistrationRule, '设定', '#organizations');
 add('extra-labor-value', '人工越贵生活越好', laborValueTheory, '故事', '#extra-stories');
+add('extra-sumo-angle', '相扑选手与周角', sumoAngleNote, '故事', '#extra-stories');
+add('extra-emotion-vector', '情感计算与反讽', emotionVectorNote, '故事', '#extra-stories');
+add('extra-unnecessary-door', '白开一次门', unnecessaryDoorStory, '故事', '#extra-stories');
 
 for (const [index, entry] of organizations.entries()) add(`org_${index}`, entry.name, entry, '设定', '#organizations');
 for (const [index, entry] of zhihuaClasses.entries()) add(`class_${index}`, entry.name, entry, '设定', '#organizations');
@@ -290,6 +322,10 @@ const settingSources: Array<[string, string, unknown]> = [
   ['workplace-blindness', '职场特征盲化', workplaceBlindnessRule],
   ['special-children', '特殊儿童与三年级课程', specialChildrenNotes],
   ['miia-school', '咪呀的学校', miiaSchoolRules],
+  ['elder-system', '长寿基因与长老制', elderSystemNote],
+  ['ai-energy', 'AI 能耗量级', aiEnergyNote],
+  ['combat-skill-costs', '技能算力数值表', combatSkillCosts],
+  ['sentencing', '量刑规则', sentencingRule],
 ];
 for (const [id, title, content] of settingSources) add(`setting_${id}`, title, content, '设定', '#world-settings');
 
@@ -319,10 +355,14 @@ add('setting_four-dimension', '四维测试', fourDimensionTest, '设定', '#wor
 for (const [index, name] of modelNames.entries()) add(`model-name_${index}`, name, name, '设定', '#math');
 for (const system of NEURAL_SYSTEMS) add(`neural-system_${system.id}`, system.title, `${system.title} ${system.description}`, '设定', '#world-settings');
 add('dict-bilingual', 'Dadi Sapichi 中文对照', bilingualText, '词典', '#dictionary');
-add('hyper-communication', 'HyperCommunication 超沟通', '四种模式 汇报 各项目集群10分钟闪电汇报 碰撞 预设跨学科议题 错位 用非本学科语言汇报 静默 不使用语言仅用书写图像代码交流 核心规则 赵召必须参加 不允许说这是你们科照真的问题 每学期每位学生至少发言3次 不记录不存档 大型HC分组必须计算机随机分配 收敛HC 1月初回顾总结 发散HC 6月底展望开题 寒暑假暂停 QET考前两周暂停', '设定', '#organizations');
+// 超沟通：数据已从 section 抽到 hyperCommunication.zh/.en 模块（2026-10-12），
+// 原手写浓缩条目已删——与渲染数据重复计数，英文还停了在旧措辞。icon 是 JSX
+// 元素，登记前剥掉，否则 cleanText 会把 className 当正文收进去。
+add('hyper-communication', 'HyperCommunication 超沟通', [modes.map((m) => ({ name: m.name, desc: m.desc })), rules, largeHc, calendar], '设定', '#organizations');
 add('chess-poison', '中毒查询', '兵 象 骷髅兵 不可吃子 被移除 马 蹩腿 被移除 教 田 蹩腿 己方半场不可过中线 被移除 车 横竖最多2格 横竖最多1格 被移除 后 鸵鸟 8方向最多2格 4方向最多1格 巨鲸 被移除 老鼠 马步只能走一个日字 斜线最多2格 直线最多2格 猫 缅因猫 英语 天线 免疫 失去技能 王 女巫 圣骑士 太空人 星舰 火箭 反女巫 免疫 黄奶酪减少1次中毒 橙奶酪减少4次中毒 蓝奶酪下回合对手可操纵 紫奶酪增加2次中毒 黑奶酪增加8次中毒', '棋子', '#chess');
-add('ttt3-rules', '技能三子棋规则', '传统三子棋 概率机制 SP技能 每个格子独立成功概率 中心3角4边6 SP上限30 每回合获得SP 技能消耗SP 职业天赋 突发事件', '技能', '#skill-ttt');
-add('fractal-rules', '递归回响规则', '每次点击己方生长点生成三根计分子枝 17轮起保留一根 不足6px剪去 16个有效生长点 回声9 17 25轮补充 地形影响', '游戏', '/playground/games/fractal-echo');
+// ttt3-rules 手写浓缩条目已删（2026-10-12）：skillTicTacToe.ts 的技能/职业/
+// SP 数据已在上面完整登记，事件文案由 game/ttt3/engine.ts 进语料通道。
+add('fractal-rules', '递归回响规则', '3×3同坐标广播 每步在所有已存在的子盘同一坐标落子 8 16 32 64步 行动方按Thue-Morse序列分配 蓝橙严格对半 单人同时执两方 开局AI地形 敌对双方且不计分 根盘9票占住5票即控制 三级判定 根盘票数 受控子盘总数', '游戏', '/playground/games/fractal-echo');
 add('neural-rules', '神经回响规则', '每次点击己方生长点生成三根计分子枝 6px时剪去 16个有效生长点 回声9 17 25轮最多2次复刻 分形阶段', '游戏', '/playground/games/neural-echo');
 add('cat-machine-guide', '猫咪机指引', '九只猫 三层工位 换位 连锁 天赋 突发事件 模块升级 后备箱同时支援 9只猫同时其余4辆车 故事阶段', '游戏', '/playground/games/cat-machine');
 add('nav-groups', '导航分组', 'MIIA 世界 世界观 编年史 组织 词典 未来线 西太平洋诸岛国 角色 故事目录 游戏宇宙 Scratch NCTB 认知实验室 数学实验室 创作对话 AI助手', '页面', '#hero');
@@ -370,9 +410,10 @@ const gameRecords: Array<[string, string, string, string]> = [
   ['game-fractal-echo', '递归回响', '分形回响 递归棋盘 同坐标广播 蓝方 橙方 入侵子棋盘', '/playground/games/fractal-echo'],
   ['game-neural-echo', '神经回响', '分支生长 剪枝 双人策略 神经网络', '/playground/games/neural-echo'],
   ['game-neural-clash', '神经交锋', 'Neural Clash 100节点 666突触 神经核 强化突触 脉冲', '/playground/games/neural-clash'],
-  ['game-cat-mouse', '猫鼠迷踪', '非对称追逐 诱饵 真实气味 疾跑 复盘', '/playground/games/cat-mouse'],
+  ['game-cat-mouse', '猫鼠迷踪', '回合制 连续平面 猫与老鼠同速 猫看不见老鼠 只看得见诱饵 半径4 真实气味 有限次 揭穿 疾跑 移动上限2 不可连续 复盘 推断点 推断误差 诱饵偏移 终局判定 距离阈值3 世界不收缩 人机对战 另一方由电脑控制', '/playground/games/cat-mouse'],
   ['game-giant-catch', '大人国抓小人', '停车场 石灰格子 非对称追逐 喵呜 小满的指尖 冲刺 温柔抓捕 双阵营', '/playground/games/giant-catch'],
   ['game-quiz', '题目', '烧脑挑战 填空 选择题 二维码 提交答案', '/playground/games/quiz'],
+  ['okcomputer', '自我观察档案 OKComputer', '自我观察 档案 感觉处理 功能域 时间线 模式洞察 就诊摘要 门诊 发育', '/okcomputer'],
   ['scratch-dont-touch-cat-2', '别碰另一只猫和边缘2', 'Scratch 小游戏', '/playground/scratch/dont-touch-cat-2'],
   ['scratch-knife-vs-archer', 'Knife V.S Archer', 'Scratch 小游戏', '/playground/scratch/knife-vs-archer'],
   ['scratch-royal-chess', '皇家战棋', 'Scratch 小游戏', '/playground/scratch/royal-chess'],
@@ -410,9 +451,16 @@ add('fla-model', 'PEMS-L FLA v2.1 功能法律年龄模型', '功能法律年龄
 add('fla-dimensions', 'PEMS-L 五维度', '生理发育 执行功能 情绪调节 社会互动 语言符号 P E M S L 不测身高 肌肉或青春期程度 避免让力量更大的年轻人无缘无故获得更高法律年龄 测量的是决策稳定性 而不是情绪多寡 容易哭或情绪强烈不应自动等于不成熟 不以是否符合主流社交方式为标准 关注能否理解具有法律意义的符号系统', '设定', '/math/fla');
 add('fla-formula', 'PEMS-L 公式说明', '几何平均 软短板效应 成年线18岁由人口目标校准 成年法律身份不可逆 老年人不会因认知老化出现80到17到15到12并重新取得未成年人身份 当前能力下降应进入特定行为能力评估 而不是让年龄倒流', '设定', '/math/fla');
 
-add('pacific-islands', '西太平洋诸岛国', '太平洋西侧的一组岛国与城邦 从君主制王国到AI托管城市 从渔业共和国到虚拟娱乐群岛 构成一片复杂而鲜活的海洋政治版图 岚汐共和国 青屿联邦 白潮王国 镜海共和国 雨见公国 星浦联邦 澄湾共和国 玄礁共同体 夕岬王国 浮光群岛国 海庭共和国 远汐联邦', '设定', '/world/pacific-islands');
-add('pacific-nations', '西太平洋诸岛国详情', '岚汐共和国与中国日本都有密切贸易往来 青屿联邦由七座主要岛屿组成 农业和海洋工程发达 白潮王国保留君主制的航运国家 拥有古老海军传统 镜海共和国以金融教育和精密仪器产业闻名 雨见公国多山多雨的小型岛国 星浦联邦由天然岛屿和人工岛共同组成 澄湾共和国重要渔业冷链和海上补给中心 玄礁共同体依靠港口海洋法务和跨国仲裁生存 夕岬王国火山岛国家 拥有地热能源 浮光群岛国旅游文化产业和虚拟娱乐发达 海庭共和国长期保持中立 远汐联邦位于更外侧的太平洋', '设定', '/world/pacific-islands');
-add('pacific-timeline', '西太平洋时间线', '2042年4月2日 雾岬市熄灭所有对外识别灯 切断中央政府进入城市系统的全部权限 城市AGI接管全部治理责任 第一艘悬空舰从东港地下船坞升起 岚汐共和国装甲车队遭精确电磁打击 工程无人机拆除隧道出口前一段轨道 雾岬市议会通过自由市临时宪章 自称雾岬自由市', '设定', '/world/pacific-islands');
+// 西太平洋诸岛国：数据已从 section 抽到 pacificIslands.zh/.en 模块（2026-10-12），
+// 原三组手写浓缩条目已删——与渲染数据重复计数，英文专名还漂成旧罗马音
+// （Arashi/Wujiao/Chenwan/Xijiao/Hating，术语表在 src/lib/translations）。
+add('pacific-islands', '西太平洋诸岛国', pacificIntroZh, '设定', '/world/pacific-islands');
+add('pacific-nations', '西太平洋诸岛国详情', nationsZh, '设定', '/world/pacific-islands');
+add('pacific-timeline', '西太平洋时间线', timelineZh, '设定', '/world/pacific-islands');
+add('pacific-travel', '澄湾与中国往来', travelInfoZh, '设定', '/world/pacific-islands');
+add('pacific-policy', '入境政策', chinaPolicyZh, '设定', '/world/pacific-islands');
+add('pacific-yuanchui', '渊垂联邦', [yuanchuiTitleZh, yuanchuiDescZh, lowerTierDescZh, customsDescZh, yuanchuiNoteZh], '设定', '/world/pacific-islands');
+add('pacific-chengwan', chengwanChinaTitleZh, [chengwanChinaTitleZh, cityHeadingZh, cityStatsZh], '设定', '/world/pacific-islands');
 
 // ---- English corpus --------------------------------------------------------
 // Mirrors the zh index one-to-one (same ids / hrefs / categories, English
@@ -440,6 +488,12 @@ for (const character of [...charactersEn, zeroCharEn]) {
 for (const character of extraCharactersEn) {
   const hiddenText = character.hidden ? ` ${character.hidden}` : '';
   addEn(`extra_char_${character.id}`, character.name, `${character.bio}${hiddenText}`, character.category === 'AI' ? '技能' : '角色', '#extra-characters');
+}
+
+for (const [id, videos] of Object.entries(rawCharacterVideos)) {
+  for (const v of videos) {
+    if (v.caption) addEn(`char-video_${id}_${v.src}`, `${id} video media`, v.caption, '角色', '#characters');
+  }
 }
 
 for (const story of storiesEn) {
@@ -477,6 +531,10 @@ const settingSourcesEn: Array<[string, string, unknown]> = [
   ['workplace-blindness', 'Workplace Feature Blindness', workplaceBlindnessRuleEn],
   ['special-children', 'Special Children and the Third-Grade Curriculum', specialChildrenNotesEn],
   ['miia-school', "Miia's school", miiaSchoolRulesEn],
+  ['elder-system', 'Longevity genes and the elder system', elderSystemNoteEn],
+  ['ai-energy', 'AI energy order of magnitude', aiEnergyNoteEn],
+  ['combat-skill-costs', 'Skill and computing-power table', combatSkillCostsEn],
+  ['sentencing', 'Sentencing rule', sentencingRuleEn],
 ];
 for (const [id, title, content] of settingSourcesEn) addEn(`setting_${id}`, title, content, '设定', '#world-settings');
 addEn('setting_four-dimension', 'Four-Dimension Test', fourDimensionTestEn, '设定', '#world-settings');
@@ -528,13 +586,16 @@ for (const [index, rule] of lightningRodSystemEn.entries()) addEn(`lightning_${i
 for (const hint of gameHintTextsEn) addEn(`game-hint_${hint.game}`, hint.name, hint.texts.join(' '), '游戏', hint.href);
 
 addEn('chess-poison', 'Poison lookup', 'Pawn Elephant Skeleton cannot capture removed Knight hobbled removed Bishop-teacher field hobbled own half cannot cross midline removed Rook max 2 squares orthogonally max 1 square orthogonally removed Queen Ostrich max 2 squares in 8 directions max 1 square in 4 directions Whale removed Mouse L-shape only one sun step max 2 squares diagonally max 2 squares straight Cat Maine Coon English Antenna immune loses skill King Witch Paladin Astronaut Starship Rocket Anti-Witch immune Yellow cheese removes 1 poison Orange cheese removes 4 poison Blue cheese opponent controls next turn Purple cheese adds 2 poison Black cheese adds 8 poison', '棋子', '#chess');
-addEn('ttt3-rules', 'Skill Tic-Tac-Toe rules', 'Traditional tic-tac-toe probability mechanics SP skills each cell has its own success probability center 3 corner 4 edge 6 SP cap 30 SP gained each turn skills cost SP profession talents random events', '技能', '#skill-ttt');
-addEn('fractal-rules', 'Recursive Echo rules', 'Each click on your own growth point grows three scoring branches from turn 17 keep one prune branches under 6px 16 effective growth points echoes on turns 9 17 25 terrain affects', '游戏', '/playground/games/fractal-echo');
+// ttt3-rules 手写浓缩条目已删（2026-10-12）：与 zh 侧同理，skillTicTacToe.en
+// 已完整登记，事件文案由 game/ttt3/engine.ts 进语料通道。
+addEn('fractal-rules', 'Recursive Echo rules', '3x3 same-coordinate broadcast every action lands on the same coordinate in all existing sub-boards 8/16/32/64 actions sides assigned by the Thue-Morse schedule blue and orange exactly even one solo player drives both opening AI terrain hostile to both and not scored control the root board with 5 of its 9 votes three-level verdict root votes total controlled sub-boards', '游戏', '/playground/games/fractal-echo');
 addEn('neural-rules', 'Neural Echo rules', 'Each click on your own growth point grows three scoring branches prune at 6px 16 effective growth points echoes on turns 9 17 25 max 2 replicas fractal phase', '游戏', '/playground/games/neural-echo');
 addEn('cat-machine-guide', 'Cat Machine guide', 'Nine cats three-layer workstations swap chains talents random events module upgrades trunk support 9 cats simultaneously the other 4 cars story phases', '游戏', '/playground/games/cat-machine');
 addEn('game-session-rules', 'Common game rules', 'How to play in-game hotkeys paused page blocks interaction resume rules 100 nodes 666 synapses neural cores reinforced synapses pulses asymmetric chase decoys real scent dash replays', '游戏', '/playground/games');
 addEn('nav-groups', 'Navigation groups', 'MIIA world worldview chronicle organizations dictionary future timeline West Pacific island nations characters story catalog game universe Scratch NCTB cognitive lab math lab creation dialogues AI assistant', '页面', '#hero');
-addEn('hyper-communication', 'HyperCommunication', 'Four modes Report each project cluster a 10-minute lightning report Collide preset cross-disciplinary topics Misalign report in a language outside your discipline Silence communicate without language using only writing images code Core rules Zhao Zhao must attend not allowed to say this is a real problem for your department each student speaks at least 3 times per semester no recording no archiving large HC groups must be randomly assigned by computer Convergent HC early January review summary Divergent HC end of June outlook kickoff suspended during winter and summer breaks suspended two weeks before QET', '设定', '#organizations');
+// 超沟通 EN：改为从 hyperCommunication.en.tsx 模块登记（2026-10-12），
+// 手写浓缩条目已删。icon 是 JSX 元素，登记前剥掉。
+addEn('hyper-communication', 'HyperCommunication', [modesEn.map((m) => ({ name: m.name, desc: m.desc })), rulesEn, largeHcEn, calendarEn], '设定', '#organizations');
 
 const pageRecordsEn: Array<[string, string, string, string]> = [
   ['page-home', 'Home', 'Neural Connection Aurora Atlas neural connections', '#hero'],
@@ -562,9 +623,10 @@ const gameRecordsEn: Array<[string, string, string, string]> = [
   ['game-fractal-echo', 'Recursive Echo', 'Fractal echo recursive board same-coordinate broadcast blue orange invasion sub-boards', '/playground/games/fractal-echo'],
   ['game-neural-echo', 'Neural Echo', 'Branch growth pruning two-player strategy neural networks', '/playground/games/neural-echo'],
   ['game-neural-clash', 'Neural Clash', 'Neural Clash 100 nodes 666 synapses neural cores reinforced synapses pulses', '/playground/games/neural-clash'],
-  ['game-cat-mouse', 'Cat and Mouse', 'Asymmetric chase decoys real scent dashes replays', '/playground/games/cat-mouse'],
+  ['game-cat-mouse', 'Cat and Mouse', 'turn-based deduction continuous plane cat and mouse move at the same speed the cat never sees the mouse only the bait bait radius 4 real scent limited unmasking sprint move limit 2 not on consecutive turns replay inference point inference error bait offset final verdict distance threshold 3 the world never shrinks single human versus computer', '/playground/games/cat-mouse'],
   ['game-giant-catch', 'Giant Country Catch the Little One', 'Parking lot chalk grid asymmetric chase Miaowu Xiaoman\'s fingertip dashes gentle capture two factions', '/playground/games/giant-catch'],
   ['game-quiz', 'Quiz', 'Brain-teaser challenges fill-in blanks multiple choice QR codes submit answers', '/playground/games/quiz'],
+  ['okcomputer', 'Self-Observation Archive OKComputer', 'self-observation archive sensory processing domains timeline insights clinic summary diagnosis development', '/okcomputer'],
   ['scratch-dont-touch-cat-2', "Don't Touch the Other Cat and the Edge 2", 'Scratch mini game', '/playground/scratch/dont-touch-cat-2'],
   ['scratch-knife-vs-archer', 'Knife V.S Archer', 'Scratch mini game', '/playground/scratch/knife-vs-archer'],
   ['scratch-royal-chess', 'Royal Chess', 'Scratch mini game', '/playground/scratch/royal-chess'],
@@ -629,10 +691,21 @@ addEn('extra-unified-recruitment', 'Unified recruitment', unifiedRecruitmentRule
 addEn('extra-agi-employment', 'AGI employment regulation', agiEmploymentRegulationEn, '设定', '#prime-focus');
 addEn('extra-open-exam-registration', 'Mandatory open registration', openExamRegistrationRuleEn, '设定', '#organizations');
 addEn('extra-labor-value', 'Pricier labor, better life', laborValueTheoryEn, '故事', '#extra-stories');
+addEn('extra-sumo-angle', 'The sumo wrestler and the full turn', sumoAngleNoteEn, '故事', '#extra-stories');
+addEn('extra-emotion-vector', 'Affective computing and irony', emotionVectorNoteEn, '故事', '#extra-stories');
+addEn('extra-unnecessary-door', 'A door opened for nothing', unnecessaryDoorStoryEn, '故事', '#extra-stories');
 
-addEn('pacific-islands', 'West Pacific Island Nations', 'A group of island nations and city-states on the western side of the Pacific — from monarchies to AI-administered cities, from fishing republics to virtual-entertainment archipelagos — forming a complex and vivid maritime political map. Arashi Republic, Qingyu Federation, Baichao Kingdom, Mirror Sea Republic, Yujian Duchy, Xingpu Federation, Chenwan Republic, Xuanjiao Community, Xijiao Kingdom, Floating Light Archipelago, Hating Republic, Yuanxi Federation', '设定', '/world/pacific-islands');
-addEn('pacific-nations', 'West Pacific island nations details', 'Arashi Republic has close trade with both China and Japan. Qingyu Federation consists of seven main islands, with developed agriculture and marine engineering. Baichao Kingdom is a monarchical shipping nation with an ancient naval tradition. Mirror Sea Republic is famous for finance, education and precision instruments. Yujian Duchy is a small mountainous, rainy island nation. Xingpu Federation is formed of natural and artificial islands. Chenwan Republic is a major fishery cold-chain and maritime supply center. Xuanjiao Community survives on ports, maritime law and transnational arbitration. Xijiao Kingdom is a volcanic island nation with geothermal energy. Floating Light Archipelago has a developed tourism, culture and virtual-entertainment industry. Hating Republic stays neutral long-term. Yuanxi Federation lies on the outer Pacific', '设定', '/world/pacific-islands');
-addEn('pacific-timeline', 'West Pacific timeline', '2042-04-02: Wujiao City extinguished all external identification lights, cut the central government\'s full access to the city systems, and the city AGI took over all governance responsibilities. The first hover-ship rose from the underground dock at East Port. Arashi Republic\'s armored convoy was hit by precision electromagnetic strikes, and engineering drones dismantled a section of track before the tunnel exit. The Wujiao City Council passed the Free City interim charter, declaring itself the Free City of Wujiao', '设定', '/world/pacific-islands');
+// 西太平洋诸岛国 EN：改为从 pacificIslands.en.ts 模块登记（2026-10-12），
+// 手写浓缩条目已删——旧条目专名是漂移的旧罗马音（Arashi/Wujiao/Chenwan/
+// Xijiao/Hating），模块与术语表一致（Lanxi/Wujia/Chengwan/Xijia/Haiting），
+// 且补上了旧条目没有的 travel / policy / yuanchui 细节。
+addEn('pacific-islands', 'West Pacific Island Nations', pacificIntroEn, '设定', '/world/pacific-islands');
+addEn('pacific-nations', 'West Pacific island nations details', nationsEn, '设定', '/world/pacific-islands');
+addEn('pacific-timeline', 'West Pacific timeline', timelineEn, '设定', '/world/pacific-islands');
+addEn('pacific-travel', 'Chengwan-China travel', travelInfoEn, '设定', '/world/pacific-islands');
+addEn('pacific-policy', 'Entry policy', chinaPolicyEn, '设定', '/world/pacific-islands');
+addEn('pacific-yuanchui', 'Yuanchui Federation', [yuanchuiTitleEn, yuanchuiDescEn, lowerTierDescEn, customsDescEn, yuanchuiNoteEn], '设定', '/world/pacific-islands');
+addEn('pacific-chengwan', chengwanChinaTitleEn, [chengwanChinaTitleEn, cityHeadingEn, cityStatsEn], '设定', '/world/pacific-islands');
 
 for (const dimension of NCTB_DIMENSIONS_EN) {
   addEn(`nctb-dim_${dimension.id}`, `${dimension.title} ${dimension.english}`, `${dimension.title} ${dimension.english} ${dimension.description} ${dimension.skill}`, '测评', '/nctb');

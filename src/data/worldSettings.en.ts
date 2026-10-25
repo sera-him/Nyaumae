@@ -246,7 +246,17 @@ Guardianship: the parents of a Level 6 citizen are the legal guardians; they may
 
 Responsibility: criminal handling mirrors reality exactly — if that age bears no criminal responsibility, the person is released after corrective education; if it does, they are sentenced and serve time according to law. Lower levels pay no taxes, lack full contracting capacity, and cannot work independently.
 
-Reproduction and welfare: when a legal minor gives birth, the child is raised by the minor's parents; both the child and the parents have the right to decide on abortion (neither side may unilaterally decide to give birth — all must agree). Pensions are tied to contribution records; those who did not contribute during low-level periods cannot receive a pension.`;
+Reproduction and welfare: when a legal minor gives birth, the child is raised by the minor's parents; both the child and the parents have the right to decide on abortion (neither side may unilaterally decide to give birth — all must agree). Pensions are tied to contribution records; those who did not contribute during low-level periods cannot receive a pension.
+
+Temporary grades (supplement)
+
+1. Establishment: when illness, trauma or ageing causes anyone to lose, or significantly reduce, their cognitive capacity, a statutory assessment procedure can grant them a temporary grade no higher than their permanent grade. In civil matters they are treated at the temporary grade (guardianship, contracting and property management all step down accordingly); criminal responsibility is unaffected and still mirrors reality by the permanent grade.
+
+2. Sole entry point: assessment. The establishment, adjustment and revocation of a temporary grade can happen only through a formal assessment carried out by an independent assessment body. No individual — spouse, parent or child — may declare someone else demoted on their own authority. Those who disagree may apply for reassessment; during reassessment the status quo holds, or the higher grade is applied protectively for the time being (the exact orientation can be decided later, but procedurally there must be an appeal channel).
+
+3. Reversible: a temporary grade does not void the permanent grade. Once recovered and the assessment passes, it is revoked and the permanent grade resumes exactly as it was: no breach arises in the interim, no debt acceleration, and accumulated pension contribution records are not lost.
+
+4. No abuse: anyone who applies to demote someone else using false material is treated as fraud; an assessment body with an interest in the applicant must recuse itself. This one is hard law — because the greatest risk of demotion is not the system itself but relatives who want to turn a troublesome adult back into a child (the Līlā analysis in the archive is a live specimen of exactly this risk: the guardian could not wait to be rid of them). A temporary grade must be "the result of a state assessment" and can never become "a tool of family exile".`;
 
 export const teacherVotingRuleEn = `Every graduate may vote every year for every teacher who has ever taught them, giving each teacher a score between -10 and +10; not voting counts as 0. The teacher with the lowest final score — if that score is negative — loses their entire year-end bonus.`;
 
@@ -284,12 +294,12 @@ export const miiaSchoolRulesEn = [
     content: 'The dogs chase the teachers out too, even when a teacher is asleep. The staff includes people who went to school in the 80s, in the 90s, and in 2017. 1990s cleanup takes 20 minutes and is very slow; they have gotten smarter now, and it takes under 3 minutes.',
   },
   {
-    title: 'Page table',
-    content: 'Every teacher has a little notebook called a page table, because many of the pages are tables again, so it is called a page table. Teachers use their own page table to record how things are arranged, so next time they put them back exactly as they were. The children have little notebooks too.',
+    title: 'Layout book',
+    content: 'Every teacher has a little notebook called a layout book: it records where each thing is placed, page after page of tables. Teachers use their own layout book to remember how things are arranged, so next time they put them back exactly as they were. The children have little notebooks too — but the teachers and the dogs hold and use them on the child\'s behalf.',
   },
   {
-    title: 'The dogs',
-    content: 'It is called a watchdog: watch = wristwatch, dog = dog. Every dog has a watch. It does not bite, it does not listen to the teacher, it only listens to the watch. Each dog looks after exactly one desk — whether a child or a teacher sits there, it applies. Teachers may feed the dogs, children may not; once a dog has eaten, it resets its watch. They are all Chinese rural dogs and they all look exactly the same, which is a bit boring — it would be more fun if they differed: border collies, golden retrievers, corgis, Shiba Inus, huskies, and so on.',
+    title: 'Timekeeper hounds',
+    content: 'They are called timekeeper hounds — dogs that keep watch over the time. Every hound wears a watch. It does not bite, it does not listen to the teacher, it only listens to the watch. Each hound looks after exactly one desk — whether a child or a teacher sits there, it applies. Teachers may feed them, children may not; once a hound has eaten, it resets its watch. They are all Chinese rural dogs and they all look exactly the same, which is a bit boring — it would be more fun if they differed: border collies, golden retrievers, corgis, Shiba Inus, huskies, and so on.',
   },
   {
     title: 'Class period',
@@ -313,10 +323,467 @@ export const miiaSchoolRulesEn = [
   },
   {
     title: 'Grades',
-    content: 'Grades 1 to 4 have about the same number of children; grade 5 has very very few; grade 6 basically has none — maybe because a sixth-grader can become a teacher? Grade 1 learns math first, grade 2 learns about page tables, homework, other children, and blueprints, and grade 3 learns about the school, how to turn a blueprint into a child’s body, and smart children.',
+    content: 'Grades 1 to 4 have about the same number of children; grade 5 has very very few; grade 6 basically has none — maybe because a sixth-grader can become a teacher? Grade 1 learns math first, grade 2 learns about layout books, homework, other children, and blueprints, and grade 3 learns about the school, how to turn a blueprint into a child’s body, and smart children.',
   },
   {
     title: 'What children may do',
     content: 'On your own you can do homework and play with toys; you can find a teacher to report that you want to sleep, set an alarm, zone out until the swing frees up, tidy your bag, go home, look in the mirror, drink water, or use the toilet. With other children you can chat, pass notes, read together, build with blocks together, queue for the swing, lock the door so nobody else can get in, agree to leave together — you can also each wait for the other, and end up neither of you moving at all.',
   },
 ];
+
+/**
+ * Longevity genes and the elder system: why authority once belonged to the old
+ * by default. A volcanic eruption brought subterranean microbes to the surface;
+ * their metabolic products slow both development and ageing in a genetic
+ * minority, and in agrarian / early-industrial societies that translated
+ * straight into elder authority.
+ */
+export const elderSystemNoteEn = `Origin: an 18th-century volcanic eruption turned over microbes that had been buried deep underground. Those microbes produce a particular substance as they metabolise, and of the people exposed to it roughly 8.6% — a difference traced to their genes — are affected: both their growth and their ageing are slowed by about one sixth.
+
+How authority formed: slower development and slower ageing together mean a much longer life. In agrarian societies and early industry, experience accumulated with time and authority accumulated with seniority, so the long-lived came to occupy the position of elder almost by default. Elder rule became the default order.
+
+The child-labour ban: those very elders had been the slow-developing children — always scorned as useless at work, and some of their peers may even have been starved to death for being unable to keep up. Once in power they laid down the rule: children are not allowed to work.
+
+Demographic consequence: if children may not work, raising one is extremely costly, so people chose to have far fewer. The population therefore stayed small, and its age distribution unusually even — everyone's ageing had been flattened onto the same stretched schedule.
+
+Ebb: once society was no longer agrarian or early-industrial, experience stopped being the only scarce resource. Elder rule receded with it, and a great many young people came to power.`;
+
+/** Order-of-magnitude intuition for model energy use: a 100T-parameter model runs a whole night on one kilowatt-hour. */
+export const aiEnergyNoteEn = `Artificial intelligence: a 100T-parameter model needs only one kilowatt-hour for a whole night.
+
+Conversion: 1 kWh = 860 kcal, taken over a 12-hour night, i.e. 860 kcal / 12h.`;
+
+/** Combat skill table: computing-power cost versus offensive and defensive effect. */
+export const combatSkillCostsEn = {
+  intro: 'Numerical table for skill duels. Defensive skills spend computing power to cancel or reflect an incoming attack; offensive skills spend it to strike at a given strength.',
+  defense: [
+    { name: 'Coin', cost: 0, effect: 'Computing power +1' },
+    { name: 'Grounding', cost: 0, effect: 'Blocks discharge, double discharge, high voltage' },
+    { name: 'Mirror', cost: 1, effect: 'Reflects laser' },
+    { name: 'Cage', cost: 1, effect: 'Blocks railgun' },
+    { name: 'Shield', cost: 3, effect: 'Blocks discharge, double discharge, high voltage, railgun, laser' },
+    { name: 'Net guard', cost: 1, effect: 'Blocks virus' },
+    { name: 'Net police', cost: 2, effect: 'Reflects virus' },
+    { name: 'Compute guard', cost: 3, effect: 'Blocks virus, DDOS' },
+    { name: 'Super shield', cost: 5, effect: 'Blocks everything' },
+  ],
+  attack: [
+    { name: 'Discharge', cost: 1, effect: 'Attack 1' },
+    { name: 'Double discharge', cost: 2, effect: 'Attack 2' },
+    { name: 'High voltage', cost: 3, effect: 'Attack 3' },
+    { name: 'Laser', cost: 4, effect: 'Attack 4' },
+    { name: 'Railgun', cost: 6, effect: 'Attack 4' },
+    { name: 'Virus', cost: 6, effect: 'Attack 5' },
+    { name: 'DDOS', cost: 8, effect: 'Attack 5' },
+  ],
+  rules: [
+    'When you attack, you ignore any attack whose attack value is less than or equal to yours.',
+    'If both attack at once, the higher attack value wins; a reflected attack loses; a blocked attack means the duel continues; an unblocked attack wins.',
+    'In a multi-player duel, and only when attacking, you must name your target.',
+  ],
+};
+
+/**
+ * Sentencing: punishment is anchored to the total damage the offender
+ * themselves expected to cause, and legislators buy leniency out of their own
+ * pocket, which prices cheap sympathy out of the market.
+ */
+export const sentencingRuleEn = [
+  {
+    title: 'I. Core axiom',
+    content: 'Punishment = the total damage the offender expected, in their own understanding, to cause. It holds even with no actual victim (drink driving, for instance). Attempt and completion are punished alike; the luck of the outcome does not change the sentence.',
+  },
+  {
+    title: 'II. Real-world exceptions',
+    content: 'One may depart from the axiom for the sake of a benefit — leniency for voluntary surrender, which lowers the cost of capture — but that is a utilitarian compromise, not the axiom itself.',
+  },
+  {
+    title: 'III. Buying a lighter sentence',
+    content: 'A lighter sentence is available (for minors, for instance); I consent to it but do not endorse it. The difference is paid by the legislators who voted yes, out of their own pockets; private guarantees are forbidden, or the arrangement would be unequal. Pricing: every year of sentence remitted costs one year multiplied by (the legislator’s actual annual income − the subsistence minimum). Actual income includes grey income — the more corrupt you are, the less mercy you can afford. Anyone who cannot pay enters the infinite space and works it off at the minimum wage plus statutory benefits (roughly 40,000 a year), with no interest.',
+  },
+  {
+    title: 'IV. Divine clauses',
+    content: 'Omniscience: coercion in voting is detected, the coercer is charged double, and the price is set against their actual income. Inside the infinite space, ledger time is frozen (no interest) while personal time flows (real labour, real experience).',
+  },
+  {
+    title: 'V. Purpose',
+    content: 'To give those who sincerely argue for leniency a route that needs no majority persuasion, only payment for their conviction; the price gate filters out cheap sympathy. Mercy is a subscription: it runs while you keep paying and rolls back when you stop.',
+  },
+];
+
+/**
+ * zam-zam (fictional condition): in a 5°C room, close your eyes —
+ * if you have this condition, you can "see" through your skin.
+ * An indescribable sensation that stays with you forever.
+ */
+export const zamZamNoteEn = `zam-zam (fictional condition): in a 5°C room, close your eyes — if you have this condition, you can "see" through your skin.
+
+That feeling is one you never forget.`;
+
+/**
+ * Mind-ball race level (dream record): telekinetically steer a colored ball
+ * through a barrier-laned world against 8 CPU balls; best-of-3, last place is out.
+ */
+export const mindBallRaceNoteEn = `Mind-ball race level:
+Using something like a brain-wave/telekinetic grip, you steer a ball of your own — its color changes every round — through the same physical world, but a world partitioned by pull-back road barriers, from start to finish. The course is tens of meters, maybe a hundred-plus. Eight other balls are controlled by the computer, and they're all within a narrow speed band.
+
+Format: 3 rounds. In any round, finishing last loses the whole level; only a win lets your score go on the leaderboard.
+
+Round 1: first place. Round 2: sixth. Round 3: you zone out at the start and by the time you snap back the CPU balls are halfway in. Just as you think you've lost, someone walks over, picks up your ball, carries it past the finish line, and sets it down behind the line. So you then pick up another sky-blue ball — the same color as your own this round — and set it behind the finish line too, effectively finishing this round first twice.
+
+Final tally: three firsts + one sixth. By that logic, the leaderboard's top spot for this level is yours.`;
+
+/**
+ * Winter-break homework & the fifth-grade guarantee: first graders hand the
+ * school's handout to a 高三 "big friend" and write a 200+ character report;
+ * extrapolated to sixth grade that'd be 1200 characters, except there is no
+ * sixth grade — everyone who attends fifth grade gets into a 985 med school.
+ */
+export const winterBreakNoteEn = `First-grade winter break practical assignment: hand the school's handout to a 高三 "big friend", then write a report of at least 200 characters.
+
+By that ratio, sixth graders should write 200 × 6 = 1200 characters — except our school doesn't have a sixth grade.
+
+Another feature of the school: everyone who has ever attended fifth grade gets into a 985 university's medical school (or equivalent) on the gaokao. So far, without exception.`;
+
+/**
+ * The reverse-talk teacher. She described her teacher terribly,
+ * and only on meeting him did I realize every word was irony. To see the
+ * teacher you have to leap between two rows of stools; lying on a round
+ * platform in daylight, held close, I shouted "I hate you for now!";
+ * only afterward did it hit me — she hasn't started university. She's 10.
+ */
+export const reverseTeacherDreamNoteEn = `She introduced her teacher to me — badly — then took me to meet him. Only then did I realize: everything she'd said was irony, the exact opposite.
+
+The setup was strange: to see the teacher, you have to leap across (see image below).
+
+It was daytime. We were lying on a round platform, holding each other tight. I shouted at her: "I hate you for now!" She brushed the dirt off my clothes.
+
+Near the end, I found myself wondering what year of college she was in.
+
+In reality, she hasn't started university yet. She's 10.`;
+
+/**
+ * Swing scheduling rules: OS scheduling algorithms explained through the
+ * metaphor of kids queuing for a swing at school — FIFO / SJF / STCF /
+ * RR / MLFQ, plus Lottery and Stride.
+ */
+export const swingSchedulingNoteEn = `1. FIFO — First In First Out
+Whoever arrives at the queue first plays first. The person ahead isn't done? Everyone behind just stares. One swing, one line, nothing else.
+ ✅ Simplest, fairest, needs no information.
+ ❌ Stand behind a big kid (who plays forever) and the whole line waits; tail-end waiters wait forever.
+
+2. SJF — Shortest Job First
+The dog doesn't care who came first; it asks "how long will you play?" Shortest self-reported time goes first. No preemption — once up, you stay till done.
+ ✅ Mathematically proven minimum average turnaround time.
+ ❌ Requires predicting playtime up front (in practice, guessing — one wrong guess wrecks it); long reporters may starve at the tail.
+
+3. STCF — Shortest Time-to-Completion First
+Like SJF but preemptive: the currently-playing kid can be pulled off. If a newcomer reports a shorter remaining time than yours, you step down.
+ ✅ Slightly better average turnaround than SJF; near-done kids get instant response.
+ ❌ Needs live "remaining time" estimates (even more fortune-telling); ongoing players get yanked repeatedly; long tasks still starve.
+
+4. RR — Round Robin
+No job length, no arrival order. Everyone gets a fixed slice (say 1 minute); the dog's watch beeps and the next kid comes up. Like musical chairs.
+ ✅ Best response time — nobody feels forgotten; no predictions; no starvation.
+ ❌ Context-switch cost (sitting down and standing back up takes time); picking the slice length is tricky — too short wastes effort, too long becomes FIFO.
+
+5. MLFQ — Multi-Level Feedback Queue
+The school sets up several rows of swings, each "higher" than the last. New arrivals start at the top row and get a short slice (like RR). Cut short without finishing? Drop to the next row. Stuck too long in a low row? Get promoted back up. The rules adapt to behavior; nobody has to predict anything.
+ ✅ Good response and turnaround; self-tuning, no predictions; promotion prevents starvation.
+ ❌ Complex: number of rows, slice length, promotion interval — tune poorly and it all falls apart; kids can game it by just barely leaving each row early to stay at the top.
+
+The five MLFQ rules
+Rule 1: Higher row always wins. If A is in a higher row than B, A plays and B waits.
+Rule 2: Same row = RR. Within a row, rotate in round-robin slices.
+Rule 3: New arrivals go to the top row. Everyone starts with the best treatment — the system assumes each kid will finish quickly.
+Rule 4: Time quantum used up → demote. Each kid has a top-row budget (say 10 seconds total). Once spent — whether by finishing or by repeated preemption — drop to the next row. Partial slices still count; being interrupted 10 times for 1 second each still burns the budget. This blocks gamers who try to linger at the top by leaving early.
+Rule 5: Periodic boost. Every interval S (say 5 minutes), everyone is promoted back to the top row. Even a very long task stuck at the bottom eventually gets another shot — no permanent starvation.
+
+Comparison:
+              Fortune-telling?   Response       Turnaround       Starves?
+FIFO          No                 Luck-based     Blocked by hog   Yes
+SJF           "Total time"       Short wins     Best average     Yes
+STCF          "Remaining time"   Short wins     Best average     Yes
+RR            No                 Best           Okay             No
+MLFQ          No (auto-learned)  Good           Good             No (boosts)
+
+Lottery Scheduling
+Each kid gets lottery tickets proportional to their share. A kid with 50% share holds half the tickets. Every so often a ticket is drawn at random; the holder plays for a slice, then the next draw.
+ ✅ Provably fair over the long run — each kid's number of turns matches their share; dead simple; tickets can even be lent (e.g. to a sick classmate).
+ ❌ Wild in the short run — you might be drawn three times in a row, or not at all for ages; depends entirely on an honest random-number generator.
+
+Stride Scheduling
+No lottery — a race. The track's total length is fixed; each kid's stride is set by their share (big share = 10m strides, small share = 2m). The dog always sends whoever is currently farthest behind forward one step. Over time, each kid reaches the finish exactly in proportion to their share — no randomness at all.
+ ✅ Precise fairness — Lottery is "roughly right", Stride is "exactly right"; nobody blames the randomizer.
+ ❌ Rigid — a new transfer student forces a stride recalculation for everyone; must know the total share pool up front; hard to handle joiners/leavers.
+
+Lottery vs Stride:
+              How it decides        Fairness              Flexibility       Mood
+Lottery       Random draw          Long-run true, noisy  Great (lendable)  "I hate the randomizer"
+Stride        Farthest-back runs   Exact at all times    Poor (hard to add) "Strict but fair"`;
+
+/**
+ * Sacrifice one hundred million: five lottery schemes as an ethics thought
+ * experiment, alongside the moral principles and paternalism critique.
+ */
+export const sacrificeNoteEn = `If you must sacrifice a large group of people, how do you choose?
+
+1. Everyone is drawn at random (including children).
+
+2. All adults are drawn at random (children exempt).
+
+3. Children exempt; anyone may volunteer to join the sacrifice pool. Non-volunteers keep the risk from option 1; the remaining risk is spread among the pool.
+
+4. Children exempt; anyone may opt out of the scheme. Those who exit keep the risk from option 1 (baseline preserved); the remaining risk is spread among those who stay.
+
+5. Take the top consumers by resource consumption — but attribute consumption to whoever is paying, not whoever is using. For example, spending on your child counts against you. This incidentally protects children, since they rarely spend their own money, and never at this level.
+
+Note: joining and exiting are not the same thing. Between the two sits a third group — people who are indifferent to life, who don't care whether they live or die. They will neither join nor exit.`;
+
+/**
+ * A cryptic ascending aphorism: from "done" down to "crawling",
+ * ending on "crawling beats being dead".
+ */
+export const mysticSayingNoteEn = `"Done beats being, being beats non-being; flying beats running, running beats walking, walking beats crawling, crawling beats being dead."`;
+
+/**
+ * Reverse-aging law: future tech can revert a person (mind included) to a
+ * child; how the law treats that. Mirror of the citizen-level system.
+ */
+export const reverseToChildNoteEn = `Background: future technology can revert a person (mind included) into a child.
+
+Rules:
+1. Before reverting: must pass a licensing assessment; settle all debts and lawsuits first, and sign a statute-of-limitations suspension.
+2. After reverting: legally identical to a natural-born child — crimes are not prosecuted, only therapeutic correction; compensation comes out of the person's own assets; placed under guardianship; no right to revert back on their own.
+3. Unlawful reverting: forcefully reversed, then prosecuted.
+4. Want to revert again: reassessed on file; prior records count against you, but you may present evidence to overturn it.
+5. Repeat reverting-and-offending: presumption of denial, but can be rehabilitated.`;
+
+/**
+ * Medication access principle: don't make the patient prove they're sick;
+ * make the system find out. Gate the process, not the door; divert, don't just block.
+ */
+export const medicationAccessNoteEn = `Don't make the person asking for medication prove they have a problem — make the system find out whether they do:
+
+1. Don't gate the entrance, gate the process. Anyone can start cheaply (initial screening, trial). Staying on the drug is decided by follow-up data, not by a single diagnosis that lasts forever.
+
+2. Screening out isn't the end — triage is. People who are filtered out leave with somewhere to go: sleep disorders get sleep treatment, environmental problems get environmental fixes, and those who'd do nothing at least didn't take the risk for nothing.`;
+
+/**
+ * Meeting someone mid-Meltdown in the wild is handled exactly like meeting a
+ * cute feral cat: don't stare, don't shout, don't turn and bolt, give space.
+ */
+export const meltdownFieldNoteEn = `Meeting a cute stray cat in the wild, and meeting someone mid-Meltdown in the wild — you should do the exact same thing: don't stare, don't shout, don't turn and run, and give them space.`;
+
+/**
+ * Couplet: arithmetic cannot compute wealth; logarithms and roots cannot solve poverty.
+ */
+export const mathCoupletNoteEn = `Add-subtract-multiply-divide cannot reckon out mortal wealth;
+logs-exponents-roots-powers cannot dissolve the world's poverty.`;
+
+/**
+ * Punned saying: in one second light travels 3e8 m; optogenetics wins a Nobel.
+ */
+export const lightPunNoteEn = `In one second, light travels 3e8 m; optogenetics wins a scientist a Nobel Prize.`;
+
+/**
+ * Poem "Rules and Cats": learning social rules the way a cat learns human footsteps.
+ */
+export const rulesAndCatPoemEn = `Rules and Cats
+
+I learn rules the way a cat learns human footsteps —
+not born knowing,
+but writing down every trial:
+how many seconds of eye contact is right,
+how far a joke may go,
+when to speak,
+and when silence is the polite thing.
+
+I once had a cat.
+It never wore its love on its sleeve the way a dog does.
+It just lay beside the keyboard while I typed,
+and on the night I broke down,
+it rested a paw lightly on the back of my hand.
+
+Later I understood:
+it and I spoke the same language —
+connection need not be loud,
+it only needs "I am here."
+
+If love is a dialect,
+I may speak it with an accent.
+But I don't ask to be corrected,
+only to be understood a little.
+
+Like a cat that doesn't explain
+why it curls up in the corner,
+yet is still allowed to stay in the room.`;
+
+/**
+ * Chain of beats: one bean > money > scissors > bomb > mole > terrorist >
+ * rescue worker > flood > dam.
+ */
+export const beanChainNoteEn = `⚖️ One bean (in Zimbabwe)
+  > 💰 Money
+  [Purchasing power] ✅ Under hyperinflation a single bean outpowers cash; the bean buys more.
+
+💰 Money
+  > ✂️ Scissors
+  [Ownership] ✅ Money buys the scissors and commands them; money beats scissors.
+
+⚖️ Scissors (cutting the fuse)
+  > 💣 Bomb
+  [Cut the fuse] ✅ Scissors snip the bomb's fuse, so the bomb never goes off.
+
+⚖️ Bomb (with fuse)
+  > 🕵️ Mole
+  [Demolition] ✅ The mole carries and plants the bomb; the bomb's destructive force outclasses the mole himself.
+
+🕵️ Mole
+  > 💣 Terrorist
+  [Infiltration] ✅ The mole hides inside the terrorist cell and can quietly sabotage it.
+
+💣 Terrorist
+  > 🛟 Rescue worker
+  [Attack suppression] ✅ Terrorists attack the rescue workers' operation, suppressing the top of the chain.
+
+🛟 Rescue worker
+  > 💧 Flood
+  [Control] ✅ When the dam bursts and floods out, trained rescue workers manage the deluge effectively.
+
+💧 Flood
+  > 🏗️ Dam
+  [Wear down] ✅ A sustained flood eventually overwhelms and breaches the dam, closing the loop.
+
+Therefore: one bean > the dam.`;
+
+/**
+ * What's the ingredient list of this suffering? If society made it, fix society;
+ * if nature damaged it, research repair, keep it voluntary, beware the irreversible.
+ */
+export const painConstitutionNoteEn = `"What is the ingredient list of this suffering?"
+
+If the ingredients were manufactured by society, fix society. If the damage is natural, research repair, keep it voluntary, and beware the irreversible.`;
+
+/**
+ * Day-of-week pun holiday rules: why each day off or on.
+ */
+export const weekdayPunNoteEn = `• Monday: Monday. Monkey = Mon + key = the Monday key. Monkeys unlock their cages and escape, everyone is busy chasing them — day off.
+
+• Tuesday: Tuesday = "too-dead day" (tǔ sǐ = rabbit-dead day). In Rabbit-Head Territory they slaughter and eat fresh rabbit heads, everyone works and eats. Other regions stay home to avoid being spiced to death.
+
+• Wednesday: Wednesday sounds like "wen si day" — the day mosquitoes die. Perfect for camping, day off.
+
+• Thursday: Thursday = thirsty day. In Rabbit-Head Territory the twice-cooked rabbit heads are so spicy everyone's steaming; they get a day off to rehydrate. Other regions get rain, free water, normal workday.
+
+• Friday: Friday = fry day. Everyone gathers at school for a BBQ, workday.
+
+• Weekend: Weekend. Work is over, day off.`;
+
+/**
+ * The nyaumæ era: not a supernova era — everyone's age is taken mod 12.
+ */
+export const nyaumaeEraNoteEn = `Supernova era? No — I want the nyaumæ era: everyone's age is taken modulo 12.`;
+
+/**
+ * Living arrangements: everyone has their own room, plus many shared playrooms.
+ */
+export const livingSpaceNoteEn = `Everyone has a room of their own; besides that there are many playrooms where you can play all sorts of things.`;
+
+/**
+ * Ten rules of fair play: no guesswork, double standards are cheating,
+ * apologies require repair, betrayal is the worst, etc.
+ */
+export const fairnessRulesNoteEn = `• "Don't make me guess. Rules must be written down, written clearly, and changes announced in advance; penalties added on the spot are void."
+
+• "Double standards are cheating. An adult who errs is punished the same as a child; a weaker person who lies is as guilty as a powerful one."
+
+• "Whoever bullies me immediately loses their advantage; no comeback allowed through crying, age, status, or connections."
+
+• "An apology must come with repair: return what was taken, fix what was broken, clarify publicly; 'sorry' alone doesn't count."
+
+• "No humiliation. Punish if you must, but don't put me on display as a joke."
+
+• "The strong must first prove they won't abuse their power; if they can't, the power gets scaled down."
+
+• "Threats are taken seriously, but saying 'I hate you' doesn't mean I'm going to hit."
+
+• "Betrayal is the worst. Leaking secrets, pretending to be on my side, then turning around and selling me out — those get the heaviest penalty."
+
+• "No vague 'it's for your own good'. The benefit must be visible, and the harm must be acknowledged."
+
+• "Except for police and those acting under legal duty, do not name-and-shame another person's negatives to anyone else; when seeking help from doctors, lawyers, therapists and other confidentiality-bound professionals, state only the necessary facts without naming names; a trusted acquaintance who learns something in confidence has no right to spread it."`;
+
+/**
+ * Sentencing range: actual sentence sits between the convict's inner judgment
+ * and the legislator's inner judgment. The "legislator" here is the author of
+ * these new rules, not the incumbent legislature.
+ */
+export const sentencingRangeNoteEn = `The "legislator" below means the author of these new rules, not the current legislature.
+
+Premise: future technology can precisely infer a person's true inner judgment of what punishment is deserved; lying is useless.
+
+A: The convict thinks — "If the legislator had committed this crime, what punishment do I think they deserve?" Get A.
+
+B: The legislator thinks — "If I had committed this crime, what punishment do I think I deserve?" Get B.
+
+The actual sentence for any convict is chosen somewhere in the range from A to B.`;
+
+/**
+ * How to destigmatize unchosen differences — and why "differences of thought"
+ * are excluded, even though anyone who's been on psychiatric medication knows
+ * that thought isn't freely chosen either.
+ */
+export const destigmatizationNoteEn = `How do we destigmatize all the unchosen differences between people?
+
+There's a scope here: this definitely does not include differences of thought.
+
+But why? Anyone who's been on psychiatric medication knows — thought isn't freely chosen either.`;
+
+/**
+ * The Parents Pay Law: non-parents pay nothing; parents pay double; accidental
+ * parents are paid for by whoever made them accidental — hence free abortion.
+ */
+export const parentPayingLawNoteEn = `The Parents Pay Law
+
+Article 1: Anyone who is not a parent bears no cost whatsoever.
+
+Article 2: Parents bear double cost — their own, plus the child's.
+
+Article 3: Whoever becomes a parent by accident — whoever caused that accident bears all the cost of both you and the child. (Which is why the state has a duty to provide free abortion.)`;
+
+/**
+ * Top-down parsing in five steps: nullable → FIRST → FOLLOW → SELECT → LL(1) table.
+ */
+export const ll1ParsingNoteEn = `Top-down parsing, top to bottom: ① nullable → ② FIRST → ③ FOLLOW → ④ SELECT → ⑤ LL(1) parse table.
+FOLLOW(S) is initialized to { $ } at step 0, or equivalently use S' → S $.
+
+① nullable — "Can you derive the empty string?"
+
+② FIRST — "Which terminals can start you off?"
+
+③ FOLLOW — "What can follow you?"
+
+④ SELECT — "After you derive something, who comes first? If you can be empty, take the left-hand side's FOLLOW; otherwise take your FIRST."
+
+⑤ LL(1) parse table — "Given terminal a, which production do I apply?"
+
+If a production needs backtracking, rewrite the grammar: extract left common prefixes, or eliminate left recursion.`;
+
+/**
+ * Balanced or random: to avoid the Matthew effect, you may choose either balanced
+ * or random before birth. In reality the balanced people chose it themselves;
+ * the high and low scorers were random. Which do you pick?
+ */
+export const balanceOrRandomNoteEn = `Suppose that, to avoid the Matthew effect, you are only allowed to choose between balanced and random.
+
+In reality, everyone who ended up balanced chose it themselves before being born; everyone who ended up high (like Eileen Gu — family, talent, drive, all three) and everyone who ended up low was drawn at random.
+
+So — do you want balanced, or random?`;
+
+/**
+ * Child autonomy principle: if nobody has the right to do X in the first place,
+ * but not doing X also costs the child something, then the right to X must be
+ * granted to the child themselves.
+ */
+export const childAutonomyNoteEn = `If there is something (say, intervening in a child's sexual orientation) that nobody has the right to do in the first place, yet not doing it also imposes a cost on the child — then that right must be granted to the child themselves.`;

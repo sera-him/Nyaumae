@@ -425,4 +425,105 @@ And I, carrying that core liquid chamber, flew toward another blue planet. 🌌`
     chapterCount: 65,
     chapters: [],
   },
+  {
+    id: 'delan-succession',
+    title: 'The Delansi Succession',
+    subtitle: 'Side Story · The Game of the Deep-Sea Commons',
+    chapters: [
+      {
+        title: 'Chap1 The Argument in the Name',
+        content: `The name Delansi was, from the very day it was chosen, an argument that never finished being argued.
+
+"Lan" means the ocean. The company worked in deep-sea exploration — the shallow-water oil and gas had been picked over for decades, and what remained was hard bone: mineral beds below four thousand meters, hydrothermal ecosystems, and that dark basin with no sunlight and, supposedly, no end. The year the project was approved, the board spent three months on the first character of the name. The "tuo" camp wanted expansion baked in — forge ahead, never look back. The "lan" camp said the sea comes first and expansion second; expansion that forgets this is indistinguishable from robbery.
+
+The compromise was to fuse the two characters: Delansi. On paper everyone went home happy; in truth nobody had convinced anybody. The "tuo" camp held that "lan" was merely the place of work while "tuo" was the ambition. The "lan" camp held that "sea" was the subject and "tuo" only the verb — and a company that forgets its subject does not walk far.
+
+The man who fused the two camps was named Gu Shen.
+
+Gu Shen had been a teacher before he doubled as the company's chairman. Before starting the business he taught politics for more than ten years in a county middle school, and the page he taught best was the "tragedy of the commons": a pasture open to all, every herder rationally adding one more sheep, and together they destroy the grass. He liked to say later that the deep sea was that pasture — anyone could prospect, anyone could extract, nobody wanted to stop. The only difference was that the tragedy of the pasture was a theory question, while the tragedy of the deep sea was an applied one.
+
+It was at that county school that he met Miya.
+
+By then Gu Shen's company had succeeded, and he still went back to his alma mater every year to teach a few classes — no lecture notes, no business talk, only "the things beneath our feet and above our heads." Among the few hundred students in the hall, only Miya took notes the most seriously, and the questions she chased him with after class were the most impractical — not "how do I make money," but "why can't everyone agree together to raise one fewer sheep?"
+
+Gu Shen let the laughter die down and said: "Because agreement presupposes that someone gives ground first. And those accustomed to giving ground get eaten by those who cannot afford to."
+
+Miya asked: "Then what does the one who gives ground first stand to gain?"
+
+Gu Shen looked at her and did not answer. It was only years later that Miya understood: the teacher had been testing her — whether she would put herself at a disadvantage for the sake of a correct answer.
+
+In those years the quiet struggle between "lan" and "tuo" inside the company never stopped. Gu Shen held the center, not by eloquence, but by an arithmetic nobody could refute.`,
+      },
+      {
+        title: 'Chap2 The Conservative Line',
+        content: `Gu Shen's arithmetic later became the company's written rules, known as "conservative development." The name sounds like kindness; the substance is pure game theory.
+
+No bidding wars for prospecting rights. In the industry, mining claims are won by raised bids; others price to "secure it first," while Delansi's offer sheet is forever computed as cost plus reasonable profit — not one cent more, because today's extra cent becomes tomorrow's water level for the whole industry's bidding.
+
+No chasing new equipment. Other companies replace their fleets every three years; Delansi's ships are repaired again and again. Not for lack of money — but so that "newer ships" never becomes the starting gun of an arms race.
+
+All geological data shared industry-wide. Nothing prospected is hoarded; everything is published. Information blockade forces everyone to prospect the same ground again, and repeated prospecting is repeated harm.
+
+Extraction quotas are written into the company charter, capped annually, and the board alone has no power to change them.
+
+Gu Shen explained it once in plain words at the shareholders' meeting: "The deep sea is a commons. The trouble with a commons is that everyone is rational, and together they are a disaster. You cut prices, everyone must follow; you expand your fleet, everyone must follow; you bid for claims, the price of claims never comes down. In the end nobody wins — everyone perishes together: prospecting bidding wars, equipment arms races, ecological collapse, industry-wide involution. Competition is not enterprise; it is sliding into a death loop. I ask for one thing only: do not slide in."
+
+The hall was silent for a few seconds. Then some applauded, and some sat with cold faces. In that row of cold faces sat He Zheng.
+
+He Zheng was a veteran, with Gu Shen since the company's earliest days, and the designated heir. Nobody knew better than he how much opportunity those rules had blocked: other companies took claims, expanded fleets, rang the bell at listing; Delansi repaired ships. He thought the company far too conservative and wanted deep-sea development let off the leash. He believed the company would be his sooner or later, and once in power he could change everything. He simply lacked patience — and never imagined that Gu Shen had long since written a will.
+
+Gu Shen cultivated a successor outside the company as well as inside.
+
+By Miya's freshman year she was already sitting in on board meetings, reading prospecting reports, learning from Gu Shen how to say "no" at a bidding session. He taught her to read conventions, ecological assessments, rivals' balance sheets; to be the one hand that stays down when every other hand goes up; to phrase "not doing" as a decision with a price and a boundary, not as a gesture.
+
+"Composure is not inborn," Gu Shen said. "It is thinking through the price every time — and paying it."
+
+Back then Miya was twenty, a college freshman, an Introduction to Marine Geology in her schoolbag and the first agenda of next week's board meeting in her phone. She did not know she was being trained, long-term, to an heir's standard — she believed the teacher only needed a student to help read reports.`,
+      },
+      {
+        title: 'Chap3 The Murder',
+        content: `On the night of April 24, 2024, Gu Shen died in his top-floor office at the company.
+
+When he was found the next morning, his computer was still on, the screen showing an unfinished extraction-quota plan. Police quickly ruled it homicide, and the rest was left to the law. Only the motive is worth writing down: a dispute over doctrine, plus the certainty of succession — kill the teacher, and the throne follows; half discontent, half crown. When He Zheng was taken away, the argument between "lan" and "tuo" inside the company finally stopped needing to be fought.
+
+Miya arrived on the third day. She walked into the office; the screen had gone dark, the quota plan stopped at page seven. She sat for a long time in Gu Shen's usual chair and did not cry.
+
+When Zhao Zhao arrived, this was the scene he saw: a twenty-year-old student sitting in her sixty-year-old teacher's chair, spine straight as a rod.
+
+Zhao Zhao was the founder of Zhehua School, a fellow traveler of Gu Shen in life. He did not urge "cry if you need to"; he said only: "What comes next is not carried by one person. The teacher's former colleagues and fellow travelers are all here. The Vigil Alliance — an awkward name for a decent thing: hold the line he set."`,
+      },
+      {
+        title: 'Chap4 The Will',
+        content: `The will was read publicly after the murder, at the notary office, with company veterans, board members and lawyers present. Its contents were simpler than anyone expected: everything of Delansi — equity, fleet, data, and along with them the name that had been argued over for half a lifetime — all left to Miya, his most beloved student.
+
+The room was said to have fallen silent for a long time.
+
+What Miya said on the spot was "I won't accept it" — she was only a student, with unfinished finals still in her schoolbag. It was Zhao Zhao and the Vigil Alliance who spent weeks persuading her, laying before her a company, a doctrine and a commons, and asking her to compute for herself the very account Gu Shen had taught her.
+
+The sharpest part of this will belonged to He Zheng. He had stolen a throne that never existed: had he not acted, the will might never have been made public — Gu Shen's line was steady, his health still serviceable, Miya still a student, everything as it was; the moment he acted, death activated that sheet of paper, and he personally seated twenty-year-old Miya on the throne. The murder was not a failed power grab; it personally completed the teacher's succession.
+
+The teacher did not live, but he won with a single sheet of paper.
+
+Why Miya, outsiders guessed for a long time. The answer lay in an annex to the will: a handwritten training record by Gu Shen, counting from the day Miya first came to ask "why can't everyone raise one fewer sheep" in middle school — he had been training her to an heir's standard all along. Property can be handed over in an instant; an heir can only be cultivated long-term. He had done both.`,
+      },
+      {
+        title: 'Chap5 The New Throne',
+        content: `Miya was twenty the year she succeeded.
+
+Her "steady, capable and composed" now had a provenance — not the genius of a prodigy, but long-term cultivation to an heir's standard by the teacher in his lifetime, tempered by the trauma of bereavement. Behind her stood Zhao Zhao's Vigil Alliance: the teacher's former colleagues and fellow travelers, retired in name only, helping her watch every rule that might slip. Behind her too was the deep cooperation with Zhehua School — the Kezhaozhen Academy's research funding jointly disbursed with Delansi, the academy watching the ecological data on the commons side for her, she holding the no-involution pace of development on their side.
+
+She did not leave school. The teacher had taught her to study and to decide; she put down neither. In her classmates' eyes she was still the ordinary student with an Introduction to Marine Geology in her schoolbag; only the board knew that when this freshman said "no" at a bidding session, she was Gu Shen to the life.
+
+As for the name, it remained Delansi. Lan and tuo still quarreled every day — only from then on, anyone quarreling had first to glance at the lamp on the top floor, where a twenty-year-old student sat beneath it. She had kept these notes for so many years, waiting for precisely this question:
+
+"If everyone is rational and together they are a disaster, what does the one who gives ground first stand to gain?"
+
+The teacher's answer was never spoken aloud in his day; now she executes it — that everyone does not perish together.
+
+The following summer, Amiya, a fifth-grader, wrote a composition titled The Person I Admire Most. The opening came easily: "The person I admire most is my sister Miya..." Five hundred characters of draft paper were filled dense with writing, and still it felt like not enough.
+
+The teacher did not live to see any of this. But he won with a single sheet of paper.`,
+      },
+    ],
+  },
 ];

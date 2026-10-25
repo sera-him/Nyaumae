@@ -95,7 +95,7 @@ export const organizationsEn: Organization[] = [
     members: ['Miya'],
     color: 'from-pink-600 to-rose-600',
     accentColor: '#F472B6',
-    description: 'A tech giant steered by its young leader Miya, in deep cooperation with the Kezhaozhen Academy of Zhehua School.',
+    description: 'A tech giant in deep-sea exploration. The former CEO left the company to his student Miya by will; since succeeding him she has worked in deep cooperation with the Kezhaozhen Academy of Zhehua School, holding the conservative-development line.',
     image: '/org-delan.jpg',
     icon: '/icons/org-delan.png',
   },

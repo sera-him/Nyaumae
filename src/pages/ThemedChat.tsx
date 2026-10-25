@@ -22,6 +22,7 @@ import type {
 import { CHAT_STICKERS, parseMessageParts, stickerToken } from '@/conversation/stickers';
 import ResponsiveImage, { THUMBNAIL_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
 import { readStorageValue, writeStorageValue } from '@/lib/browserStorage';
+import { getMotionProfile } from '@/lib/motionPolicy';
 import { useAppViewportHeight } from '@/hooks/useAppViewportHeight';
 import './ThemedChat.css';
 
@@ -30,6 +31,11 @@ type ChatTheme = 'ocean' | 'sweet' | 'aurora';
 interface ThemedChatProps {
   theme: ChatTheme;
 }
+
+/** 流式打字渐显：最多给末尾这么多字符加 blur(6px)→0 的入场动画。 */
+const STREAM_TAIL_CHARS = 14;
+/** 相邻字符的动画错开间隔。 */
+const STREAM_TAIL_STAGGER_MS = 30;
 
 const themeCopy = {
   ocean: {
@@ -204,6 +210,11 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
   const [editingId, setEditingId] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamingText, setStreamingText] = useState('');
+  /** 流式气泡里「刚到达、要做 blur 渐显」的字符起点；-1 = 不动画。 */
+  const [streamTailStart, setStreamTailStart] = useState(-1);
+  const streamLengthRef = useRef(0);
+  /** 哪条消息的复制按钮正在显示对勾；空串 = 无。2.5s 后自隐。 */
+  const [copiedMessageId, setCopiedMessageId] = useState('');
   const [notice, setNotice] = useState('');
   const [citations, setCitations] = useState<Citation[]>([]);
   const [memoryIds, setMemoryIds] = useState<string[]>([]);
@@ -405,6 +416,13 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
     return () => window.clearTimeout(timer);
   }, [notice]);
 
+  // 复制对勾 2.5s 自隐：只换按钮图标和文案，不弹全局提示。
+  useEffect(() => {
+    if (!copiedMessageId) return;
+    const timer = window.setTimeout(() => setCopiedMessageId(''), 2_500);
+    return () => window.clearTimeout(timer);
+  }, [copiedMessageId]);
+
   useEffect(() => {
     if (!showStickers) return;
     const closeOnOutsideClick = (event: MouseEvent) => {
@@ -556,13 +574,35 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
     refresh(selectedConversation.id);
   };
 
-  const copyMessage = async (content: string) => {
+  const copyMessage = async (id: string, content: string) => {
     try {
       await navigator.clipboard.writeText(content);
+      setCopiedMessageId(id);
       setNotice('消息已复制。');
     } catch {
       setNotice('无法访问剪贴板，请手动选择消息文字。');
     }
+  };
+
+  /** onToken：记录本次新增的尾部字符区间，交给渲染层做 blur 渐显。 */
+  const handleStreamToken = (accumulated: string) => {
+    const previousLength = streamLengthRef.current;
+    streamLengthRef.current = accumulated.length;
+    const profile = getMotionProfile();
+    const animated = !profile.reducedMotion && profile.quality !== 'static';
+    if (!animated || accumulated.length <= previousLength) {
+      setStreamTailStart(-1);
+    } else {
+      // 一次 token 可能涌来很长一段：只给最后 STREAM_TAIL_CHARS 个字符排动画，
+      // 其余直接显示，避免 30ms 错开把整段回答拖成慢放。
+      setStreamTailStart(Math.max(previousLength, accumulated.length - STREAM_TAIL_CHARS));
+    }
+    setStreamingText(accumulated);
+  };
+
+  const resetStreamTail = () => {
+    streamLengthRef.current = 0;
+    setStreamTailStart(-1);
   };
 
   const send = async (event?: FormEvent, explicitContent?: string) => {
@@ -577,6 +617,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
     setInput('');
     setNotice('');
     setStreamingText('');
+    resetStreamTail();
     setIsGenerating(true);
     const controller = new AbortController();
     abortRef.current = controller;
@@ -589,7 +630,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
         pageContext: { route: location.pathname, title: document.title, section: activeMode },
         replaceMessageId: editingId || undefined,
         signal: controller.signal,
-        onToken: (_token, accumulated) => setStreamingText(accumulated),
+        onToken: (_token, accumulated) => handleStreamToken(accumulated),
       });
       setCitations(result.context.citations);
       setMemoryIds(result.context.memoryIds);
@@ -597,6 +638,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
       if (result.assistantMessage.status === 'stopped') setNotice('生成已停止，已保留已经生成的内容。');
       setEditingId('');
       setStreamingText('');
+      resetStreamTail();
       refresh(selectedConversation.id);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : '发送失败。');
@@ -612,18 +654,58 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
     void send(undefined, stickerToken(id));
   };
 
-  const renderMessageContent = (content: string, keyPrefix: string) => (
-    <div className="original-chat-rich-message">
-      {parseMessageParts(content).map((part, index) => part.type === 'sticker'
-        ? <ResponsiveImage className="original-chat-sticker-message" src={part.sticker.src} alt={part.sticker.label} title={part.sticker.label} widths={THUMBNAIL_IMAGE_WIDTHS} sizes="160px" key={`${keyPrefix}-sticker-${index}`} />
-        : part.value.split('\n').map((line, lineIndex) => <p key={`${keyPrefix}-text-${index}-${lineIndex}`}>{line || '\u00a0'}</p>))}
-    </div>
+  /** 把「刚到达」的一段字符包成逐字 blur 渐显的 span。 */
+  const renderStreamTail = (text: string, keyPrefix: string) => (
+    <>
+      {Array.from(text).map((char, charIndex) => (
+        <span
+          key={`${keyPrefix}-tail-${charIndex}`}
+          className="chat-stream-char"
+          style={{ animationDelay: `${charIndex * STREAM_TAIL_STAGGER_MS}ms` }}
+        >
+          {char}
+        </span>
+      ))}
+    </>
   );
+
+  const renderMessageContent = (content: string, keyPrefix: string, tailStart = -1) => {
+    let partOffset = 0;
+    return (
+      <div className="original-chat-rich-message">
+        {parseMessageParts(content).map((part, index) => {
+          if (part.type === 'sticker') {
+            partOffset += stickerToken(part.sticker.id).length;
+            return <ResponsiveImage className="original-chat-sticker-message" src={part.sticker.src} alt={part.sticker.label} title={part.sticker.label} widths={THUMBNAIL_IMAGE_WIDTHS} sizes="160px" key={`${keyPrefix}-sticker-${index}`} />;
+          }
+          const partStart = partOffset;
+          partOffset += part.value.length;
+          let lineOffset = 0;
+          return part.value.split('\n').map((line, lineIndex) => {
+            const lineStart = partStart + lineOffset;
+            lineOffset += line.length + 1;
+            // 与「刚到达的尾部」有交集的行：交点之后包成渐显字符，之前的部分原样。
+            const splitAt = tailStart < 0 ? -1 : Math.max(0, Math.min(line.length, tailStart - lineStart));
+            const head = splitAt > 0 ? line.slice(0, splitAt) : '';
+            const tail = splitAt >= 0 && splitAt < line.length ? line.slice(splitAt) : '';
+            return (
+              <p key={`${keyPrefix}-text-${index}-${lineIndex}`}>
+                {tailStart < 0
+                  ? (line || '\u00a0')
+                  : <>{head}{tail ? renderStreamTail(tail, `${keyPrefix}-${index}-${lineIndex}`) : null}{!head && !tail ? '\u00a0' : null}</>}
+              </p>
+            );
+          });
+        })}
+      </div>
+    );
+  };
 
   const regenerate = async () => {
     if (!selectedConversation || isGenerating) return;
     setIsGenerating(true);
     setStreamingText('');
+    resetStreamTail();
     const controller = new AbortController();
     abortRef.current = controller;
     try {
@@ -632,7 +714,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
         model: selectedConversation.model ?? undefined,
         pageContext: { route: location.pathname, title: document.title, section: activeMode },
         signal: controller.signal,
-        onToken: (_token, accumulated) => setStreamingText(accumulated),
+        onToken: (_token, accumulated) => handleStreamToken(accumulated),
       });
       if (result) {
         setCitations(result.context.citations);
@@ -641,6 +723,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
         if (result.assistantMessage.status === 'stopped') setNotice('生成已停止，已保留已经生成的内容。');
       }
       setStreamingText('');
+      resetStreamTail();
       refresh(selectedConversation.id);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : '重新生成失败。');
@@ -803,7 +886,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
                 <div className={`${p}-message-label`}><strong>{messageName(message, copy.assistant)}</strong><span className={`original-chat-status is-${message.status}`}>{formatTime(message.createdAt)} · {STATUS_LABELS[message.status]}</span></div>
                 <div className={`${p}-bubble`}>{renderMessageContent(message.content, message.id)}</div>
                 <div className="original-chat-message-actions">
-                  {message.status === 'completed' && <button type="button" onClick={() => void copyMessage(message.content)}><Copy />{L("复制")}</button>}
+                  {message.status === 'completed' && <button type="button" onClick={() => void copyMessage(message.id, message.content)}>{copiedMessageId === message.id ? <><Check />{L("已复制")}</> : <><Copy />{L("复制")}</>}</button>}
                   {message.role === 'assistant' && message.status === 'failed' && message.id === lastAssistant?.id && !isGenerating && <button type="button" data-action="retry" onClick={() => void regenerate()}><RotateCcw />{L("重试")}</button>}
                   {message.role === 'user' && !isGenerating && <button type="button" onClick={() => { setInput(message.content); setEditingId(message.id); composerRef.current?.focus(); }}><Edit3 />{L("编辑")}</button>}
                   {message.role === 'assistant' && message.id === lastAssistant?.id && message.citations.length > 0 && <button type="button" onClick={() => { setCitations(message.citations); setShowContext(true); }}><BookOpen />{message.citations.length} {L("条来源")}</button>}
@@ -812,7 +895,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
             </article>
           ))}
           {isGenerating && <article className={`${p}-message`} aria-live="polite" aria-busy="true">
-            <div className={`${p}-avatar`}><Sparkles /></div><div className={`${p}-message-content`}><div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>{streamingText ? '生成中' : '发送中'}</span></div><div className={`${p}-bubble`}>{streamingText ? renderMessageContent(streamingText, 'streaming') : <p>{L("正在发送并准备回答…")}</p>}</div></div>
+            <div className={`${p}-avatar`}><Sparkles /></div><div className={`${p}-message-content`}><div className={`${p}-message-label`}><strong>{copy.assistant}</strong><span>{streamingText ? '生成中' : '发送中'}</span></div><div className={`${p}-bubble`}>{streamingText ? renderMessageContent(streamingText, 'streaming', streamTailStart) : <p>{L("正在发送并准备回答…")}</p>}</div></div>
           </article>}
 
           {showContext && <section className="original-chat-context" aria-label={L("来源与记忆")}>

@@ -17,7 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import './CatMachine.css';
-import { removeStorageValue, writeJsonStorage } from '@/lib/browserStorage';
+import { readJsonStorage, removeStorageValue, writeJsonStorage } from '@/lib/browserStorage';
 import type {
   Need,
   Phase,
@@ -31,6 +31,7 @@ import type {
 import {
   MODULE_INTERVAL,
   SAVE_KEY,
+  BEST_SCORE_KEY,
   NEED_ORDER,
   NEEDS,
   EVENTS,
@@ -110,6 +111,9 @@ export default function CatMachine() {
   const [movesLeft, setMovesLeft] = useState(2);
   const [selectedCat, setSelectedCat] = useState<number | null>(null);
   const [score, setScore] = useState((initialSave?.score ?? 0) + (initialSave?.offlineGain ?? 0));
+  const [bestScore, setBestScore] = useState<number>(
+    () => Math.max(readJsonStorage<number>(BEST_SCORE_KEY, 0).value, score),
+  );
   const [fish, setFish] = useState(initialSave?.fish ?? 4);
   const [energy, setEnergy] = useState(initialSave?.energy ?? 0);
   const [goldArmed, setGoldArmed] = useState(false);
@@ -462,7 +466,14 @@ export default function CatMachine() {
       setHighlightedCats(result.matchedIndices);
     }, 260);
     const resultTimer = window.setTimeout(() => {
-      setScore((value) => value + result.total);
+      setScore((value) => {
+        const next = value + result.total;
+        if (next > bestScore) {
+          setBestScore(next);
+          writeJsonStorage(BEST_SCORE_KEY, next);
+        }
+        return next;
+      });
       setFish((value) => value + result.fishEarned);
       setStreak(result.nextStreak);
       setEnergy((value) => {
@@ -525,7 +536,7 @@ export default function CatMachine() {
     resolutionTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     resolutionTimersRef.current = [];
     removeStorageValue(SAVE_KEY);
-    removeStorageValue('cat-machine:best-score');
+    removeStorageValue(BEST_SCORE_KEY);
     setRound(1);
     setCats(createInitialCats());
     setStations(['snack', 'play', 'nap']);
@@ -592,7 +603,7 @@ export default function CatMachine() {
         <div className="cm-score-stat">
           <span>{L("累计呼噜")}</span>
           <strong>{score}</strong>
-          <small>{L("永久保留")}</small>
+          <small>{L("最高")} {bestScore}</small>
         </div>
         <div className="cm-rank-stat">
           <span>{currentRank.icon}</span>

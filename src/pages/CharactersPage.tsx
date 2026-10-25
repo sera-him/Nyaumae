@@ -69,6 +69,52 @@ const groupLabelColors: Record<string, string> = {
   other: 'bg-amber-500/15 text-amber-400 border-amber-500/20',
 };
 
+// 角色一览表（基线数据，原样录入，不随阵营筛选）
+type RosterRow = { name: string; gender: string; age: string; occupation: string };
+
+const ROSTER_TABLE_ZH: RosterRow[] = [
+  { name: '咪娅', gender: '女', age: '0', occupation: '猫兔子' },
+  { name: '米迷', gender: '女', age: '2', occupation: '学生' },
+  { name: '小禾', gender: '女', age: '6', occupation: '无' },
+  { name: '小谷', gender: '女', age: '6', occupation: '学生' },
+  { name: '棋程', gender: '男', age: '7', occupation: '学生' },
+  { name: 'Retina', gender: '女', age: '7', occupation: '学生' },
+  { name: '喵呜', gender: '未知', age: '8', occupation: '学生' },
+  { name: '小芽', gender: '女', age: '8', occupation: '学生' },
+  { name: '咪呀', gender: '未知', age: '9', occupation: '学生' },
+  { name: 'Mia', gender: '女', age: '9', occupation: '学生' },
+  { name: '小满', gender: '女', age: '9', occupation: '学生' },
+  { name: '墨璇玥.iv', gender: '女', age: '10', occupation: '学生' },
+  { name: '朵拉·卡可拉', gender: '女', age: '10', occupation: '学生' },
+  { name: '爱丽丝', gender: '女', age: '11', occupation: '学生' },
+  { name: '可乐', gender: '女', age: '11', occupation: '学生' },
+  { name: '苏珞', gender: '女', age: '11', occupation: '学生' },
+  { name: '米娅', gender: '女', age: '12', occupation: '学生' },
+  { name: '墨奥幂.fc', gender: '男', age: '14', occupation: '猫' },
+  { name: 'mia³', gender: '女', age: '14', occupation: '学生' },
+  { name: '莱尼尔·塞佛·卡可拉', gender: '男', age: '15', occupation: '学生' },
+  { name: 'Līlā', gender: '女', age: '15', occupation: '无' },
+  { name: '林可梦', gender: '女', age: '16', occupation: '学生' },
+  { name: '林浅', gender: '女', age: '16', occupation: '学生' },
+  { name: '陈予安', gender: '男', age: '17', occupation: '学生' },
+  { name: '星野遥', gender: '女', age: '18', occupation: '学生' },
+  { name: '初音ミク', gender: '女', age: '19', occupation: '学生' },
+  { name: 'あいえふちゃん', gender: '女', age: '21', occupation: '学生' },
+  { name: '米雅', gender: '女', age: '22', occupation: 'CEO' },
+  { name: '霓虹', gender: '女', age: '24', occupation: '赛博朋克游侠' },
+  { name: '哈姆诗', gender: '女', age: '27', occupation: '声优' },
+  { name: '外卖员', gender: '男', age: '30', occupation: '外卖员' },
+  { name: '周济', gender: '男', age: '32', occupation: '工程师' },
+  { name: '初夏', gender: '女', age: '33', occupation: '纺织' },
+  { name: '长风', gender: '男', age: '35', occupation: '农民' },
+  { name: 'Nimfa', gender: '女', age: '38', occupation: '教授' },
+  { name: 'Nihilib', gender: '女', age: '38', occupation: '教授' },
+  { name: '林深', gender: '男', age: '41', occupation: 'CEO' },
+  { name: '赵召', gender: '男', age: '45', occupation: '院长' },
+  { name: '墨问', gender: '男', age: '48', occupation: '教授' },
+  { name: '秀兰奶奶', gender: '女', age: '57', occupation: '退休' },
+];
+
 export default function CharactersPage() {
   const { ref, isVisible } = useScrollReveal();
   const { playTrack, currentTrack, isMuted } = useMusic();
@@ -247,11 +293,14 @@ export default function CharactersPage() {
                       <div className="character-aurora-card-copy">
                         <div className="flex items-center justify-between mb-1">
                           <h3 className="text-sm font-semibold text-nc-text truncate">{char.name}</h3>
-                          {char.fsiii && (
+                          {char.fsiii ? (
                             <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${getTierStyle(char.fsiii).rankBadgeClass}`}>
                               {char.fsiii}
                             </span>
-                          )}
+                          ) : typeof char.age === 'number' ? (
+                            <span className="text-[10px] text-nc-text-muted font-mono">
+                              {char.age} {L("岁")}</span>
+                          ) : null}
                         </div>
                         <span className="text-[10px] text-nc-text-muted bg-nc-bg-tertiary px-2 py-0.5 rounded-full">
                           {L(char.category)}
@@ -272,6 +321,41 @@ export default function CharactersPage() {
         <div className="aurora-container">
           <AuroraSectionHeading className="characters-network-heading" eyebrow="RELATIONSHIP MAP" title={L("角色关系网络")} description={<span><Network className="inline w-4 h-4 mr-2" />{L("每一个节点都在回应另一个意识体。")}</span>} />
           <AuroraPanel className="characters-network-panel"><CharacterNetwork /></AuroraPanel>
+        </div>
+      </section>
+
+      {/* 角色一览表（基线数据，置于页尾作为完整参照，不随阵营筛选） */}
+      <section className="characters-roster-section">
+        <div className="aurora-container">
+          <AuroraPanel className="characters-roster-panel">
+            <AuroraSectionHeading
+              eyebrow="ROSTER AT A GLANCE"
+              title={_en ? 'Character Roster' : '角色一览表'}
+              description={_en ? 'Age, gender and occupation for every main character.' : '每一位主角色的年龄、性别与职业，一表尽览（基线数据原样录入）。'}
+            />
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-white/10 text-left text-nc-text-muted">
+                    <th className="py-2 pr-4 font-medium whitespace-nowrap">{_en ? 'Character' : '角色'}</th>
+                    <th className="py-2 pr-4 font-medium whitespace-nowrap">{_en ? 'Gender' : '性别'}</th>
+                    <th className="py-2 pr-4 font-medium whitespace-nowrap">{_en ? 'Age' : '年龄'}</th>
+                    <th className="py-2 pr-4 font-medium whitespace-nowrap">{_en ? 'Occupation' : '职业'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ROSTER_TABLE_ZH.map((row) => (
+                    <tr key={row.name} className="border-b border-white/[0.04]">
+                      <td className="py-2 pr-4 text-nc-text whitespace-nowrap">{row.name}</td>
+                      <td className="py-2 pr-4 text-nc-text whitespace-nowrap">{row.gender}</td>
+                      <td className="py-2 pr-4 font-mono text-nc-text whitespace-nowrap">{row.age} {_en ? 'yrs' : '岁'}</td>
+                      <td className="py-2 text-nc-text-secondary whitespace-nowrap">{row.occupation}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </AuroraPanel>
         </div>
       </section>
     </AuroraPage>

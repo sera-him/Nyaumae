@@ -376,8 +376,8 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
 
   '小禾': 'Xiao He',
   '小谷的双胞胎妹妹 · 巨人国女孩': 'Xiao Gu\'s twin sister · Giant Country girl',
-  '小谷的双胞胎妹妹。有神经发育障碍，需要像喵呜一样按时服药；虽然发育稍缓，但眼神里总带着温柔的好奇。喜欢和小谷一起躲在窗帘后，听姐姐用舌头顶那颗摇晃的牙。':
-    'Xiao Gu\'s twin sister. Has a neurodevelopmental condition and needs medication on schedule like Miaowu; though her development is slower, her eyes always hold gentle curiosity. She likes hiding behind the curtains with Xiao Gu, listening to her sister push her wiggly tooth with her tongue.',
+  '小谷的双胞胎妹妹。有神经发育障碍，需要像喵呜一样按时服药；伴随全面发育迟缓。':
+    'Xiao Gu\'s twin sister. Has a neurodevelopmental condition and needs medication on schedule like Miaowu; accompanied by global developmental delay.',
   '正常偏纤细': 'Normal to slender',
   '纪年换算：公元 2020 年 = 巨人国 163 年': 'Era conversion: 2020 CE = Giant Country year 163',
 
@@ -388,8 +388,8 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
 
   '喵呜': 'Miaowu',
   '小满在普通世界遇见的第一个朋友': 'The first friend Xiaoman meets in the ordinary world',
-  '东海市二年级小学生，身高不到 1.3 米，有神经发育障碍，需要按时服药。说话直接、观察细致，不轻易以"正常"或"异常"评判别人；她接纳小满，也成为小满适应普通世界时最重要的朋友。':
-    'A second-grader in Donghai City, under 1.3 meters tall, with a neurodevelopmental condition requiring medication on schedule. Speaks directly, observes carefully, and doesn\'t readily judge others as "normal" or "abnormal"; she accepts Xiaoman and becomes the most important friend as Xiaoman adapts to the ordinary world.',
+  '东海市二年级小学生，身高不到 1.3 米，有神经发育障碍，需要按时服药。说话直接、观察细致，不轻易以"正常"或"异常"评判别人；ta 接纳小满，也成为小满适应普通世界时最重要的朋友。':
+    'A second-grader in Donghai City, under 1.3 meters tall, with a neurodevelopmental condition requiring medication on schedule. Speaks directly, observes carefully, and doesn\'t readily judge others as "normal" or "abnormal"; ta accepts Xiaoman and becomes the most important friend as Xiaoman adapts to the ordinary world.',
   '现实世界身高': 'Real-world height',
   '年龄依据': 'Age basis',
   '正文未明示；按年级暂定约 8 岁': 'Not stated explicitly; provisionally about 8 by grade level',
@@ -420,15 +420,26 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
 
   '外卖员': 'Delivery rider',
   '热心的东海外卖骑手': 'Warm-hearted Donghai delivery rider',
-  '最初在路口目睹小满出现，随后主动拿出防水布和野餐垫，并多次骑车跑腿采购食材。他以前做过后厨，熟悉灶具、采购和处理食材，是临时互助小队里行动力很强的一员。正文没有公布他的姓名与精确年龄。':
-    'First witnessed Xiaoman appear at an intersection, then volunteered tarps and picnic blankets and made multiple runs on his bike to buy supplies. He used to work in a kitchen, knows stoves, procurement, and food prep—highly action-oriented in the makeshift team. The story never reveals his name or exact age.',
+  '最初在路口目睹小满出现，随后主动拿出防水布和野餐垫，并多次骑车跑腿采购食材。他以前做过后厨，熟悉灶具、采购和处理食材，是临时互助小队里行动力很强的一员。正文没有公布他的姓名。':
+    'First witnessed Xiaoman appear at an intersection, then volunteered tarps and picnic blankets and made multiple runs on his bike to buy supplies. He used to work in a kitchen, knows stoves, procurement, and food prep—highly action-oriented in the makeshift team. The story never reveals his name.',
   '外卖骑手；曾做后厨': 'Delivery rider; former kitchen staff',
   '正文未公布': 'Not revealed in text',
-  '正文未明示；人物档案暂定约 30 岁': 'Not stated in text; profile provisionally about 30',
+  '设定档案确定为 30 岁': 'Profile fixes it at 30',
   '推定纪年：约公元 1996 年 = 约巨人国 139 年': 'Inferred era: ~1996 CE = ~Giant Country year 139',
 
   '米迷': 'Mimi',
   '女孩，Neural Connection 世界观中最年幼的意识体。': 'A girl, the youngest entity in the Neural Connection universe.',
+
+  '咪娅': 'Mi-iya',
+  '猫兔子': 'Cat-rabbit',
+  'Chimera catus（奇美拉属卡特斯种）': 'Chimera catus',
+  '物种学名': 'Scientific name',
+  '登记类别': 'Registered category',
+  '猫与兔的嵌合体，学名 Chimera catus（奇美拉属卡特斯种），登记类别是"猫兔子"。2026 年出生，是 M/I/A 家族里最年幼的成员，目前还不会说话。':
+    'A cat-rabbit chimera whose scientific name is Chimera catus; its registered category is "cat-rabbit". Born in 2026, it is the youngest member of the M/I/A family and cannot speak yet.',
+  '影像素材': 'Video clips',
+  '咪娅的第一段影像：草地上的白色蝴蝶':
+    "Mi-iya's first footage: the white butterfly on the grass",
 
   '棋程': 'Qicheng',
   '中国象棋、国际象棋、围棋，他擅长并热爱一切棋类游戏。理科成绩名列前茅。曾在由米雅举行的、和咪呀、Mia、米娅的数学比赛中获得和咪呀并列第一名。':
@@ -494,6 +505,8 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
   '永恒 14 岁学生': 'Eternal 14-year-old student',
   '咪呀在 2019 年创造的"自设"。永恒 14 岁学生，研究人工智能模型的可解释性与底层逻辑架构。':
     'An "original character" created by Miia in 2019. An eternal 14-year-old student researching the interpretability and underlying logical architecture of AI models.',
+  '设定校正：年龄为 14 岁（此前误写为 21 岁）；2005 年是 2019 年被创造时的设定出生年，之后年龄冻结':
+    'Setting correction: her age is 14 (previously mistyped as 21); 2005 is the fictional birth year used when she was created in 2019, after which her age froze',
 
   'あいえふちゃん': 'If-chan',
   '沐光计划发起人': 'Sunlight Project founder',
@@ -663,6 +676,9 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
   '心界立项': 'Heart Realm greenlit',
   '因派启动《心界》VR 项目，投资一亿美元研发全国首款二次元 VR 游戏':
     'Impact launches "Heart Realm" VR project, investing $100M in the country\'s first anime-style VR game',
+  '德澜思拓继位': 'The Delansi succession',
+  '前掌门（米雅的老师）离世，遗嘱公布，米雅继承德澜思拓，守灵同盟守住保守开发路线':
+    'The former CEO (Miya\'s teacher) passes away; the will is read publicly and Miya inherits Delansi; the Vigil Alliance holds the conservative-development line',
   '星界馆。米雅、米娅、Mia、咪呀、mia³——五个不同时间节点的"自己"共处同一时空':
     'Star Realm. Miya, Amiya, Mia, Miia, mia³—five versions of "self" from different timelines coexist in the same space',
   '沐光计划': 'Sunlight Project',
@@ -710,8 +726,8 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
   '德澜思拓公司': 'Delansi',
   '德澜思拓': 'Delansi',
   '约 5 亿元': '~¥500M',
-  '由年轻领导者米雅掌舵的科技巨头，与哲华学校科照真学院深度合作。':
-    'A tech giant led by the young leader Miya, in deep collaboration with Kezhaozhen Academy at Zhehua School.',
+  '主业深海探索的科技巨头。前掌门遗嘱传位，米雅继任后与哲华学校科照真学院深度合作，坚守保守开发路线。':
+    'A tech giant in deep-sea exploration. The former CEO left the company to his student Miya by will; since succeeding him she has worked in deep collaboration with Kezhaozhen Academy at Zhehua School, holding the conservative-development line.',
   '《心界》项目': 'Heart Realm project',
   '心界': 'Heart Realm',
   '因派投资一亿美元研发的全国首款二次元 VR 游戏。2026 年迎来首个活动"沐诚艺柏"。':
@@ -836,7 +852,7 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
   '猫猫真身对照表': 'Cat True-Name Table',
   '孟加拉猫其实是孟加拉虎，极速猫其实是猎豹——44 种猫的真身一览': 'The Bengal Cat is really a Bengal Tiger, the Speed Cat is really a Cheetah — the true identities of 44 cats',
   '等级公民制度': 'Citizen Level System',
-  '年满6周岁自动获得6级，自愿申请升级、可升不可降，权利随等级解锁': 'Level 6 is granted automatically at age 6; level up voluntarily, never down — rights unlock with your level',
+  '年满6周岁自动获得6级，自愿申请升级、可升不可降，权利随等级解锁；认知能力丧失或显著降低时可设临时等级': 'Level 6 is granted automatically at age 6; level up voluntarily, never down — rights unlock with your level; a temporary grade may be set when cognitive capacity is lost or significantly reduced',
   '教师年度投票制度': 'Annual Teacher Voting System',
   '毕业生每年给教过自己的老师打 -10～+10 分，最低分且为负者取消全部年终奖': 'Graduates score every teacher who taught them from -10 to +10 each year; the lowest scorer, if negative, loses the entire year-end bonus',
   '职场特征盲化规则': 'Workplace Feature Blindness Rule',
@@ -846,4 +862,21 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
 
   // ── Extra stories: labor value card ──
   '人工越贵，生活越好': 'Pricier Labor, Better Life',
+
+  // ── World settings: institution cards (2026-10) ──
+  '长寿基因与长老制': 'Longevity Genes & the Elder System',
+  '18 世纪火山把微生物翻上地表，约 8.6% 的人发育与衰老都减慢 1/6，长寿者因此成为长老；禁童令推高养育成本，人口少而均匀':
+    'An 18th-century volcano turned microbes up to the surface; in about 8.6% of people both development and ageing slow by 1/6, so the long-lived became elders; the child-labour ban raised the cost of raising children, leaving a small, evenly aged population',
+  'AI 能耗量级': 'AI Energy, Order of Magnitude',
+  '100T 参数的大模型，一晚仅需一度电（860 kcal / 12h）':
+    'A 100T-parameter model needs only one kilowatt-hour for a night (860 kcal / 12h)',
+  '技能算力数值表': 'Skill & Computing-Power Table',
+  '防御：接地 0 算力挡放电系、超级盾 5 算力挡一切；攻击：放电 1 到 DDOS 8，攻击值 1 到 5':
+    'Defence: Grounding costs 0 and blocks the discharge family, Super Shield costs 5 and blocks everything; offence: Discharge at 1 through DDOS at 8, attack values 1 to 5',
+  '量刑规则': 'Sentencing Rule',
+  '刑罚 = 罪犯自己认知中预期造成的总损伤；想轻判的立法者自掏腰包赎买，仁慈即订阅':
+    'Punishment = the total damage the offender expected to cause; legislators who want leniency buy it out of their own pocket — mercy is a subscription',
+  '防御技能': 'Defensive skills',
+  '攻击技能': 'Offensive skills',
+  '判定规则': 'Adjudication rules',
 };

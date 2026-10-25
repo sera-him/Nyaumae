@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { L } from '@/lib/translations/manual';
 
-import { DIFFICULTIES, createMazeState, moveForward, turnLeft, turnRight, getFeedback } from '@/game/hellMaze/mazeGen';
+import { DIFFICULTIES, createMazeState, moveForward, turnLeft, turnRight, getFeedback, shortestPathLength, hexCellCount } from '@/game/hellMaze/mazeGen';
 import type { MazeState } from '@/game/hellMaze/types';
-import { hexKey, hexNeighbor } from '@/game/hellMaze/types';
+import { hexKey, hexNeighbor, DIR_NAMES } from '@/game/hellMaze/types';
 
 const H3 = Math.sqrt(3) / 2;
 
@@ -221,7 +221,7 @@ export default function HellMaze() {
           className="bg-nc-bg-secondary border border-white/10 rounded-lg px-4 py-2 text-nc-text"
         >
           {DIFFICULTIES.map((d, i) => (
-            <option key={i} value={i}>{d.name}{L("（半径")}{d.radius}，{d.targets}{L("目标）")}</option>
+            <option key={i} value={i}>{d.name}{L("（半径")}{Math.floor(d.radius)}{L("，共 ")}{hexCellCount(d.radius)}{L("格 / ")}{d.targets}{L("目标）")}</option>
           ))}
         </select>
         <p id="hell-maze-difficulty-help" className="sr-only">{L("选择难度会改变迷宫半径和需要收集的目标数量。")}</p>
@@ -239,6 +239,12 @@ export default function HellMaze() {
   const isOver = state.surrendered || state.won;
 
   if (isOver) {
+    // Par = fewest steps from start to exit; the grade is relative to it so the
+    // letter means the same thing at every difficulty.
+    const par = shortestPathLength(state);
+    const ratio = par > 0 ? state.steps / par : Infinity;
+    const grade = ratio <= 1.5 ? 'S' : ratio <= 2.5 ? 'A' : ratio <= 4 ? 'B' : 'C';
+
     return (
       <div className="min-h-screen bg-nc-bg text-nc-text flex flex-col items-center gap-6 p-6">
         <h2 className="text-3xl font-bold text-red-400">{L("迷 宫 揭 秘")}</h2>
@@ -246,9 +252,10 @@ export default function HellMaze() {
 
         <div className="flex flex-wrap gap-3 justify-center text-xs bg-nc-bg-secondary rounded-lg px-4 py-2">
           <span>{L("😵 位置：(")}{state.playerPos.q}, {state.playerPos.r})</span>
-          <span>{L("🧭 朝向：")}{['→','↘','↙','←','↖','↗'][state.playerDir]}</span>
-          <span>{L("🚪 出口：(")}{state.end.q},{state.end.r})→{['→','↘','↙','←','↖','↗'][state.exitDir]}</span>
+          <span>{L("🧭 朝向：")}{DIR_NAMES[state.playerDir]}</span>
+          <span>{L("🚪 出口：(")}{state.end.q},{state.end.r})→{DIR_NAMES[state.exitDir]}</span>
           <span>👣 {state.steps}{L("步")}</span>
+          <span>🎯 {L("最短步数 ")}{par > 0 ? par : '—'}</span>
           <span>⏱ {formatTime(elapsed)}</span>
         </div>
 
@@ -265,7 +272,7 @@ export default function HellMaze() {
 
         {state.won && (
           <p className="text-xs text-amber-400">
-            {L("✨ 通关！评级：")}{state.steps <= DIFFICULTIES[diffIdx].radius * 10 ? 'S' : state.steps <= DIFFICULTIES[diffIdx].radius * 20 ? 'A' : state.steps <= DIFFICULTIES[diffIdx].radius * 35 ? 'B' : 'C'}
+            {L("✨ 通关！评级：")}{grade}
           </p>
         )}
 

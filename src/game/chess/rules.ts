@@ -7,7 +7,7 @@ import type {
   CheeseType, FearMap,
 } from './types';
 import {
-  BOARD_SIZE, POISON_IMMUNE,
+  BOARD_SIZE, POISON_IMMUNE, UNBLOCKABLE,
 } from './types';
 import {
   inBounds, getPiece, findAllPieces,
@@ -283,7 +283,11 @@ export function getAttackRange(
   const range = new Set<string>();
   const pieces = findAllPieces(board, player);
   for (const { piece, pos } of pieces) {
-    if (piece.type === 'T') continue; // 猫无攻击范围
+    // 猫（T）只有「能不能落到某格」的概念，没有直线攻击射线：
+    // 它的 5×5 跳跃不检查中间格，因此不能折算成射程集合参与将军判定。
+    // UNBLOCKABLE 表声明的正是「不可阻挡、不阻碍吃子检查」的那批棋子，
+    // 此处按表过滤而不是硬编码 'T'。
+    if (UNBLOCKABLE.includes(piece.type)) continue;
     const key = pieceKey(piece, pos);
     const poisonCount = poisonMap ? poisonMap[key] || 0 : 0;
     // 必须用 getRawMoves（内含 filterMovesByPoison），否则中毒 Q/R/B/N 射程不缩，误报将军

@@ -273,6 +273,20 @@
 .nctb-report-stat-grid>div:nth-child(3) strong{color:#c9b3ff}
 .nctb-report-stat-grid>div:nth-child(4) strong{color:#ffadcf}
 
+/* Scores, CI ranges, timers and progress counters lock to tabular width so
+   live-updating digits do not jitter mid-trial. */
+.nctb-orbit-core strong,
+.nctb-report-score strong,
+.nctb-part-card footer,
+.nctb-ability-row b,
+.nctb-progress-copy strong,
+.nctb-runner-metrics b,
+.nctb-progress-panel b,
+.nctb-progress-panel > div > span,
+.nctb-challenge-footer span {
+  font-variant-numeric: tabular-nums;
+}
+
 @media print{
   .nctb-page{padding:0;color:#111;background:#fff}
   .nctb-page .nctb-shell{width:100%}

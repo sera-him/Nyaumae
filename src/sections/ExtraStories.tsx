@@ -1,6 +1,7 @@
 import {
   extraPoems, poems, chapterIndex, wishSection, correctOverdose, xishouStory,
   absurdNarrative, tinyWish, miiaStoryFragments, jingBeiGouFragment, penPoemFragment, wageFragment, laborValueTheory,
+  sumoAngleNote, emotionVectorNote, unnecessaryDoorStory,
 } from '@/data/extraStories';
 import { L } from '@/lib/translations/manual';
 
@@ -12,7 +13,7 @@ import {
 } from '@/data/fragments';
 import {
   Feather, BookOpen, Skull, Sparkles, Hash, Rabbit, CloudRain, Flower2, Baby,
-  Code2, Sun, Cpu, Building2, Coins,
+  Code2, Sun, Cpu, Building2, Coins, Compass, Brain, DoorOpen,
 } from 'lucide-react';
 import { semanticHighlight, semanticHighlightProse } from '@/lib/semanticHighlight';
 import SmartImage from '@/components/SmartImage';
@@ -164,6 +165,45 @@ export default function ExtraStories() {
             </h3>
             <pre className="font-serif text-nc-text leading-[1.9] whitespace-pre-wrap text-base sm:text-[15px]">
               {semanticHighlightProse(laborValueTheory)}
+            </pre>
+          </article>
+        </div>
+
+        {/* 相扑选手与周角 - 单位巧合 */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-cyan-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-nc-cyan mb-4 flex items-center gap-2">
+              <Compass className="w-5 h-5 shrink-0" />
+              {semanticHighlight("相扑选手身上的脂肪是周角")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[1.9] whitespace-pre-wrap text-base sm:text-[15px]">
+              {semanticHighlightProse(sumoAngleNote)}
+            </pre>
+          </article>
+        </div>
+
+        {/* 情感计算与反讽 */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-violet-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-nc-violet mb-4 flex items-center gap-2">
+              <Brain className="w-5 h-5 shrink-0" />
+              {semanticHighlight("情感计算算不出反讽")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[1.9] whitespace-pre-wrap text-base sm:text-[15px]">
+              {semanticHighlightProse(emotionVectorNote)}
+            </pre>
+          </article>
+        </div>
+
+        {/* 白开一次门 */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-emerald-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-emerald-300 mb-4 flex items-center gap-2">
+              <DoorOpen className="w-5 h-5 shrink-0" />
+              {semanticHighlight("白开一次门")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[1.9] whitespace-pre-wrap text-base sm:text-[15px]">
+              {semanticHighlightProse(unnecessaryDoorStory)}
             </pre>
           </article>
         </div>

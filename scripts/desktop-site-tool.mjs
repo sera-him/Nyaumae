@@ -20,6 +20,7 @@ const DIST_INDEX = join(DIST_DIR, 'index.html');
 const TSC_BIN = join(PROJECT_ROOT, 'node_modules', 'typescript', 'bin', 'tsc');
 const VITE_BIN = join(PROJECT_ROOT, 'node_modules', 'vite', 'bin', 'vite.js');
 const PREPARE_SITES = join(PROJECT_ROOT, 'scripts', 'prepare-sites.mjs');
+const VERIFY_CORPUS = join(PROJECT_ROOT, 'scripts', 'verify-corpus-coverage.mjs');
 const HOSTING_CONFIG = join(PROJECT_ROOT, '.openai', 'hosting.json');
 const LEGACY_DEPLOY_LAUNCHER = join(PROJECT_ROOT, '启动部署工具.bat');
 
@@ -235,13 +236,16 @@ async function buildSite() {
   }
 
   console.log('开始构建网页（不会部署）...\n');
-  console.log('[1/3] TypeScript 检查');
+  console.log('[1/4] 语料覆盖度门禁（散文文件必须被语料或索引恰好覆盖一次）');
+  await run(process.execPath, [VERIFY_CORPUS]);
+
+  console.log('\n[2/4] TypeScript 检查');
   await run(process.execPath, [TSC_BIN, '-b']);
 
-  console.log('\n[2/3] Vite build');
+  console.log('\n[3/4] Vite build');
   await run(process.execPath, [VITE_BIN, 'build']);
 
-  console.log('\n[3/3] 准备 Sites 构建产物');
+  console.log('\n[4/4] 准备 Sites 构建产物');
   await run(process.execPath, [PREPARE_SITES]);
 
   requireFile(DIST_INDEX, '构建首页');

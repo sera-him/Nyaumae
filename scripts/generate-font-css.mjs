@@ -28,13 +28,17 @@ const root = resolve(import.meta.dirname, '..');
 const publicDir = resolve(root, 'public');
 const fontsDir = resolve(publicDir, 'fonts');
 
-// Weight audit (2026-09): CSS/TSX only use 400/500/600/650/700/750.
-// 600/650 snap up to 700 and 750 snaps down per CSS font matching, so the
-// 600 cuts of the two heavy CJK families are omitted.
+// Weight audit (2026-10-23): CSS/TSX use 400/500/600/650/700/750/800.
+// Static faces only — with the 400/500/700 set, every target in (500,700]
+// snaps UP to 700, so intermediate weights were invisible. The dark-domain
+// weight pass (aurora design system + aurora chat skin) now writes 600 for
+// everything above 500, so the 600 cuts of noto-sans-sc and jetbrains-mono
+// ship to make that one-step-lighter rendering real. quicksand/noto-serif-sc
+// already had 600.
 const FONT_RULES = [
-  ['@fontsource/noto-sans-sc', [400, 500, 700]],
+  ['@fontsource/noto-sans-sc', [400, 500, 600, 700]],
   ['@fontsource/noto-serif-sc', [400, 600]],
-  ['@fontsource/jetbrains-mono', [400, 500, 700], { latinOnly: true }],
+  ['@fontsource/jetbrains-mono', [400, 500, 600, 700], { latinOnly: true }],
   ['@fontsource/quicksand', [400, 600, 700], { latinOnly: true }],
   ['@fontsource/zcool-kuaile', [400]],
   ['@fontsource/ma-shan-zheng', [400]],

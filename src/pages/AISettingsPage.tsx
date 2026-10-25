@@ -216,6 +216,8 @@ export default function AISettingsPage() {
   const [downloadText, setDownloadText] = useState('');
   const [importText, setImportText] = useState('');
   const [showTransfer, setShowTransfer] = useState(false);
+  /** 哪个复制按钮正在显示对勾；'' = 无。2.5s 后自隐。 */
+  const [copiedAction, setCopiedAction] = useState<'command' | 'config' | ''>('');
   const [draftSaved, setDraftSaved] = useState(() => readStorageValue(AI_SETTINGS_DRAFT_KEY).value !== null);
   const [syncConfig, setSyncConfig] = useState(() => getSyncConfig());
   const [syncKeyDraft, setSyncKeyDraft] = useState('');
@@ -229,6 +231,13 @@ export default function AISettingsPage() {
   const testAbortRef = useRef<AbortController | null>(null);
 
   useEffect(() => () => testAbortRef.current?.abort(), []);
+
+  // 复制对勾 2.5s 自隐：只换按钮图标，不依赖全局提示的存活时间。
+  useEffect(() => {
+    if (!copiedAction) return;
+    const timer = window.setTimeout(() => setCopiedAction(''), 2_500);
+    return () => window.clearTimeout(timer);
+  }, [copiedAction]);
 
   useEffect(() => {
     if (skipDraftWriteRef.current) {
@@ -428,6 +437,7 @@ export default function AISettingsPage() {
 
   const copyCommand = async () => {
     await navigator.clipboard?.writeText(selectedTier.download.command);
+    setCopiedAction('command');
     setNotice({ kind: 'success', text: selectedTier.download.kind === 'ollama'
       ? (_en ? 'The Ollama local model command is copied.' : 'Ollama 本地模型命令已复制。')
       : (_en ? 'The official weights download command is copied.' : '官方权重下载命令已复制。') });
@@ -454,6 +464,7 @@ export default function AISettingsPage() {
     const safe = JSON.stringify(exportSafeAiConfig(buildNextConfig()), null, 2);
     try {
       await navigator.clipboard.writeText(safe);
+      setCopiedAction('config');
       setNotice({ kind: 'success', text: _en ? 'Config copied — it contains no API key.' : '配置已复制，内容不包含 API Key。' });
     } catch {
       setImportText(safe);
@@ -648,7 +659,7 @@ export default function AISettingsPage() {
                             <span className="ai-model-download-kind">{selectedTier.download.kind === 'ollama' ? (_en ? 'Ollama local package' : 'Ollama 本地包') : (_en ? 'Official Hugging Face weights' : 'Hugging Face 官方权重')}</span>
                             <a href={selectedTier.download.sourceUrl} target="_blank" rel="noreferrer">{L("官方来源 ")}<ExternalLink /></a>
                           </div>
-                          {(runtime === 'ollama' || selectedTier.download.kind === 'huggingface') && <button type="button" className="ai-command" onClick={() => void copyCommand()}><code>{selectedTier.download.command}</code><Copy /></button>}
+                          {(runtime === 'ollama' || selectedTier.download.kind === 'huggingface') && <button type="button" className="ai-command" onClick={() => void copyCommand()}><code>{selectedTier.download.command}</code>{copiedAction === 'command' ? <Check /> : <Copy />}</button>}
                           {runtime === 'ollama' && selectedTier.download.kind === 'huggingface' && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>{L("Ollama 没有这个本地模型包。")}</strong> {L("不要对这个模型名使用 Ollama 命令；上面只下载真实原始权重，下载后需要支持它的推理工具。")}</span></div>}
                           {runtime !== 'ollama' && selectedTier.download.kind === 'ollama' && <p>{L("当前运行器不是 Ollama，请在它的模型管理界面中加载对应模型；Ollama 命令只适用于 Ollama。")}</p>}
                           <p>{selectedTier.download.note}</p>
@@ -678,7 +689,8 @@ export default function AISettingsPage() {
 
         <details className="ai-setup-card ai-advanced" data-motion-reveal>
           <summary><SlidersHorizontal />{L("高级生成设置 ")}<small>{L("大多数人不需要修改")}</small><ChevronDown /></summary>
-          <div className="ai-advanced-body">
+          <div className="ai-advanced-collapse">
+            <div className="ai-advanced-body">
             <div className="ai-tone-field"><span>{L("回答风格")}</span><div className="ai-tone-options">{(_en ? TONES_EN : TONES).map((tone) => <button type="button" className={findTone(config.temperature) === tone.id ? 'is-selected' : ''} onClick={() => update('temperature', tone.temperature)} key={tone.id}><strong>{tone.name}</strong><small>{tone.description}</small></button>)}</div></div>
             <div className="ai-advanced-grid">
               <label className="ai-field"><span>{L("最大输出长度")}</span><input type="number" min="128" max="32768" value={config.maxTokens} onChange={(event) => update('maxTokens', Math.round(numberValue(event.target.value, config.maxTokens)))} /></label>
@@ -695,6 +707,7 @@ export default function AISettingsPage() {
                 <p className="ai-draft-status"><ShieldCheck />{L("语义检索复用对话服务的 API Key，不会单独保存。")}</p>
               </>
             )}
+            </div>
           </div>
         </details>
 
@@ -712,7 +725,7 @@ export default function AISettingsPage() {
 
         <section className="ai-transfer">
           <button type="button" className="ai-transfer-toggle" onClick={() => setShowTransfer((current) => !current)} aria-expanded={showTransfer}><span><Clipboard />{L("配置迁移与清除")}</span><ChevronDown className={showTransfer ? 'is-open' : ''} /></button>
-          {showTransfer && <div className="ai-transfer-body"><p>{L("可复制或导入不含密钥的配置，适合在不同设备间迁移。")}</p><div className="ai-settings-actions"><button type="button" className="ai-button ai-button-secondary" onClick={() => void exportConfig()}><Clipboard />{L("复制配置")}</button><button type="button" className="ai-button ai-button-danger" onClick={clear}><Trash2 />{L("清除本机设置")}</button><button type="button" className="ai-button ai-button-secondary" onClick={() => setImportText('')}><RotateCcw />{L("清空文本")}</button></div><textarea className="ai-import-box" value={importText} onChange={(event) => setImportText(event.target.value)} placeholder={_en ? 'Paste the config JSON here' : '在这里粘贴配置 JSON'} rows={6} /><button type="button" className="ai-button ai-button-secondary" onClick={importConfig} disabled={!importText.trim()}>{L("载入配置")}</button></div>}
+          {showTransfer && <div className="ai-transfer-body"><p>{L("可复制或导入不含密钥的配置，适合在不同设备间迁移。")}</p><div className="ai-settings-actions"><button type="button" className="ai-button ai-button-secondary" onClick={() => void exportConfig()}>{copiedAction === 'config' ? <Check /> : <Clipboard />}{copiedAction === 'config' ? L("已复制") : L("复制配置")}</button><button type="button" className="ai-button ai-button-danger" onClick={clear}><Trash2 />{L("清除本机设置")}</button><button type="button" className="ai-button ai-button-secondary" onClick={() => setImportText('')}><RotateCcw />{L("清空文本")}</button></div><textarea className="ai-import-box" value={importText} onChange={(event) => setImportText(event.target.value)} placeholder={_en ? 'Paste the config JSON here' : '在这里粘贴配置 JSON'} rows={6} /><button type="button" className="ai-button ai-button-secondary" onClick={importConfig} disabled={!importText.trim()}>{L("载入配置")}</button></div>}
         </section>
 
         <section className="ai-setup-card" data-motion-reveal>

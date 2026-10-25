@@ -14,7 +14,12 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "public"
 OUTPUT = PUBLIC / "optimized"
 SOURCE_EXTENSIONS = {".png", ".jpg", ".jpeg"}
-REFERENCE_PATTERN = re.compile(r"['\"`](/[^'\"`?#]+\.(?:png|jpe?g))", re.IGNORECASE)
+# Character portraits are registered in src/data/characterImages.ts without a
+# leading slash, so they used to be invisible here and shipped as untouched
+# originals. Matching that one directory keeps every character image inside the
+# variant pipeline; results are normalized to a leading slash below so the
+# manifest keys stay comparable with the runtime src values.
+REFERENCE_PATTERN = re.compile(r"['\"`]((?:/|characters/)[^'\"`?#]+\.(?:png|jpe?g))", re.IGNORECASE)
 PORTAL_IMAGES = {
     "/hero-bg.jpg",
     "/2-generated.png",
@@ -36,7 +41,10 @@ def referenced_images() -> list[str]:
             text = source.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
-        references.update(match.group(1) for match in REFERENCE_PATTERN.finditer(text))
+        references.update(
+            "/" + match.group(1).lstrip("/")
+            for match in REFERENCE_PATTERN.finditer(text)
+        )
     return sorted(
         reference
         for reference in references

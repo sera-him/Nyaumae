@@ -26,12 +26,12 @@
     <link rel="icon" href="/icons/icon-192x192.png" />
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
     <!-- Self-hosted fonts, loaded async so the unicode-range @font-face sheet never blocks first paint. -->
-    <link rel="preload" as="style" href="/fonts.css" />
-    <!-- Portal hero is the home-page LCP; media-matched preloads mirror the CSS image-set in PortalAurora.css. -->
-    <link rel="preload" as="image" href="/optimized/hero-bg-1280.avif" media="(min-width: 769px)" />
-    <link rel="preload" as="image" href="/optimized/hero-bg-640.avif" media="(max-width: 768px)" />
-    <link rel="stylesheet" href="/fonts.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="/fonts.css"></noscript>
+  <link rel="preload" as="style" href="/fonts.css" />
+  <!-- Portal hero is the home-page LCP; media-matched preloads mirror the CSS image-set in PortalAurora.css. -->
+  <link rel="preload" as="image" href="/optimized/hero-bg-1280.avif" media="(min-width: 769px)" />
+  <link rel="preload" as="image" href="/optimized/hero-bg-640.avif" media="(max-width: 768px)" />
+  <!-- Plain stylesheet link: no inline onload handler, so it stays compatible with a strict CSP. -->
+  <link rel="stylesheet" href="/fonts.css" />
   </head>
   <body>
     <div id="root"></div>

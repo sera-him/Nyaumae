@@ -300,7 +300,7 @@ export default function NeuralClash() {
         <small>FINAL SYNAPSE REPORT</small><h2>{game.winner === 'draw' ? '神经网络达成平衡' : `${game.winner === 'blue' ? '蓝方' : '红方'}赢得交锋`}</h2>
         <div className="nc-final-scores">{(['blue', 'red'] as Side[]).map((side) => {
           const score = scoreGame(game, side);
-          return <div key={side} className={side}><span>{side === 'blue' ? '蓝方' : '红方'}</span><strong>{score.total}</strong><small>{score.ordinary}{L("节点 + ")}{score.cores}{L("核 + ")}{score.stable}{L("稳定")}</small></div>;
+          return <div key={side} className={side}><span>{side === 'blue' ? '蓝方' : '红方'}</span><strong>{score.total}</strong><small>{score.ordinary}{L("节点 + ")}{score.cores}{L("核 + ")}{score.stable}{L("稳定 + ")}{score.internalEnhanced}{L("内环增强")}</small></div>;
         })}</div><button onClick={reset}><RefreshCcw size={17} />{L("生成新地图再战")}</button>
       </div></div>}
       {rulesOpen && <RuleBook onClose={() => setRulesOpen(false)} />}

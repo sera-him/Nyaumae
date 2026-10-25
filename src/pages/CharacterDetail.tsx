@@ -7,13 +7,13 @@ import { extraCharacters } from '@/data/extraCharacters';
 import { characterRelations, relationLabels, relationColors } from '@/data/relationships';
 import { stories } from '@/data/stories';
 import { getStoryCover } from '@/data/storyCovers';
-import { getCharacterImageLocal, getCharacterImageSetLocal } from '@/data/characterImages';
+import { getCharacterImageLocal, getCharacterImageSetLocal, getCharacterVideoSetLocal } from '@/data/characterImages';
 import SmartImage from '@/components/SmartImage';
 import RotatingImage from '@/components/RotatingImage';
 import { semanticHighlight } from '@/lib/semanticHighlight';
 import { getTierStyle, getPositionPercent } from '@/lib/fsiiiTiers';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Network, BookOpen, User, FolderKanban, X, EyeOff, ChevronDown, Images, Fingerprint } from 'lucide-react';
+import { ArrowLeft, Network, BookOpen, User, FolderKanban, X, EyeOff, ChevronDown, Images, Video, Fingerprint } from 'lucide-react';
 import './CharacterDetail.css';
 import WordFrequencyCloud from '@/components/WordFrequencyCloud';
 import WordFrequencyTable from '@/components/WordFrequencyTable';
@@ -118,6 +118,7 @@ export default function CharacterDetail() {
   const mainChar = isMain ? (char as Character) : null;
   const localSrc = getCharacterImageLocal(char.id);
   const localImages = getCharacterImageSetLocal(char.id);
+  const localVideos = getCharacterVideoSetLocal(char.id);
 
   const related = characterRelations.filter((r) => r.from === id || r.to === id);
   const charStories = stories.filter((s) =>
@@ -215,6 +216,11 @@ export default function CharacterDetail() {
                 </span>
                 <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-white/[0.06] text-xs text-nc-text-secondary">
                   {mainChar.approximateAge ? '约 ' : ''}{mainChar.age} {L("岁\n                ")}</span>
+                {mainChar.species && (
+                  <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-emerald-400/15 text-xs text-emerald-300">
+                    {mainChar.species}
+                  </span>
+                )}
                 {mainChar.birthYear !== null && (
                   <span className="px-3 py-1 rounded-full liquid-glass-subtle border border-white/[0.06] text-xs text-nc-text-secondary">
                     {mainChar.approximateAge ? '约 ' : ''}{L("公元 ")}{mainChar.birthYear} {L("年生 ")}{mainChar.birthday ? `· ${mainChar.birthday}` : ''}
@@ -321,7 +327,7 @@ export default function CharacterDetail() {
         </section>
       )}
 
-      {localImages && localImages.length > 1 && (
+      {localImages && localImages.length > 0 && (
         <section className="char-section">
           <h2 className="char-section-title">
             <Images className="w-5 h-5 text-nc-violet" /> {L("形象图集\n          ")}</h2>
@@ -335,6 +341,30 @@ export default function CharacterDetail() {
                   className="object-cover w-full h-full"
                 />
               </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {localVideos && localVideos.length > 0 && (
+        <section className="char-section">
+          <h2 className="char-section-title">
+            <Video className="w-5 h-5 text-nc-violet" /> {L("影像素材\n          ")}</h2>
+          <div className="char-video-grid">
+            {localVideos.map((video) => (
+              <figure key={video.src} className="char-video-item">
+                <video
+                  className="char-video-player"
+                  src={video.src}
+                  {...(video.poster ? { poster: video.poster } : {})}
+                  controls
+                  playsInline
+                  preload="metadata"
+                />
+                {video.caption && (
+                  <figcaption className="char-video-caption">{L(video.caption)}</figcaption>
+                )}
+              </figure>
             ))}
           </div>
         </section>

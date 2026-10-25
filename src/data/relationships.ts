@@ -38,13 +38,15 @@ export const relationColors: Record<RelationType, string> = {
    nodes
    ═══════════════════════════════════════════ */
 export const networkNodes: NetworkNode[] = [
-  // mia-family (6) 粉色
+  // mia-family (7) 粉色
   { id: 'mimi',       name: '米迷',   group: 'mia-family', x: 23.67, y: 19.14 },
   { id: 'qicheng',    name: '棋程',   group: 'mia-family', x: 36.26, y: 22.28 },
   { id: 'miia',       name: '咪呀',   group: 'mia-family', x: 44.13, y: 41.17 },
   { id: 'mia',        name: 'Mia',    group: 'mia-family', x: 26.82, y: 49.04 },
   { id: 'amiya',      name: '米娅',   group: 'mia-family', x: 15.80, y: 39.60 },
   { id: 'miya',       name: '米雅',   group: 'mia-family', x: 12.65, y: 23.86 },
+  // 咪娅坐标经渲染几何校验：与最近节点 11.53、与既有连线 6.38，四条家族连线净空 ≥5.22
+  { id: 'miiya',      name: '咪娅',   group: 'mia-family', x:  6.75, y: 46.75 },
 
   // zhihua (7) 紫色
   { id: 'zhaozhao',   name: '赵召',   group: 'zhihua',   x: 89.80, y: 45.57 },
@@ -118,6 +120,11 @@ export const characterRelations: CharacterRelation[] = [
   { from: 'haruka',  to: 'mia',      type: 'friend' },
   { from: 'qicheng', to: 'mia',      type: 'friend' },
   { from: 'qicheng', to: 'amiya',    type: 'friend' },
+  // 咪娅（Mi-iya）— 按 M/I/A 家族连线，关系类型暂定 friend（猫兔子尚年少，具体关系待设定）
+  { from: 'miiya',   to: 'miia',     type: 'friend' },
+  { from: 'miiya',   to: 'mia',      type: 'friend' },
+  { from: 'miiya',   to: 'amiya',    type: 'friend' },
+  { from: 'miiya',   to: 'miya',     type: 'friend' },
 
   // 哲华学校
   { from: 'zhaozhao', to: 'nimfa',   type: 'colleague' },

@@ -146,6 +146,10 @@ export function createFrequencyEngine(options: FrequencyEngineOptions): Frequenc
     return value.normalize('NFKC').replace(/\s+/gu, ' ').trim().toLocaleLowerCase(lowerLocale);
   }
 
+  // 计入口径：只要 token 里含字母或数字就统计，长度不再设门槛。
+  // 这条规则保证切分出来的每一个字（单个汉字、单个字母、纯数字、编号）都进
+  // 统计表，不会有任何文本被静默丢弃；只有纯符号（标点、连接线、emoji）和
+  // 下面几类结构性噪音仍被排除。
   function isUsefulWord(word: string): boolean {
     if (!word) return false;
     if (normalizeSegment(word) === 'object') return false;
@@ -155,9 +159,7 @@ export function createFrequencyEngine(options: FrequencyEngineOptions): Frequenc
     if (/^(?:\+[^+\s]+|[^+\s]+\+)$/u.test(word)) return false;
     if (/^(?:from|via|to)-[a-z\d-]+$/iu.test(word)) return false;
     if (/^(?:https?:\/\/|\/|#)[^\s]+$/iu.test(word)) return false;
-    if (/^\d+$/u.test(word)) return false;
-    if (/^[\p{Script=Han}]+$/u.test(word)) return word.length >= 2;
-    return /^[\p{L}][\p{L}\p{N}+]+(?:-[\p{L}\p{N}+]+)*$/u.test(word);
+    return /[\p{L}\p{N}]/u.test(word);
   }
 
   function mergeSegmentedWords(text: string): string[] {

@@ -81,11 +81,17 @@ function isKingSafeAfterMove(
   simBoard[to.row][to.col] = piece;
   simBoard[from.row][from.col] = null;
 
+  // 模拟巨鲸（H）的前缘清场。whaleCleanse 在 executeMove 里是走完之后才
+  // 结算的，而本函数是合法性判定的前置模拟——不在这里一并模拟的话，
+  // 国王可以「合法地」停在敌方巨鲸正前方 1 格，随后被清场白白吃掉。
+  // 巨鲸开局即在场（data/chess.ts），所以这条路径是可达的。
+  const safeBoard = piece.type === 'H' ? whaleCleanse(simBoard, player, from, to) : simBoard;
+
   // 模拟英语捕捉：仅 * 棋子进入敌方英语十字1-2格会被消灭
   if (ENGLISH_VULNERABLE.includes(piece.type)) {
     englishLoop: for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
-        const ep = getPiece(simBoard, { row, col });
+        const ep = getPiece(safeBoard, { row, col });
         if (ep && ep.owner !== player && ep.type === 'L') {
           // 检查英语是否因中毒失去技能
           if (poisonMap) {
@@ -95,7 +101,7 @@ function isKingSafeAfterMove(
           const dr = Math.abs(to.row - row);
           const dc = Math.abs(to.col - col);
           if ((dr <= 2 && dc === 0) || (dc <= 2 && dr === 0)) {
-            simBoard[to.row][to.col] = null;
+            safeBoard[to.row][to.col] = null;
             break englishLoop;
           }
         }
@@ -104,10 +110,10 @@ function isKingSafeAfterMove(
   }
 
   // 关键棋子：检查移动后是否被攻击
-  const criticals = findCriticalPieces(simBoard, player);
+  const criticals = findCriticalPieces(safeBoard, player);
   if (criticals.length === 0) return false; // 没有关键棋子 = 已被将死
 
-  const enemyRange = getAttackRange(simBoard, opponent(player), poisonMap);
+  const enemyRange = getAttackRange(safeBoard, opponent(player), poisonMap);
 
   for (const cPos of criticals) {
     if (enemyRange.has(`${cPos.row},${cPos.col}`)) {
@@ -262,9 +268,6 @@ export function executeMove(state: GameState, move: Move): GameState {
   const { board, currentPlayer } = state;
   const { from, to } = move;
 
-  const piece = getPiece(board, from);
-  if (!piece) return state;
-
   let newState: GameState = {
     ...state,
     board: cloneBoard(board),
@@ -274,9 +277,12 @@ export function executeMove(state: GameState, move: Move): GameState {
   };
 
   const player = currentPlayer;
-  const key = pieceKey(piece, from);
 
   // ---- 特殊行动：破译 ----
+  // 必须排在 getPiece 之前。破译没有「起点格子」，store 传入的 from/to 是占位的
+  // {-1,-1}；一旦先做取子守卫，getPiece 会落空并直接 return state，整个
+  // decryptionStep 1→2→3 的状态机将永远无法启动（按钮还在、状态还在推进代码里，
+  // 但执行不到）。破译不依赖 piece/key，所以提前返回是安全的。
   if (move.isDecryption) {
     newState.decryptionActive = true;
     newState.decryptionStep = 1;
@@ -310,6 +316,11 @@ export function executeMove(state: GameState, move: Move): GameState {
     // 破译也要过终局判定（重复局面/将死），与女巫/变身分支一致
     return finalizeMove(newState, state);
   }
+
+  const piece = getPiece(board, from);
+  if (!piece) return state;
+
+  const key = pieceKey(piece, from);
 
   // ---- 女巫技能 ----
   if ((piece.type === 'W' || piece.type === 'IW') && move.isWitchSkill) {
@@ -558,7 +569,18 @@ export function executeMove(state: GameState, move: Move): GameState {
   if (totalTransferred > 0) {
     newState.poison[newKey] = (newState.poison[newKey] || 0) + totalTransferred;
     delete newState.poison[key];
-  } else if (oldPoisonCount === 0 && key in newState.poison) {
+  }
+  // 关键：被吃掉的棋子，其毒层必须从毒表中移除。
+  // 此前只删除移动方自己的 key，被吃方的 key 留在 poison 里；之后任何
+  // 同类型棋子落到同一格，都会读到这叠「借来的」毒层。capture 分支
+  // （火箭那处）有清理，普通吃子没有，这里补齐。
+  if (captured) {
+    const capturedKey = pieceKey(captured, to);
+    if (capturedKey !== newKey && newState.poison[capturedKey] !== undefined) {
+      delete newState.poison[capturedKey];
+    }
+  }
+  if (oldPoisonCount === 0 && key in newState.poison) {
     // 免疫子带 0 也要搬 key，避免旧 key 残留
     delete newState.poison[key];
   }

@@ -31,6 +31,11 @@ export const timelineEvents: TimelineEvent[] = [
     desc: '因派启动《心界》VR 项目，投资一亿美元研发全国首款二次元 VR 游戏',
   },
   {
+    year: '2024',
+    title: '德澜思拓继位',
+    desc: '前掌门（米雅的老师）离世，遗嘱公布，米雅继承德澜思拓，守灵同盟守住保守开发路线',
+  },
+  {
     year: '2025',
     title: "M/I/As' World",
     desc: '星界馆。米雅、米娅、Mia、咪呀、mia³——五个不同时间节点的"自己"共处同一时空',

@@ -24,7 +24,7 @@ interface ThemeRoute {
 
 const THEME_ROUTES = [
   { theme: 'story-mia', prefixes: ['/stories/mia-world'] },
-  { theme: 'story-ocean', prefixes: ['/stories/fox-penguin'] },
+  { theme: 'story-ocean', prefixes: ['/stories/fox-penguin', '/stories/delan-succession'] },
   { theme: 'story-zhenhai', prefixes: ['/stories/zhenhai-refining'] },
   { theme: 'story-agi', prefixes: ['/stories/agi-land'] },
   { theme: 'story-giant', prefixes: ['/stories/little-girl-in-giant-country'] },

@@ -183,6 +183,14 @@
       640
     ]
   },
+  "/characters/gpt.png": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
   "/characters/hamster.jpg": {
     "sourceWidth": 1024,
     "sourceHeight": 1536,
@@ -194,6 +202,14 @@
   "/characters/haruka.jpg": {
     "sourceWidth": 1024,
     "sourceHeight": 1536,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/high-school-student.png": {
+    "sourceWidth": 1086,
+    "sourceHeight": 1448,
     "widths": [
       320,
       640
@@ -234,6 +250,14 @@
   "/characters/linkmo.jpg": {
     "sourceWidth": 832,
     "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/linmo.png": {
+    "sourceWidth": 1086,
+    "sourceHeight": 1448,
     "widths": [
       320,
       640
@@ -327,6 +351,21 @@
       640
     ]
   },
+  "/characters/miiya/clip-01-poster.jpg": {
+    "sourceWidth": 540,
+    "sourceHeight": 720,
+    "widths": [
+      320
+    ]
+  },
+  "/characters/miiya/portrait.jpg": {
+    "sourceWidth": 1427,
+    "sourceHeight": 1920,
+    "widths": [
+      320,
+      640
+    ]
+  },
   "/characters/miku.jpg": {
     "sourceWidth": 832,
     "sourceHeight": 1248,
@@ -375,6 +414,14 @@
       640
     ]
   },
+  "/characters/neon.png": {
+    "sourceWidth": 1254,
+    "sourceHeight": 1254,
+    "widths": [
+      320,
+      640
+    ]
+  },
   "/characters/nihilib.jpg": {
     "sourceWidth": 832,
     "sourceHeight": 1248,
@@ -402,6 +449,22 @@
   "/characters/quartus.jpg": {
     "sourceWidth": 832,
     "sourceHeight": 1248,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/retina.jpg": {
+    "sourceWidth": 2048,
+    "sourceHeight": 2048,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "/characters/wangshu.png": {
+    "sourceWidth": 1122,
+    "sourceHeight": 1402,
     "widths": [
       320,
       640

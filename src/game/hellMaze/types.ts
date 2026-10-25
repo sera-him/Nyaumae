@@ -31,7 +31,11 @@ export const DIRECTIONS: [number, number][] = [
   [-1, 0], [0, -1], [1, -1],
 ];
 
-export const DIR_NAMES = ['→', '↗', '↖', '←', '↙', '↘'];
+export const DIR_COUNT = DIRECTIONS.length;
+
+// Arrow per direction index, matching DIRECTIONS above (pointy-top layout:
+// +q is right, +r is down-right). Kept in sync with EDGE_VERTICES in HellMaze.tsx.
+export const DIR_NAMES: string[] = ['→', '↘', '↙', '←', '↖', '↗'];
 
 export function hexKey(q: number, r: number): string {
   return `${q},${r}`;

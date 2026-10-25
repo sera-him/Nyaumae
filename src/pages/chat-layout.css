@@ -288,6 +288,11 @@ main.aurora-site-main--chat {
 .original-chat-editing button { margin-left: 6px; border: 0; background: transparent; color: var(--oc-ink-edit-btn); cursor: pointer; }
 .original-chat-rich-message { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
 .ocean-message-user .original-chat-rich-message, .sweet-message-user .original-chat-rich-message, .aurora-message-user .original-chat-rich-message { align-items: flex-end; }
+/* 流式打字：新到达的字符从 blur(6px) 渐显，120ms 入场、字间 30ms 错开。 */
+.chat-stream-char { display: inline; animation: chat-stream-char-in 120ms ease-out both; }
+@keyframes chat-stream-char-in { from { opacity: 0; filter: blur(6px); } to { opacity: 1; filter: blur(0); } }
+@media (prefers-reduced-motion: reduce) { .chat-stream-char { animation: none !important; } }
+html[data-motion-reduced='true'] .chat-stream-char, html[data-motion-quality='static'] .chat-stream-char { animation: none !important; }
 .original-chat-sticker-message {
   display: block; width: clamp(126px, 20vw, 190px); height: auto; border-radius: 18px;
   object-fit: contain; filter: drop-shadow(0 8px 12px var(--oc-sticker-shadow));
@@ -368,7 +373,7 @@ main.aurora-site-main--chat {
   width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--oc-line-field);
   border-radius: 12px; outline: 0; background: var(--oc-surface-input); color: var(--oc-ink-input);
 }
-.original-chat-dialog input:focus { border-color: var(--oc-input-focus); box-shadow: 0 0 0 3px var(--oc-input-focus-ring); }
+.original-chat-dialog input:focus { border-color: var(--oc-line-field); box-shadow: 0 0 0 3px var(--oc-input-focus-ring), 0 0 0 6px rgba(155,145,212,.06); }
 .original-chat-dialog > footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 .original-chat-dialog > footer button {
   min-width: 86px; height: 36px; padding: 0 13px; border: 1px solid var(--oc-line-btn);

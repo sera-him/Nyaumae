@@ -200,3 +200,38 @@
 .char-gallery-item:hover img {
   transform: scale(1.06);
 }
+
+/* ── 影像素材（视频）───────────────────────── */
+.char-video-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 768px) {
+  .char-video-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.char-video-item {
+  margin: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.char-video-player {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.char-video-caption {
+  padding: 10px 14px 12px;
+  font-size: 12px;
+  color: var(--nc-text-muted);
+  line-height: 1.5;
+}

@@ -8,6 +8,15 @@ import { cn } from "@/lib/utils"
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
 
+// 注入 <style> 前的最后一道字符级防线。
+// 即便将来有不可信数据流入 chart config，含 < > " ' \ 或控制字符的值也会被剔除，
+// 无法逃逸出样式上下文。CSP 的 script-src 'self' 已能拦住逃逸脚本，这里做纵深兜底。
+const isCssSafe = (value: unknown): value is string =>
+  typeof value === "string" &&
+  value.length <= 64 &&
+  !/[<>"'\\]/.test(value) &&
+  !/[\u0000-\u001f\u007f]/.test(value)
+
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode
@@ -70,8 +79,14 @@ function ChartContainer({
 }
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
+  // 拒绝不可信 / 含危险字符的图表 id，避免逃逸出属性选择器。
+  if (!isCssSafe(id)) {
+    return null
+  }
+
   const colorConfig = Object.entries(config).filter(
-    ([, config]) => config.theme || config.color
+    ([key, itemConfig]) =>
+      (itemConfig.theme || itemConfig.color) && isCssSafe(key)
   )
 
   if (!colorConfig.length) {
@@ -90,7 +105,9 @@ ${colorConfig
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    return color && isCssSafe(color)
+      ? `  --color-${key}: ${color};`
+      : null
   })
   .join("\n")}
 }

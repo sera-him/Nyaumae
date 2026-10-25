@@ -118,6 +118,11 @@ function applyClockAfterMove(newState: GameState, oldState: GameState): GameStat
     clock[movedPlayer] += preset.incrementMs;
   }
 
+  // Armageddon：黑方和棋即胜
+  if (preset.entropyType === 'armageddon' && newState.phase === 'draw') {
+    newState.phase = 'black_wins';
+  }
+
   return { ...newState, clock };
 }
 
@@ -153,7 +158,7 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
     const initial = createInitialState();
     const clockMs = preset.isCountUp
       ? { white: 0, black: 0 }
-      : { white: preset.initialMs, black: preset.initialMs };
+      : { white: preset.initialMs, black: preset.initialMsBlack ?? preset.initialMs };
     let bountyCells: Record<string, number> = {};
     if (preset.entropyType === 'bounty') {
       // Bounty：row 4-7（中间4行）每格初始 120s（120000ms）

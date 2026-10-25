@@ -22,6 +22,20 @@
   text-shadow: 0 0 14px rgba(120, 225, 213, .12);
 }
 
+/* Live-updating figures lock to tabular width so digits do not jitter
+   when minutes, visit counts or scores refresh. */
+.analytics-metric-card > strong,
+.analytics-legend small,
+.analytics-history-list small,
+.analytics-top-pages small,
+.analytics-top-pages em,
+.analytics-transition-list em,
+.analytics-search-list small,
+.analytics-search-list em,
+.analytics-rank {
+  font-variant-numeric: tabular-nums;
+}
+
 /* Fresh-user guide: replaces the empty charts when nothing has been recorded yet. */
 .analytics-fresh-panel {
   display: flex;

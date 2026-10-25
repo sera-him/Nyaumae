@@ -92,12 +92,21 @@
 .cm-mouse circle:last-child { fill: var(--mouse); stroke: none; }
 .cm-bait circle { fill: #271c46; stroke: #a78bfa; stroke-width: 2; }
 .cm-bait path { fill: #a78bfa; }
+.cm-aim circle { fill: rgba(232,121,249,.14); stroke: #e879f9; stroke-width: 1.5; }
+.cm-aim path { stroke: #e879f9; stroke-width: 1.2; }
 .cm-target circle { fill: rgba(255,255,255,.08); stroke: white; stroke-width: 1.5; }
 .cm-target path { stroke: white; stroke-width: 1; }
 .cm-board-legend { position: absolute; left: 35px; bottom: 33px; display: flex; gap: 14px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: rgba(6,9,15,.8); backdrop-filter: blur(8px); }
 .cm-board-legend span { display: flex; align-items: center; gap: 5px; color: #8b93a3; font-size: 9px; }
 .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
 .dot.cat { background: var(--cat); }.dot.mouse { background: var(--mouse); }.dot.bait { background: #a78bfa; }.dot.fog { border: 1px solid #a78bfa; background: transparent; }
+.dot.aim { background: #e879f9; }
+.cm-replay-detail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; padding: 0; border-top: 1px solid var(--line); background: var(--line); }
+.cm-replay-detail > div { padding: 10px 14px; background: rgba(17,23,36,.9); }
+.cm-replay-detail dt { color: #8b93a3; font-size: 9px; letter-spacing: .04em; }
+.cm-replay-detail dd { margin: 3px 0 0; color: #dfe4ee; font-size: 12px; font-variant-numeric: tabular-nums; }
+.cm-replay-detail dd.is-low { color: #67e8f9; }
+.cm-replay-detail dd.is-high { color: #fbbf24; }
 .cm-panel { display: flex; flex-direction: column; gap: 12px; }
 .cm-role-banner, .cm-message, .cm-resources, .cm-controls, .cm-log, .cm-result-card { border: 1px solid var(--line); border-radius: 14px; background: rgba(17,23,36,.86); }
 .cm-role-banner { padding: 13px; display: flex; align-items: center; justify-content: space-between; }
@@ -177,4 +186,5 @@
   .cm-board-legend { left: 15px; bottom: 17px; }
   .cm-panel { display: flex; }
   .cm-rule-grid { grid-template-columns: 1fr; }
+  .cm-replay-detail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

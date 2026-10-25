@@ -118,7 +118,7 @@ export const organizations: Organization[] = [
     members: ['米雅'],
     color: 'from-pink-600 to-rose-600',
     accentColor: '#F472B6',
-    description: '由年轻领导者米雅掌舵的科技巨头，与哲华学校科照真学院深度合作。',
+    description: '主业深海探索的科技巨头。前掌门遗嘱传位，米雅继任后与哲华学校科照真学院深度合作，坚守保守开发路线。',
     image: '/org-delan.jpg',
     icon: '/icons/org-delan.png',
   },

@@ -12,6 +12,18 @@ export const charactersEn: Character[] = [
     color: 'from-white to-cyan-400',
   },
   {
+    id: 'miiya', name: 'Mi-iya', alias: 'Mi-iya', birthYear: 2026, age: 0,
+    group: 'mia', groupLabel: 'M/I/A Family', title: 'Cat-rabbit',
+    species: 'Chimera catus',
+    bio: 'A cat-rabbit chimera whose scientific name is Chimera catus; its registered category is "cat-rabbit". Born in 2026, it is the youngest member of the M/I/A family and cannot speak yet.',
+    profile: [
+      { label: 'Scientific name', value: 'Chimera catus' },
+      { label: 'Registered category', value: 'Cat-rabbit' },
+      { label: 'Affiliation', value: 'M/I/A Family' },
+    ],
+    color: 'from-fuchsia-400 to-violet-400',
+  },
+  {
     id: 'mimi', name: 'Mimi', alias: 'mimi', birthYear: 2024, age: 2,
     group: 'mia', groupLabel: 'M/I/A Family',
     bio: 'A girl, and the youngest consciousness in the Neural Connection world.',
@@ -20,7 +32,7 @@ export const charactersEn: Character[] = [
   {
     id: 'xiaohe', name: 'Xiaohe', alias: 'xiaohe', birthYear: 2020, giantBirthYear: 163, age: 6,
     group: 'giant', groupLabel: 'The Little Girl in the Giant Country', title: 'Xiaogu\'s twin sister · a girl of the Giant Country',
-    bio: 'Xiaogu\'s twin sister. She has a neurodevelopmental disorder and, like Miaowu, needs to take medication on schedule. Although she develops a little more slowly, her eyes always carry a gentle curiosity. She loves hiding behind the curtains with Xiaogu, listening to her sister work her tongue around a wobbly tooth.',
+    bio: 'Xiaogu\'s twin sister. She has a neurodevelopmental disorder and, like Miaowu, needs to take medication on schedule; she also has global developmental delay.',
     profile: [
       { label: 'Giant Country height', value: '13 m' },
       { label: 'Giant Country weight', value: '28.5 t' },
@@ -71,7 +83,7 @@ export const charactersEn: Character[] = [
   {
     id: 'miaowu', name: 'Miaowu', alias: 'miaowu', birthYear: 2018, giantBirthYear: 161, age: 8, approximateAge: true, fsiq: 112, fsiii: 96,
     group: 'giant', groupLabel: 'The Little Girl in the Giant Country', title: 'The first friend Xiaoman meets in the ordinary world',
-    bio: 'A second-grade student in Donghai City, under 1.3 meters tall, with a neurodevelopmental disorder that requires medication on schedule. She speaks directly and observes carefully, refusing to judge people by "normal" or "abnormal"; she accepts Xiaoman and becomes the most important friend in Xiaoman\'s adjustment to the ordinary world.',
+    bio: 'A second-grade student in Donghai City, under 1.3 meters tall, with a neurodevelopmental disorder that requires medication on schedule. Miaowu speaks directly and observes carefully, refusing to judge people by "normal" or "abnormal"; ta accepts Xiaoman and becomes the most important friend in Xiaoman\'s adjustment to the ordinary world.',
     profile: [
       { label: 'Real-world height', value: '< 1.3 m' },
       { label: 'Grade', value: 'Elementary grade 2' },
@@ -152,6 +164,13 @@ export const charactersEn: Character[] = [
     fsiii: 93, color: 'from-emerald-400 to-green-400',
   },
   {
+    id: 'miacubic', name: 'mia³', alias: 'mia.cubic', birthYear: 2005, age: 14,
+    group: 'mia', groupLabel: 'M/I/A Family', title: 'Eternal 14-year-old student',
+    bio: 'The "self-insert" character Miia created in 2019. An eternal 14-year-old student researching the interpretability and underlying logical architecture of AI models.',
+    extra: ['Setting correction: her age is 14 (previously mistyped as 21); 2005 is the fictional birth year used when she was created in 2019, after which her age froze'],
+    fsiii: 158, color: 'from-violet-400 to-indigo-400',
+  },
+  {
     id: 'linear', name: 'Linear Cypher Calcla', alias: 'linear cypher calcla', birthYear: 2011, birthday: '1.28', age: 15,
     group: 'other', groupLabel: 'Other', title: 'Born on International Algebra Day',
     bio: 'Passionate about mathematics and cryptography, skilled at decoding. Carries a notebook whose cover reads "pred=2³|23".',
@@ -187,12 +206,6 @@ export const charactersEn: Character[] = [
     fsiii: 114, color: 'from-cyan-400 to-sky-400',
   },
   {
-    id: 'miacubic', name: 'mia³', alias: 'mia.cubic', birthYear: 2005, age: 21,
-    group: 'mia', groupLabel: 'M/I/A Family', title: 'Eternal 14-year-old student',
-    bio: 'The "self-insert" character Miia created in 2019. An eternal 14-year-old student researching the interpretability and underlying logical architecture of AI models.',
-    fsiii: 158, color: 'from-violet-400 to-indigo-400',
-  },
-  {
     id: 'ifchan', name: 'Aiefu-chan', alias: 'ifchan', birthYear: 2005, age: 21,
     group: 'other', groupLabel: 'Other', title: 'Sunlight Project initiator',
     bio: 'Height 166 cm / weight 48 kg. Neurodivergent traits. Initiated the "Sunlight Project".',
@@ -202,6 +215,7 @@ export const charactersEn: Character[] = [
     id: 'miya', name: 'Miya', alias: 'miya', birthYear: 2004, age: 22,
     group: 'delan', groupLabel: 'Delansi', title: 'Leader of Delansi',
     bio: 'The young leader of Delansi Corporation — steady, capable and composed.',
+    profile: [{ label: 'Identity', value: 'Student · Heir to Delansi' }],
     fsiii: 109, color: 'from-rose-400 to-pink-400',
   },
   {
@@ -218,7 +232,7 @@ export const charactersEn: Character[] = [
     fsiii: 98, color: 'from-teal-400 to-cyan-400',
   },
   {
-    id: 'delivery-rider', name: 'Delivery Rider', alias: 'delivery rider', birthYear: 1996, giantBirthYear: 139, age: 30, approximateAge: true, fsiq: 108, fsiii: 92,
+    id: 'delivery-rider', name: 'Delivery Rider', alias: 'delivery rider', birthYear: 1996, giantBirthYear: 139, age: 30, fsiq: 108, fsiii: 92,
     group: 'giant', groupLabel: 'The Little Girl in the Giant Country', title: 'Helpful Donghai delivery rider',
     bio: 'First spotted Xiaoman at the intersection, then took the initiative to bring out a tarp and picnic mat, and repeatedly rode out to buy ingredients. He used to work in a kitchen and knows stoves, shopping and food handling — one of the most action-oriented members of the ad-hoc helper squad. The text never reveals his name or exact age.',
     profile: [

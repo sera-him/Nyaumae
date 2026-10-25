@@ -104,6 +104,10 @@ export const LOCAL_MODEL_TIERS: LocalModelTier[] = [
   { id: '32b', label: '32B', parameters: 3.2e10, quantizedMemory: '~ 22 GB', hardware: '64 GB RAM', description: 'Qwen2.5 32B', deviceModel: 'Qwen/Qwen2.5-32B-Instruct', ollamaModel: 'qwen2.5:32b' },
   { id: '35b', label: '35B', parameters: 3.5e10, quantizedMemory: '~ 24 GB', hardware: '64 GB RAM', description: 'Command R 35B', deviceModel: 'CohereForAI/c4ai-command-r-v01', ollamaModel: 'command-r:35b' },
   { id: '47b', label: '47B', parameters: 4.7e10, quantizedMemory: '~ 32 GB', hardware: '64 GB RAM / Multi-GPU', description: 'Mixtral 8x7B', deviceModel: 'mistralai/Mixtral-8x7B-Instruct-v0.1', ollamaModel: 'mixtral:8x7b' },
+  // LittleLearner: trained from scratch on LittleCurriculum, a K-5 textbook corpus.
+  { id: 'll_0_6b', label: 'LL 0.6B', parameters: 6.17e8, quantizedMemory: '~ 1.2 GB', hardware: '4 GB RAM', description: 'LittleLearner 0.6B Chatty', deviceModel: 'littlelearner/littlelearner-0.6b-chatty' },
+  { id: 'll_1_3b', label: 'LL 1.3B', parameters: 1.36e9, quantizedMemory: '~ 2.7 GB', hardware: '8 GB RAM', description: 'LittleLearner 1.3B Chatty', deviceModel: 'littlelearner/littlelearner-1.3b-chatty' },
+  { id: 'll_5b', label: 'LL 5B', parameters: 5e9, quantizedMemory: '~ 10 GB', hardware: '16 GB RAM', description: 'LittleLearner 5B Chatty', deviceModel: 'littlelearner/littlelearner-5b-chatty' },
 ].map(addDownloadInstruction).sort((a, b) => a.parameters - b.parameters);
 
 export function findModelTier(model: string): LocalModelTier | undefined {

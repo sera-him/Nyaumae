@@ -168,7 +168,8 @@
 .ocean-quick-replies button { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border: 1px solid rgba(255,255,255,.85); border-radius: 999px; background: rgba(255,255,255,.67); backdrop-filter: blur(10px); color: #7890ad; font-size: 9px; cursor: pointer; box-shadow: 0 4px 15px rgba(106,145,185,.08); }
 .ocean-quick-replies button:hover { background: white; transform: translateY(-1px); }
 .ocean-quick-replies svg { width: 11px; }
-.ocean-composer { display: grid; grid-template-columns: 38px minmax(0,1fr) auto 40px; align-items: end; gap: 5px; padding: 8px; border: 1px solid rgba(255,255,255,.9); border-radius: 22px; background: rgba(255,255,255,.74); box-shadow: 0 18px 55px rgba(85,133,184,.18), inset 0 1px white; backdrop-filter: blur(22px) saturate(160%); }
+.ocean-composer { display: grid; grid-template-columns: 38px minmax(0,1fr) auto 40px; align-items: end; gap: 5px; padding: 8px; border: 1px solid rgba(255,255,255,.9); border-radius: 22px; background: rgba(255,255,255,.74); box-shadow: 0 18px 55px rgba(85,133,184,.18), inset 0 1px white; backdrop-filter: blur(22px) saturate(160%); transition: box-shadow 160ms ease; }
+.ocean-composer:focus-within { border-color: rgba(255,255,255,.9); box-shadow: 0 18px 55px rgba(85,133,184,.18), inset 0 1px white, 0 0 0 3px rgba(85,133,184,.20), 0 0 0 6px rgba(85,133,184,.08); }
 .ocean-composer > button { display: grid; place-items: center; height: 38px; border: 0; border-radius: 14px; background: transparent; cursor: pointer; }
 .ocean-composer > button:hover { background: rgba(220,236,250,.65); }
 .ocean-composer button svg { width: 17px; }

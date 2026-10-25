@@ -1,0 +1,23 @@
+/*
+  # --- 内容安全策略 (CSP) ---
+  # 核心：script-src 不带 'unsafe-inline'，从根上阻断 XSS 脚本执行。
+  # 例外说明（为保功能而放开，已尽量收窄）：
+  #   - 'wasm-unsafe-eval'：@mlc-ai/web-llm 本地推理依赖 WebAssembly，必须放行。
+  #   - style-src 带 'unsafe-inline'：React 大量内联 style 属性 + chart.tsx 注入 <style>。
+  #     样式注入在现代浏览器已无脚本执行能力，且 chart.tsx 已做字符校验兜底。
+  #   - connect-src 放 https: + http://localhost:*：AI 对话为 BYOK，需访问用户自选的
+  #     十几家外部 API 与本地 Ollama/LM Studio。这是 BYOK 架构的固有取舍，
+  #     CSP 无法在不破坏功能的前提下限制数据外发，主防御仍靠 script-src 阻断脚本。
+  #   - worker-src 带 blob:：web-llm / service worker 以 blob URL 启动。
+  #   - frame-src 放行 haohaodada.com：Playground 的 Scratch 小游戏用第三方跨域 iframe 嵌入，
+  #     不设会被 default-src 'self' 拦成白屏。
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss: http://localhost:*; worker-src 'self' blob:; frame-src 'self' https://www.haohaodada.com https://haohaodada.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+
+  # --- 其他安全响应头 ---
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 0
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin

@@ -266,8 +266,10 @@ export function startOfTurn(state: TTT3GameState, player: TTT3Player): TTT3GameS
 
   const isPunished = state.skipPunishTurns[player] > 0;
 
-  // 清除恐惧（只持续一回合）
-  newState.fear[player] = false;
+  // 恐惧不在这里清除。
+  // 恐惧由对手的回合施加（例如暴君之握），而 endTurn 结尾会立刻调用
+  // startOfTurn(nextPlayer)——如果在这里清零，被施加者还没等到自己回合
+  // 就被解除了，整条机制将永远无法生效。清除点见 endTurn。
 
   if (!isPunished) {
     newState.skipPunish[player] = false;
@@ -639,7 +641,11 @@ export function applySkill(
       newState.skillUsedTurn[player][skill] = (newState.skillUsedTurn[player][skill] || 0) + 1;
       newState.tyrantCost[player] += 5;
       newState.tyrantActive[opp] = true;
-      return { state: newState, success: true, log: `暴君之握！对手下回合所有费用涨价` };
+      // 恐惧：对手在自己回合内无法使用任何技能，直到该回合结束。
+      // 这是 fear 字段唯一的施加点——之前没有任何地方把它置为 true，
+      // 导致 canUseSkill 里的恐惧分支、UI 上的恐惧标记全部无法到达。
+      newState.fear[opp] = true;
+      return { state: newState, success: true, log: `暴君之握！对手下回合所有费用涨价，并且本回合无法使用技能` };
     }
 
     case SkillEnum.BUY_ROD: {
@@ -1228,6 +1234,13 @@ export function endTurn(state: TTT3GameState): TTT3GameState {
   const opp = 1 - prevPlayer as TTT3Player;
   if (newState.infoOverload[prevPlayer] && newState.infoOverloadUses[opp] > 0 && newState.infoOverloadUses[opp] < 15) {
     newState.infoOverload[prevPlayer] = false;
+  }
+
+  // 恐惧解除（被施加者打完自己这个回合后失效）。
+  // 与 infoOverload 同一套生命周期：施加发生在对手回合，因此不能在
+  // startOfTurn 里清除，否则下一回合开始时就被抹掉了。
+  if (newState.fear[prevPlayer]) {
+    newState.fear[prevPlayer] = false;
   }
 
   // Skip Punish 递减（只在拥有者回合结束时递减）

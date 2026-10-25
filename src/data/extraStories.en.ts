@@ -947,3 +947,31 @@ When you receive any exam/competition information, output:
 - Rectification deadline`;
 
 export const laborValueTheoryEn = `The more expensive labor is relative to prices in a place, the better life is there — because the more expensive labor is, the more the workers there earn, and the more tax those workers pay, so the more social welfare there is. The thing is, among things that cost labor, only a minority are necessities — and even those are mostly batch-produced, so the labor is amortized away and little is spent on it. The overwhelming majority are non-essential, all made for luxury and enjoyment. So: the more expensive labor is, the better life gets.`;
+
+/** A coincidence of units: the "degree" of an angle and the "degree" of heat are the same word, so a bad pun becomes an equation. */
+export const sumoAngleNoteEn = `360 degrees = a full turn.
+
+At the same time, 360 degrees is roughly the energy in all the body fat of a sumo wrestler (1 degree = 1 kWh).
+
+Therefore: the energy in all the body fat of a sumo wrestler is a full turn.`;
+
+/**
+ * The limit of affective computing: turning feelings into numbers — or even
+ * vectors — computes a great deal, but it never computes irony, because irony
+ * lives in context, not in the sentence.
+ */
+export const emotionVectorNoteEn = `People in antiquity computed feeling this way: good = +1, bad = −1, very = ×2. Swap the number for a vector and it can compute several feelings at once.
+
+But it will never know which of these two is an insult: 「你的球踢得简直比国足还好！」 and « Ton football est presque meilleur que celui de l'équipe nationale ! » — because irony lives in context, not in the sentence.`;
+
+/**
+ * A door opened for nothing: kindness restored a state that never needed
+ * restoring. Opening the door was not wrong — it was simply unnecessary.
+ */
+export const unnecessaryDoorStoryEn = `A child who can only cry out and cannot yet speak was blocked by a railing and could not find a gap on their own. A parent guided them around to the side with no railing, through a door that had been standing open all along; once through, the child closed it.
+
+Someone else worried that "people who do not know this door exists" would find their way blocked by the closed door, so they ran over and opened it again — restoring the original state.
+
+Only afterwards did they learn that the door exists mainly for drivers, and the drivers, years on the job, had long known exactly where it was.
+
+So: opening the door was not wrong, but it was opened for nothing.`;

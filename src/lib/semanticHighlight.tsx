@@ -79,7 +79,7 @@ const TIME_COLORS = [
 // ── 角色名 (全部已登场角色) ──
 const CHAR_KEYWORDS: string[] = [
   // M/I/A 核心
-  '米雅', '咪呀', 'Mia', '米娅', '米迷', '小小咪', 'mimi', 'mia³',
+  '米雅', '咪呀', 'Mia', '米娅', '米迷', '咪娅', 'Mi-iya', '小小咪', 'mimi', 'mia³', 'Chimera catus',
   // 哲华学校
   '墨璇玥', '墨璇玥.iv', '墨璇玥.fc', '墨奥幂', '墨奥幂.fc', '星野遥', '林可梦', '卡塔斯', 'Quartus', '赵召',
   // 因派系

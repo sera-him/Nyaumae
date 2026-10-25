@@ -10,6 +10,7 @@ const STORY_COVERS: Record<string, string[]> = {
   'zhenhai-refining': ['/story-zhenhai-refining.png'],
   'little-girl-in-giant-country': ['/story-miia-dream-generated.png'],
   'star-child': ['/star-pavilion.jpg'],
+  'delan-succession': ['/org-delan.jpg'],
 };
 
 export function getStoryCovers(storyId: string): string[] {
