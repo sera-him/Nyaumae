@@ -29,6 +29,7 @@
     "start": "node scripts/serve-dist.mjs",
     "three-holes:generate": "python scripts/three_holes_unique_generator.py --output src/game/threeHoles/puzzles.generated.json",
     "three-holes:verify": "python scripts/three_holes_unique_generator.py --verify src/game/threeHoles/puzzles.generated.json --unique-time 360",
+    "three-holes:history": "node scripts/build_three_holes_history_page.mjs",
     "verify:corpus": "node scripts/verify-corpus-coverage.mjs"
   },
   "dependencies": {

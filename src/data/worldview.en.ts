@@ -62,7 +62,7 @@ export const worldviewInfoEn = {
   qet: {
     total: 1000,
     note: '1,000–1,500 applicants (including third-year mock examinees); 65,536 is the theoretical cap',
-    written: { score: 500, maxApplicants: 65536, maxPass: 256, fee: 128 },
-    practical: { score: 500, maxApplicants: 256, maxPass: 16, fee: 512 },
+    written: { score: 500, maxApplicants: 65536, maxPass: 256, fee: 128, rules: 'Taken simultaneously with the national postgraduate entrance exam: 101 + 201 + 301 + school-specific papers, supervised by the education bureau; anyone can register. Max applicants 65536, max pass 256, registration fee ¥128.' },
+    practical: { score: 500, maxApplicants: 256, maxPass: 16, fee: 512, rules: 'Max applicants 256, max pass 16, registration fee ¥512. Before solving each problem, first guess your own score (prediction); if the actual score ≥ prediction → you get the prediction; if actual < prediction → you get 0. Multiple submissions allowed; each submission\'s Penalty = submission time + 10 minutes × (number of submissions for that problem so far − 1); total time is the sum of penalties for the first highest-scoring submission of each problem. Ranking: total score first, then total time (lower is better).' },
   },
 };

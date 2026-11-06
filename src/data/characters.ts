@@ -236,7 +236,7 @@ const charactersInSourceOrder: Character[] = [
   {
     id: 'alice', name: '爱丽丝', alias: 'alice', birthYear: 2015, birthday: '10.11', age: 11,
     group: 'other', groupLabel: '其他',
-    bio: '异瞳猫娘萝莉公主，手持玩具魔法棒和童话书《Nymphilia》，常与猫咪在沙滩奔跑玩耍。猫尾可以摘下来。',
+    bio: '异瞳猫娘萝莉公主，手持玩具魔法棒和童话书《Nymphilia》，常与猫咪在沙滩奔跑玩耍。猫尾可以摘下来。认知简单直白，情绪表达直接，语言习惯容易被影响，有自己的口头禅；喜欢可爱的东西，对好看的二次元人物没有抵抗力，很容易被游戏吸引。',
     fsiii: 92, color: 'from-sky-400 to-blue-400',
   },
   {

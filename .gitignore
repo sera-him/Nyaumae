@@ -29,6 +29,9 @@ bench*.ts
 debug*.ts
 .wrangler
 .agents
+.workbuddy
+.zcode
+.codex-vite-plain
 
 # Generated self-hosted font assets (scripts/generate-font-css.mjs)
 public/fonts.css

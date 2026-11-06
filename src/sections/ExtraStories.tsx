@@ -1,7 +1,7 @@
 import {
   extraPoems, poems, chapterIndex, wishSection, correctOverdose, xishouStory,
   absurdNarrative, tinyWish, miiaStoryFragments, jingBeiGouFragment, penPoemFragment, wageFragment, laborValueTheory,
-  sumoAngleNote, emotionVectorNote, unnecessaryDoorStory,
+  sumoAngleNote, emotionVectorNote, unnecessaryDoorStory, carefreeFairyTales,
 } from '@/data/extraStories';
 import { L } from '@/lib/translations/manual';
 
@@ -551,6 +551,21 @@ export default function ExtraStories() {
           <pre className="whitespace-pre-wrap font-serif text-nc-text-muted leading-[1.9] text-sm sm:text-base">
             {semanticHighlightProse(jingBeiGouFragment)}
           </pre>
+        </div>
+
+        {/* 七篇无忧童话及统一结局 */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-pink-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-pink-300 mb-5 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 shrink-0" />
+              {semanticHighlight(carefreeFairyTales.title)}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {carefreeFairyTales.content.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
         </div>
       </div>
     </section>

@@ -3,6 +3,12 @@ import { L } from '@/lib/translations/manual';
 
 import { dictionary as dictionaryZh, bilingualText as bilingualTextZh } from '@/data/dictionary';
 import { dictionaryEn, bilingualTextEn } from '@/data/dictionary.en';
+import {
+  mysticSayingNote, mathCoupletNote, lightPunNote, rulesAndCatPoem, catgirlLexicon,
+} from '@/data/poems';
+import {
+  mysticSayingNoteEn, mathCoupletNoteEn, lightPunNoteEn, rulesAndCatPoemEn, catgirlLexiconEn,
+} from '@/data/poems.en';
 import { getLocale } from '@/lib/i18n';
 import { semanticHighlight, posColorHighlight } from '@/lib/semanticHighlight';
 import CollapsibleCard from '@/components/CollapsibleCard';
@@ -28,6 +34,12 @@ export default function Dictionary() {
   const bilingualText = _en ? bilingualTextEn.map((line) => ({ dadi: line.dadi, chinese: line.english })) : bilingualTextZh;
   const [search, setSearch] = useState('');
   const [activeLetter, setActiveLetter] = useState('全部');
+
+  const mysticText = _en ? mysticSayingNoteEn : mysticSayingNote;
+  const coupletText = _en ? mathCoupletNoteEn : mathCoupletNote;
+  const lightPunText = _en ? lightPunNoteEn : lightPunNote;
+  const catPoemText = _en ? rulesAndCatPoemEn : rulesAndCatPoem;
+  const catgirlList = _en ? catgirlLexiconEn : catgirlLexicon;
 
   const filtered = dictionary.filter((entry) => {
     const matchesSearch = !search ||
@@ -167,6 +179,60 @@ export default function Dictionary() {
           <div className="bg-[#1A1025]/50 px-6 sm:px-8 py-3 border-t border-[#8B5CF6]/10">
             <p className="text-xs text-nc-text-muted">
               {L("63 行完整对照 · 来自 The World of We Three 的 Dadi Sapichi 示例段落\n            ")}</p>
+          </div>
+        </CollapsibleCard>
+
+        {/* ===== Poems & Aphorisms (moved from world settings) ===== */}
+        <CollapsibleCard
+          id="dict-poems"
+          defaultExpanded={true}
+          title={<>{L("诗歌与格言")}<span className="text-sm font-normal text-nc-text-muted">· {L("规则与猫 · 对联 · 双关 · 口诀")}</span></>}
+          summary={_en ? "A free verse on learning social rules like a cat, plus a couplet, a pun and a cryptic ascending saying." : "诗《规则与猫》、数学对联、光双关，以及一句递进口诀"}
+          icon={<BookOpen className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-[var(--aurora-brand-text)]"
+          borderColor="border-[#8B5CF6]/20"
+          bgColor="bg-transparent"
+        >
+          <div className="p-6 sm:p-8 space-y-8">
+            <div>
+              <h4 className="text-sm font-semibold text-[var(--aurora-brand-pink)] mb-3 tracking-widest uppercase">{L("规则与猫")}</h4>
+              <pre className="whitespace-pre-wrap font-serif text-sm sm:text-base text-nc-text leading-loose">{catPoemText}</pre>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-4 pt-4 border-t border-[#8B5CF6]/10">
+              <div className="text-center">
+                <p className="text-[10px] font-mono text-nc-text-muted tracking-widest uppercase mb-2">{L("递进口诀")}</p>
+                <p className="font-serif text-sm text-nc-text leading-loose">{mysticText}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-[10px] font-mono text-nc-text-muted tracking-widest uppercase mb-2">{L("数学对联")}</p>
+                <pre className="whitespace-pre-line font-serif text-sm text-nc-text leading-loose">{coupletText}</pre>
+              </div>
+              <div className="text-center">
+                <p className="text-[10px] font-mono text-nc-text-muted tracking-widest uppercase mb-2">{L("光双关")}</p>
+                <p className="font-serif text-sm text-nc-text leading-loose">{lightPunText}</p>
+              </div>
+            </div>
+          </div>
+        </CollapsibleCard>
+
+        {/* ===== Catgirl Lexicon (moved from world settings) ===== */}
+        <CollapsibleCard
+          id="dict-catgirl-lexicon"
+          defaultExpanded={false}
+          title={<>{L("猫娘语词汇表")}<span className="text-sm font-normal text-nc-text-muted">· 10 {L("类")}</span></>}
+          summary={_en ? "Ten thematic categories; source terms kept verbatim." : "自然、生灵、身体、动作……十类分组，词条保留原文用字"}
+          icon={<Languages className="w-5 h-5 text-[var(--aurora-brand-pink)]" />}
+          titleColor="text-[var(--aurora-brand-text)]"
+          borderColor="border-[#F472B6]/20"
+          bgColor="bg-transparent"
+        >
+          <div className="p-6 sm:p-8 grid md:grid-cols-2 gap-x-8 gap-y-5">
+            {catgirlList.map((item) => (
+              <div key={item.title} className="border-l-2 border-[#F472B6]/30 pl-4">
+                <h4 className="text-sm font-semibold text-[var(--aurora-brand-pink)] mb-1">{item.title}</h4>
+                <p className="text-sm text-nc-text-secondary leading-relaxed">{item.content}</p>
+              </div>
+            ))}
           </div>
         </CollapsibleCard>
       </div>

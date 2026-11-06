@@ -8,30 +8,11 @@ export const worldviewNotesEn = [
 
 export const hypothesisEn = `Hypothesis: other things being equal, the higher the neural density, the greater the consciousness value, following an S-shaped curve`;
 
-export const qetWrittenEn = {
-  score: 500,
-  maxApplicants: 65536,
-  maxPass: 256,
-  fee: 128,
-  rules: 'Taken simultaneously with the national postgraduate entrance exam: 101 + 201 + 301 + school-specific papers, supervised by the education bureau; anyone can register. Max applicants 65536, max pass 256, registration fee ¥128.',
-};
-
-export const qetPracticalEn = {
-  score: 500,
-  maxApplicants: 256,
-  maxPass: 16,
-  fee: 512,
-  rules: 'Max applicants 256, max pass 16, registration fee ¥512. Before solving each problem, first guess your own score (prediction); if the actual score ≥ prediction → you get the prediction; if actual < prediction → you get 0. Multiple submissions allowed; each submission\'s Penalty = submission time + 10 minutes × (number of submissions for that problem so far − 1); total time is the sum of penalties for the first highest-scoring submission of each problem. Ranking: total score first, then total time (lower is better).',
-};
-
 export const miyaCircleEn = "Miya's circle: Mimi, Qicheng, Miia, Mia, Alice, Cola, Amiya, mia³";
 
 export const muGuangPlanEn = 'Aiefu-chan launched the "Sunlight Project". On February 20, 2026, "Heart Realm" welcomed its first event "Mu Cheng Yi Bai", with "Zero" appearing as a quest NPC.';
 
 export const xinyuanLogEn = '"Heart Abyss Journal" — a channel run privately by Lin Qian, recording "Heart Realm" VRlogs (in essence, a diary).';
-
-export const sheepsSongEn = `Sheep a Sheep｛22-（ey:e=utus:himer）｝Morning Song logM[0x0xC]
-8:529 9:420 12:312 18:522 21:1606 22:1603 24:110`;
 
 export const autismFeaturesEn = [
   {
@@ -284,6 +265,14 @@ export const specialChildrenNotesEn = [
   {
     title: 'Third-Grade Curriculum Proposal',
     content: 'I propose replacing the third-grade curriculum of generalized linear models, artificial intelligence, operating systems, and compiler principles with: teaching them to pound a soft cushion instead of banging their heads; pointing at a picture when they want water, without needing to read the character "water"; allowing stereotypy, while secretly slipping 0.1% of new variation into it.',
+  },
+  {
+    title: 'A well-behaved young child',
+    content: 'Eats and sleeps obediently; loves to play and likes other children; enjoys being held by a kind-looking older sister; understands speech and stays quiet; runs home when it rains; and can use the toilet on their own.',
+  },
+  {
+    title: 'Cthulhu-flavored physics tolerance program (grade 2)',
+    content: 'This education program aims to build grade-2 students’ tolerance for eerie, uncanny, horror-tinged Cthulhu-style material, and for electromagnetism multi-integral physics problems that include trigonometric functions (directions); the hope is that someone can later understand Cthulhu without fully losing their sanity.',
   },
 ];
 
@@ -541,12 +530,6 @@ export const sacrificeNoteEn = `If you must sacrifice a large group of people, h
 Note: joining and exiting are not the same thing. Between the two sits a third group — people who are indifferent to life, who don't care whether they live or die. They will neither join nor exit.`;
 
 /**
- * A cryptic ascending aphorism: from "done" down to "crawling",
- * ending on "crawling beats being dead".
- */
-export const mysticSayingNoteEn = `"Done beats being, being beats non-being; flying beats running, running beats walking, walking beats crawling, crawling beats being dead."`;
-
-/**
  * Reverse-aging law: future tech can revert a person (mind included) to a
  * child; how the law treats that. Mirror of the citizen-level system.
  */
@@ -574,50 +557,6 @@ export const medicationAccessNoteEn = `Don't make the person asking for medicati
  * cute feral cat: don't stare, don't shout, don't turn and bolt, give space.
  */
 export const meltdownFieldNoteEn = `Meeting a cute stray cat in the wild, and meeting someone mid-Meltdown in the wild — you should do the exact same thing: don't stare, don't shout, don't turn and run, and give them space.`;
-
-/**
- * Couplet: arithmetic cannot compute wealth; logarithms and roots cannot solve poverty.
- */
-export const mathCoupletNoteEn = `Add-subtract-multiply-divide cannot reckon out mortal wealth;
-logs-exponents-roots-powers cannot dissolve the world's poverty.`;
-
-/**
- * Punned saying: in one second light travels 3e8 m; optogenetics wins a Nobel.
- */
-export const lightPunNoteEn = `In one second, light travels 3e8 m; optogenetics wins a scientist a Nobel Prize.`;
-
-/**
- * Poem "Rules and Cats": learning social rules the way a cat learns human footsteps.
- */
-export const rulesAndCatPoemEn = `Rules and Cats
-
-I learn rules the way a cat learns human footsteps —
-not born knowing,
-but writing down every trial:
-how many seconds of eye contact is right,
-how far a joke may go,
-when to speak,
-and when silence is the polite thing.
-
-I once had a cat.
-It never wore its love on its sleeve the way a dog does.
-It just lay beside the keyboard while I typed,
-and on the night I broke down,
-it rested a paw lightly on the back of my hand.
-
-Later I understood:
-it and I spoke the same language —
-connection need not be loud,
-it only needs "I am here."
-
-If love is a dialect,
-I may speak it with an accent.
-But I don't ask to be corrected,
-only to be understood a little.
-
-Like a cat that doesn't explain
-why it curls up in the corner,
-yet is still allowed to stay in the room.`;
 
 /**
  * Chain of beats: one bean > money > scissors > bomb > mole > terrorist >
@@ -787,3 +726,110 @@ So — do you want balanced, or random?`;
  * granted to the child themselves.
  */
 export const childAutonomyNoteEn = `If there is something (say, intervening in a child's sexual orientation) that nobody has the right to do in the first place, yet not doing it also imposes a cost on the child — then that right must be granted to the child themselves.`;
+
+/**
+ * Total score = conduct score + love − hate; "hate" is operationalized as
+ * the gap between the expected punishment for an adult ("me") and for a
+ * 6-year-old child who committed the same crimes.
+ */
+export const hateScoreFormulaNoteEn = `Your conduct score + your love for me − your hate for me = your total score.
+
+Hate toward me can be quantified easily — just run a thought experiment.
+
+Take Li Hua as an example. To measure how much he hates me: imagine I commit various crimes, and ask how long he hopes I would be imprisoned, or what other punishment he expects (possibly the death penalty, possibly something else). Weight those expected punishments by the frequency at which each crime occurs and average them to get one value. Then imagine a 6-year-old child committing the same crimes, and likewise compute the weighted average punishment Li Hua expects for that child. Subtract the two values; the difference is Li Hua's hate for me.
+
+The larger the difference, the more he hates me — because a larger difference means he wants to punish me more heavily. Using this method, anyone's hate for me can be measured.`;
+
+/**
+ * Minimal crowdfunding rules: only the platform itself is guaranteed (it
+ * sustains itself via a service fee on successful projects); anonymous
+ * voluntary pledges, silence counts as zero; launch only at 100% pledged,
+ * otherwise cancel and collect nothing; launch price includes a
+ * victim-compensation fund, settled at audited final cost in equal shares;
+ * re-raise on expiry, lapse and refund if it fails; a dependent project
+ * cancels immediately when its prerequisite cancels.
+ */
+export const fundraisingRuleEn = [
+  {
+    title: 'I. Only the platform itself is guaranteed',
+    content: 'The only guaranteed party is the crowdfunding platform itself; it sustains itself by taking a service fee from successful projects. Everything else carries no guarantee.',
+  },
+  {
+    title: 'II. Cost first; anonymous voluntary pledges',
+    content: 'Any policy starts by estimating its cost. Anyone may anonymously and voluntarily pledge the share they are willing to bear; not pledging counts as zero.',
+  },
+  {
+    title: 'III. Launch at 100%; otherwise cancel, collect nothing',
+    content: 'Once pledges reach 100%, the project launches and the funds are transferred. If the target is not reached, it is cancelled and nothing is collected.',
+  },
+  {
+    title: 'IV. Launch price includes a victim fund; equal shares at audited cost',
+    content: 'The launch price must include a victim-compensation fund. Settlement follows the audited final cost, and every share is equal.',
+  },
+  {
+    title: 'V. Re-raise on expiry; lapse and refund if it fails',
+    content: 'When a project reaches the end of its validity period it is re-raised; if the new round cannot be sustained, the project disappears automatically and the balance is refunded.',
+  },
+  {
+    title: 'VI. A dependent project cancels when its prerequisite cancels',
+    content: 'For any project that has a prerequisite project, if that prerequisite is cancelled, the dependent project cancels immediately.',
+  },
+];
+
+/**
+ * Permanent-five virus (thought experiment): irreversibly locks the infected at
+ * both the appearance and mind of age five; alters uninfected minds so they
+ * permanently see the infected as five and push the law to treat them as five;
+ * the infected feel they are growing up and never notice the contradiction.
+ */
+export const perpetualFiveVirusNoteEn = `Suppose there were a virus that could keep people permanently at the appearance of a 5-year-old, with their mind also permanently becoming the mind of a 5-year-old — body and mind both turning into five years old.
+
+It could also alter the minds of the uninfected: those who were not infected would permanently see these people as five years old, and be willing to change the law so that the law, too, treated these people as five years old.
+
+In the end, the infected themselves would feel that they are growing up; held within this closed loop of altered minds, they could never discover the contradiction — never discover that, in fact, they never grow older.`;
+
+/** Legal age chosen per person; each year only +0 or +1. */
+export const selfChosenAgeNoteEn = `Legal age could be chosen by each person themselves; the only constraint is that each year one may choose either +0 or +1 — never a multi-year jump.`;
+
+/** Child preferential treatment = a temporary membership granted at birth, never purchasable, unrelated to capacity for responsibility. */
+export const childPrivilegeMembershipNoteEn = `Legal preferential treatment for children is like a temporary membership granted at birth — one that can never be purchased on one's own; it has nothing to do with (adult) capacity for responsibility.`;
+
+/** Victim-expected penalty cap (hypothesis, feasibility aside): actual penalty = min(deserved, victim reference). */
+export const victimCappedPenaltyNoteEn = `(Feasibility aside, as a rule hypothesis.) If A violates B's rights, the punishment A receives must never exceed what B believes A deserves. The reference value equals the punishment B believes C deserves when B sees C commit the same wrong against D; the actual punishment equals the minimum of the originally deserved punishment and this reference value. Rationale: if B is severe, the cap adds no extra constraint; if the victim B is lenient, then even B feels the offender got the punishment he deserved.`;
+
+/** External goodness test: judge a world from outside; never a personal code of conduct. */
+export const externalGoodnessTestNoteEn = `External criterion (used only to judge whether a world is good from the outside, never as a personal code of conduct, to keep room for maneuver small and avoid importing subjective values): a behavior is good if it simultaneously satisfies "the ruler truly endorses it and personally takes part + most of the relevant group participates fully voluntarily + the outcome is positive and harmless"; conversely, it may be bad if any of "the ruler shuns it / only a few can do it / participation is not fully voluntary" holds.`;
+
+/** Rights claim: refuse growing up and be permanently treated as a child (the cache problem stays separate). */
+export const rightToRefuseGrowthNoteEn = `A rights claim: everyone should be granted the right to refuse growing up and to be permanently treated as a child. (The accompanying prefix-dependency cache-optimization problem is kept as a separate unsolved note and is not part of this rule.)`;
+
+/** Noah's ark admission criteria + new-world environment conditions (open extrapolation kept separate). */
+export const arkAdmissionRulesEn = [
+  { title: "Cohort 1: mutual positive-affection circle (a few thousand)",
+    content: "Let x be my affection for a person and y that person's affection for me; admission requires x ≥ 0, y ≥ 0, and x + y > 0. Strangers count as affection 0; affection is a real number and can be negative." },
+  { title: "Cohort 2: low criminal-liability-probability circle (a few million)",
+    content: "Suppose everyone acts as a judge: if that person would treat me as fully criminally liable with probability below 10%, that person is saved." },
+  { title: "New-world environment (conditions recorded, not extrapolated)",
+    content: "A special environment makes everyone unable to have children and immune to death by accident or disease; each person may customize their own age, gender, and appearance." },
+];
+
+/** Twelve option-style powers; note: the "counterparty" actually means the seller. */
+export const optionPowerRulesEn = [
+  { title: "call option", content: "The right to buy." },
+  { title: "put option", content: "The right to sell." },
+  { title: "pull option", content: "The right to force the counterparty to keep buying or short-selling until the share price reaches the agreed value." },
+  { title: "cat option", content: "The right to have the counterparty's cat trade on the counterparty's behalf." },
+  { title: "push", content: "The right to move this company's position in the trading app; the watchlist cannot be moved, and it cannot be pushed where it cannot be seen or clicked (the seller is the trading app)." },
+  { title: "auto", content: "The right to construct a function and feed the counterparty the previous minute's heart rate as its input every minute." },
+  { title: "active", content: "The right to force the counterparty to click the stock app a fixed number of times at fixed intervals; otherwise the mouse clicks randomly on its own." },
+  { title: "disable", content: "The right to bar the counterparty from buying and/or selling specific stocks." },
+  { title: "nya", content: "The counterparty must cast a spell on themselves so that they either keep staring at the screen or keep zoning out." },
+  { title: "spec", content: "Force the counterparty to treat every piece of on-screen information as equally important." },
+  { title: "unlink", content: "Strip the counterparty of the ability to associate color with rise/fall, and price with name." },
+  { title: "order", content: "The counterparty must manually sort watchlist stocks by gain/loss, or they cannot trade." },
+  { title: "Note: counterparty = seller", content: "Throughout this list, the counterparty actually refers to the seller." },
+];
+
+/** FIRE custom definition: equation kept verbatim; Render Everything is not interpreted. */
+export const fireDefinitionNoteEn = `FIRE = Financial Independence, Render Everything
+(Note: the exact meaning of "Render Everything" is not defined in the source; this card keeps the equation only and adds no interpretation.)`;

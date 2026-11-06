@@ -54,6 +54,18 @@ export default function QETSection() {
               <span className="font-mono text-nc-text-secondary">{qet.practical.maxPass} {L("人")}</span>
             </div>
           </div>
+
+          {/* 详细规则：笔试 / 机试 */}
+          <div className="grid md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-nc-violet/10">
+            <div>
+              <p className="text-xs font-mono text-[#F59E0B] mb-2">{L("笔试 ")}{qet.written.score} {L("分")}</p>
+              <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlight(qet.written.rules)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-mono text-[#F59E0B] mb-2">{L("机试 ")}{qet.practical.score} {L("分")}</p>
+              <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlight(qet.practical.rules)}</p>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>

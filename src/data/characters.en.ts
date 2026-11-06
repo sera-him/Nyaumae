@@ -142,7 +142,7 @@ export const charactersEn: Character[] = [
   {
     id: 'alice', name: 'Alice', alias: 'alice', birthYear: 2015, birthday: '10.11', age: 11,
     group: 'other', groupLabel: 'Other',
-    bio: 'A heterochromia cat-girl princess, holding a toy magic wand and the fairy-tale book "Nymphilia", often running and playing with cats on the beach. Her cat tail can be taken off.',
+    bio: 'A heterochromia cat-girl princess, holding a toy magic wand and the fairy-tale book "Nymphilia", often running and playing with cats on the beach. Her cat tail can be taken off. She has a simple, straightforward mind and wears her heart on her sleeve; her speech habits are easily influenced by those around her, and she has her own catchphrases. She adores cute things, is completely weak to good-looking anime characters, and gets easily drawn into games.',
     fsiii: 92, color: 'from-sky-400 to-blue-400',
   },
   {

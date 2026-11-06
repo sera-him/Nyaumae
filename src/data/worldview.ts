@@ -61,7 +61,7 @@ export const worldviewInfo = {
   qet: {
     total: 1000,
     note: '报名 1000-1500 人（含大三模拟考生），65536 为理论上限',
-    written: { score: 500, maxApplicants: 65536, maxPass: 256, fee: 128 },
-    practical: { score: 500, maxApplicants: 256, maxPass: 16, fee: 512 },
+    written: { score: 500, maxApplicants: 65536, maxPass: 256, fee: 128, rules: '全国硕士统考同步考，101+201+301+自命题，教育局监管，谁都能报。最大报名人数65536人，最大通过人数256人，报名费128元。' },
+    practical: { score: 500, maxApplicants: 256, maxPass: 16, fee: 512, rules: '最大报名人数256人，最大通过人数16人，报名费512元。做题时先猜自己能得多少分（预测）；如果实际得分 ≥ 预测 → 拿预测分；如果实际 < 预测 → 拿 0 分。可以多次提交，每次提交的Penalty=提交时间+10分钟×（本题当次提交次数-1），总用时是每题首次最高分Penalty之和。排名：先看总分，再看总用时（越少越好）。' },
   },
 };

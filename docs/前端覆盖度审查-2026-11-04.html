@@ -1,0 +1,110 @@
+<html style="margin:0;padding:0;">
+<title>前端覆盖度与位置合理性审查</title>
+<div style="width:100%;box-sizing:border-box;background:#f7f8fa;font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:#1f2937;padding:24px 16px;">
+  <div style="max-width:1000px;margin:0 auto;box-sizing:border-box;">
+
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px;">前端覆盖度与位置合理性审查</div>
+    <div style="font-size:13px;color:#6b7280;margin-bottom:16px;">审查对象：E:\app（Vite + React 19 + TS 单页应用）· 2026-11-04</div>
+
+    <!-- 核心结论 -->
+    <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-left:4px solid #16a34a;border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+      <div style="font-size:15px;font-weight:700;color:#15803d;margin-bottom:6px;">结论：该进前端的内容都已经进前端，没有发现遗漏</div>
+      <div style="font-size:14px;line-height:1.6;color:#1f2937;">
+        28 篇 CMS 稿件中 18 篇已前端化（数据卡 / 故事 + 中英检索 + 词频）；其余 9 篇是稿件备注里<b>明确要求暂存、等待处理方式确认</b>的（长叙事、待解题、含义待澄清），属有意存档而非漏接。public 下 2054 个资源仅 4 个未被源码引用，且均为平台配置或说明文件。
+      </div>
+    </div>
+
+    <!-- 流向 -->
+    <div style="font-size:15px;font-weight:700;margin-bottom:10px;">一、内容流向（源 → 运行时 → 页面）</div>
+    <div style="display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin-bottom:22px;">
+      <div style="flex:1 1 200px;min-width:180px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
+        <div style="font-size:13px;font-weight:700;color:#2563eb;margin-bottom:6px;">world/ 源素材</div>
+        <div style="font-size:13px;line-height:1.7;color:#374151;">_cms 28 篇稿件<br>10 万字故事源稿 1 份<br>原始配图 6 张（约 17 MB）</div>
+      </div>
+      <div style="display:flex;align-items:center;font-size:22px;color:#9ca3af;">→</div>
+      <div style="flex:1 1 200px;min-width:180px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
+        <div style="font-size:13px;font-weight:700;color:#2563eb;margin-bottom:6px;">public/ + src/data 运行时</div>
+        <div style="font-size:13px;line-height:1.7;color:#374151;">public 资源 2054 个（含响应式图/字体）<br>stories-content 故事正文数据源<br>worldSettings 等数据卡 + 检索索引</div>
+      </div>
+      <div style="display:flex;align-items:center;font-size:22px;color:#9ca3af;">→</div>
+      <div style="flex:1 1 200px;min-width:180px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
+        <div style="font-size:13px;font-weight:700;color:#2563eb;margin-bottom:6px;">前端页面（routes.tsx）</div>
+        <div style="font-size:13px;line-height:1.7;color:#374151;">world / characters / stories<br>miia / math / playground<br>chat / settings / nctb 等 20+ 路由</div>
+      </div>
+    </div>
+
+    <!-- 覆盖度 -->
+    <div style="font-size:15px;font-weight:700;margin-bottom:10px;">二、覆盖度分类（实数核对）</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
+      <div style="flex:1 1 300px;min-width:260px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px;">CMS 稿件 28 篇</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="background:#dcfce7;color:#15803d;border-radius:6px;font-size:12px;font-weight:700;padding:2px 8px;white-space:nowrap;">18 已前端化</span>
+          <span style="font-size:13px;color:#374151;">其中 12 篇稿件状态字段仍写“未接线”，与实际不符</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="background:#f3f4f6;color:#4b5563;border-radius:6px;font-size:12px;font-weight:700;padding:2px 8px;white-space:nowrap;">9 有意暂存</span>
+          <span style="font-size:13px;color:#374151;">长叙事 2、待判定/待解题 6、含义待澄清 1</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="background:#f3f4f6;color:#4b5563;border-radius:6px;font-size:12px;font-weight:700;padding:2px 8px;white-space:nowrap;">1 元文档</span>
+          <span style="font-size:13px;color:#374151;">启动处理台账，本就不进前端</span>
+        </div>
+      </div>
+      <div style="flex:1 1 300px;min-width:260px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px;">public 资源 2054 个</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="background:#dcfce7;color:#15803d;border-radius:6px;font-size:12px;font-weight:700;padding:2px 8px;white-space:nowrap;">2050 被引用</span>
+          <span style="font-size:13px;color:#374151;">含动态拼接的响应式图与字体</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <span style="background:#fef3c7;color:#b45309;border-radius:6px;font-size:12px;font-weight:700;padding:2px 8px;white-space:nowrap;">4 未引用但合理</span>
+          <span style="font-size:13px;color:#374151;line-height:1.6;">_headers、_redirects（平台配置）、README.txt（说明）、three-holes-history.html（构建生成独立页）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 位置问题 -->
+    <div style="font-size:15px;font-weight:700;margin-bottom:10px;">三、位置不合理 / 有更好位置的 7 项</div>
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px;">
+      <div style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 14px;border-bottom:1px solid #f3f4f6;align-items:center;">
+        <span style="background:#fef3c7;color:#b45309;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;">文档治理</span>
+        <span style="flex:1 1 240px;font-size:13.5px;font-weight:600;">12 篇已接线稿件的“状态”字段仍写未接线/极简暂存</span>
+        <span style="flex:1 1 260px;font-size:13px;color:#6b7280;">建议：回写为“已接线（canon 评审待办）”，避免下次审查误判</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 14px;border-bottom:1px solid #f3f4f6;align-items:center;">
+        <span style="background:#fee2e2;color:#b91c1c;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;">双轨风险</span>
+        <span style="flex:1 1 240px;font-size:13.5px;font-weight:600;">public/box-duel.html 无引用、无“禁止分叉”声明，与 BoxDuel.tsx 双轨</span>
+        <span style="flex:1 1 260px;font-size:13px;color:#6b7280;">建议：照 super24.html 先例加双语声明，或明确独立页并加入口链接</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 14px;border-bottom:1px solid #f3f4f6;align-items:center;">
+        <span style="background:#fef3c7;color:#b45309;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;">接线缺口</span>
+        <span style="flex:1 1 240px;font-size:13.5px;font-weight:600;">three-holes-history 生成脚本无 npm script、不在 build 流程</span>
+        <span style="flex:1 1 260px;font-size:13px;color:#6b7280;">建议：加 npm script（如 three-holes:history）或纳入 build</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 14px;border-bottom:1px solid #f3f4f6;align-items:center;">
+        <span style="background:#fee2e2;color:#b91c1c;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;">孤儿文件</span>
+        <span style="flex:1 1 240px;font-size:13.5px;font-weight:600;">根目录 query_image.jpg 全项目 0 引用（测试残留）</span>
+        <span style="flex:1 1 260px;font-size:13px;color:#6b7280;">建议：移入 archive/ 或删除</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 14px;border-bottom:1px solid #f3f4f6;align-items:center;">
+        <span style="background:#f3f4f6;color:#4b5563;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;">本地空间</span>
+        <span style="flex:1 1 240px;font-size:13.5px;font-weight:600;">tmp/ 29579 文件、2.2 GB（13 个 dist-old 备份）</span>
+        <span style="flex:1 1 260px;font-size:13px;color:#6b7280;">git 已忽略不进库；建议清理旧备份释放空间，.tmp 7.9MB 同理</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 14px;border-bottom:1px solid #f3f4f6;align-items:center;">
+        <span style="background:#f3f4f6;color:#4b5563;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;">空目录</span>
+        <span style="flex:1 1 240px;font-size:13.5px;font-weight:600;">output/ 为空且已被 gitignore</span>
+        <span style="flex:1 1 260px;font-size:13px;color:#6b7280;">可保留作输出位，也可删除</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 12px;padding:10px 14px;align-items:center;">
+        <span style="background:#fef3c7;color:#b45309;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;">版本库</span>
+        <span style="flex:1 1 240px;font-size:13.5px;font-weight:600;">.workbuddy/.zcode/.codex-vite-plain 未被 gitignore，会进版本库</span>
+        <span style="flex:1 1 260px;font-size:13px;color:#6b7280;">若不希望工具记忆/截图进库，建议加入 .gitignore</span>
+      </div>
+    </div>
+
+    <div style="font-size:12.5px;color:#9ca3af;margin-top:14px;">说明：src 内部分层（components/data/game/lib/nctb/pages/sections/stores 等）与 Channel A 数据 / Channel B 标题的双轨设计在启动台账中有明确约定，整体位置合理，未列入问题项。</div>
+  </div>
+</div>
+</html>

@@ -468,8 +468,8 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
     'Linear Cypher Calcla\'s younger sister, born 20 days early. Influenced by her brother, she loves ciphers; her password is "c+ti".',
 
   '爱丽丝': 'Alice',
-  '异瞳猫娘萝莉公主，手持玩具魔法棒和童话书《Nymphilia》，常与猫咪在沙滩奔跑玩耍。猫尾可以摘下来。':
-    'A heterochromatic catgirl loli princess, carrying a toy wand and the fairytale book "Nymphilia"; often runs and plays on the beach with cats. Her cat tail can be removed.',
+  '异瞳猫娘萝莉公主，手持玩具魔法棒和童话书《Nymphilia》，常与猫咪在沙滩奔跑玩耍。猫尾可以摘下来。认知简单直白，情绪表达直接，语言习惯容易被影响，有自己的口头禅；喜欢可爱的东西，对好看的二次元人物没有抵抗力，很容易被游戏吸引。':
+    'A heterochromatic catgirl loli princess, carrying a toy wand and the fairytale book "Nymphilia"; often runs and plays on the beach with cats. Her cat tail can be removed. She thinks simply and shows her feelings directly; her speech habits are easily influenced and she has her own catchphrases. She loves cute things, is weak to good-looking anime characters, and is easily drawn into games.',
 
   '可乐': 'Cola',
   '一线城市中产阶级的学生，成绩优异、多才多艺，人生轨迹清晰明确。':

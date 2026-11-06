@@ -7,7 +7,7 @@ import { storyText } from './storyText';
 import { storyTextEn } from './storyText.en';
 import { gameHintTexts } from './gameHintTexts';
 import { dictionary, bilingualText } from './dictionary';
-import { poems, extraPoems, miiaStoryFragments, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory, chapterIndex, wishSection, correctOverdose, xishouStory, revolutionTable, vppRules, iqTests, gaoKaiTableData, jingBeiGouFragment, penPoemFragment, starChildStory, dualAxisModel, sanYiCollegeInfo, theoremFragments, sanCengNationInfo, wageFragment, shengYuQiYueInfo, superIntelligenceRule, gaoKaoVolunteerRule, subwayPricingRule, unifiedRecruitmentRule, agiEmploymentRegulation, openExamRegistrationRule, laborValueTheory, sumoAngleNote, emotionVectorNote, unnecessaryDoorStory } from './extraStories';
+import { poems, extraPoems, miiaStoryFragments, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory, chapterIndex, wishSection, correctOverdose, xishouStory, revolutionTable, vppRules, iqTests, gaoKaiTableData, jingBeiGouFragment, penPoemFragment, starChildStory, dualAxisModel, sanYiCollegeInfo, theoremFragments, sanCengNationInfo, wageFragment, shengYuQiYueInfo, superIntelligenceRule, gaoKaoVolunteerRule, subwayPricingRule, unifiedRecruitmentRule, agiEmploymentRegulation, openExamRegistrationRule, laborValueTheory, sumoAngleNote, emotionVectorNote, unnecessaryDoorStory, carefreeFairyTales } from './extraStories';
 import { organizations, zhihuaClasses } from './organizations';
 import { timelineEvents } from './timeline';
 import { characterRelations, relationLabels } from './relationships';
@@ -28,8 +28,6 @@ import {
 import {
   worldviewNotes,
   hypothesis,
-  qetWritten,
-  qetPractical,
   miyaCircle,
   muGuangPlan,
   xinyuanLog,
@@ -49,7 +47,15 @@ import {
   aiEnergyNote,
   combatSkillCosts,
   sentencingRule,
+  hateScoreFormulaNote,
+  fundraisingRule,
+  perpetualFiveVirusNote,
+  selfChosenAgeNote, childPrivilegeMembershipNote, victimCappedPenaltyNote, externalGoodnessTestNote, rightToRefuseGrowthNote,
+  arkAdmissionRules, optionPowerRules, fireDefinitionNote,
 } from './worldSettings';
+import {
+  mysticSayingNote, mathCoupletNote, lightPunNote, rulesAndCatPoem, catgirlLexicon,
+} from './poems';
 import {
   miaWorldBackground,
   paradigmText,
@@ -84,13 +90,20 @@ import { organizationsEn, zhihuaClassesEn } from './organizations.en';
 import { timelineEventsEn } from './timeline.en';
 import { relationLabelsEn } from './relationships.en';
 import {
-  worldviewNotesEn, hypothesisEn, qetWrittenEn, qetPracticalEn, miyaCircleEn, muGuangPlanEn,
+  worldviewNotesEn, hypothesisEn, miyaCircleEn, muGuangPlanEn,
   xinyuanLogEn, autismFeaturesEn, moralPrinciplesNoteEn, lawValuesNoteEn,
   moralPrinciplesEn, nyaumaeismPrinciplesEn, fourDimensionTestEn,
   catTrueNameTableEn, citizenLevelSystemEn, teacherVotingRuleEn, workplaceBlindnessRuleEn, specialChildrenNotesEn,
   miiaSchoolRulesEn,
   elderSystemNoteEn, aiEnergyNoteEn, combatSkillCostsEn, sentencingRuleEn,
+  hateScoreFormulaNoteEn, fundraisingRuleEn,
+  perpetualFiveVirusNoteEn,
+  selfChosenAgeNoteEn, childPrivilegeMembershipNoteEn, victimCappedPenaltyNoteEn, externalGoodnessTestNoteEn, rightToRefuseGrowthNoteEn,
+  arkAdmissionRulesEn, optionPowerRulesEn, fireDefinitionNoteEn,
 } from './worldSettings.en';
+import {
+  mysticSayingNoteEn, mathCoupletNoteEn, lightPunNoteEn, rulesAndCatPoemEn, catgirlLexiconEn,
+} from './poems.en';
 import {
   miaWorldBackgroundEn, paradigmTextEn, taskLens2025En, rtoTextEn, yearDayFragmentEn,
   numberFragmentsEn, foreverThreeWorldEn, f3wCodeLineEn, dreamPoemEn, badRabbitVersionsEn,
@@ -285,6 +298,7 @@ add('extra-labor-value', '人工越贵生活越好', laborValueTheory, '故事',
 add('extra-sumo-angle', '相扑选手与周角', sumoAngleNote, '故事', '#extra-stories');
 add('extra-emotion-vector', '情感计算与反讽', emotionVectorNote, '故事', '#extra-stories');
 add('extra-unnecessary-door', '白开一次门', unnecessaryDoorStory, '故事', '#extra-stories');
+add('extra-carefree-fairy-tales', '七篇无忧童话', `${carefreeFairyTales.title}\n${carefreeFairyTales.content}`, '故事', '#extra-stories');
 
 for (const [index, entry] of organizations.entries()) add(`org_${index}`, entry.name, entry, '设定', '#organizations');
 for (const [index, entry] of zhihuaClasses.entries()) add(`class_${index}`, entry.name, entry, '设定', '#organizations');
@@ -306,8 +320,6 @@ for (const [index, rule] of lightningRodSystem.entries()) add(`lightning_${index
 const settingSources: Array<[string, string, unknown]> = [
   ['worldview-notes', '世界观说明', worldviewNotes],
   ['hypothesis', '世界观假说', hypothesis],
-  ['qet-written', 'QET 笔试', qetWritten],
-  ['qet-practical', 'QET 实践', qetPractical],
   ['miya-circle', '米雅朋友圈', miyaCircle],
   ['mu-guang-plan', '沐光计划', muGuangPlan],
   ['xinyuan-log', '心渊日志', xinyuanLog],
@@ -326,6 +338,17 @@ const settingSources: Array<[string, string, unknown]> = [
   ['ai-energy', 'AI 能耗量级', aiEnergyNote],
   ['combat-skill-costs', '技能算力数值表', combatSkillCosts],
   ['sentencing', '量刑规则', sentencingRule],
+  ['hate-score', '行为分总分与恨的度量', hateScoreFormulaNote],
+  ['fundraising', '认筹规则极简版', fundraisingRule],
+  ['perpetual-five', '永久五岁病毒（心智篡改思想实验）', perpetualFiveVirusNote],
+  ['self-chosen-age', '法律年龄自选（每年+0或+1）', selfChosenAgeNote],
+  ['child-privilege-membership', '儿童优待临时会员制', childPrivilegeMembershipNote],
+  ['victim-capped-penalty', '受害者预期封顶惩罚', victimCappedPenaltyNote],
+  ['external-goodness-test', '行为好坏外部判定准则', externalGoodnessTestNote],
+  ['right-refuse-grow-up', '拒绝长大、永久被视作儿童的权利', rightToRefuseGrowthNote],
+  ['ark-admission', '方舟两套拯救准入标准', arkAdmissionRules],
+  ['option-powers', '期权式自定义权益清单', optionPowerRules],
+  ['fire-definition', 'FIRE 自定义定义（等式）', fireDefinitionNote],
 ];
 for (const [id, title, content] of settingSources) add(`setting_${id}`, title, content, '设定', '#world-settings');
 
@@ -355,6 +378,11 @@ add('setting_four-dimension', '四维测试', fourDimensionTest, '设定', '#wor
 for (const [index, name] of modelNames.entries()) add(`model-name_${index}`, name, name, '设定', '#math');
 for (const system of NEURAL_SYSTEMS) add(`neural-system_${system.id}`, system.title, `${system.title} ${system.description}`, '设定', '#world-settings');
 add('dict-bilingual', 'Dadi Sapichi 中文对照', bilingualText, '词典', '#dictionary');
+add('dict-mystic-saying', '递进口诀', mysticSayingNote, '诗歌', '#dictionary');
+add('dict-math-couplet', '数学对联', mathCoupletNote, '诗歌', '#dictionary');
+add('dict-light-pun', '光双关格言', lightPunNote, '诗歌', '#dictionary');
+add('dict-rules-and-cat', '诗《规则与猫》', rulesAndCatPoem, '诗歌', '#dictionary');
+add('dict-catgirl-lexicon', '猫娘语词汇表（十类）', catgirlLexicon, '词典', '#dictionary');
 // 超沟通：数据已从 section 抽到 hyperCommunication.zh/.en 模块（2026-10-12），
 // 原手写浓缩条目已删——与渲染数据重复计数，英文还停了在旧措辞。icon 是 JSX
 // 元素，登记前剥掉，否则 cleanText 会把 className 当正文收进去。
@@ -506,6 +534,11 @@ for (const entry of dictionaryEn) {
 }
 
 addEn('dict-bilingual', 'Dadi Sapichi bilingual lines', bilingualTextEn, '词典', '#dictionary');
+addEn('dict-mystic-saying', 'Mystic saying mantra', mysticSayingNoteEn, 'Poetry', '#dictionary');
+addEn('dict-math-couplet', 'Math couplet', mathCoupletNoteEn, 'Poetry', '#dictionary');
+addEn('dict-light-pun', 'Light pun maxim', lightPunNoteEn, 'Poetry', '#dictionary');
+addEn('dict-rules-and-cat', 'Poem: Rules and the Cat', rulesAndCatPoemEn, 'Poetry', '#dictionary');
+addEn('dict-catgirl-lexicon', 'Catgirl register lexicon (ten categories)', catgirlLexiconEn, 'Dictionary', '#dictionary');
 
 for (const [index, entry] of organizationsEn.entries()) addEn(`org_${index}`, entry.name, entry, '设定', '#organizations');
 for (const [index, entry] of zhihuaClassesEn.entries()) addEn(`class_${index}`, entry.name, entry, '设定', '#organizations');
@@ -515,8 +548,6 @@ for (const relation of characterRelations) addEn(`relation_${relation.from}_${re
 const settingSourcesEn: Array<[string, string, unknown]> = [
   ['worldview-notes', 'Worldview notes', worldviewNotesEn],
   ['hypothesis', 'Worldview hypothesis', hypothesisEn],
-  ['qet-written', 'QET written exam', qetWrittenEn],
-  ['qet-practical', 'QET practical exam', qetPracticalEn],
   ['miya-circle', "Miya's circle", miyaCircleEn],
   ['mu-guang-plan', 'Sunlight Project', muGuangPlanEn],
   ['xinyuan-log', 'Heart Abyss Journal', xinyuanLogEn],
@@ -535,6 +566,17 @@ const settingSourcesEn: Array<[string, string, unknown]> = [
   ['ai-energy', 'AI energy order of magnitude', aiEnergyNoteEn],
   ['combat-skill-costs', 'Skill and computing-power table', combatSkillCostsEn],
   ['sentencing', 'Sentencing rule', sentencingRuleEn],
+  ['hate-score', 'Hate measured by expected-punishment gap', hateScoreFormulaNoteEn],
+  ['fundraising', 'Minimal crowdfunding rules', fundraisingRuleEn],
+  ['perpetual-five', 'The permanent-five virus thought experiment', perpetualFiveVirusNoteEn],
+  ['self-chosen-age', 'Self-chosen legal age (+0 or +1 per year)', selfChosenAgeNoteEn],
+  ['child-privilege-membership', 'Temporary membership for child privilege', childPrivilegeMembershipNoteEn],
+  ['victim-capped-penalty', 'Victim-expected penalty cap', victimCappedPenaltyNoteEn],
+  ['external-goodness-test', 'External goodness criterion', externalGoodnessTestNoteEn],
+  ['right-refuse-grow-up', 'Right to refuse growing up and be treated as a child', rightToRefuseGrowthNoteEn],
+  ['ark-admission', 'Two ark admission criteria', arkAdmissionRulesEn],
+  ['option-powers', 'Custom option-style powers', optionPowerRulesEn],
+  ['fire-definition', 'FIRE custom definition (equation)', fireDefinitionNoteEn],
 ];
 for (const [id, title, content] of settingSourcesEn) addEn(`setting_${id}`, title, content, '设定', '#world-settings');
 addEn('setting_four-dimension', 'Four-Dimension Test', fourDimensionTestEn, '设定', '#world-settings');

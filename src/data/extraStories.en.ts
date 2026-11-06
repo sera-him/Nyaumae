@@ -126,13 +126,6 @@ FSIII (Full Scale Intrinsic Intelligence Index) can also be called FS3, because 
 
 FSIII = 100 + (FSIQ - 85)(FSIQ - 115) / (15√2)`,
   },
-  {
-    title: 'The White Room',
-    content: `The white room, empty and bare
-The little painter tied to the bed
-The white pills swallowed down
-Don't taste as sweet as candy`,
-  },
 ];
 
 export const miiaStoryFragmentsEn: PoemEntry[] = [
