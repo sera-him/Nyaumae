@@ -1,5 +1,6 @@
 import type { AiConfig, ModelAdapter, ModelMessage, ModelRequest, ModelResult } from './types.ts';
 import { redactSensitiveText, safeErrorMessage } from './privacy.ts';
+import { isCharLstmModelName, loadCharLstmModel } from './charlstmRuntime.ts';
 import type { ChatCompletionMessageParam, MLCEngine } from '@mlc-ai/web-llm';
 
 export type ModelErrorCode =
@@ -442,6 +443,66 @@ export class BrowserModelAdapter implements ModelAdapter {
   }
 }
 
+export class CharLstmAdapter implements ModelAdapter {
+  readonly provider = 'Nyaumae CharLSTM';
+  private readonly config: AiConfig;
+
+  constructor(config: AiConfig) {
+    this.config = config;
+  }
+
+  private seed(messages: ModelMessage[]): string {
+    const lastUser = [...messages].reverse().find((message) => message.role === 'user');
+    const text = (lastUser?.content ?? '').trim();
+    return text || '她';
+  }
+
+  private mapError(error: unknown): ModelAdapterError {
+    if (error instanceof ModelAdapterError) return error;
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+    }
+    const detail = error instanceof Error ? error.message : '';
+    return new ModelAdapterError('local-service-unavailable', detail || '本站模型加载失败。');
+  }
+
+  async complete(request: ModelRequest, signal?: AbortSignal): Promise<ModelResult> {
+    if (signal?.aborted) throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+    const model = await loadCharLstmModel(this.config.model);
+    try {
+      const content = await model.generate(this.seed(request.messages), {
+        maxChars: Math.min(Math.max(request.maxTokens ?? 200, 1), 512),
+        temperature: request.temperature,
+        topP: 0.9,
+        signal,
+      });
+      if (!content) throw new ModelAdapterError('invalid-response', messageForCode('invalid-response', 'Invalid response.'));
+      return { content, model: model.name, provider: this.provider, finishReason: 'stop' };
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
+  async stream(request: ModelRequest, onToken: (token: string) => void, signal?: AbortSignal): Promise<ModelResult> {
+    if (signal?.aborted) throw new ModelAdapterError('aborted', messageForCode('aborted', 'Generation stopped.'));
+    const model = await loadCharLstmModel(this.config.model);
+    let content = '';
+    try {
+      content = await model.generate(this.seed(request.messages), {
+        maxChars: Math.min(Math.max(request.maxTokens ?? 200, 1), 512),
+        temperature: request.temperature,
+        topP: 0.9,
+        signal,
+        onChar: onToken,
+      });
+    } catch (error) {
+      throw this.mapError(error);
+    }
+    if (!content) throw new ModelAdapterError('invalid-response', messageForCode('invalid-response', 'Invalid response.'));
+    return { content, model: model.name, provider: this.provider, finishReason: 'stop' };
+  }
+}
+
 export class EchoModelAdapter implements ModelAdapter {
   readonly provider = 'test-echo';
 
@@ -458,7 +519,9 @@ export class EchoModelAdapter implements ModelAdapter {
 }
 
 export function createModelAdapter(config: AiConfig): ModelAdapter {
-  if (config.provider === 'browser') return new BrowserModelAdapter(config);
+  if (config.provider === 'browser') {
+    return isCharLstmModelName(config.model) ? new CharLstmAdapter(config) : new BrowserModelAdapter(config);
+  }
   return config.provider === 'local' ? new LocalModelAdapter(config) : new OpenAICompatibleAdapter(config);
 }
 

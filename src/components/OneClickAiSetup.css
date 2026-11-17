@@ -1,0 +1,673 @@
+/* 一键开启 AI：设置页最上方的主动作卡片。 */
+.ai-quick-start {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1rem;
+  padding: 1.6rem;
+  border: 1px solid rgba(0, 229, 204, .26);
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(120% 110% at 0% 0%, rgba(0, 229, 204, .11), transparent 55%),
+    radial-gradient(110% 100% at 100% 0%, rgba(139, 122, 255, .14), transparent 62%),
+    linear-gradient(145deg, rgba(16, 20, 42, .96), rgba(9, 12, 28, .92));
+  box-shadow: 0 22px 60px rgba(3, 4, 16, .34);
+}
+
+.ai-quick-start.is-connected {
+  border-color: rgba(0, 229, 204, .45);
+}
+
+.ai-quick-glow {
+  position: absolute;
+  top: -60%;
+  right: -12%;
+  width: 24rem;
+  height: 24rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 204, .16), transparent 65%);
+  pointer-events: none;
+}
+
+.ai-quick-head {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ai-quick-eyebrow {
+  margin: 0 0 .35rem;
+  color: rgba(118, 247, 223, .72);
+  font: 700 .62rem/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: .16em;
+}
+
+.ai-quick-head h2 {
+  margin: 0;
+  color: #f2eeff;
+  font-size: 1.35rem;
+  letter-spacing: .01em;
+}
+
+.ai-quick-head p {
+  max-width: 42rem;
+  margin: .4rem 0 0;
+  color: rgba(218, 211, 240, .6);
+  font-size: .78rem;
+  line-height: 1.6;
+}
+
+.ai-quick-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  flex: 0 0 auto;
+  padding: .32rem .6rem;
+  border: 1px solid rgba(0, 229, 204, .28);
+  border-radius: 999px;
+  background: rgba(0, 229, 204, .08);
+  color: #a9fff0;
+  font-size: .64rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ai-quick-badge svg {
+  width: .8rem;
+  height: .8rem;
+}
+
+.ai-quick-actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-top: 1.1rem;
+}
+
+.ai-quick-primary,
+.ai-quick-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  min-height: 2.75rem;
+  padding: .8rem 1.1rem;
+  border: 1px solid transparent;
+  border-radius: .75rem;
+  cursor: pointer;
+  font: 700 .82rem/1.1 inherit;
+  text-decoration: none;
+  transition: transform .2s ease, filter .2s ease, border-color .2s ease;
+}
+
+.ai-quick-primary {
+  border-color: rgba(0, 229, 204, .5);
+  background: linear-gradient(135deg, rgba(0, 229, 204, .96), rgba(103, 232, 249, .86));
+  color: #06191b;
+  box-shadow: 0 10px 26px rgba(0, 229, 204, .18);
+}
+
+.ai-quick-secondary {
+  border-color: rgba(173, 149, 255, .28);
+  background: rgba(167, 139, 250, .09);
+  color: #dcd3ff;
+}
+
+.ai-quick-primary:hover:not(:disabled),
+.ai-quick-secondary:hover:not(:disabled) {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+
+.ai-quick-primary:disabled,
+.ai-quick-secondary:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+  transform: none;
+}
+
+.ai-quick-primary svg,
+.ai-quick-secondary svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ai-quick-status {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-top: 1rem;
+  padding: .7rem .85rem;
+  border: 1px solid rgba(173, 149, 255, .12);
+  border-radius: .75rem;
+  background: rgba(0, 0, 0, .18);
+}
+
+.ai-quick-status > svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  color: #7fe9d8;
+}
+
+.ai-quick-status > div {
+  display: grid;
+  gap: .12rem;
+  min-width: 0;
+}
+
+.ai-quick-status strong {
+  color: #eeeaff;
+  font-size: .76rem;
+  font-weight: 650;
+}
+
+.ai-quick-status span {
+  color: rgba(211, 203, 238, .5);
+  font-size: .67rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.ai-quick-error-text {
+  color: #ffb0c8 !important;
+}
+
+.ai-quick-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  margin-left: auto;
+  padding: .35rem .55rem;
+  border: 1px solid rgba(173, 149, 255, .18);
+  border-radius: .5rem;
+  background: rgba(255, 255, 255, .03);
+  color: rgba(220, 211, 255, .78);
+  cursor: pointer;
+  font: 600 .64rem/1 inherit;
+  white-space: nowrap;
+}
+
+.ai-quick-mini svg {
+  width: .75rem;
+  height: .75rem;
+}
+
+/* 检测到多个模型时，允许用户指定用哪一个（含自己命名/自己训练的模型）。 */
+.ai-quick-model-pick {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: .7rem;
+  padding: .5rem .7rem;
+  border: 1px solid rgba(173, 149, 255, .14);
+  border-radius: .6rem;
+  background: rgba(255, 255, 255, .02);
+}
+
+.ai-quick-model-pick span {
+  flex: 0 0 auto;
+  color: rgba(211, 203, 238, .55);
+  font-size: .66rem;
+  white-space: nowrap;
+}
+
+.ai-quick-model-pick select {
+  flex: 1;
+  min-width: 0;
+  padding: .35rem .5rem;
+  border: 1px solid rgba(173, 149, 255, .22);
+  border-radius: .45rem;
+  background: rgba(9, 12, 28, .92);
+  color: #eeeaff;
+  font: 600 .68rem/1.2 inherit;
+}
+
+.ai-quick-browser {
+  position: relative;
+  margin-top: .9rem;
+  padding: .8rem;
+  border: 1px solid rgba(0, 229, 204, .16);
+  border-radius: .7rem;
+  background: rgba(0, 229, 204, .05);
+}
+
+.ai-quick-progress {
+  overflow: hidden;
+  height: .45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .07);
+}
+
+.ai-quick-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8b7aff, #00e5cc);
+  transition: width .2s ease;
+}
+
+.ai-quick-browser p {
+  display: flex;
+  gap: .5rem;
+  margin: .45rem 0 0;
+  color: rgba(211, 203, 238, .55);
+  font-size: .64rem;
+}
+
+.ai-quick-browser strong {
+  color: #aef8ea;
+}
+
+/* 本站 CharLSTM：零安装，几 MB 权重直接在页面里跑。 */
+.ai-quick-own {
+  position: relative;
+  display: grid;
+  gap: .75rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(0, 229, 204, .22);
+  border-radius: .9rem;
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(0, 229, 204, .08), transparent 62%),
+    rgba(0, 229, 204, .03);
+}
+
+.ai-quick-own-head {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+
+.ai-quick-own-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: .7rem;
+  background: rgba(0, 229, 204, .1);
+  color: #7ff0dd;
+}
+
+.ai-quick-own-icon svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.ai-quick-own-head div {
+  display: grid;
+  gap: .15rem;
+}
+
+.ai-quick-own-head strong {
+  color: #eeeaff;
+  font-size: .84rem;
+}
+
+.ai-quick-own-head small {
+  color: rgba(211, 203, 238, .55);
+  font-size: .68rem;
+  line-height: 1.55;
+}
+
+.ai-quick-own-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.ai-quick-own-row select {
+  flex: 1;
+  min-width: 8rem;
+  padding: .5rem .55rem;
+  border: 1px solid rgba(0, 229, 204, .22);
+  border-radius: .5rem;
+  background: rgba(9, 12, 28, .92);
+  color: #eeeaff;
+  font: 600 .7rem/1.2 inherit;
+}
+
+.ai-quick-own-run {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  flex: 0 0 auto;
+  padding: .5rem .8rem;
+  border: 1px solid rgba(0, 229, 204, .4);
+  border-radius: .5rem;
+  background: linear-gradient(135deg, rgba(0, 229, 204, .16), rgba(139, 122, 255, .18));
+  color: #d9fff8;
+  cursor: pointer;
+  font: 700 .7rem/1.2 inherit;
+  white-space: nowrap;
+}
+
+.ai-quick-own-run:hover:not(:disabled) {
+  border-color: rgba(0, 229, 204, .62);
+}
+
+.ai-quick-own-run:disabled {
+  cursor: default;
+  opacity: .7;
+}
+
+.ai-quick-own-run svg {
+  width: .8rem;
+  height: .8rem;
+}
+
+.ai-quick-own-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .9rem;
+  color: rgba(211, 203, 238, .45);
+  font-size: .64rem;
+}
+
+.ai-quick-own-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  color: rgba(169, 255, 240, .8);
+  text-decoration: none;
+}
+
+.ai-quick-own-foot a:hover {
+  color: #a9fff0;
+  text-decoration: underline;
+}
+
+.ai-quick-own-foot svg {
+  width: .75rem;
+  height: .75rem;
+}
+
+.ai-quick-or {
+  margin: 1rem 0 -.25rem;
+  color: rgba(211, 203, 238, .42);
+  font-size: .64rem;
+}
+
+.ai-quick-installer {
+  position: relative;
+  display: grid;
+  gap: .85rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px dashed rgba(173, 149, 255, .26);
+  border-radius: .9rem;
+  background: rgba(139, 122, 255, .04);
+}
+
+.ai-quick-installer-head {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+
+.ai-quick-installer-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: .7rem;
+  background: rgba(0, 229, 204, .1);
+  color: #7ff0dd;
+}
+
+.ai-quick-installer-icon svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.ai-quick-installer-head div {
+  display: grid;
+  gap: .15rem;
+}
+
+.ai-quick-installer-head strong {
+  color: #eeeaff;
+  font-size: .84rem;
+}
+
+.ai-quick-installer-head small {
+  color: rgba(211, 203, 238, .52);
+  font-size: .67rem;
+  line-height: 1.5;
+}
+
+.ai-quick-model-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .45rem;
+}
+
+.ai-quick-model-options button {
+  position: relative;
+  display: grid;
+  gap: .15rem;
+  padding: .62rem .7rem;
+  border: 1px solid rgba(173, 149, 255, .14);
+  border-radius: .65rem;
+  background: rgba(255, 255, 255, .02);
+  color: #eeeaff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.ai-quick-model-options button.is-selected {
+  border-color: rgba(0, 229, 204, .55);
+  background: rgba(0, 229, 204, .08);
+}
+
+.ai-quick-model-options strong {
+  font-size: .74rem;
+}
+
+.ai-quick-model-options small {
+  color: rgba(211, 203, 238, .48);
+  font-size: .62rem;
+  line-height: 1.45;
+}
+
+.ai-quick-model-options svg {
+  position: absolute;
+  top: .45rem;
+  right: .45rem;
+  width: .75rem;
+  height: .75rem;
+  color: #5ff1d9;
+}
+
+.ai-quick-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  padding: .72rem .9rem;
+  border: 1px solid rgba(0, 229, 204, .4);
+  border-radius: .68rem;
+  background: rgba(0, 229, 204, .12);
+  color: #a9fff0;
+  cursor: pointer;
+  font: 700 .76rem/1.1 inherit;
+  overflow-wrap: anywhere;
+}
+
+.ai-quick-download:hover {
+  background: rgba(0, 229, 204, .18);
+}
+
+.ai-quick-download svg {
+  flex: 0 0 auto;
+  width: .95rem;
+  height: .95rem;
+}
+
+.ai-quick-downloaded {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  margin: 0;
+  color: #a9fff0;
+  font-size: .65rem;
+}
+
+.ai-quick-downloaded svg {
+  width: .8rem;
+  height: .8rem;
+}
+
+.ai-quick-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ai-quick-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  padding: .6rem;
+  border-radius: .55rem;
+  background: rgba(255, 255, 255, .025);
+}
+
+.ai-quick-steps li > span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  background: rgba(139, 122, 255, .2);
+  color: #d3c9ff;
+  font-size: .6rem;
+  font-weight: 800;
+}
+
+.ai-quick-steps div {
+  display: grid;
+  gap: .12rem;
+}
+
+.ai-quick-steps strong {
+  color: #eeeaff;
+  font-size: .7rem;
+}
+
+.ai-quick-steps small {
+  color: rgba(211, 203, 238, .48);
+  font-size: .62rem;
+  line-height: 1.5;
+}
+
+.ai-quick-note {
+  display: flex;
+  align-items: flex-start;
+  gap: .4rem;
+  margin: 0;
+  color: rgba(190, 255, 244, .62);
+  font-size: .64rem;
+  line-height: 1.6;
+}
+
+.ai-quick-note svg {
+  flex: 0 0 auto;
+  width: .8rem;
+  height: .8rem;
+  margin-top: .1rem;
+  color: #72e9d6;
+}
+
+.ai-quick-hint {
+  margin: 0;
+  color: rgba(211, 203, 238, .4);
+  font-size: .62rem;
+  line-height: 1.6;
+}
+
+.ai-quick-foot {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem .9rem;
+  margin-top: 1rem;
+  padding-top: .8rem;
+  border-top: 1px solid rgba(173, 149, 255, .1);
+}
+
+.ai-quick-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(198, 186, 255, .72);
+  cursor: pointer;
+  font: 600 .68rem/1.2 inherit;
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
+
+.ai-quick-link:hover {
+  color: #dcd3ff;
+}
+
+.ai-quick-link svg {
+  width: .78rem;
+  height: .78rem;
+}
+
+.ai-quick-detected {
+  margin-left: auto;
+  color: rgba(211, 203, 238, .42);
+  font-size: .62rem;
+}
+
+@media (max-width: 760px) {
+  .ai-quick-start {
+    padding: 1.15rem;
+  }
+
+  .ai-quick-head {
+    display: grid;
+    gap: .55rem;
+  }
+
+  .ai-quick-badge {
+    justify-self: start;
+  }
+
+  .ai-quick-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .ai-quick-model-options,
+  .ai-quick-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-quick-status {
+    align-items: flex-start;
+  }
+
+  .ai-quick-detected {
+    width: 100%;
+    margin-left: 0;
+  }
+}

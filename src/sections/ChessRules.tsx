@@ -11,14 +11,17 @@ import { semanticHighlight } from '@/lib/semanticHighlight';
 
 import type { TabKey } from './chessRulesModel';
 import { ChessGameBoard } from './ChessGameBoard';
+import { poisonData, cheeseData, tabs } from './chessRulesModel';
 import {
-  tierColors,
-  tierBgColors,
-  tierIcons,
-  poisonData,
-  cheeseData,
-  tabs,
-} from './chessRulesModel';
+  DIAMOND_TIER,
+  VALUE_LADDER,
+  stripStar,
+  tierBgClass,
+  tierColorClass,
+  tierIcon,
+  tierOrder,
+  tierText,
+} from '@/data/chessValue';
 
 export default function ChessRules() {
   const { ref, isVisible } = useScrollReveal();
@@ -125,13 +128,44 @@ export default function ChessRules() {
             className="space-y-4"
           >
             <p className="text-xs text-nc-text-muted">{L("* 表示该棋子进入敌方英语（L）十字1-2格禁区会被消灭")}</p>
+
+            {/* 价值阶梯：只表示高低，不表示分数 */}
+            <div className="rounded-xl border border-nc-violet/10 bg-nc-bg-secondary p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <span className="text-[11px] font-medium text-nc-text-secondary">{L("价值阶梯")}</span>
+                <span className="text-[10px] text-nc-text-muted">{L("颜色＋罗马＝高低；钻不计价值")}</span>
+              </div>
+              <div className="overflow-x-auto">
+                <div className="flex items-stretch gap-1 min-w-max">
+                  {[DIAMOND_TIER, ...VALUE_LADDER].map((tier) => {
+                    const piecesHere = chessPieceTiers.filter((piece) => stripStar(piece.tier) === tier.label);
+                    const count = piecesHere.reduce((sum, piece) => sum + piece.count, 0);
+                    const used = piecesHere.length > 0;
+                    return (
+                      <div
+                        key={tier.label}
+                        className={`w-[54px] rounded-lg border px-1 py-1.5 text-center ${
+                          used ? tierBgClass(tier.label) : 'bg-nc-bg border-nc-violet/10 opacity-50'
+                        }`}
+                      >
+                        <div className={`text-[11px] font-medium leading-tight ${tierColorClass(tier.label)}`}>
+                          {tierText(tier.label)}
+                        </div>
+                        <div className="text-[9px] text-nc-text-muted font-mono mt-0.5 h-3">
+                          {count > 0 ? `×${count}` : ''}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {chessPieceTiers.map((piece, i) => {
-                const tierKey = piece.tier.replace('*', '');
-                const colorClass = tierColors[tierKey] || 'text-gray-300';
-                const bgClass = tierBgColors[tierKey] || 'bg-gray-500/8 border-gray-500/15';
-                const tierIdx = Object.keys(tierColors).indexOf(tierKey);
-                const icon = tierIcons[Math.min(tierIdx, tierIcons.length - 1)] || '○';
+              {[...chessPieceTiers].sort((a, b) => tierOrder(a.tier) - tierOrder(b.tier)).map((piece, i) => {
+                const colorClass = tierColorClass(piece.tier);
+                const bgClass = tierBgClass(piece.tier);
+                const icon = tierIcon(piece.tier);
                 return (
                   <motion.div
                     key={piece.letter}
@@ -148,7 +182,7 @@ export default function ChessRules() {
                     </div>
                     <p className={`text-sm font-medium ${pieceTierColorMap[piece.name] || 'text-nc-text'}`}>{piece.name}</p>
                     <div className="flex items-center justify-between mt-2">
-                      <span className={`text-xs font-medium ${colorClass}`}>{piece.tier}</span>
+                      <span className={`text-xs font-medium ${colorClass}`}>{tierText(piece.tier)}</span>
                       <span className="font-mono text-xs text-nc-text-muted">×{piece.count}</span>
                     </div>
                   </motion.div>
@@ -215,6 +249,9 @@ export default function ChessRules() {
             className="space-y-4"
           >
             {/* Cheese reference */}
+            <p className="text-xs text-nc-text-muted">
+              {L("右侧徽章＝该层中毒后的价值等级（免疫层不变）；— 表示已被移除")}
+            </p>
             <div className="bg-nc-bg-secondary border border-[#F59E0B]/15 rounded-xl p-4 sm:p-5">
               <h4 className="text-sm font-semibold text-[var(--aurora-brand-amber)] mb-3 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4" />
@@ -258,7 +295,14 @@ export default function ChessRules() {
                     </span>
                     <div className="min-w-0">
                       <h3 className="text-sm font-bold text-nc-text truncate">{semanticHighlight(entry.piece)}</h3>
-                      {!entry.immune && <p className="text-[10px] text-nc-text-muted font-mono truncate">{entry.letter}</p>}
+                      {!entry.immune && (
+                        <p className="text-[10px] text-nc-text-muted font-mono truncate">
+                          {entry.letter}
+                          {entry.base && (
+                            <> · {L("原等级")} <span className={tierColorClass(entry.base)}>{tierText(entry.base)}</span></>
+                          )}
+                        </p>
+                      )}
                     </div>
                     {entry.immune && (
                       <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-nc-violet/15 text-nc-violet font-medium shrink-0">
@@ -270,29 +314,43 @@ export default function ChessRules() {
                       <p className="text-xs text-nc-text-muted text-center py-2">{L("不受中毒影响")}</p>
                     ) : (
                       <div className="space-y-1">
-                        {entry.levels.map((level, idx) => (
-                          <div
-                            key={idx}
-                            className={`flex items-start gap-2 px-2 py-1.5 rounded text-xs ${
-                              level === '免疫'
-                                ? 'bg-nc-violet/8 text-nc-text'
-                                : level === '被移除'
-                                ? 'bg-[#EF4444]/15 text-[var(--aurora-brand-red)]'
-                                : 'bg-[#EF4444]/6 text-nc-text'
-                            }`}
-                          >
-                            <span className={`inline-block w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center shrink-0 mt-0.5 ${
-                              level === '免疫'
-                                ? 'bg-nc-violet/20 text-nc-violet'
-                                : level === '被移除'
-                                ? 'bg-[#EF4444]/25 text-[var(--aurora-brand-red)]'
-                                : 'bg-[#EF4444]/15 text-[var(--aurora-brand-red)]'
-                            }`}>
-                              {idx + 1}
-                            </span>
-                            <span className="leading-snug">{semanticHighlight(level)}</span>
-                          </div>
-                        ))}
+                        {entry.levels.map((stage, idx) => {
+                          const removed = stage.effect === '被移除';
+                          const immune = stage.effect === '免疫';
+                          const range = stage.to && stage.to !== stage.from
+                            ? `−${stage.from}～−${stage.to}`
+                            : `−${stage.from}`;
+                          return (
+                            <div
+                              key={idx}
+                              className={`flex items-center gap-2 px-2 py-1.5 rounded text-xs ${
+                                removed
+                                  ? 'bg-[#EF4444]/15'
+                                  : immune
+                                  ? 'bg-nc-violet/8'
+                                  : 'bg-[#EF4444]/6'
+                              }`}
+                            >
+                              <span className={`min-w-[46px] px-1 py-0.5 rounded-full text-center text-[9px] font-bold shrink-0 ${
+                                removed
+                                  ? 'bg-[#EF4444]/25 text-[var(--aurora-brand-red)]'
+                                  : immune
+                                  ? 'bg-nc-violet/20 text-nc-violet'
+                                  : 'bg-[#EF4444]/15 text-[var(--aurora-brand-red)]'
+                              }`}>
+                                {range}
+                              </span>
+                              <span className="leading-snug flex-1 min-w-0">{semanticHighlight(stage.effect)}</span>
+                              {stage.tier ? (
+                                <span className={`text-[10px] font-medium shrink-0 ${tierColorClass(stage.tier)}`}>
+                                  {tierText(stage.tier)}
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-nc-text-muted shrink-0">—</span>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                     {entry.note && <p className="mt-2 text-[10px] text-nc-text-muted border-t border-nc-violet/10 pt-1.5">{semanticHighlight(entry.note)}</p>}

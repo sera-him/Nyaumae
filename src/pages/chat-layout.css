@@ -284,6 +284,27 @@ main.aurora-site-main--chat {
 .original-chat-notice span { min-width: 0; }
 .original-chat-notice svg { flex: 0 0 auto; width: 14px; }
 .original-chat-notice button { display: grid; place-items: center; margin-left: auto; padding: 2px; border: 0; background: transparent; cursor: pointer; }
+/* AI 未配置时，空对话里的「一键开启」入口（跟随各主题的 --oc-* 变量）。 */
+.original-chat-setup-cta {
+  display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 12px;
+  border: 1px dashed color-mix(in srgb, var(--oc-accent) 45%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--oc-accent) 8%, transparent);
+}
+.original-chat-setup-cta > svg { flex: 0 0 auto; width: 16px; color: var(--oc-accent); }
+.original-chat-setup-cta > div { display: grid; gap: 2px; min-width: 0; }
+.original-chat-setup-cta strong { color: var(--oc-ink); font-size: 12px; }
+.original-chat-setup-cta span { color: var(--oc-ink-soft); font-size: 11px; line-height: 1.5; }
+.original-chat-setup-cta a {
+  display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 6px 10px;
+  border-radius: 10px; background: color-mix(in srgb, var(--oc-accent) 16%, transparent);
+  color: var(--oc-accent); font-size: 11px; font-weight: 600; text-decoration: none; white-space: nowrap;
+}
+.original-chat-setup-cta a svg { width: 12px; }
+@media (max-width: 560px) {
+  .original-chat-setup-cta { flex-wrap: wrap; }
+  .original-chat-setup-cta a { margin-left: 26px; }
+}
 .original-chat-editing { margin: 0 8px 6px; color: var(--oc-ink-editing); font-size: 11px; }
 .original-chat-editing button { margin-left: 6px; border: 0; background: transparent; color: var(--oc-ink-edit-btn); cursor: pointer; }
 .original-chat-rich-message { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }

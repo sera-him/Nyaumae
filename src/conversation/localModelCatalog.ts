@@ -56,9 +56,9 @@ function huggingFaceDownload(repo: string): LocalModelDownload {
 function bundledWeights(fileName: string): LocalModelDownload {
   return {
     kind: 'local',
-    command: `public/models/nyaumae-charlstm/${fileName}`,
+    command: 'py scripts/charlstm_serve.py --models-dir public/models/nyaumae-charlstm --port 8000',
     sourceUrl: '',
-    note: '权重是本站训练产出的 PyTorch 检查点，已经放在上面的路径里，不来自 Ollama 或 Hugging Face；它是字符级续写模型，不是对话模型。',
+    note: `public/models/nyaumae-charlstm/${fileName}。普通用户不用跑这条命令：在 AI 设置页点「在浏览器里运行」即可，权重会直接在页面里加载；这条命令只是离线/自建服务的进阶用法。`,
   };
 }
 
@@ -131,7 +131,9 @@ const NYAUMAE_TIER_DEFINITIONS: LocalModelTierDefinition[] = [
     hardware: '任意现代设备',
     description: 'Nyaumae CharLSTM 0.56M · 本站语料训练的原版字符级 LSTM',
     deviceModel: 'nyaumae-charlstm-0.56m',
-    download: bundledWeights('nyaumae-charlstm-0.56m.pt'),
+    browserModel: 'nyaumae-charlstm-0.56m',
+    browserDownload: '约 2.3 MB',
+    download: bundledWeights('nyaumae-charlstm-0.56m.npz'),
   },
   {
     id: 'nym_1_25m',
@@ -141,7 +143,9 @@ const NYAUMAE_TIER_DEFINITIONS: LocalModelTierDefinition[] = [
     hardware: '任意现代设备',
     description: 'Nyaumae CharLSTM 1.25M · 全类目语料加正则化的改进版',
     deviceModel: 'nyaumae-charlstm-1.25m',
-    download: bundledWeights('nyaumae-charlstm-1.25m.pt'),
+    browserModel: 'nyaumae-charlstm-1.25m',
+    browserDownload: '约 4.6 MB',
+    download: bundledWeights('nyaumae-charlstm-1.25m.npz'),
   },
 ];
 

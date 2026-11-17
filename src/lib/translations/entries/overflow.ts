@@ -108,6 +108,8 @@ export const OVERFLOW_TRANSLATIONS: Record<string, string> = {
   '本站训练的权重': 'Weights trained on this site',
   '这是本站训练的原始权重。': 'These are raw weights trained on this site.',
   '它不是 Ollama 包，也不是 Hugging Face 仓库，Ollama 与 LM Studio 无法直接加载 .pt；要接进对话页，请用“其他本地服务”并配一个 OpenAI 兼容的封装接口。': 'They are not an Ollama package or a Hugging Face repository; Ollama and LM Studio cannot load a raw .pt. To use them in chat, choose "Other local service" and point it at an OpenAI-compatible wrapper.',
+  '它不是 Ollama 包，也不是 Hugging Face 仓库。上方的命令会启动仓库自带的 scripts/charlstm_serve.py，服务起来后按 http://127.0.0.1:8000/v1 连接即可。': 'They are not an Ollama package or a Hugging Face repository. The command above starts the bundled scripts/charlstm_serve.py; once it runs, connect to http://127.0.0.1:8000/v1.',
+  '已切到“其他本地服务”。先用下方命令启动自带服务，再保存并测试。': 'Switched to "Other local service". Start the bundled server with the command below, then save and test.',
   '本站权重文件路径已复制。': 'The bundled weights path is copied.',
   '这是本站训练的 .pt 原始权重，不是 Ollama 包。Ollama 无法加载它，请切换到“其他本地服务”，并填入 OpenAI 兼容封装接口的地址。': 'These are raw .pt weights trained on this site, not an Ollama package. Ollama cannot load them; switch to "Other local service" and enter the OpenAI-compatible wrapper endpoint.',
   '未知内存': 'unknown memory',

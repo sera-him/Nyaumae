@@ -1066,8 +1066,8 @@ export default function WorldSettings() {
 
         <CollapsibleCard
           id="setting-miia-school"
-          title={semanticHighlight("咪呀的学校")}
-          summary={semanticHighlight("老师、摆位表、守时犬、45 分钟一节课、保险箱与陷阱——3 年级学校的十条运行规则")}
+          title={semanticHighlight(_en ? "Miia’s school" : "咪呀的学校")}
+          summary={semanticHighlight(_en ? "Teachers, layout books, timekeeper hounds, critical sections, the watchdog, the shared desk — twelve operating rules of a third-grade school" : "老师、摆位表、守时犬、临界区、看门狗、公共桌子——3 年级学校的十二条运行规则")}
           icon={<GraduationCap className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
           titleColor="text-nc-text"
           borderColor="border-[#00E5CC]/15"
@@ -1083,7 +1083,7 @@ export default function WorldSettings() {
                     <span className="text-nc-cyan/60 font-mono text-xs mr-2">{String(i + 1).padStart(2, '0')}</span>
                     {semanticHighlight(rule.title)}
                   </h4>
-                  <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlightProse(rule.content)}</p>
+                  <p className="text-sm text-nc-text-secondary leading-relaxed whitespace-pre-wrap">{semanticHighlightProse(rule.content)}</p>
                 </div>
               ))}
             </div>
@@ -1338,6 +1338,13 @@ export default function WorldSettings() {
 
 
         {/* zam-zam 架空病：5°C 闭眼，皮肤视觉 */}
+        {/* ===== 附录：病症、碎片与游戏（不属六分区） ===== */}
+        <div className="mt-16 mb-6 pt-8 border-t-2 border-[#8B5CF6]/20 scroll-mt-[100px]">
+          <p className="mb-1 font-mono text-[10px] tracking-[0.3em] text-nc-text-muted">APPENDIX</p>
+          <h3 className="text-base sm:text-lg font-bold tracking-wide text-nc-text">{_en ? 'Appendix: ailments, fragments and games' : '附录：病症、碎片与游戏'}</h3>
+          <p className="mt-1 text-xs leading-relaxed text-nc-text-muted">{_en ? 'Standalone fragments and play material, kept apart from the six rule parts above.' : '独立的碎片与游戏素材，不属于上面六个规则分区。'}</p>
+        </div>
+
         <CollapsibleCard
           id="setting-zam-zam"
           title="zam-zam"

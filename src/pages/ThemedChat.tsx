@@ -4,10 +4,10 @@ import { L } from '@/lib/translations/manual';
 import type { CSSProperties, FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  ArrowUpRight, BookOpen, Bot, BrainCircuit, Check, ChevronDown, ChevronRight,
+  ArrowRight, ArrowUpRight, BookOpen, Bot, BrainCircuit, Check, ChevronDown, ChevronRight,
   Compass, Copy, Edit3, Eraser, FileDown, Home, Menu, MessageCircle,
   MoreHorizontal, Plus, RotateCcw, Search, Send, Settings2, Shield, SmilePlus,
-  Sparkles, Square, Trash2, UserRound, X,
+  Sparkles, Square, Trash2, UserRound, X, Zap,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { characters } from '@/data/characters';
@@ -16,6 +16,7 @@ import { LEVEL_RULES, levelSystem } from '@/conversation/levelSystem';
 import { memoryManager } from '@/conversation/memoryManager';
 import { maskSecret } from '@/conversation/privacy';
 import { conversationRepository } from '@/conversation/storage';
+import { preloadCharLstmModel } from '@/conversation/charlstmRuntime';
 import type {
   Citation, Conversation, ConversationMode, Message, MessageStatus,
 } from '@/conversation/types';
@@ -23,6 +24,7 @@ import { CHAT_STICKERS, parseMessageParts, stickerToken } from '@/conversation/s
 import ResponsiveImage, { THUMBNAIL_IMAGE_WIDTHS } from '@/components/ResponsiveImage';
 import { readStorageValue, writeStorageValue } from '@/lib/browserStorage';
 import { getMotionProfile } from '@/lib/motionPolicy';
+import { getLocale } from '@/lib/i18n';
 import { useAppViewportHeight } from '@/hooks/useAppViewportHeight';
 import './ThemedChat.css';
 
@@ -93,6 +95,10 @@ const NCTB_PROCTOR_TITLE = 'NCTB 认知实验主试';
 interface ChatDeepLink {
   mode: ConversationMode | null;
   prompt: string;
+}
+
+function displayModelName(model: string): string {
+  return /^nyaumae-charlstm-/i.test(model) ? model.replace(/^nyaumae-charlstm-/i, 'NYM ').toUpperCase() : model;
 }
 
 function readChatDeepLink(search: string): ChatDeepLink {
@@ -198,6 +204,7 @@ function messageName(message: Message, assistant: string): string {
 
 export default function ThemedChat({ theme }: ThemedChatProps) {
   const p = theme;
+  const _en = getLocale() === 'en';
   const copy = themeCopy[theme];
   const location = useLocation();
   useAppViewportHeight();
@@ -302,6 +309,18 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
     });
     // Repository hydration is intentionally performed once when the themed shell mounts.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * 已启用本站模型时，进聊天页先把权重抓到内存，第一条消息就不用等下载。
+   */
+  useEffect(() => {
+    const config = conversationRepository.getAiConfig();
+    if (!config.enabled || config.provider !== 'browser' || !config.model.startsWith('nyaumae-charlstm-')) {
+      return undefined;
+    }
+    const id = window.setTimeout(() => preloadCharLstmModel(config.model), 600);
+    return () => window.clearTimeout(id);
   }, []);
 
   useEffect(() => {
@@ -833,7 +852,7 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
             <div className={`${p}-model-mark`}><Bot /></div>
             <div>
               <p><strong>{selectedConversation?.title ?? copy.assistant}</strong><button ref={controlsButtonRef} type="button" onClick={() => setShowControls((value) => !value)} aria-label={L("对话设置")} aria-expanded={showControls}><ChevronDown /></button></p>
-              <span><i />{aiConfig.enabled ? `${aiConfig.providerLabel} · ${selectedConversation?.model ?? aiConfig.model}` : '本地星光预览 · 记忆与护栏运行中'}</span>
+              <span><i />{aiConfig.enabled ? `${aiConfig.providerLabel} · ${displayModelName(selectedConversation?.model ?? aiConfig.model)}` : '本地星光预览 · 记忆与护栏运行中'}</span>
             </div>
           </div>
           <div className={`${p}-header-actions`}>
@@ -876,6 +895,16 @@ export default function ThemedChat({ theme }: ThemedChatProps) {
                 <div className={`${p}-suggestions`}>
                   {suggestions.map(([emoji, title, subtitle, prompt]) => <button type="button" key={title} onClick={() => setInput(prompt)}><span>{emoji}</span><div><strong>{title}</strong><small>{subtitle}</small></div><ChevronRight /></button>)}
                 </div>
+                {!aiConfig.enabled && (
+                  <div className="original-chat-setup-cta">
+                    <Zap />
+                    <div>
+                      <strong>{_en ? 'AI is not connected yet' : 'AI 还没有连接'}</strong>
+                      <span>{_en ? 'One click connects a model on this computer or in the browser. No parameters to fill in.' : '点一下就能连上本机或浏览器里的模型，不用填任何参数。'}</span>
+                    </div>
+                    <Link to="/settings/ai">{_en ? 'Turn on AI' : '一键开启'}<ArrowRight /></Link>
+                  </div>
+                )}
               </div>
             </article>
           )}

@@ -825,6 +825,29 @@
   padding-top: 1rem;
 }
 
+/* 手动配置：默认折叠，展开后内部卡片降一级视觉重量，避免卡片套卡片。 */
+.ai-manual-setup summary {
+  font-size: .8rem;
+}
+
+.ai-manual-setup summary small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-manual-body {
+  display: block;
+  padding-top: .2rem;
+}
+
+.ai-manual-body .ai-setup-card {
+  margin-top: .85rem;
+  border-color: rgba(173, 149, 255, .1);
+  background: rgba(255, 255, 255, .015);
+  box-shadow: none;
+}
+
 /* Native <details> height animation via the grid 0fr→1fr trick: the summary
    stays put while the body collapses to zero height and springs open. */
 .ai-advanced > .ai-advanced-collapse {

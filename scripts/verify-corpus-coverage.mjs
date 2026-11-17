@@ -66,6 +66,8 @@ const IGNORE = [
   [/^lib[\\/]renderStoryContent\.tsx$/, '故事渲染器：字符串为 CSS 类名/样式值'],
   [/^App\.tsx$/, '应用外壳：事件名与 CSS 类名，无散文'],
   [/^data[\\/]generated[\\/]/, '生成产物（SKIP_PATH 已覆盖，双保险）'],
+  [/^conversation[\\/]oneClickInstaller\.ts$/, '一键安装包脚本：生成下载用的 .bat/.sh 文本，非站点散文'],
+  [/^conversation[\\/]charlstmRuntime\.ts$/, '浏览器端模型运行时：解包/解码错误提示，非站点散文'],
 ];
 
 const zhCharCount = (s) => (s.match(/[㐀-䶿一-鿿豈-﫿]/g) || []).length;

@@ -87,31 +87,34 @@ export const rainyDay = `下雨天，小猫帮我打伞，让我帮它找钥匙`
 
 export const p2rDefinition = `p₂r = -log₂r`;
 
+// 等级 = 颜色 + 罗马数字（价值次序，不是分数）。
+// 钻是关键棋子，不计价值，因此不带罗马数字。
+// 星号是额外含义（进敌方英语禁区会被消灭），始终原样保留在等级字符串末尾。
 export const chessPieceTiers = [
-  { letter: 'S', name: '星舰', tier: '钻石', count: 0 },
-  { letter: 'U', name: '太空人', tier: '钻石', count: 0 },
-  { letter: 'G', name: '猫娘', tier: '钻石*', count: 0 },
-  { letter: 'K', name: '王', tier: '钻石', count: 1 },
+  { letter: 'S', name: '星舰', tier: '钻', count: 0 },
+  { letter: 'U', name: '太空人', tier: '钻', count: 0 },
+  { letter: 'G', name: '猫娘', tier: '钻*', count: 0 },
+  { letter: 'K', name: '王', tier: '钻', count: 1 },
   { letter: 'M', name: '老鼠', tier: '辉金*', count: 1 },
-  { letter: 'Q', name: '后', tier: '金色', count: 1 },
-  { letter: 'H', name: '巨鲸', tier: '金色*', count: 1 },
-  { letter: 'O', name: '鸵鸟', tier: '金色*', count: 0 },
-  { letter: 'R', name: '车', tier: '紫色*', count: 2 },
-  { letter: 'C', name: '大炮', tier: '紫色*', count: 2 },
-  { letter: 'J', name: '圣骑士', tier: '紫色', count: 1 },
-  { letter: 'Y', name: '缅因猫', tier: '蓝色*', count: 1 },
-  { letter: 'L', name: '英语', tier: '蓝色', count: 2 },
-  { letter: 'B', name: '教', tier: '蓝色', count: 2 },
-  { letter: 'A', name: '天线', tier: '蓝色', count: 2 },
-  { letter: 'W', name: '女巫', tier: '蓝色*', count: 2 },
-  { letter: 'IW', name: '反女巫', tier: '蓝色*', count: 0 },
-  { letter: 'N', name: '马', tier: '蓝色*', count: 2 },
-  { letter: 'T', name: '猫', tier: '绿色*', count: 3 },
-  { letter: 'E', name: '象', tier: '绿色*', count: 3 },
-  { letter: 'P', name: '兵', tier: '白色*', count: 6 },
-  { letter: 'Z', name: '骷髅兵', tier: '白色*', count: 0 },
-  { letter: 'IZ', name: '反骷髅兵', tier: '白色*', count: 0 },
-  { letter: 'X', name: '火箭', tier: '白色', count: 0 },
+  { letter: 'Q', name: '后', tier: '金III', count: 1 },
+  { letter: 'H', name: '巨鲸', tier: '金II*', count: 1 },
+  { letter: 'O', name: '鸵鸟', tier: '金I*', count: 0 },
+  { letter: 'J', name: '圣骑士', tier: '紫III', count: 1 },
+  { letter: 'R', name: '车', tier: '紫II*', count: 2 },
+  { letter: 'C', name: '大炮', tier: '紫I*', count: 2 },
+  { letter: 'A', name: '天线', tier: '蓝III', count: 2 },
+  { letter: 'W', name: '女巫', tier: '蓝III*', count: 2 },
+  { letter: 'IW', name: '反女巫', tier: '蓝III*', count: 0 },
+  { letter: 'L', name: '英语', tier: '蓝II', count: 2 },
+  { letter: 'B', name: '教', tier: '蓝II', count: 2 },
+  { letter: 'N', name: '马', tier: '蓝I*', count: 2 },
+  { letter: 'Y', name: '缅因猫', tier: '蓝I*', count: 1 },
+  { letter: 'T', name: '猫', tier: '绿III*', count: 3 },
+  { letter: 'E', name: '象', tier: '绿I*', count: 3 },
+  { letter: 'X', name: '火箭', tier: '白III', count: 0 },
+  { letter: 'P', name: '兵', tier: '白II*', count: 6 },
+  { letter: 'Z', name: '骷髅兵', tier: '白I*', count: 0 },
+  { letter: 'IZ', name: '反骷髅兵', tier: '白I*', count: 0 },
 ];
 
 export const chessDiamondWarning = `如果你输了，你的钻石就会碎掉。`;

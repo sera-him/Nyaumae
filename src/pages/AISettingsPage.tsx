@@ -40,6 +40,7 @@ import { conversationRepository } from '@/conversation/storage';
 import type { AiConfig } from '@/conversation/types';
 import { exportSafeAiConfig, maskSecret, sanitizeImportedConfig, validateAiConfig } from '@/conversation/privacy';
 import { browserSupportsLocalAI, prepareBrowserModel, testModelConnection } from '@/conversation/modelAdapters';
+import { isCharLstmModelName } from '@/conversation/charlstmRuntime';
 import {
   getSyncConfig,
   getSyncStatus,
@@ -56,6 +57,7 @@ import {
   type LocalModelTier,
 } from '@/conversation/localModelCatalog';
 import { getShowOriginalImages, setShowOriginalImages, subscribeShowOriginalImages } from '@/lib/imagePreference';
+import OneClickAiSetup from '@/components/OneClickAiSetup';
 import './AISettingsPage.css';
 
 type Notice = { kind: 'success' | 'error' | 'info'; text: string } | null;
@@ -216,6 +218,8 @@ export default function AISettingsPage() {
   const [downloadText, setDownloadText] = useState('');
   const [importText, setImportText] = useState('');
   const [showTransfer, setShowTransfer] = useState(false);
+  /** 手动配置默认折叠：普通用户走一键流程，只有需要精调时才展开。 */
+  const [manualOpen, setManualOpen] = useState(false);
   /** 哪个复制按钮正在显示对勾；'' = 无。2.5s 后自隐。 */
   const [copiedAction, setCopiedAction] = useState<'command' | 'config' | ''>('');
   const [draftSaved, setDraftSaved] = useState(() => readStorageValue(AI_SETTINGS_DRAFT_KEY).value !== null);
@@ -255,6 +259,7 @@ export default function AISettingsPage() {
   const selectedTier = LOCAL_MODEL_TIERS.find((tier) => tier.id === selectedTierId) ?? LOCAL_MODEL_TIERS.find((tier) => tier.id === '1_7b')!;
   const recommended = recommendedTier(memoryGb, mode === 'browser' ? 'browser' : 'device');
   const webGpuReady = useMemo(() => browserSupportsLocalAI(), []);
+  const browserRunsInPage = mode === 'browser' && isCharLstmModelName(config.model);
   const hasUsableKey = mode !== 'cloud' || Boolean(apiKeyDraft.trim() || config.apiKey);
   const isCustomCloudModel = cloudPreset.models.length === 0 || !cloudPreset.models.includes(config.model);
   const cloudModelNotice = (_en ? CLOUD_ONLY_MODEL_NOTICES_EN : CLOUD_ONLY_MODEL_NOTICES)[config.model.trim()];
@@ -345,10 +350,52 @@ export default function AISettingsPage() {
 
   const chooseTier = (tier: LocalModelTier) => {
     setSelectedTierId(tier.id);
-    update('model', mode === 'browser' ? (tier.browserModel ?? tier.deviceModel) : (tier.ollamaModel ?? tier.deviceModel));
+    const nextModel = mode === 'browser' ? (tier.browserModel ?? tier.deviceModel) : (tier.ollamaModel ?? tier.deviceModel);
+    const needsLocalService = mode === 'device' && tier.download.kind === 'local' && runtime !== 'custom';
+    const isBundled = mode === 'device' && tier.download.kind === 'local';
+    if (needsLocalService) setRuntime('custom');
+    setConfig((current) => ({
+      ...current,
+      model: nextModel,
+      ...(isBundled ? {
+        provider: 'local' as const,
+        providerLabel: _en ? 'Local OpenAI-compatible service' : '本地 OpenAI 兼容服务',
+        baseUrl: runtime === 'custom' && current.baseUrl ? current.baseUrl : 'http://127.0.0.1:8000/v1',
+      } : {}),
+    }));
     if (mode === 'browser' && !tier.browserModel) {
       setNotice({ kind: 'info', text: _en ? `${tier.label} selected. The browser has no built-in weights of this size yet; switch to "On this computer" to run it.` : `${tier.label} 已选择。浏览器暂时没有这个尺寸的内置权重，请切换到“电脑本地”模式运行。` });
+    } else if (needsLocalService) {
+      setNotice({ kind: 'info', text: _en ? 'Switched to "Other local service". Start the bundled server with the command below, then save and test.' : '已切到“其他本地服务”。先用下方命令启动自带服务，再保存并测试。' });
+    } else {
+      setNotice(null);
     }
+  };
+
+  /**
+   * 一键面板已经自己完成了探测 / 测试 / 保存，这里只把页面状态同步过去，
+   * 并清掉手动表单的草稿，避免两套值在用户展开手动配置时打架。
+   */
+  const applyQuickSaved = (saved: AiConfig) => {
+    skipDraftWriteRef.current = true;
+    setConfig(saved);
+    setMode(initialMode(saved));
+    setCloudPresetId(findCloudPreset(saved).id);
+    setRuntime(runtimeFromConfig(saved));
+    setSelectedTierId(findModelTier(saved.model)?.id ?? selectedTierId);
+    setApiKeyDraft('');
+    clearSettingsDraft();
+    setDraftSaved(false);
+    setNotice(null);
+  };
+
+  const openManual = (nextMode?: 'cloud') => {
+    setManualOpen(true);
+    setNotice(null);
+    if (nextMode) selectMode(nextMode);
+    window.setTimeout(() => {
+      document.getElementById('manual')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 40);
   };
 
   const buildNextConfig = (): AiConfig => ({
@@ -410,7 +457,7 @@ export default function AISettingsPage() {
     testAbortRef.current = controller;
     setNotice({ kind: 'info', text: mode === 'browser' ? (_en ? 'Preparing the local browser model…' : '正在准备浏览器本地模型…') : (_en ? 'Connecting to the model…' : '正在连接模型…') });
     try {
-      if (mode === 'browser') {
+      if (mode === 'browser' && !isCharLstmModelName(next.model)) {
         setDownloadProgress(0);
         await prepareBrowserModel(next.model, (progress, text) => {
           setDownloadProgress(progress);
@@ -424,9 +471,11 @@ export default function AISettingsPage() {
       setApiKeyDraft('');
       clearSettingsDraft();
       setDraftSaved(false);
-      setDownloadProgress(mode === 'browser' ? 100 : null);
+      setDownloadProgress(mode === 'browser' && !isCharLstmModelName(next.model) ? 100 : null);
       setNotice({ kind: 'success', text: mode === 'browser'
-        ? (_en ? 'Model saved to the browser cache; you can chat offline now.' : '模型已保存在浏览器缓存中，可以离线对话。')
+        ? (isCharLstmModelName(next.model)
+          ? (_en ? 'Loaded in this page. You can start chatting.' : '模型已在页面里加载，可以开始对话了。')
+          : (_en ? 'Model saved to the browser cache; you can chat offline now.' : '模型已保存在浏览器缓存中，可以离线对话。'))
         : (_en ? 'Connected. Settings saved.' : '连接成功，设置已经保存。') });
     } catch (error) {
       setNotice({ kind: 'error', text: error instanceof Error ? error.message : (_en ? 'Connection failed. Check what you entered and retry.' : '连接失败，请检查填写内容后重试。') });
@@ -443,7 +492,7 @@ export default function AISettingsPage() {
     setNotice({ kind: 'success', text: selectedTier.download.kind === 'ollama'
       ? (_en ? 'The Ollama local model command is copied.' : 'Ollama 本地模型命令已复制。')
       : selectedTier.download.kind === 'local'
-        ? (_en ? 'The bundled weights path is copied.' : '本站权重文件路径已复制。')
+        ? (_en ? 'The bundled model start command is copied.' : '本站模型的启动命令已复制。')
         : (_en ? 'The official weights download command is copied.' : '官方权重下载命令已复制。') });
   };
 
@@ -530,19 +579,34 @@ export default function AISettingsPage() {
       <div className="aurora-container ai-settings-inner">
         <header className="ai-settings-hero">
           <div>
-            <p className="aurora-eyebrow">AI SETUP / 0.56M — 2.8T</p>
+            <p className="aurora-eyebrow">AI SETUP / LOCAL · CLOUD · BROWSER</p>
             <h1 className="aurora-title">{L("选择你的 AI")}</h1>
-            <p className="aurora-lead">{L("云端、电脑本地或浏览器内运行，一步一步完成。")}</p>
+            <p className="aurora-lead">{_en ? 'One click is enough. Expand manual setup only when you want to fine-tune.' : '一键就能开始；需要更细的控制，再展开手动配置。'}</p>
           </div>
           {config.enabled && (
             <div className="ai-current-status" data-motion-reveal>
               <span><CheckCircle2 />{L("已启用")}</span>
               <strong>{config.providerLabel || (_en ? 'AI service' : 'AI 服务')}</strong>
-              <small>{config.model}</small>
+              <small>{browserRunsInPage ? config.model.replace(/^nyaumae-charlstm-/i, 'NYM ').toUpperCase() : config.model}</small>
             </div>
           )}
         </header>
 
+        <OneClickAiSetup config={config} onSaved={applyQuickSaved} onOpenManual={openManual} />
+
+        <details
+          className="ai-setup-card ai-advanced ai-manual-setup"
+          id="manual"
+          open={manualOpen}
+          onToggle={(event) => setManualOpen(event.currentTarget.open)}
+        >
+          <summary>
+            <SlidersHorizontal />{_en ? 'Manual setup ' : '手动配置 '}
+            <small>{_en ? 'Cloud API, exact model size, existing local service' : '云端 API、指定模型尺寸、已有本地服务'}</small>
+            <ChevronDown />
+          </summary>
+          <div className="ai-advanced-collapse">
+            <div className="ai-advanced-body ai-manual-body">
         <section className="ai-setup-card" data-motion-reveal>
           <div className="ai-step-heading"><span>1</span><div><h2>{L("AI 放在哪里运行？")}</h2><p>{L("本地模式不会把对话发送给云端模型服务商。")}</p></div></div>
           <div className="ai-placement-grid">
@@ -633,9 +697,11 @@ export default function AISettingsPage() {
                 <div><Monitor /><span><small>{L("建议设备")}</small><strong>{selectedTier.hardware}</strong></span></div>
                 <p>{selectedTier.description}</p>
               </div>
-              {mode === 'browser' && <div className={`ai-capability-note ${webGpuReady ? 'is-ready' : 'is-warning'}`}>{webGpuReady ? <CheckCircle2 /> : <CircleAlert />}<span><strong>{webGpuReady ? (_en ? 'This browser supports WebGPU' : '当前浏览器支持 WebGPU') : (_en ? 'This browser has no usable WebGPU' : '当前浏览器没有可用的 WebGPU')}</strong>{webGpuReady
-                ? (_en ? ' The model will download to the browser cache and can be used offline afterwards.' : ' 模型会下载到浏览器缓存，之后可离线使用。')
-                : (_en ? ' Please use the latest Chrome/Edge, or switch to "On this computer".' : ' 请使用最新版 Chrome/Edge，或改用“电脑本地”。')}</span></div>}
+              {mode === 'browser' && (browserRunsInPage
+                ? <div className="ai-capability-note is-ready"><CheckCircle2 /><span><strong>{_en ? 'This model runs right in the page' : '这个模型直接在页面里运行'}</strong>{_en ? ' No WebGPU and no local service needed: a few MB of weights load on first use, then the browser reuses them.' : ' 不需要 WebGPU，也不需要本地服务：首次使用时加载几 MB 权重，之后浏览器会复用。'}</span></div>
+                : <div className={`ai-capability-note ${webGpuReady ? 'is-ready' : 'is-warning'}`}>{webGpuReady ? <CheckCircle2 /> : <CircleAlert />}<span><strong>{webGpuReady ? (_en ? 'This browser supports WebGPU' : '当前浏览器支持 WebGPU') : (_en ? 'This browser has no usable WebGPU' : '当前浏览器没有可用的 WebGPU')}</strong>{webGpuReady
+                  ? (_en ? ' The model will download to the browser cache and can be used offline afterwards.' : ' 模型会下载到浏览器缓存，之后可离线使用。')
+                  : (_en ? ' Please use the latest Chrome/Edge, or switch to "On this computer".' : ' 请使用最新版 Chrome/Edge，或改用“电脑本地”。')}</span></div>)}
               {mode === 'device' && selectedTier.parameters >= 7e10 && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>{L("这不是普通电脑能轻松运行的尺寸。")}</strong> {L("页面允许配置到 2.8T，但 70B 以上通常需要专业工作站、多 GPU 或分布式集群。")}</span></div>}
             </section>
 
@@ -664,7 +730,7 @@ export default function AISettingsPage() {
                             {selectedTier.download.sourceUrl && <a href={selectedTier.download.sourceUrl} target="_blank" rel="noreferrer">{L("官方来源 ")}<ExternalLink /></a>}
                           </div>
                           {(selectedTier.download.kind !== 'ollama' || runtime === 'ollama') && <button type="button" className="ai-command" onClick={() => void copyCommand()}><code>{selectedTier.download.command}</code>{copiedAction === 'command' ? <Check /> : <Copy />}</button>}
-                          {selectedTier.download.kind === 'local' && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>{L("这是本站训练的原始权重。")}</strong> {L("它不是 Ollama 包，也不是 Hugging Face 仓库，Ollama 与 LM Studio 无法直接加载 .pt；要接进对话页，请用“其他本地服务”并配一个 OpenAI 兼容的封装接口。")}</span></div>}
+                          {selectedTier.download.kind === 'local' && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>{L("这是本站训练的原始权重。")}</strong> {L("最省事的用法是切到“浏览器内”模式，点“在页面里加载并启用”，不需要 Python；上面的命令只是离线/自建服务的进阶用法，服务起来后按 http://127.0.0.1:8000/v1 连接即可。")}</span></div>}
                           {runtime === 'ollama' && selectedTier.download.kind === 'huggingface' && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>{L("Ollama 没有这个本地模型包。")}</strong> {L("不要对这个模型名使用 Ollama 命令；上面只下载真实原始权重，下载后需要支持它的推理工具。")}</span></div>}
                           {runtime !== 'ollama' && selectedTier.download.kind === 'ollama' && <p>{L("当前运行器不是 Ollama，请在它的模型管理界面中加载对应模型；Ollama 命令只适用于 Ollama。")}</p>}
                           <p>{selectedTier.download.note}</p>
@@ -716,15 +782,18 @@ export default function AISettingsPage() {
           </div>
         </details>
 
-        {notice && <div className={`ai-inline-notice is-${notice.kind}`} role={notice.kind === 'error' ? 'alert' : 'status'} aria-live="polite">{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : notice.kind === 'success' ? <CheckCircle2 /> : <ShieldCheck />}<span>{notice.text}</span>{notice.kind === 'error' && !testing && <button type="button" data-action="retry" onClick={() => void saveAndTest()}><RotateCcw />{L("重试")}</button>}</div>}
-
         {draftSaved && <p className="ai-draft-status"><Save />{L("表单草稿已保存在本机（不包含 API Key）")}</p>}
 
         <div className="ai-main-actions">
           <button type="button" className="ai-button ai-button-secondary" onClick={saveOnly} disabled={testing || !hasUsableKey}><Save />{L("仅保存")}</button>
-          <button type="button" className="ai-button ai-button-primary" data-motion-ripple="true" onClick={() => void saveAndTest()} disabled={testing || !hasUsableKey || (mode === 'browser' && !webGpuReady) || ollamaModelSelectionNeedsAttention}>{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : mode === 'browser' ? <Download /> : <Zap />}{testing ? (mode === 'browser' ? (_en ? 'Downloading & loading…' : '正在下载并加载…') : (_en ? 'Connecting…' : '正在连接…')) : mode === 'browser' ? (_en ? 'Download model & enable' : '下载模型并启用') : (_en ? 'Save & test connection' : '保存并测试连接')}</button>
+          <button type="button" className="ai-button ai-button-primary" data-motion-ripple="true" onClick={() => void saveAndTest()} disabled={testing || !hasUsableKey || (mode === 'browser' && !webGpuReady && !isCharLstmModelName(config.model)) || ollamaModelSelectionNeedsAttention}>{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : mode === 'browser' ? <Download /> : <Zap />}{testing ? (mode === 'browser' ? (_en ? 'Downloading & loading…' : '正在下载并加载…') : (_en ? 'Connecting…' : '正在连接…')) : mode === 'browser' ? (browserRunsInPage ? (_en ? 'Load this model' : '在页面里加载并启用') : (_en ? 'Download model & enable' : '下载模型并启用')) : (_en ? 'Save & test connection' : '保存并测试连接')}</button>
           {testing && <button type="button" className="ai-button ai-button-danger" onClick={() => testAbortRef.current?.abort()}><Square />{L("取消连接")}</button>}
         </div>
+            </div>
+          </div>
+        </details>
+
+        {notice && <div className={`ai-inline-notice is-${notice.kind}`} role={notice.kind === 'error' ? 'alert' : 'status'} aria-live="polite">{testing ? <LoaderCircle className="is-spinning" data-motion-loop /> : notice.kind === 'success' ? <CheckCircle2 /> : <ShieldCheck />}<span>{notice.text}</span>{notice.kind === 'error' && !testing && <button type="button" data-action="retry" onClick={() => void saveAndTest()}><RotateCcw />{L("重试")}</button>}</div>}
 
         <div className="ai-privacy-note"><ShieldCheck /><span><strong>{mode === 'cloud' ? (_en ? 'Keys are stored only on this device' : '密钥仅存储在这台设备上') : (_en ? 'Local mode does not send chats to cloud model providers' : '本地模式不会把对话发送给云端模型服务商')}</strong>{L("，配置导出中也不会包含密钥。")}</span><Link to="/chat">{L("前往 AI 对话 ")}<ExternalLink /></Link></div>
 
