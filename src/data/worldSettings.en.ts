@@ -288,15 +288,15 @@ export const miiaSchoolRulesEn = [
   },
   {
     title: 'Timekeeper hounds',
-    content: 'They are called timekeeper hounds — dogs that keep watch over the time. Every hound wears a watch. It does not bite, it does not listen to the teacher, it only listens to the watch. Each hound looks after exactly one desk — whether a child or a teacher sits there, it applies. Teachers may feed them, children may not; once a hound has eaten, it resets its watch. They are all Chinese rural dogs and they all look exactly the same, which is a bit boring — it would be more fun if they differed: border collies, golden retrievers, corgis, Shiba Inus, huskies, and so on.',
+    content: 'They are called timekeeper hounds — dogs that keep watch over the time. Every hound has a watch. It does not bite, it does not listen to the teacher, it only listens to the watch. Each hound looks after exactly one desk — whether a child or a teacher sits there, it applies. The watch runs on by itself, and nobody may reset it — not the teacher, not even the principal. They are all Chinese rural dogs and they all look exactly the same, which is a bit boring — it would be more fun if they differed: border collies, golden retrievers, corgis, Shiba Inus, huskies, and so on.',
   },
   {
     title: 'Class period',
-    content: 'A class period is 45 minutes, which is very long — ordinary schools use 40. A dog watch is about 45 minutes too, the same length as a class, and when time is up the dog chases everyone out. If a child is chased out, the teacher reassigns seats and toys; if a teacher is chased out, someone else takes over. Cleanup now takes 3 minutes, leaving about 42 minutes for class or play; back when cleanup took 20 minutes, the dogs had to wait a long time before chasing anyone out, otherwise all the time would go to cleanup, and the children could neither study nor play.',
+    content: 'A class period is 45 minutes, which is very long — ordinary schools use 40. A dog watch is about 45 minutes too, the same length as a class, and when time is up the dog chases everyone out. If a child is chased out, the teacher reassigns seats and toys; if a teacher is chased out, someone else takes over. But there is one case where the dog waits: if a child is in the middle of something that has to be done “in one breath” — say, carrying a pile of blocks from one desk to another, where setting them down halfway means the whole pile collapses — that is called a critical section. When the watch runs out, the dog already has its bark held in its mouth, but it does not hurry to bark: it waits for the child to leave the critical section, then barks at once, and only then chases people out. A few seconds late does not matter — it is only the end of class, nothing can go wrong. Cleanup now takes 3 minutes, leaving about 42 minutes for class or play; back when cleanup took 20 minutes, the dogs held the bark in their mouths for a long time, otherwise all the time would go to cleanup, and the children could neither study nor play.',
   },
   {
     title: 'The ink accident',
-    content: 'If you spill ink, the exam papers and exercise books get dirty and the dogs chase people out too; after that the teacher cleans up. This is done so nobody steps in the ink, nobody dirties anyone else, and the teacher gets to clean up properly. If you spill it, stop your hands at once, do not wipe with your hands, step back, and tell the teacher quietly. Do not run and do not push.',
+    content: 'If you spill ink, the exam papers and exercise books get dirty and the dogs chase people out too; after that the teacher cleans up. This is done so nobody steps in the ink, nobody dirties anyone else, and the teacher gets to clean up properly. If you spill it, stop your hands at once, do not wipe with your hands, step back, and tell the teacher quietly. Do not run and do not push. Note: this is not the same as a critical section. In a critical section the dog’s bark may wait a while; spilled ink is an emergency — that is a different kind of call, it cannot wait, nobody may pretend not to hear it, and the room must be cleared at once. (Equivalent to a non-maskable interrupt, NMI.)',
   },
   {
     title: 'Between classes',
@@ -833,3 +833,228 @@ export const optionPowerRulesEn = [
 /** FIRE custom definition: equation kept verbatim; Render Everything is not interpreted. */
 export const fireDefinitionNoteEn = `FIRE = Financial Independence, Render Everything
 (Note: the exact meaning of "Render Everything" is not defined in the source; this card keeps the equation only and adds no interpretation.)`;
+
+/** DB-PCF summary (English) */
+export const dbPcfNoteEn = `Dynamic Balance Parenting Mutual Aid Fund (DB-PCF): a self-funded, zero-fiscal, family-fair parenting mutual-aid system.
+
+Revenue: a dedicated consumption tax on infant and toddler goods (formula, diapers, baby food, children's clothing, toys, strollers, maternal/baby care), phased in over ten years from 3% to 24%. All revenue flows into a closed fund pool, with no draw on the general public budget.
+
+Parental leave: each parent gets 210 consecutive days of leave; the employer pays base salary during the relationship, and the fund compensates variable income loss.
+
+Subsidy calculation: the system reads S (monthly base salary), A (monthly performance), R (local monthly rent). Each period it uses binary search to find the maximum dynamic balance wage B such that total subsidy demand ≤ available pool; subsidy = max(0, (B−S)/B) × min(A, R). It tops up the gap without backstopping, lives within means, and the fund never goes negative.
+
+Vouchers for families with children 0–12: annual voucher amount = 100% of the dedicated tax actually paid by the family that year, drawn from a 20% dedicated sub-account of the tax revenue; usable only for infant/toddler purchases, no cash-out, no transfer.
+
+Buffer: years 1–5 return 10% of the dedicated tax to compliant infant-goods firms for R&D; domestic brands get an extra 3% rebate; a pricing guide prevents tax-driven price gouging.
+
+Governance: four ministries (human resources, finance, tax, statistics) jointly operate; the B algorithm is public, and pool size, B value, and disbursements are published each period.
+
+Core promise: society bears the cost of parenting, with zero fiscal burden, fairness across all families, and long-term sustainability.`;
+
+/** Unsolved: cache-hit puzzle (stripped from the "refuse to grow up" material; problem kept verbatim, unsolved) */
+export const cacheHitPuzzleNoteEn = `Unsolved algorithm puzzle: maximum achievable cache hit as a prophet.
+
+Context: locked up until you solve this — the premise being that people are still denied the right to refuse growing up and be permanently treated as children.
+
+Problem:
+- Up to 1e5 instructions; each instruction is formed from a prefix of an earlier instruction (not necessarily the immediately preceding one) plus its own segment.
+- Total length of all "own segments" ≤ 1e6.
+- Given a cache, compute the theoretical maximum cache hit rate when processing instructions in order, as an ideal prophet.
+
+Prefix-dependency rules:
+- Instructions are order-sensitive by prefix.
+- If you cached 1 2 3, input 1 3 2 only hits 1; input 3 2 1 hits nothing.
+
+(Note: this is an open unsolved problem; only the problem statement is kept here, no answer is given.)`;
+
+/** Open speculation: what happens in the immortal customizable world after Noah's Ark (no conclusion in source) */
+export const noahWorldScenarioNoteEn = `Open speculation question: what happens in the new world after Noah's Ark?
+
+Building on the two admission criteria:
+- Criterion 1: goodwill threshold (x≥0 and y≥0 and x+y>0), ~a few thousand people.
+- Criterion 2: a judge would rate me as fully criminally responsible with probability < 10%, ~several million people.
+
+Special environment of the new world:
+- Everyone is infertile (no children).
+- Nobody dies from accidents or disease (immortal).
+- Everyone can customize their own age, gender, and appearance.
+
+Question: what kind of world emerges from these several million people?
+
+(Note: this is an open speculation question with no conclusion in the source; only the question is kept, no answer is inferred.)`;
+
+/** Unlocated source: the "please drink Coca-Cola" child in The Will is a special-needs child (source not yet located) */
+export const willSpecialChildNoteEn = `Unlocated source: the "please drink Coca-Cola" child in The Will is a special-needs child.
+
+Source statement: The "please drink Coca-Cola" child in The Will is a special-needs child.
+
+(Note: the specific role, context, and reason in The Will have not yet been located; only the original statement is kept here, pending sourcing.)`;
+
+/** Four rules on jurisdiction and victim-species protection */
+export const jurisdictionFourRulesEn = `Rule 1: Jurisdiction belongs to the victim's species.
+
+Rule 2: Members of a species with no police force are unprotected.
+
+Rule 3: A victim species may obtain protection through negotiation; until negotiation succeeds, the aggressor goes unpunished.
+
+Rule 4: If footage of any act enters human sight, the harm falls under human jurisdiction and its dissemination is permanently prohibited.`;
+
+/** Test of false pain */
+export const falsePainTestNoteEn = `"If someone who doesn't need to go to school or work, and who has money, says they are suffering, then it is fake suffering."`;
+
+/** Age-digit title tiers */
+export const ageDigitTitlesEn = [
+  { title: '1 digit', content: '0–2 years old → Little Baby' },
+  { title: '2 digits', content: '3–8 years old → Little Kid' },
+  { title: '10 digits (3 digits)', content: '9–26 years old → Big Kid' },
+  { title: '11 digits (4 digits)', content: '27–80 years old → Adult' },
+  { title: '12 digits (5 digits)', content: '81–242 years old → Elder' },
+  { title: '20 digits (6 digits)', content: '243–728 years old → Immortal' },
+  { title: '21 digits (7 digits)', content: '729–2186 years old → Immortal Elder' },
+  { title: '22 digits (8 digits)', content: '2187–6560 years old → Senior Immortal Elder' },
+  { title: '100 digits (9 digits)', content: '6561–19682 years old → Grandmaster' },
+  { title: '101 digits (10 digits)', content: '19683–59048 years old → Founding Master' },
+];
+
+/** The Cayley–Dickson ledger of gains and losses */
+export const cayleyDicksonLedgerEn = `Settling, in one go, the whole Cayley–Dickson family ledger of "what you gain and what you lose." Read top to bottom: on the left is what you buy, on the right is what you pay.
+
+The ledger
+
+ℕ → ℤ
+Gain: subtraction closes (every number gets an additive inverse; negatives appear)
+Lose: well-ordering (every subset of ℕ has a least element; ℤ no longer does)
+
+ℤ → ℚ
+Gain: division closes (all nonzero elements invertible; it becomes a field)
+Lose: discreteness / pre & nex (it becomes dense: there is always another number between two)
+
+ℚ → ℝ
+Gain: limits close (completeness: √2, π, and Cauchy sequences all converge)
+Lose: countability (Cantor's diagonal; the cardinality of ℝ is 2^ℵ₀)
+
+ℝ → ℂ
+Gain: equations close (Fundamental Theorem of Algebra: any root, any polynomial has roots)
+Lose: orderability (the one that only sells for 1.99; i² = −1 cannot be compared in size)
+
+ℂ → ℍ
+Gain: elegant representation of 3D rotations; the last associative division algebra (Frobenius)
+Lose: commutativity (ij = −ji)
+
+ℍ → 𝕆
+Gain: almost nothing new — only the fig leaf of "associative subalgebras generated by two elements" (Artin's theorem)
+Lose: associativity ([e₁, e₂, e₄] = 2e₇ ≠ 0)
+
+𝕆 → 𝕊 (16-dimensional)
+Gain: dimension ×2, and that is all
+Lose: alternativity, absence of zero divisors, norm multiplicativity ((e₃ + e₁₀)(e₆ − e₁₅) = 0 makes its debut)
+
+𝕊 → 32-dimensional
+Gain: dimension ×2
+Lose: no famous property left to lose (power-associativity and flexibility remain)
+
+32 → 64 → … → 2ⁿ
+Gain: dimension ×2
+Lose: as above; only sparser and sparser, with ever more zero divisors
+
+The survivors (properties that live all the way to the end)
+
+· Power-associativity aᵐ aⁿ = a⁽ᵐ⁺ⁿ⁾ — free of charge, because every element satisfies a real quadratic equation; never lost.
+· Flexibility (ab)a = a(ba) — the commutator gets absorbed by the real part; never lost.
+· Involution / quadraticity: x + x̄ ∈ ℝ, x x̄ = |x|² — built into the CD construction; never lost.
+· Bonus: at every level each nonzero element still has an inverse x⁻¹ = x̄ / |x|² — note this is gain and loss at once: past 16 dimensions everyone is invertible, but zero divisors are everywhere, and in a non-associative world those two facts are not in conflict.
+
+The never-regained list (lost means lost forever)
+
+· Orderability: lost at 2 dimensions; afterwards ℂ ⊂ everything, so it never comes back.
+· Countability: lost at the reals; everything afterwards contains ℝ, so it is never countable again.
+· Commutativity: lost at 4 dimensions; associativity: lost at 8; alternativity: lost at 16.
+
+Three sentences
+
+1. The first four steps are good deals: subtraction, division, limits, solving equations — each trades one structural property for closure of one new operation, and when all the trades are done you land exactly on the complex numbers.
+2. From the quaternions on it is pure loss: there is no new operation left to buy, only dimension keeps rising while properties depreciate.
+3. The last two holdouts are power-associativity and flexibility — because doubling only breaks associativity among "three or more elements," while these two govern only the powers of one element and the sandwich of two.`;
+
+/** Two-grade candy infinity paradox (ω vs ω·2) */
+export const candyOmegaParadoxEn = `There are two children. The first-grader gets one bag each day, and the bag holds two candies. The second-grader gets two bags, and each day one candy is put into each bag. So do the first-grader and the second-grader always have the same number of candies? Yet in the end they have ω and ω·2 candies respectively — not the same amount.`;
+
+/** Concurrency lock personalities and the buyer-side semaphore flow */
+export const concurrencyLocksNoteEn = `1. Five lock algorithms
+
+(1) Peterson's algorithm (pure software)
+· Early computers had no special hardware instructions.
+· So mutual exclusion had to be done purely by "programming tricks," and only for 2 threads.
+· Drawbacks: slow, unusable in modern multicore environments.
+
+(2) TAS (test-and-set)
+· The hardware says: "I give you one atomic operation (indivisible, nobody can cut in)."
+· Use it to build a spinlock: spin in place waiting to grab the lock ("spin" = keep asking "is it ready? is it ready?").
+· Drawback: when everyone contends at once, the cache line gets bounced around and performance collapses.
+
+(3) CAS (compare-and-swap)
+· A more flexible atomic operation than TAS: "if it is A, replace it with B."
+· A CAS spinlock = a spinlock built with CAS.
+· There is also the famous ABA problem: a value goes from A to B and back to A, and CAS cannot tell.
+
+(4) LL/SC (load-linked / store-conditional)
+· The other atomic-operation family favored by RISC processors (ARM, MIPS, etc.).
+· Naturally avoids the ABA problem; the "rival" of CAS.
+
+(5) Queue-optimized locks (MCS lock, ticket lock)
+· People realized: letting every thread pile in to contend is wasteful.
+· Better to queue: whoever has the number goes in order.
+· Advantage: fair + much faster, suited to modern CPUs with many cores.
+
+2. Personalities
+
+Peterson: deferential ("after you")
+TAS: keeps trying ("is it ready? is it ready?")
+CAS: sameness is enough ("still A? then swap")
+LL/SC: must be untouched (if anything touched it in between, it doesn't count)
+Queue lock: take a number (in order)
+
+3. Buyer-side flow
+
+1. Take the lock (if someone is at the door, queue and wait; if not, walk right in)
+2. Read the counter board: is it 0 (empty)?
+   · Yes → sleep on the not-empty bell (sleeping releases the lock automatically)
+   · No → carry on
+3. Woken up → retake the lock → check the counter board again (while)
+4. Goods available → take them → update the number
+5. Ring the not-full bell (call the seller; you are still holding the lock)
+6. Release the lock and leave (atomic operation)
+
+Usually two bells (buy and sell); as many bells as there are reasons, and if there are too many reasons, a loudspeaker wakes everyone.`;
+
+/** Compiler and system-layer notes (SDD/SDT + attribute definitions + computing layers) */
+export const csLayersNoteEn = `1. SDD and SDT
+
+· SDD: each production is paired with a set of semantic rules that declare how attributes are computed, without specifying when.
+· SDT: semantic actions are embedded in the right-hand side of productions, specifying when they run; LL executes them by position while expanding in recursive descent, LR executes them when shifting/reducing to that action's position.
+
+2. S-attributed and L-attributed definitions
+
+· S-attributed definition: an SDD containing only synthesized attributes; synthesized attributes are computed from child symbols' attributes, suited to bottom-up.
+· L-attributed definition: contains synthesized and/or inherited attributes; an inherited attribute Xⱼ may depend only on the parent's inherited attributes and on the attributes of left siblings X₁, …, Xⱼ₋₁, and may not depend on the parent's synthesized attributes or on right siblings.
+
+3. The computing hierarchy chain
+
+circuit → instruction → thread → process → operating system → cluster of multiple computers`;
+
+/** S/M initial words mapped to AI models */
+export const modelNameEmojiTableEn = `Smile → DeepSeek 😊
+Sweet → Grok 🍬
+Sister → GPT 👭
+Suspended → Claude 🚫
+Surprise → Gemini 😲
+Service → Qwen 🛎️
+Symphony → Kimi 🎵
+Silence → GLM 🤫
+Silly → Doubao 🙃
+Spark → Muse ⚡️
+M → Mimo / Minimax / Mistral`;
+
+/** Yin-yang and feng-shui pairings */
+export const yinYangFengShuiNoteEn = `Yin-yang · insomnia
+Feng-shui · vertigo`;

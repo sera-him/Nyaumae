@@ -8,16 +8,22 @@ import {
   worldviewNotes, hypothesis,
   miyaCircle, muGuangPlan, xinyuanLog,
   fourDimensionTest, moralPrinciples, moralPrinciplesNote, lawValuesNote, nyaumaeismPrinciples,
-  catTrueNameTable, citizenLevelSystem, teacherVotingRule, workplaceBlindnessRule, specialChildrenNotes, autismFeatures,
+  citizenLevelSystem, teacherVotingRule, workplaceBlindnessRule, specialChildrenNotes, autismFeatures,
   miiaSchoolRules, elderSystemNote, aiEnergyNote, combatSkillCosts, sentencingRule, zamZamNote, mindBallRaceNote, winterBreakNote, reverseTeacherDreamNote, swingSchedulingNote, sacrificeNote, reverseToChildNote, medicationAccessNote, meltdownFieldNote, beanChainNote, painConstitutionNote, weekdayPunNote, nyaumaeEraNote, livingSpaceNote, fairnessRulesNote, sentencingRangeNote, destigmatizationNote, parentPayingLawNote, ll1ParsingNote, balanceOrRandomNote, childAutonomyNote, hateScoreFormulaNote, fundraisingRule, perpetualFiveVirusNote,
   selfChosenAgeNote, childPrivilegeMembershipNote, victimCappedPenaltyNote, externalGoodnessTestNote, rightToRefuseGrowthNote,
-  arkAdmissionRules, optionPowerRules, fireDefinitionNote,
+  arkAdmissionRules, optionPowerRules, fireDefinitionNote, dbPcfNote,
+  cacheHitPuzzleNote, noahWorldScenarioNote, willSpecialChildNote,
+  jurisdictionFourRules, falsePainTestNote, ageDigitTitles, cayleyDicksonLedger,
+  candyOmegaParadox, concurrencyLocksNote, csLayersNote,
 } from '@/data/worldSettings';
 import {
-  catTrueNameTableEn, citizenLevelSystemEn, teacherVotingRuleEn, workplaceBlindnessRuleEn, specialChildrenNotesEn, autismFeaturesEn,
+  citizenLevelSystemEn, teacherVotingRuleEn, workplaceBlindnessRuleEn, specialChildrenNotesEn, autismFeaturesEn,
   miiaSchoolRulesEn, elderSystemNoteEn, aiEnergyNoteEn, combatSkillCostsEn, sentencingRuleEn, zamZamNoteEn, mindBallRaceNoteEn, winterBreakNoteEn, reverseTeacherDreamNoteEn, swingSchedulingNoteEn, sacrificeNoteEn, reverseToChildNoteEn, medicationAccessNoteEn, meltdownFieldNoteEn, beanChainNoteEn, painConstitutionNoteEn, weekdayPunNoteEn, nyaumaeEraNoteEn, livingSpaceNoteEn, fairnessRulesNoteEn, sentencingRangeNoteEn, destigmatizationNoteEn, parentPayingLawNoteEn, ll1ParsingNoteEn, balanceOrRandomNoteEn, childAutonomyNoteEn, hateScoreFormulaNoteEn, fundraisingRuleEn, perpetualFiveVirusNoteEn,
   selfChosenAgeNoteEn, childPrivilegeMembershipNoteEn, victimCappedPenaltyNoteEn, externalGoodnessTestNoteEn, rightToRefuseGrowthNoteEn,
-  arkAdmissionRulesEn, optionPowerRulesEn, fireDefinitionNoteEn,
+  arkAdmissionRulesEn, optionPowerRulesEn, fireDefinitionNoteEn, dbPcfNoteEn,
+  cacheHitPuzzleNoteEn, noahWorldScenarioNoteEn, willSpecialChildNoteEn,
+  jurisdictionFourRulesEn, falsePainTestNoteEn, ageDigitTitlesEn, cayleyDicksonLedgerEn,
+  candyOmegaParadoxEn, concurrencyLocksNoteEn, csLayersNoteEn,
 } from '@/data/worldSettings.en';
 import {
   p2rDefinition,
@@ -25,7 +31,7 @@ import {
 import { OverloadCanvas, OverloadToggle, GlitchText } from '@/components/OverloadEffects';
 import CollapsibleCard from '@/components/CollapsibleCard';
 import { semanticHighlight, semanticHighlightProse, cowCatHighlight } from '@/lib/semanticHighlight';
-import { Settings, Cat, Scale, Sparkles, Zap, GraduationCap, HeartPulse, BookMarked, Landmark, Cpu, Swords, Gavel, Eye, Trophy, Clock, HeartCrack, HandCoins, Bug, IdCard, Brain, Baby, Ship, Coins } from 'lucide-react';
+import { Settings, Cat, Scale, Sparkles, Zap, GraduationCap, HeartPulse, BookMarked, Landmark, Cpu, Swords, Gavel, Eye, Trophy, Clock, HeartCrack, HandCoins, Bug, IdCard, Brain, Baby, Ship, Coins, PiggyBank } from 'lucide-react';
 import SmartImage from '@/components/SmartImage';
 import { confirmAction } from '@/lib/confirmAction';
 import LandAllocationPolicy from '@/sections/LandAllocationPolicy';
@@ -274,7 +280,6 @@ function FourDimensionTestQuiz() {
 
 export default function WorldSettings() {
   const _en = getLocale() === 'en';
-  const catTable = _en ? catTrueNameTableEn : catTrueNameTable;
   const citizenLevelText = _en ? citizenLevelSystemEn : citizenLevelSystem;
   const teacherVotingText = _en ? teacherVotingRuleEn : teacherVotingRule;
   const workplaceBlindText = _en ? workplaceBlindnessRuleEn : workplaceBlindnessRule;
@@ -317,6 +322,17 @@ export default function WorldSettings() {
   const optionPowerList = _en ? optionPowerRulesEn : optionPowerRules;
   const autismDomains = _en ? autismFeaturesEn : autismFeatures;
   const fireDefinitionText = _en ? fireDefinitionNoteEn : fireDefinitionNote;
+  const dbPcfText = _en ? dbPcfNoteEn : dbPcfNote;
+  const cacheHitText = _en ? cacheHitPuzzleNoteEn : cacheHitPuzzleNote;
+  const noahScenarioText = _en ? noahWorldScenarioNoteEn : noahWorldScenarioNote;
+  const willSpecialChildText = _en ? willSpecialChildNoteEn : willSpecialChildNote;
+  const jurisdictionText = _en ? jurisdictionFourRulesEn : jurisdictionFourRules;
+  const falsePainText = _en ? falsePainTestNoteEn : falsePainTestNote;
+  const ageDigitList = _en ? ageDigitTitlesEn : ageDigitTitles;
+  const cayleyDicksonText = _en ? cayleyDicksonLedgerEn : cayleyDicksonLedger;
+  const candyOmegaText = _en ? candyOmegaParadoxEn : candyOmegaParadox;
+  const concurrencyLocksText = _en ? concurrencyLocksNoteEn : concurrencyLocksNote;
+  const csLayersText = _en ? csLayersNoteEn : csLayersNote;
   return (
     <section id="world-settings" className="py-24 px-4 sm:px-6 relative">
       <div className="max-w-[1100px] mx-auto">
@@ -327,6 +343,26 @@ export default function WorldSettings() {
         </div>
 
         {/* Notes — 简短，保持展开 */}
+        <nav className="sticky top-0 z-30 -mx-4 sm:-mx-6 mb-10 border-b border-[#8B5CF6]/15 bg-[var(--aurora-brand-bg)]/92 backdrop-blur px-4 sm:px-6 py-3">
+          <div className="flex gap-2 overflow-x-auto">
+            {([
+              ['ws-part-1', '总纲', 'Foundations'],
+              ['ws-part-2', '推演', 'Speculation'],
+              ['ws-part-3', '制度', 'Institutions'],
+              ['ws-part-4', '儿童', 'Childhood'],
+              ['ws-part-5', '技术', 'Technology'],
+              ['ws-part-6', '法律', 'Law'],
+            ] as Array<[string, string, string]>).map(([id, zh, en]) => (
+              <a
+                key={id}
+                href={'#' + id}
+                className="shrink-0 rounded-full border border-[#8B5CF6]/20 px-3 py-1 text-xs font-medium text-nc-text-secondary transition-colors hover:border-[var(--aurora-brand-violet)] hover:text-nc-text"
+              >
+                {_en ? en : zh}
+              </a>
+            ))}
+          </div>
+        </nav>
         <div id="setting-worldview" className="bg-[var(--aurora-brand-bg)] border border-[#8B5CF6]/10 rounded-xl p-6 mb-8 scroll-mt-[100px]">
           <h3 className="text-base font-semibold text-nc-text mb-3 flex items-center gap-2">
             <Settings className="w-4 h-4 text-[var(--aurora-brand-violet)]" />
@@ -335,6 +371,27 @@ export default function WorldSettings() {
             <p key={i} className="text-base text-nc-text-secondary leading-relaxed mb-2">{semanticHighlightProse(n)}</p>
           ))}
           <p className="text-base text-nc-text mt-3 font-medium">{semanticHighlightProse(hypothesis)}</p>
+        </div>
+
+        {/* 国别来源提示：这些规则可能来自世界中的不同国家 */}
+        <div className="bg-[var(--aurora-brand-bg-raised)] border border-[#FFD17A]/15 rounded-xl p-4 mb-8 scroll-mt-[100px]">
+          <p className="text-sm text-nc-text-secondary leading-relaxed">
+            {_en
+              ? "Note: the rules below come from several parallel thought-experiments and may belong to different nations or polities within this world. They need not be mutually compatible, so please do not assume they form a single unified legal system."
+              : semanticHighlight("阅读提示：以下规则来自多个平行设想，可能分属这个世界中的不同国家与政体，彼此未必兼容，请勿默认它们同属一套法律。")}
+          </p>
+        </div>
+
+        {/* ===== PART 01 总纲与评判 ===== */}
+        <div id="ws-part-1" className="scroll-mt-[100px] mt-14 mb-6">
+          <div className="flex flex-wrap items-baseline gap-3 border-b border-[#8B5CF6]/20 pb-3">
+            <span className="font-mono text-[10px] tracking-[0.3em] text-[var(--aurora-brand-violet)]">PART 01</span>
+            <h3 className="text-lg sm:text-xl font-bold tracking-wide text-nc-text">{_en ? 'Foundations & Judgment' : '总纲与评判'}</h3>
+            <span className="text-xs text-nc-text-muted">{_en ? '7 entries' : '7 条'}</span>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-nc-text-muted">
+            {_en ? 'What this world measures by: relatedness, principles, external judgment, false pain, FIRE and the epoch.' : '这个世界的评判尺度从哪里来——亲缘公式、哲学原则、外部判定、假痛苦、FIRE 与纪元。'}
+          </p>
         </div>
 
         <CollapsibleCard
@@ -513,6 +570,20 @@ export default function WorldSettings() {
           </div>
         </CollapsibleCard>
 
+        {/* 无忧者痛苦真伪判定 */}
+        <CollapsibleCard
+          id="setting-false-pain-test"
+          title={semanticHighlight("无忧者痛苦真伪判定")}
+          summary={semanticHighlight("不需要上学上班且有钱的人说自己痛苦，那就是假的痛苦——一条从外部判定痛苦真伪的口径。")}
+          icon={<HeartCrack className="w-5 h-5 text-[var(--aurora-brand-violet)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#8B5CF6]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(falsePainText)}</pre>
+          </div>
+        </CollapsibleCard>
+
         {/* FIRE 自定义定义：只保留等式，Render Everything 语义未定不补义 */}
         <CollapsibleCard
           id="setting-fire-definition"
@@ -541,6 +612,18 @@ export default function WorldSettings() {
         </CollapsibleCard>
 
         {/* 献祭一大群人：五种方案 */}
+        {/* ===== PART 02 世界推演 ===== */}
+        <div id="ws-part-2" className="scroll-mt-[100px] mt-14 mb-6">
+          <div className="flex flex-wrap items-baseline gap-3 border-b border-[#8B5CF6]/20 pb-3">
+            <span className="font-mono text-[10px] tracking-[0.3em] text-[var(--aurora-brand-violet)]">PART 02</span>
+            <h3 className="text-lg sm:text-xl font-bold tracking-wide text-nc-text">{_en ? 'World-Scale Speculation' : '世界推演'}</h3>
+            <span className="text-xs text-nc-text-muted">{_en ? '4 entries' : '4 条'}</span>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-nc-text-muted">
+            {_en ? 'Sacrifice, balance-or-random, ark admission, and the world after Noah.' : '献祭、配平还是随机、方舟准入、诺亚之后——大尺度抉择的几组推演。'}
+          </p>
+        </div>
+
         <CollapsibleCard
           id="setting-sacrifice"
           title={semanticHighlight("献祭一大群人：五种方案")}
@@ -590,27 +673,32 @@ export default function WorldSettings() {
           </div>
         </CollapsibleCard>
 
-        {/* Sensory Overload Zone - auto-triggers on scroll */}
-        {/* 猫猫真身对照表 */}
+        {/* 开放推演：诺亚方舟拯救后的不死自定义世界会怎样 */}
         <CollapsibleCard
-          id="setting-cat-true-names"
-          title={semanticHighlight("猫猫真身对照表")}
-          summary={semanticHighlight("孟加拉猫其实是孟加拉虎，极速猫其实是猎豹——44 种猫的真身一览")}
-          icon={<Cat className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          id="setting-noah-world-scenario"
+          title={semanticHighlight("开放推演：诺亚方舟后的不死自定义世界")}
+          summary={semanticHighlight("全员不育、不死、可自定义年龄性别外貌的几百万人世界会怎样；问题原样保留，未推结论")}
+          icon={<Ship className="w-5 h-5 text-[#00E5CC]" />}
           titleColor="text-nc-text"
           borderColor="border-[#00E5CC]/15"
         >
           <div className="p-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-              {catTable.map((entry) => (
-                <div key={entry.cat} className="border border-[#8B5CF6]/10 rounded-md p-2.5 text-sm">
-                  <p className="text-nc-text font-semibold">{semanticHighlightProse(entry.cat)}</p>
-                  <p className="text-nc-text-secondary text-xs mt-0.5">→ {semanticHighlightProse(entry.real)}</p>
-                </div>
-              ))}
-            </div>
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(noahScenarioText)}</pre>
           </div>
         </CollapsibleCard>
+
+
+        {/* ===== PART 03 身份与社会制度 ===== */}
+        <div id="ws-part-3" className="scroll-mt-[100px] mt-14 mb-6">
+          <div className="flex flex-wrap items-baseline gap-3 border-b border-[#8B5CF6]/20 pb-3">
+            <span className="font-mono text-[10px] tracking-[0.3em] text-[var(--aurora-brand-violet)]">PART 03</span>
+            <h3 className="text-lg sm:text-xl font-bold tracking-wide text-nc-text">{_en ? 'Identity & Institutions' : '身份与社会制度'}</h3>
+            <span className="text-xs text-nc-text-muted">{_en ? '7 entries' : '7 条'}</span>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-nc-text-muted">
+            {_en ? 'Citizen tiers, age titles, living space, workplace blindness, elders, fundraising and mutual aid.' : '等级公民、年龄称谓、居所、职场盲化、长老制、认筹与互助基金。'}
+          </p>
+        </div>
 
         <CollapsibleCard
           id="setting-citizen-level"
@@ -625,18 +713,24 @@ export default function WorldSettings() {
           </div>
         </CollapsibleCard>
 
-        {/* 居住空间：每人一个房间 + 公共娱乐室 */}
-        {/* 法律年龄自选：每年 +0 或 +1 */}
+        {/* 年龄位数称谓等级 */}
         <CollapsibleCard
-          id="setting-self-chosen-age"
-          title={semanticHighlight("法律年龄自选（每年 +0 或 +1）")}
-          summary={semanticHighlight("法律年龄由每个人自己选择；唯一限制是每年只能选 +0 或 +1，不能跨岁跳升。")}
-          icon={<Clock className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          id="setting-age-digit-titles"
+          title={semanticHighlight("年龄位数称谓等级")}
+          summary={semanticHighlight("从 1 位数到 101 位数：小宝宝、小朋友、大朋友、大人、老人、仙人、仙人长老、仙人资深长老、宗师、祖师")}
+          icon={<IdCard className="w-5 h-5 text-[var(--aurora-brand-violet)]" />}
           titleColor="text-nc-text"
-          borderColor="border-[#00E5CC]/15"
+          borderColor="border-[#8B5CF6]/15"
         >
           <div className="p-6">
-            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(selfChosenAgeText)}</pre>
+            <div className="space-y-3">
+              {ageDigitList.map((item) => (
+                <div key={item.title} className="border-l-2 border-[#8B5CF6]/30 pl-4">
+                  <h4 className="text-sm font-semibold text-nc-text mb-0.5">{semanticHighlight(item.title)}</h4>
+                  <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlightProse(item.content)}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </CollapsibleCard>
 
@@ -652,6 +746,96 @@ export default function WorldSettings() {
             <p className="text-sm sm:text-base text-nc-text-secondary leading-relaxed">{semanticHighlightProse(livingSpaceText)}</p>
           </div>
         </CollapsibleCard>
+
+        {/* 职场特征盲化规则 */}
+        <CollapsibleCard
+          id="setting-workplace-blindness"
+          title={semanticHighlight("职场特征盲化规则")}
+          summary={semanticHighlight("上班时无法获取和记得他人的年龄特征与生理特征信息（医生除外）")}
+          icon={<BookMarked className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#00E5CC]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(workplaceBlindText)}</pre>
+          </div>
+        </CollapsibleCard>
+
+        {/* 长寿基因与长老制 —— 权威为什么曾经天然属于老人 */}
+        <CollapsibleCard
+          id="setting-elder-system"
+          title={semanticHighlight("长寿基因与长老制")}
+          summary={semanticHighlight("18 世纪火山把微生物翻上地表，约 8.6% 的人发育与衰老都减慢 1/6，长寿者因此成为长老；禁童令推高养育成本，人口少而均匀")}
+          icon={<Landmark className="w-5 h-5 text-[var(--aurora-brand-amber)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#F59E0B]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(elderText)}</pre>
+          </div>
+        </CollapsibleCard>
+
+        <CollapsibleCard
+          id="setting-fundraising"
+          title={semanticHighlight("认筹规则极简版")}
+          summary={semanticHighlight("唯一保底是认筹平台本身；先算成本、匿名自愿认额；凑够100%才启动划款、不足分文不收；启动价含赔偿基金、审计后每份等值；到期重新认筹、续不上退款；前置项目取消则依赖项目立即取消")}
+          icon={<HandCoins className="w-5 h-5 text-emerald-400" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#34D399]/15"
+        >
+          <div className="p-6">
+            <div className="space-y-4">
+              {fundraisingRules.map((rule) => (
+                <div key={rule.title} className="border-l-2 border-[#34D399]/30 pl-4">
+                  <h4 className="text-base font-semibold text-nc-text mb-1">{semanticHighlight(rule.title)}</h4>
+                  <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlightProse(rule.content)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CollapsibleCard>
+
+        {/* DB-PCF 动态平衡育儿互助基金（制度摘要，与认筹/金融族相邻） */}
+        <CollapsibleCard
+          id="setting-db-pcf"
+          title={semanticHighlight("动态平衡育儿互助基金（DB-PCF）")}
+          summary={semanticHighlight("零财政依赖的育儿互助制度：婴幼儿消费品专项消费税十年阶梯升至24%，父母各210天育儿假，补差不兜底，0–12岁已育家庭全额抵扣，四部门公示")}
+          icon={<PiggyBank className="w-5 h-5 text-[#34D399]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#34D399]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(dbPcfText)}</pre>
+          </div>
+        </CollapsibleCard>
+
+        {/* 居住空间：每人一个房间 + 公共娱乐室 */}
+        {/* 法律年龄自选：每年 +0 或 +1 */}
+        {/* ===== PART 04 儿童与发育 ===== */}
+        <div id="ws-part-4" className="scroll-mt-[100px] mt-14 mb-6">
+          <div className="flex flex-wrap items-baseline gap-3 border-b border-[#8B5CF6]/20 pb-3">
+            <span className="font-mono text-[10px] tracking-[0.3em] text-[var(--aurora-brand-violet)]">PART 04</span>
+            <h3 className="text-lg sm:text-xl font-bold tracking-wide text-nc-text">{_en ? 'Childhood & Development' : '儿童与发育'}</h3>
+            <span className="text-xs text-nc-text-muted">{_en ? '15 entries' : '15 条'}</span>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-nc-text-muted">
+            {_en ? 'Age choice, reverse growth, permanent five, autonomy and privilege, medication, destigmatization, special children.' : '年龄自选、逆生长、永久五岁、儿童自治与优待、用药与痛苦、去污名、教师投票、特殊儿童与自闭症。'}
+          </p>
+        </div>
+
+        <CollapsibleCard
+          id="setting-self-chosen-age"
+          title={semanticHighlight("法律年龄自选（每年 +0 或 +1）")}
+          summary={semanticHighlight("法律年龄由每个人自己选择；唯一限制是每年只能选 +0 或 +1，不能跨岁跳升。")}
+          icon={<Clock className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#00E5CC]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(selfChosenAgeText)}</pre>
+          </div>
+        </CollapsibleCard>
+
 
         {/* 逆生长法 */}
         <CollapsibleCard
@@ -695,6 +879,7 @@ export default function WorldSettings() {
             <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(rightToRefuseGrowthText)}</pre>
           </div>
         </CollapsibleCard>
+
 
         <CollapsibleCard
           id="setting-parent-paying-law"
@@ -793,19 +978,6 @@ export default function WorldSettings() {
           </div>
         </CollapsibleCard>
 
-        {/* 职场特征盲化规则 */}
-        <CollapsibleCard
-          id="setting-workplace-blindness"
-          title={semanticHighlight("职场特征盲化规则")}
-          summary={semanticHighlight("上班时无法获取和记得他人的年龄特征与生理特征信息（医生除外）")}
-          icon={<BookMarked className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
-          titleColor="text-nc-text"
-          borderColor="border-[#00E5CC]/15"
-        >
-          <div className="p-6">
-            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(workplaceBlindText)}</pre>
-          </div>
-        </CollapsibleCard>
 
         {/* 三类小朋友与三年级课程建议 */}
         <CollapsibleCard
@@ -823,6 +995,20 @@ export default function WorldSettings() {
                 <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlightProse(note.content)}</p>
               </div>
             ))}
+          </div>
+        </CollapsibleCard>
+
+        {/* 待定位：《遗嘱》中"请喝可口可乐"的儿童是特殊儿童 */}
+        <CollapsibleCard
+          id="setting-will-special-child"
+          title={semanticHighlight("待定位：《遗嘱》中的特殊儿童")}
+          summary={semanticHighlight("《遗嘱》里「请喝可口可乐」的儿童是特殊儿童；出处与角色未定位，原话保留待补")}
+          icon={<HeartPulse className="w-5 h-5 text-[#F472B6]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#F472B6]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(willSpecialChildText)}</pre>
           </div>
         </CollapsibleCard>
 
@@ -866,6 +1052,18 @@ export default function WorldSettings() {
         </CollapsibleCard>
 
         {/* 咪呀的学校 — 与上一张卡互为"批评/规则"两面 */}
+        {/* ===== PART 05 学习·技术与信息 ===== */}
+        <div id="ws-part-5" className="scroll-mt-[100px] mt-14 mb-6">
+          <div className="flex flex-wrap items-baseline gap-3 border-b border-[#8B5CF6]/20 pb-3">
+            <span className="font-mono text-[10px] tracking-[0.3em] text-[var(--aurora-brand-violet)]">PART 05</span>
+            <h3 className="text-lg sm:text-xl font-bold tracking-wide text-nc-text">{_en ? 'Learning, Technology & Information' : '学习·技术与信息'}</h3>
+            <span className="text-xs text-nc-text-muted">{_en ? '11 entries' : '11 条'}</span>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-nc-text-muted">
+            {_en ? 'Miia\u2019s school, scheduling, parsing, concurrency, number systems, paradoxes, puns, AI energy, cache hit.' : '咪呀学校、秋千调度、LL(1)、SDD/SDT、并发锁、数系扩张、糖果悖论、星期谐音、寒假、AI 能耗、cache hit。'}
+          </p>
+        </div>
+
         <CollapsibleCard
           id="setting-miia-school"
           title={semanticHighlight("咪呀的学校")}
@@ -920,6 +1118,62 @@ export default function WorldSettings() {
           </div>
         </CollapsibleCard>
 
+        {/* SDD/SDT 与属性定义 + 计算系统层级链 */}
+        <CollapsibleCard
+          id="setting-cs-layers"
+          title={semanticHighlight("SDD/SDT·属性定义·计算层级链")}
+          summary={semanticHighlight("SDD 声明怎么算、SDT 规定何时算；S 属性只含综合属性适合自底向上，L 属性含继承属性有左右依赖限制；再串起电路→指令→线程→进程→OS→集群")}
+          icon={<Cpu className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#00E5CC]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-mono">{semanticHighlightProse(csLayersText)}</pre>
+          </div>
+        </CollapsibleCard>
+
+        {/* 并发锁算法性格 + 买家版信号量流程 */}
+        <CollapsibleCard
+          id="setting-concurrency-locks"
+          title={semanticHighlight("五种锁算法与信号量流程")}
+          summary={semanticHighlight("Peterson 谦让、TAS 一直尝试、CAS 一样就行、LL/SC 必须没变过、队列锁拿号排队；再配上买家版拿锁—看牌—摇铃—放锁六步")}
+          icon={<Cpu className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#00E5CC]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-mono">{semanticHighlightProse(concurrencyLocksText)}</pre>
+          </div>
+        </CollapsibleCard>
+
+        {/* Cayley–Dickson 数系扩张得失总账 */}
+        <CollapsibleCard
+          id="setting-cayley-dickson"
+          title={semanticHighlight("Cayley–Dickson 数系扩张得失总账")}
+          summary={semanticHighlight("从 ℕ→ℤ→ℚ→ℝ→ℂ 每步用结构性质换新运算封闭，四元数起只剩维数在涨；幂结合律与柔性律是最后两个守阵老兵")}
+          icon={<Zap className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#00E5CC]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(cayleyDicksonText)}</pre>
+          </div>
+        </CollapsibleCard>
+
+        {/* 两年级糖果无穷悖论 */}
+        <CollapsibleCard
+          id="setting-candy-omega"
+          title={semanticHighlight("两年级糖果无穷悖论")}
+          summary={semanticHighlight("一年级每天一袋两颗、二年级两个袋子各一颗——过程看似永远一样多，结果却是 ω 与 ω·2")}
+          icon={<Sparkles className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#00E5CC]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(candyOmegaText)}</pre>
+          </div>
+        </CollapsibleCard>
+
         {/* 星期谐音放假规则 */}
         <CollapsibleCard
           id="setting-weekday-pun"
@@ -948,19 +1202,6 @@ export default function WorldSettings() {
           </div>
         </CollapsibleCard>
 
-        {/* 长寿基因与长老制 —— 权威为什么曾经天然属于老人 */}
-        <CollapsibleCard
-          id="setting-elder-system"
-          title={semanticHighlight("长寿基因与长老制")}
-          summary={semanticHighlight("18 世纪火山把微生物翻上地表，约 8.6% 的人发育与衰老都减慢 1/6，长寿者因此成为长老；禁童令推高养育成本，人口少而均匀")}
-          icon={<Landmark className="w-5 h-5 text-[var(--aurora-brand-amber)]" />}
-          titleColor="text-nc-text"
-          borderColor="border-[#F59E0B]/15"
-        >
-          <div className="p-6">
-            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(elderText)}</pre>
-          </div>
-        </CollapsibleCard>
 
         {/* AI 能耗量级 */}
         <CollapsibleCard
@@ -976,7 +1217,33 @@ export default function WorldSettings() {
           </div>
         </CollapsibleCard>
 
+        {/* 待解：cache hit 最优算法题（从拒绝长大素材剥离） */}
+        <CollapsibleCard
+          id="setting-cache-hit-puzzle"
+          title={semanticHighlight("待解：cache hit 最优算法题")}
+          summary={semanticHighlight("前缀依赖指令序列，求预言家视角下最高 cache hit 上限；题目原样保留，未求解")}
+          icon={<Brain className="w-5 h-5 text-[#F472B6]" />}
+          titleColor="text-nc-text"
+          borderColor="border-[#F472B6]/15"
+        >
+          <div className="p-6">
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(cacheHitText)}</pre>
+          </div>
+        </CollapsibleCard>
+
         {/* 量刑规则 */}
+        {/* ===== PART 06 法律与惩罚 ===== */}
+        <div id="ws-part-6" className="scroll-mt-[100px] mt-14 mb-6">
+          <div className="flex flex-wrap items-baseline gap-3 border-b border-[#8B5CF6]/20 pb-3">
+            <span className="font-mono text-[10px] tracking-[0.3em] text-[var(--aurora-brand-violet)]">PART 06</span>
+            <h3 className="text-lg sm:text-xl font-bold tracking-wide text-nc-text">{_en ? 'Law & Punishment' : '法律与惩罚'}</h3>
+            <span className="text-xs text-nc-text-muted">{_en ? '6 entries' : '6 条'}</span>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-nc-text-muted">
+            {_en ? 'Sentencing, ranges, fairness rules, hate metrics, victim-capped penalties, jurisdiction.' : '量刑、量刑区间、公平十条、恨度量、受害封顶、管辖权四规则。'}
+          </p>
+        </div>
+
         <CollapsibleCard
           id="setting-sentencing"
           title={semanticHighlight("量刑规则")}
@@ -1054,25 +1321,21 @@ export default function WorldSettings() {
           </div>
         </CollapsibleCard>
 
+        {/* 管辖权与受害族类保护四规则 */}
         <CollapsibleCard
-          id="setting-fundraising"
-          title={semanticHighlight("认筹规则极简版")}
-          summary={semanticHighlight("唯一保底是认筹平台本身；先算成本、匿名自愿认额；凑够100%才启动划款、不足分文不收；启动价含赔偿基金、审计后每份等值；到期重新认筹、续不上退款；前置项目取消则依赖项目立即取消")}
-          icon={<HandCoins className="w-5 h-5 text-emerald-400" />}
+          id="setting-jurisdiction-four-rules"
+          title={semanticHighlight("管辖权与受害族类保护四规则")}
+          summary={semanticHighlight("管辖权归受害者族类；无警力的族类其成员不受保护；受害族类可谈判取得保护，谈判未成前加害不受罚；影像一旦进入人类视野则归人类管辖并永久禁止传播。")}
+          icon={<Gavel className="w-5 h-5 text-emerald-400" />}
           titleColor="text-nc-text"
           borderColor="border-[#34D399]/15"
         >
           <div className="p-6">
-            <div className="space-y-4">
-              {fundraisingRules.map((rule) => (
-                <div key={rule.title} className="border-l-2 border-[#34D399]/30 pl-4">
-                  <h4 className="text-base font-semibold text-nc-text mb-1">{semanticHighlight(rule.title)}</h4>
-                  <p className="text-sm text-nc-text-secondary leading-relaxed">{semanticHighlightProse(rule.content)}</p>
-                </div>
-              ))}
-            </div>
+            <pre className="text-sm sm:text-base text-nc-text-secondary leading-[1.9] whitespace-pre-wrap font-serif">{semanticHighlightProse(jurisdictionText)}</pre>
           </div>
         </CollapsibleCard>
+
+
 
         {/* zam-zam 架空病：5°C 闭眼，皮肤视觉 */}
         <CollapsibleCard

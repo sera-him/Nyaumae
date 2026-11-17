@@ -2,6 +2,8 @@ import {
   extraPoems, poems, chapterIndex, wishSection, correctOverdose, xishouStory,
   absurdNarrative, tinyWish, miiaStoryFragments, jingBeiGouFragment, penPoemFragment, wageFragment, laborValueTheory,
   sumoAngleNote, emotionVectorNote, unnecessaryDoorStory, carefreeFairyTales,
+  coldCoreStory, nordicReincarnationStory, dreamEnglishClass, driCultParody,
+  commandTablePuzzle, emojiSequence01, highRiseBuffet, driDrumNarrative, likiHandwriting,
 } from '@/data/extraStories';
 import { L } from '@/lib/translations/manual';
 
@@ -562,6 +564,148 @@ export default function ExtraStories() {
             </h3>
             <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
               {carefreeFairyTales.content.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* 冰冷的核心：被规则绞杀的灵魂 */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-slate-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-slate-300 mb-5 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 shrink-0" />
+              {semanticHighlight("冰冷的核心：被规则绞杀的灵魂")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {coldCoreStory.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* 北欧拒签之后，神被世界领回（多世轮回） */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-indigo-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-indigo-300 mb-5 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 shrink-0" />
+              {semanticHighlight("北欧拒签之后，神被世界领回")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {nordicReincarnationStory.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* 梦境碎片：父母站在孩子这边 */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-violet-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-violet-300 mb-5 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 shrink-0" />
+              {semanticHighlight("梦境碎片：父母要站在孩子这边")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {dreamEnglishClass.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* DRI 教创立计划（虚构戏仿，非用药指导） */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-amber-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-amber-300 mb-5 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 shrink-0" />
+              {semanticHighlight("DRI 教创立计划（虚构戏仿）")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {driCultParody.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* 《千年之鼓》：DRI 教完整叙事（安全化，虚构戏仿） */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-amber-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-amber-300 mb-5 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 shrink-0" />
+              {semanticHighlight("《千年之鼓》：DRI 教完整叙事与信仰演变")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {driDrumNarrative.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* 操作命令表（待解读） */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-slate-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-slate-300 mb-5 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 shrink-0" />
+              {semanticHighlight("操作命令表（待解读）")}
+            </h3>
+            <pre className="font-mono text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {commandTablePuzzle.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* Emoji 序列（待释义） */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-amber-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-amber-300 mb-5 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 shrink-0" />
+              {semanticHighlight("Emoji 序列（待释义）")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {emojiSequence01.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* 高楼里的限时自助餐厅（场景碎片） */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-slate-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-slate-300 mb-5 flex items-center gap-2">
+              <Building2 className="w-5 h-5 shrink-0" />
+              {semanticHighlight("高楼里的限时自助餐厅")}
+            </h3>
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {highRiseBuffet.split('\n').map((line, li) => (
+                <span key={li} className="block">{semanticHighlightProse(line)}</span>
+              ))}
+            </pre>
+          </article>
+        </div>
+
+        {/* Liki 手绘符号与拟音草稿（图片素材） */}
+        <div className="mb-10">
+          <article className="miia-story-card bg-nc-bg-secondary border border-sky-400/15 rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold text-sky-300 mb-5 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 shrink-0" />
+              {semanticHighlight("Liki 手绘符号与拟音草稿")}
+            </h3>
+            <SmartImage
+              localSrc="/liki-handwriting.png"
+              alt={L("白板手绘：蓝色小方块图标、自造符号串、两行拉丁拟音")}
+              aspectRatio="1132/637"
+              containerClassName="w-full rounded-xl border border-sky-400/15 mb-5 overflow-hidden"
+              className="object-contain"
+            />
+            <pre className="font-serif text-nc-text leading-[2] whitespace-pre-wrap text-base sm:text-lg">
+              {likiHandwriting.split('\n').map((line, li) => (
                 <span key={li} className="block">{semanticHighlightProse(line)}</span>
               ))}
             </pre>

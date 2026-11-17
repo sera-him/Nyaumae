@@ -158,7 +158,7 @@ export const BATCH4: Record<string, string> = {
   "在时间、角色与规则之间，图像是通往宇宙的第一道门。": 'Between time, characters and rules, images are the first door into the universe.',
   "占边：满意且坐在一层的左端或右端时，加 2 呼噜。": 'Edge claim: when satisfied and seated at either end of a tier, +2 snore.',
   "GIANT & TINY · 停车场 · 石灰格子": 'GIANT & TINY · Car park · chalk grid',
-  "Ollama 或官方权重下载，支持 1M—2.8T": 'Ollama or official weight downloads, 1M–2.8T supported',
+  "Ollama 或官方权重下载，支持 0.56M—2.8T": 'Ollama or official weight downloads, 0.56M–2.8T supported',
   "雾岬市议会通过《自由市临时宪章》，自称雾岬自由市。": 'The Wujia council passes the Free City Provisional Charter and declares the Free City of Wujia.',
   "\"你们参与制造过我的身体，但从未拥有过我的现在。\"": '"You helped build my body, but you have never owned my present."',
   "为什么叫「角色/网络」而不是「关系网」或「角色网」？": 'Why “Characters / Network” rather than “relationship web” or “character web”?',

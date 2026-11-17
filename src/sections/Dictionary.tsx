@@ -9,10 +9,16 @@ import {
 import {
   mysticSayingNoteEn, mathCoupletNoteEn, lightPunNoteEn, rulesAndCatPoemEn, catgirlLexiconEn,
 } from '@/data/poems.en';
+import {
+  catTrueNameTable, modelNameEmojiTable, yinYangFengShuiNote,
+} from '@/data/worldSettings';
+import {
+  catTrueNameTableEn, modelNameEmojiTableEn, yinYangFengShuiNoteEn,
+} from '@/data/worldSettings.en';
 import { getLocale } from '@/lib/i18n';
-import { semanticHighlight, posColorHighlight } from '@/lib/semanticHighlight';
+import { semanticHighlight, semanticHighlightProse, posColorHighlight } from '@/lib/semanticHighlight';
 import CollapsibleCard from '@/components/CollapsibleCard';
-import { Search, BookMarked, Languages, BookOpen } from 'lucide-react';
+import { Search, BookMarked, Languages, BookOpen, Cat } from 'lucide-react';
 
 const letters = ['全部', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
@@ -40,6 +46,9 @@ export default function Dictionary() {
   const lightPunText = _en ? lightPunNoteEn : lightPunNote;
   const catPoemText = _en ? rulesAndCatPoemEn : rulesAndCatPoem;
   const catgirlList = _en ? catgirlLexiconEn : catgirlLexicon;
+  const catTable = _en ? catTrueNameTableEn : catTrueNameTable;
+  const modelEmojiText = _en ? modelNameEmojiTableEn : modelNameEmojiTable;
+  const yinYangText = _en ? yinYangFengShuiNoteEn : yinYangFengShuiNote;
 
   const filtered = dictionary.filter((entry) => {
     const matchesSearch = !search ||
@@ -233,6 +242,79 @@ export default function Dictionary() {
                 <p className="text-sm text-nc-text-secondary leading-relaxed">{item.content}</p>
               </div>
             ))}
+          </div>
+        </CollapsibleCard>
+
+        {/* ===== 猫猫真身对照表（moved from world settings） ===== */}
+        <CollapsibleCard
+          id="dict-cat-true-names"
+          defaultExpanded={false}
+          title={<>{L("猫猫真身对照表")}<span className="text-sm font-normal text-nc-text-muted">· 44 {L("种")}</span></>}
+          summary={_en ? "Bengal cat is actually a Bengal tiger, Speed cat is actually a cheetah — 44 cats and their true forms." : "孟加拉猫其实是孟加拉虎，极速猫其实是猎豹——44 种猫的真身一览"}
+          icon={<Cat className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-[var(--aurora-brand-text)]"
+          borderColor="border-[#00E5CC]/20"
+          bgColor="bg-transparent"
+        >
+          <div className="p-6 sm:p-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {catTable.map((entry) => (
+              <div key={entry.cat} className="border border-[#00E5CC]/10 rounded-md p-2.5 text-sm">
+                <p className="text-nc-text font-semibold">{semanticHighlightProse(entry.cat)}</p>
+                <p className="text-nc-text-secondary text-xs mt-0.5">→ {semanticHighlightProse(entry.real)}</p>
+              </div>
+            ))}
+          </div>
+        </CollapsibleCard>
+
+        {/* ===== S/M 首字母模型对照表（moved from world settings） ===== */}
+        <CollapsibleCard
+          id="dict-model-name-emoji"
+          defaultExpanded={false}
+          title={<>{L("S/M 首字母模型对照表")}<span className="text-sm font-normal text-nc-text-muted">· {L("命名玩梗")}</span></>}
+          summary={_en ? "S- or M-initial English words mapped to each AI model, one emoji apiece — a naming pun table." : "以 S 或 M 开头的英文词对应各家 AI 模型，并各配一个 emoji——一张命名玩梗对照表"}
+          icon={<Cat className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-[var(--aurora-brand-text)]"
+          borderColor="border-[#00E5CC]/20"
+          bgColor="bg-transparent"
+        >
+          <div className="p-6 sm:p-8 grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {modelEmojiText.split('\n').filter(Boolean).map((line) => {
+              const arrow = line.indexOf('→');
+              const left = arrow > -1 ? line.slice(0, arrow).trim() : line;
+              const right = arrow > -1 ? line.slice(arrow).trim() : '';
+              return (
+                <div key={line} className="border border-[#00E5CC]/10 rounded-md p-2.5 text-sm">
+                  <p className="text-nc-text font-semibold">{semanticHighlightProse(left)}</p>
+                  {right && <p className="text-nc-text-secondary text-xs mt-0.5">{semanticHighlightProse(right)}</p>}
+                </div>
+              );
+            })}
+          </div>
+        </CollapsibleCard>
+
+        {/* ===== 阴阳·风水两对照（moved from world settings） ===== */}
+        <CollapsibleCard
+          id="dict-yinyang-fengshui"
+          defaultExpanded={false}
+          title={<>{L("阴阳·风水两对照")}<span className="text-sm font-normal text-nc-text-muted">· {L("两词对照")}</span></>}
+          summary={_en ? "Yin-yang maps to insomnia, feng-shui to vertigo — two paired terms, associations left unexpanded." : "阴阳对应失眠，风水对应眩晕——两组两词对照，关联含义原话未展开"}
+          icon={<Cat className="w-5 h-5 text-[var(--aurora-brand-cyan)]" />}
+          titleColor="text-[var(--aurora-brand-text)]"
+          borderColor="border-[#00E5CC]/20"
+          bgColor="bg-transparent"
+        >
+          <div className="p-6 sm:p-8 space-y-3">
+            {yinYangText.split('\n').filter(Boolean).map((line) => {
+              const dot = line.indexOf('·');
+              const left = dot > -1 ? line.slice(0, dot).trim() : line;
+              const right = dot > -1 ? line.slice(dot + 1).trim() : '';
+              return (
+                <div key={line} className="border-l-2 border-[#00E5CC]/30 pl-4">
+                  <p className="text-base text-nc-text font-semibold">{semanticHighlightProse(left)}</p>
+                  {right && <p className="text-sm text-nc-text-secondary mt-0.5">→ {semanticHighlightProse(right)}</p>}
+                </div>
+              );
+            })}
           </div>
         </CollapsibleCard>
       </div>

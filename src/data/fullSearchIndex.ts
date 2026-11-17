@@ -7,7 +7,7 @@ import { storyText } from './storyText';
 import { storyTextEn } from './storyText.en';
 import { gameHintTexts } from './gameHintTexts';
 import { dictionary, bilingualText } from './dictionary';
-import { poems, extraPoems, miiaStoryFragments, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory, chapterIndex, wishSection, correctOverdose, xishouStory, revolutionTable, vppRules, iqTests, gaoKaiTableData, jingBeiGouFragment, penPoemFragment, starChildStory, dualAxisModel, sanYiCollegeInfo, theoremFragments, sanCengNationInfo, wageFragment, shengYuQiYueInfo, superIntelligenceRule, gaoKaoVolunteerRule, subwayPricingRule, unifiedRecruitmentRule, agiEmploymentRegulation, openExamRegistrationRule, laborValueTheory, sumoAngleNote, emotionVectorNote, unnecessaryDoorStory, carefreeFairyTales } from './extraStories';
+import { poems, extraPoems, miiaStoryFragments, absurdNarrative, tinyWish, primeFocus, fosStory, gaoKaiStory, chapterIndex, wishSection, correctOverdose, xishouStory, revolutionTable, vppRules, iqTests, gaoKaiTableData, jingBeiGouFragment, penPoemFragment, starChildStory, dualAxisModel, sanYiCollegeInfo, theoremFragments, sanCengNationInfo, wageFragment, shengYuQiYueInfo, superIntelligenceRule, gaoKaoVolunteerRule, subwayPricingRule, unifiedRecruitmentRule, agiEmploymentRegulation, openExamRegistrationRule, laborValueTheory, sumoAngleNote, emotionVectorNote, unnecessaryDoorStory, carefreeFairyTales, coldCoreStory, nordicReincarnationStory, dreamEnglishClass, driCultParody, commandTablePuzzle, emojiSequence01, highRiseBuffet, driDrumNarrative, likiHandwriting } from './extraStories';
 import { organizations, zhihuaClasses } from './organizations';
 import { timelineEvents } from './timeline';
 import { characterRelations, relationLabels } from './relationships';
@@ -51,7 +51,10 @@ import {
   fundraisingRule,
   perpetualFiveVirusNote,
   selfChosenAgeNote, childPrivilegeMembershipNote, victimCappedPenaltyNote, externalGoodnessTestNote, rightToRefuseGrowthNote,
-  arkAdmissionRules, optionPowerRules, fireDefinitionNote,
+  arkAdmissionRules, optionPowerRules, fireDefinitionNote, dbPcfNote,
+  cacheHitPuzzleNote, noahWorldScenarioNote, willSpecialChildNote,
+  jurisdictionFourRules, falsePainTestNote, ageDigitTitles, cayleyDicksonLedger,
+  candyOmegaParadox, concurrencyLocksNote, csLayersNote, modelNameEmojiTable, yinYangFengShuiNote,
 } from './worldSettings';
 import {
   mysticSayingNote, mathCoupletNote, lightPunNote, rulesAndCatPoem, catgirlLexicon,
@@ -99,7 +102,10 @@ import {
   hateScoreFormulaNoteEn, fundraisingRuleEn,
   perpetualFiveVirusNoteEn,
   selfChosenAgeNoteEn, childPrivilegeMembershipNoteEn, victimCappedPenaltyNoteEn, externalGoodnessTestNoteEn, rightToRefuseGrowthNoteEn,
-  arkAdmissionRulesEn, optionPowerRulesEn, fireDefinitionNoteEn,
+  arkAdmissionRulesEn, optionPowerRulesEn, fireDefinitionNoteEn, dbPcfNoteEn,
+  cacheHitPuzzleNoteEn, noahWorldScenarioNoteEn, willSpecialChildNoteEn,
+  jurisdictionFourRulesEn, falsePainTestNoteEn, ageDigitTitlesEn, cayleyDicksonLedgerEn,
+  candyOmegaParadoxEn, concurrencyLocksNoteEn, csLayersNoteEn, modelNameEmojiTableEn, yinYangFengShuiNoteEn,
 } from './worldSettings.en';
 import {
   mysticSayingNoteEn, mathCoupletNoteEn, lightPunNoteEn, rulesAndCatPoemEn, catgirlLexiconEn,
@@ -299,6 +305,15 @@ add('extra-sumo-angle', '相扑选手与周角', sumoAngleNote, '故事', '#extr
 add('extra-emotion-vector', '情感计算与反讽', emotionVectorNote, '故事', '#extra-stories');
 add('extra-unnecessary-door', '白开一次门', unnecessaryDoorStory, '故事', '#extra-stories');
 add('extra-carefree-fairy-tales', '七篇无忧童话', `${carefreeFairyTales.title}\n${carefreeFairyTales.content}`, '故事', '#extra-stories');
+add('extra-cold-core-story', '冰冷的核心：被规则绞杀的灵魂', coldCoreStory, '故事', '#extra-stories');
+add('extra-nordic-reincarnation', '北欧拒签之后，神被世界领回', nordicReincarnationStory, '故事', '#extra-stories');
+add('extra-dream-english-class', '梦境碎片：父母要站在孩子这边', dreamEnglishClass, '故事', '#extra-stories');
+add('extra-dri-cult-parody', 'DRI 教创立计划（虚构戏仿）', driCultParody, '故事', '#extra-stories');
+add('extra-command-table-puzzle', '操作命令表（待解读）', commandTablePuzzle, '故事', '#extra-stories');
+add('extra-emoji-sequence-01', 'Emoji 序列（待释义）', emojiSequence01, '故事', '#extra-stories');
+add('extra-high-rise-buffet', '高楼里的限时自助餐厅', highRiseBuffet, '故事', '#extra-stories');
+add('extra-dri-drum-narrative', '《千年之鼓》：DRI 教完整叙事与信仰演变', driDrumNarrative, '故事', '#extra-stories');
+add('extra-liki-handwriting', 'Liki 手绘符号与拟音草稿', likiHandwriting, '故事', '#extra-stories');
 
 for (const [index, entry] of organizations.entries()) add(`org_${index}`, entry.name, entry, '设定', '#organizations');
 for (const [index, entry] of zhihuaClasses.entries()) add(`class_${index}`, entry.name, entry, '设定', '#organizations');
@@ -328,7 +343,6 @@ const settingSources: Array<[string, string, unknown]> = [
   ['law-values-note', '法律价值观', lawValuesNote],
   ['moral-principles', '道德原则', moralPrinciples],
   ['nyaumaeism-principles', 'Nyaumaeism 原则', nyaumaeismPrinciples],
-  ['cat-true-names', '猫猫真身对照表', catTrueNameTable],
   ['citizen-level-system', '等级公民制度', citizenLevelSystem],
   ['teacher-voting', '教师投票', teacherVotingRule],
   ['workplace-blindness', '职场特征盲化', workplaceBlindnessRule],
@@ -349,8 +363,24 @@ const settingSources: Array<[string, string, unknown]> = [
   ['ark-admission', '方舟两套拯救准入标准', arkAdmissionRules],
   ['option-powers', '期权式自定义权益清单', optionPowerRules],
   ['fire-definition', 'FIRE 自定义定义（等式）', fireDefinitionNote],
+  ['db-pcf', '动态平衡育儿互助基金（DB-PCF）', dbPcfNote],
+  ['cache-hit-puzzle', '待解：cache hit 最优算法题', cacheHitPuzzleNote],
+  ['noah-world-scenario', '开放推演：诺亚方舟后的不死自定义世界', noahWorldScenarioNote],
+  ['will-special-child', '待定位：《遗嘱》中的特殊儿童', willSpecialChildNote],
+  ['false-pain-test', '无忧者痛苦真伪判定', falsePainTestNote],
+  ['jurisdiction-four-rules', '管辖权与受害族类保护四规则', jurisdictionFourRules],
+  ['age-digit-titles', '年龄位数称谓等级', ageDigitTitles],
+  ['cs-layers', 'SDD/SDT·属性定义·计算层级链', csLayersNote],
+  ['concurrency-locks', '五种锁算法与信号量流程', concurrencyLocksNote],
+  ['cayley-dickson', 'Cayley–Dickson 数系扩张得失总账', cayleyDicksonLedger],
+  ['candy-omega', '两年级糖果无穷悖论', candyOmegaParadox],
 ];
 for (const [id, title, content] of settingSources) add(`setting_${id}`, title, content, '设定', '#world-settings');
+
+// 三张对照表已迁至词典页（/world 词典区），锚点随之改到 #dictionary
+add('dict_cat_true_names', '猫猫真身对照表', catTrueNameTable, '词表', '#dictionary');
+add('dict_model_name_emoji', 'S/M 首字母模型对照表', modelNameEmojiTable, '词表', '#dictionary');
+add('dict_yinyang_fengshui', '阴阳·风水两对照', yinYangFengShuiNote, '词表', '#dictionary');
 
 const fragmentSources: Array<[string, string, unknown, string]> = [
   ['mia-background', miaWorldBackground.title, miaWorldBackground, '#miia-world'],
@@ -556,7 +586,6 @@ const settingSourcesEn: Array<[string, string, unknown]> = [
   ['law-values-note', 'Legal values', lawValuesNoteEn],
   ['moral-principles', 'Moral principles', moralPrinciplesEn],
   ['nyaumaeism-principles', 'Nyaumaeism principles', nyaumaeismPrinciplesEn],
-  ['cat-true-names', 'Cat True-Name Table', catTrueNameTableEn],
   ['citizen-level-system', 'Citizen Level System', citizenLevelSystemEn],
   ['teacher-voting', 'Teacher Voting', teacherVotingRuleEn],
   ['workplace-blindness', 'Workplace Feature Blindness', workplaceBlindnessRuleEn],
@@ -577,8 +606,24 @@ const settingSourcesEn: Array<[string, string, unknown]> = [
   ['ark-admission', 'Two ark admission criteria', arkAdmissionRulesEn],
   ['option-powers', 'Custom option-style powers', optionPowerRulesEn],
   ['fire-definition', 'FIRE custom definition (equation)', fireDefinitionNoteEn],
+  ['db-pcf', 'Dynamic Balance Parenting Mutual Aid Fund (DB-PCF)', dbPcfNoteEn],
+  ['cache-hit-puzzle', 'Unsolved: optimal cache-hit puzzle', cacheHitPuzzleNoteEn],
+  ['noah-world-scenario', 'Open speculation: immortal customizable world after Noah', noahWorldScenarioNoteEn],
+  ['will-special-child', 'Unlocated: special-needs child in The Will', willSpecialChildNoteEn],
+  ['false-pain-test', 'Test of false pain', falsePainTestNoteEn],
+  ['jurisdiction-four-rules', 'Four rules on jurisdiction and victim-species protection', jurisdictionFourRulesEn],
+  ['age-digit-titles', 'Age-digit title tiers', ageDigitTitlesEn],
+  ['cs-layers', 'SDD/SDT, attribute definitions, computing layers', csLayersNoteEn],
+  ['concurrency-locks', 'Five lock algorithms and the semaphore flow', concurrencyLocksNoteEn],
+  ['cayley-dickson', 'The Cayley–Dickson ledger of gains and losses', cayleyDicksonLedgerEn],
+  ['candy-omega', 'Two-grade candy infinity paradox', candyOmegaParadoxEn],
 ];
 for (const [id, title, content] of settingSourcesEn) addEn(`setting_${id}`, title, content, '设定', '#world-settings');
+
+// 三张对照表已迁至词典页（/world 词典区），锚点随之改到 #dictionary
+addEn('dict_cat_true_names', 'Cat True-Name Table', catTrueNameTableEn, '词表', '#dictionary');
+addEn('dict_model_name_emoji', 'S/M Initial Model Table', modelNameEmojiTableEn, '词表', '#dictionary');
+addEn('dict_yinyang_fengshui', 'Yin-yang and Feng-shui Pairings', yinYangFengShuiNoteEn, '词表', '#dictionary');
 addEn('setting_four-dimension', 'Four-Dimension Test', fourDimensionTestEn, '设定', '#world-settings');
 
 const fragmentSourcesEn: Array<[string, string, unknown, string]> = [
