@@ -311,12 +311,35 @@ export const miiaSchoolRulesEn = [
     content: 'Go into the trap and you lose your memory and automatically become a teacher; only a teacher can open the safe. It is not you — it is a proxy teacher. The teacher is very clever, and if you want to invade someone else’s privacy, the teacher will not help. Once the teacher has done everything everyone wanted done, you may turn back into a child. Once you turn back you get your memory again, but from then on you can never touch the safe again, until the next time you go into the trap.',
   },
   {
+    title: 'The watchdog',
+    content: 'There is only one watchdog in the whole school. It does not live in a classroom; it lives in the porter’s lodge. It is the exact opposite of the timekeeper hounds: nobody may reset a timekeeper hound’s watch, but the watchdog’s watch must be reset — the teachers have to feed it every little while, and only after being fed does it clear its watch and start counting again. If the school is running normally, the feeding happens on time, and the dog just sleeps. But if one day the whole school seizes up — say the safe’s trap has caught the teachers in a loop of proxy teachers, nobody can get out, and nobody feeds it — the watch runs out, and it does the one thing only it can do: it restarts the day. Every desk goes back to morning, every seat goes back to morning, the trap unlocks, everything starts over. And the watchdog never stops for a critical section: even if a child is still carrying that pile of blocks, when its time is up it restarts anyway — because what it hunts for is exactly the worst case, being stuck in a critical section forever. Children may never feed it; and a teacher may not feed it early just because it looks pitiful — feeding it only means anything if the school is really alive and class is really happening.',
+  },
+  {
     title: 'Grades',
     content: 'Grades 1 to 4 have about the same number of children; grade 5 has very very few; grade 6 basically has none — maybe because a sixth-grader can become a teacher? Grade 1 learns math first, grade 2 learns about layout books, homework, other children, and blueprints, and grade 3 learns about the school, how to turn a blueprint into a child’s body, and smart children.',
   },
   {
     title: 'What children may do',
     content: 'On your own you can do homework and play with toys; you can find a teacher to report that you want to sleep, set an alarm, zone out until the swing frees up, tidy your bag, go home, look in the mirror, drink water, or use the toilet. With other children you can chat, pass notes, read together, build with blocks together, queue for the swing, lock the door so nobody else can get in, agree to leave together — you can also each wait for the other, and end up neither of you moving at all.',
+  },
+  {
+    title: 'The shared desk',
+    content: `In the middle of the classroom there is one desk shared by the whole school. At most one thing may sit on it (put a second thing there and it knocks the first one over). On the desk stands a little “Occupied” sign (the lock), and on the corner hangs a bell (the condition variable). The bell is not responsible for saying “there is something” or “there is nothing” — it only wakes people up. There is also a little counter board on the desk, recording 0 = empty, 1 = has something.
+
+The one who puts things (the producer): take the sign → look at the counter; if it is 1 (full), hang up the sign and go to sleep → wake up, take the sign back → put the thing down → set it to 1 → ring the bell → put the sign down.
+The one who takes things (the consumer): take the sign → look at the counter; if it is 0 (empty), hang up the sign and go to sleep → wake up, take the sign back → carry the thing away → set it to 0 → ring the bell → put the sign down.
+
+If the school had only one child putting and one child taking, this set of rules would be watertight. But as soon as there are two who want to take, it goes wrong:
+1. Child A comes to take, sees 0, hangs up the sign and goes to sleep.
+2. Child B comes to put, sets the thing down, rings the bell. Child A is “woken up”, but the teacher has not called his name yet, so he is still lying in bed.
+3. Child C (another would-be taker) hears the bell, runs over first, takes the sign, carries the thing away, rings the bell again, and runs off.
+4. Child A finally wakes up, the sign is back in his hand — and without even looking he reaches out: the desk is empty!
+
+The patch: when the bell wakes you, the first thing you do is not reach out, but look at the counter again. Change “sleep only if you see 0” into “sleep as long as you see 0”: if it is still 0 when you wake, go back to sleep.
+
+The mirror problem: if two children both want to put, both are woken by the bell and put their things one after the other — the second one covers up the first, and the first thing is never collected by anyone. Same patch: look first when you wake, and if it is full, go back to sleep.
+
+The timekeeper hounds and the watchdog do not touch this desk at all — they handle “time” and “restart”, not the rules of the desk. The desk’s safety rests on three things only: the little sign, the bell, and the iron rule “look again when you wake”.`,
   },
 ];
 
