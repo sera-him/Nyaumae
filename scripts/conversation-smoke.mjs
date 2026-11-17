@@ -142,9 +142,18 @@ test('AI config export and masking never include the secret value', () => {
   assert.equal(sanitizeImportedConfig({ ...JSON.parse(exported), apiKey: 'should-not-import' }, config).apiKey, config.apiKey);
 });
 
-test('local model catalog covers 1M through 2.8T and browser mode imports safely', () => {
-  assert.equal(LOCAL_MODEL_TIERS[0]?.parameters, 1_000_000);
+test('local model catalog is ordered by size, from the trained 0.56M through 2.8T', () => {
+  assert.equal(LOCAL_MODEL_TIERS[0]?.id, 'nym_0_56m');
+  assert.equal(LOCAL_MODEL_TIERS[0]?.parameters, 564_072);
   assert.equal(LOCAL_MODEL_TIERS.at(-1)?.parameters, 2_800_000_000_000);
+  assert.ok(LOCAL_MODEL_TIERS.every((tier, index) => index === 0 || LOCAL_MODEL_TIERS[index - 1].parameters <= tier.parameters));
+  const nymSmall = LOCAL_MODEL_TIERS.find((tier) => tier.id === 'nym_0_56m');
+  const nymImproved = LOCAL_MODEL_TIERS.find((tier) => tier.id === 'nym_1_25m');
+  assert.equal(nymSmall?.download.kind, 'local');
+  assert.equal(nymImproved?.parameters, 1_246_697);
+  assert.equal(nymImproved?.download.kind, 'local');
+  assert.equal(LOCAL_MODEL_TIERS[LOCAL_MODEL_TIERS.indexOf(nymImproved) - 1]?.id, '1m');
+  assert.equal(LOCAL_MODEL_TIERS[LOCAL_MODEL_TIERS.indexOf(nymImproved) + 1]?.id, '3m');
   assert.ok(LOCAL_MODEL_TIERS.some((tier) => Boolean(tier.browserModel)));
   const current = {
     enabled: false,

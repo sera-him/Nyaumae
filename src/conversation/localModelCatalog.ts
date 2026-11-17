@@ -1,6 +1,6 @@
 export type LocalRunMode = 'device' | 'browser';
 
-export type LocalModelDownloadKind = 'ollama' | 'huggingface';
+export type LocalModelDownloadKind = 'ollama' | 'huggingface' | 'local';
 
 export interface LocalModelDownload {
   kind: LocalModelDownloadKind;
@@ -23,7 +23,7 @@ export interface LocalModelTier {
   download: LocalModelDownload;
 }
 
-type LocalModelTierDefinition = Omit<LocalModelTier, 'download'>;
+type LocalModelTierDefinition = Omit<LocalModelTier, 'download'> & { download?: LocalModelDownload };
 
 const HUGGING_FACE_NOTE = '若尚未安装 HF CLI，先运行：py -m pip install -U huggingface_hub hf_xet。这里下载的是 Hugging Face 官方原始权重，不能把仓库名当作 Ollama 模型名；请使用支持该格式和架构的本地推理工具。';
 
@@ -53,7 +53,17 @@ function huggingFaceDownload(repo: string): LocalModelDownload {
   };
 }
 
+function bundledWeights(fileName: string): LocalModelDownload {
+  return {
+    kind: 'local',
+    command: `public/models/nyaumae-charlstm/${fileName}`,
+    sourceUrl: '',
+    note: '权重是本站训练产出的 PyTorch 检查点，已经放在上面的路径里，不来自 Ollama 或 Hugging Face；它是字符级续写模型，不是对话模型。',
+  };
+}
+
 function addDownloadInstruction(tier: LocalModelTierDefinition): LocalModelTier {
+  if (tier.download) return { ...tier, download: tier.download };
   return {
     ...tier,
     download: tier.ollamaModel ? ollamaDownload(tier.ollamaModel) : huggingFaceDownload(tier.deviceModel),
@@ -62,7 +72,7 @@ function addDownloadInstruction(tier: LocalModelTierDefinition): LocalModelTier 
 
 // Ollama aliases are included only when the official Ollama registry has a local tag.
 // Hugging Face repository IDs stay explicit so they are never accidentally passed to Ollama.
-export const LOCAL_MODEL_TIERS: LocalModelTier[] = [
+const LOCAL_MODEL_TIER_DEFINITIONS: LocalModelTierDefinition[] = [
   { id: '1m', label: '1M', parameters: 1e6, quantizedMemory: '< 0.1 GB', hardware: 'Any modern device', description: 'TinyStories 1M', deviceModel: 'roneneldan/TinyStories-1M' },
   { id: '14m', label: '14M', parameters: 1.4e7, quantizedMemory: '< 0.1 GB', hardware: 'Any modern device', description: 'Pythia 14M', deviceModel: 'EleutherAI/pythia-14m' },
   { id: '70m', label: '70M', parameters: 7e7, quantizedMemory: '约 0.2 GB', hardware: 'Any modern device', description: 'Pythia 70M', deviceModel: 'EleutherAI/pythia-70m' },
@@ -108,6 +118,36 @@ export const LOCAL_MODEL_TIERS: LocalModelTier[] = [
   { id: 'll_0_6b', label: 'LL 0.6B', parameters: 6.17e8, quantizedMemory: '~ 1.2 GB', hardware: '4 GB RAM', description: 'LittleLearner 0.6B Chatty', deviceModel: 'littlelearner/littlelearner-0.6b-chatty' },
   { id: 'll_1_3b', label: 'LL 1.3B', parameters: 1.36e9, quantizedMemory: '~ 2.7 GB', hardware: '8 GB RAM', description: 'LittleLearner 1.3B Chatty', deviceModel: 'littlelearner/littlelearner-1.3b-chatty' },
   { id: 'll_5b', label: 'LL 5B', parameters: 5e9, quantizedMemory: '~ 10 GB', hardware: '16 GB RAM', description: 'LittleLearner 5B Chatty', deviceModel: 'littlelearner/littlelearner-5b-chatty' },
+];
+
+// 本站自己训练的两个字符级 LSTM，权重放在 public/models/nyaumae-charlstm/ 下。
+// parameters 决定它们在尺寸网格里的位置：0.56M 排在 1M 之前，1.25M 落在 1M 与 3M 之间。
+const NYAUMAE_TIER_DEFINITIONS: LocalModelTierDefinition[] = [
+  {
+    id: 'nym_0_56m',
+    label: 'NYM 0.56M',
+    parameters: 564072,
+    quantizedMemory: '约 2.3 MB',
+    hardware: '任意现代设备',
+    description: 'Nyaumae CharLSTM 0.56M · 本站语料训练的原版字符级 LSTM',
+    deviceModel: 'nyaumae-charlstm-0.56m',
+    download: bundledWeights('nyaumae-charlstm-0.56m.pt'),
+  },
+  {
+    id: 'nym_1_25m',
+    label: 'NYM 1.25M',
+    parameters: 1246697,
+    quantizedMemory: '约 5.0 MB',
+    hardware: '任意现代设备',
+    description: 'Nyaumae CharLSTM 1.25M · 全类目语料加正则化的改进版',
+    deviceModel: 'nyaumae-charlstm-1.25m',
+    download: bundledWeights('nyaumae-charlstm-1.25m.pt'),
+  },
+];
+
+export const LOCAL_MODEL_TIERS: LocalModelTier[] = [
+  ...LOCAL_MODEL_TIER_DEFINITIONS,
+  ...NYAUMAE_TIER_DEFINITIONS,
 ].map(addDownloadInstruction).sort((a, b) => a.parameters - b.parameters);
 
 export function findModelTier(model: string): LocalModelTier | undefined {

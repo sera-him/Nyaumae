@@ -260,7 +260,7 @@ export default function AISettingsPage() {
   const cloudModelNotice = (_en ? CLOUD_ONLY_MODEL_NOTICES_EN : CLOUD_ONLY_MODEL_NOTICES)[config.model.trim()];
   const ollamaModelSelectionNeedsAttention = mode === 'device'
     && runtime === 'ollama'
-    && selectedTier.download.kind === 'huggingface'
+    && (selectedTier.download.kind === 'huggingface' || selectedTier.download.kind === 'local')
     && config.model === selectedTier.deviceModel;
 
   const update = <K extends keyof AiConfig>(key: K, value: AiConfig[K]) => {
@@ -399,7 +399,9 @@ export default function AISettingsPage() {
       return;
     }
     if (ollamaModelSelectionNeedsAttention) {
-      setNotice({ kind: 'error', text: _en ? 'The current model has no official Ollama local package. Switch to a runner that supports official weights and fill in its model name, or pick a model available in Ollama before testing.' : '当前模型没有 Ollama 官方本地包。请切换到支持官方权重的运行器并填写其模型名称，或选择 Ollama 可用的模型后再测试。' });
+      setNotice({ kind: 'error', text: selectedTier.download.kind === 'local'
+        ? (_en ? 'These weights are a raw .pt checkpoint trained on this site, not an Ollama package. Ollama cannot load them; switch to "Other local service" and point it at an OpenAI-compatible wrapper.' : '这是本站训练的 .pt 原始权重，不是 Ollama 包。Ollama 无法加载它，请切换到“其他本地服务”，并填入 OpenAI 兼容封装接口的地址。')
+        : (_en ? 'The current model has no official Ollama local package. Switch to a runner that supports official weights and fill in its model name, or pick a model available in Ollama before testing.' : '当前模型没有 Ollama 官方本地包。请切换到支持官方权重的运行器并填写其模型名称，或选择 Ollama 可用的模型后再测试。') });
       actionLockRef.current = false;
       return;
     }
@@ -440,7 +442,9 @@ export default function AISettingsPage() {
     setCopiedAction('command');
     setNotice({ kind: 'success', text: selectedTier.download.kind === 'ollama'
       ? (_en ? 'The Ollama local model command is copied.' : 'Ollama 本地模型命令已复制。')
-      : (_en ? 'The official weights download command is copied.' : '官方权重下载命令已复制。') });
+      : selectedTier.download.kind === 'local'
+        ? (_en ? 'The bundled weights path is copied.' : '本站权重文件路径已复制。')
+        : (_en ? 'The official weights download command is copied.' : '官方权重下载命令已复制。') });
   };
 
   const clear = () => {
@@ -526,7 +530,7 @@ export default function AISettingsPage() {
       <div className="aurora-container ai-settings-inner">
         <header className="ai-settings-hero">
           <div>
-            <p className="aurora-eyebrow">AI SETUP / 1M — 2.8T</p>
+            <p className="aurora-eyebrow">AI SETUP / 0.56M — 2.8T</p>
             <h1 className="aurora-title">{L("选择你的 AI")}</h1>
             <p className="aurora-lead">{L("云端、电脑本地或浏览器内运行，一步一步完成。")}</p>
           </div>
@@ -546,7 +550,7 @@ export default function AISettingsPage() {
               <Cloud /><span><strong>{L("云端 API")}</strong><small>{L("最省设备空间，需 API Key")}</small></span><Check />
             </button>
             <button type="button" className={`ai-placement-card${mode === 'device' ? ' is-selected' : ''}`} onClick={() => selectMode('device')} aria-pressed={mode === 'device'}>
-              <HardDrive /><span><strong>{L("放在电脑本地")}</strong><small>{L("Ollama 或官方权重下载，支持 1M—2.8T")}</small></span><Check />
+              <HardDrive /><span><strong>{L("放在电脑本地")}</strong><small>{L("Ollama 或官方权重下载，支持 0.56M—2.8T")}</small></span><Check />
             </button>
             <button type="button" className={`ai-placement-card${mode === 'browser' ? ' is-selected' : ''}`} onClick={() => selectMode('browser')} aria-pressed={mode === 'browser'}>
               <Globe2 /><span><strong>{L("放在浏览器")}</strong><small>{L("无需安装，模型保存在浏览器缓存")}</small></span><Check />
@@ -602,7 +606,7 @@ export default function AISettingsPage() {
             <section className="ai-setup-card" data-motion-reveal>
               <div className="ai-step-heading">
                 <span>2</span>
-                <div><h2>{L("选择模型尺寸")}</h2><p>{L("完整覆盖 1M 到 2.8T；默认已按这台设备推荐。")}</p></div>
+                <div><h2>{L("选择模型尺寸")}</h2><p>{L("完整覆盖 0.56M 到 2.8T；默认已按这台设备推荐。")}</p></div>
                 <div className="ai-device-memory"><MemoryStick /><span>{L("检测到")}<strong>{memoryGb ? (_en ? `~ ${memoryGb} GB` : `约 ${memoryGb} GB`) : (_en ? 'Unknown memory' : '未知内存')}</strong></span></div>
               </div>
               <div className="ai-scale-legend"><span>{L("微型")}</span><span>{L("个人设备")}</span><span>{L("工作站")}</span><span>{L("服务器")}</span><span>{L("集群")}</span></div>
@@ -656,10 +660,11 @@ export default function AISettingsPage() {
                         <strong>{runtime === 'ollama' ? (_en ? 'Download model' : '下载模型') : (_en ? 'Load model' : '加载模型')}</strong>
                         <div className={`ai-model-download is-${selectedTier.download.kind}`}>
                           <div className="ai-model-download-heading">
-                            <span className="ai-model-download-kind">{selectedTier.download.kind === 'ollama' ? (_en ? 'Ollama local package' : 'Ollama 本地包') : (_en ? 'Official Hugging Face weights' : 'Hugging Face 官方权重')}</span>
-                            <a href={selectedTier.download.sourceUrl} target="_blank" rel="noreferrer">{L("官方来源 ")}<ExternalLink /></a>
+                            <span className="ai-model-download-kind">{selectedTier.download.kind === 'ollama' ? (_en ? 'Ollama local package' : 'Ollama 本地包') : selectedTier.download.kind === 'local' ? (_en ? 'Weights trained on this site' : '本站训练的权重') : (_en ? 'Official Hugging Face weights' : 'Hugging Face 官方权重')}</span>
+                            {selectedTier.download.sourceUrl && <a href={selectedTier.download.sourceUrl} target="_blank" rel="noreferrer">{L("官方来源 ")}<ExternalLink /></a>}
                           </div>
-                          {(runtime === 'ollama' || selectedTier.download.kind === 'huggingface') && <button type="button" className="ai-command" onClick={() => void copyCommand()}><code>{selectedTier.download.command}</code>{copiedAction === 'command' ? <Check /> : <Copy />}</button>}
+                          {(selectedTier.download.kind !== 'ollama' || runtime === 'ollama') && <button type="button" className="ai-command" onClick={() => void copyCommand()}><code>{selectedTier.download.command}</code>{copiedAction === 'command' ? <Check /> : <Copy />}</button>}
+                          {selectedTier.download.kind === 'local' && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>{L("这是本站训练的原始权重。")}</strong> {L("它不是 Ollama 包，也不是 Hugging Face 仓库，Ollama 与 LM Studio 无法直接加载 .pt；要接进对话页，请用“其他本地服务”并配一个 OpenAI 兼容的封装接口。")}</span></div>}
                           {runtime === 'ollama' && selectedTier.download.kind === 'huggingface' && <div className="ai-capability-note is-warning"><CircleAlert /><span><strong>{L("Ollama 没有这个本地模型包。")}</strong> {L("不要对这个模型名使用 Ollama 命令；上面只下载真实原始权重，下载后需要支持它的推理工具。")}</span></div>}
                           {runtime !== 'ollama' && selectedTier.download.kind === 'ollama' && <p>{L("当前运行器不是 Ollama，请在它的模型管理界面中加载对应模型；Ollama 命令只适用于 Ollama。")}</p>}
                           <p>{selectedTier.download.note}</p>
