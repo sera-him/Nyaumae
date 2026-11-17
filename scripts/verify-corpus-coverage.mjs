@@ -60,6 +60,7 @@ const IGNORE = [
   [/^nctb[\\/]generation[\\/]/, '题库开发向工具：AI 生成提示词/审批/JSON schema，非访客可见'],
   [/^nctb[\\/]scoring[\\/]/, '评分键位映射：题目 ID，非散文'],
   [/^data[\\/]segmenterLexicon\.ts$/, '分词词典冻结快照（词表，非散文）'],
+  [/^data[\\/]chessValue\.ts$/, '价值等级数据表：钻/辉金/金III 等标签已由 data/fragments.ts 的 chessPieceTiers 索引，此处只是解析与排序工具'],
   [/^data[\\/]imageInventory\.ts$/, '图片审计产物，无任何渲染引用'],
   [/^lib[\\/]imageHostMap\.ts$/, '图片域名/URL 映射表'],
   [/^lib[\\/]fsiiiTiers\.ts$/, 'FSIII 层级样式配置（Tailwind 类名）'],
