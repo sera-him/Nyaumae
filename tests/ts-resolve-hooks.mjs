@@ -1,6 +1,8 @@
 import { registerHooks } from 'node:module';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import ts from 'typescript';
 
 const SRC_ROOT = path.resolve(process.cwd(), 'src');
 
@@ -20,7 +22,26 @@ registerHooks({
     try {
       return nextResolve(target, context);
     } catch {
-      return nextResolve(`${target}.ts`, context);
+      for (const suffix of ['.ts', '.tsx']) {
+        try {
+          return nextResolve(`${target}${suffix}`, context);
+        } catch {
+          // Try the next TypeScript source suffix.
+        }
+      }
+      return nextResolve(target, context);
     }
+  },
+  load(url, context, nextLoad) {
+    if (!url.endsWith('.tsx')) return nextLoad(url, context);
+    const source = readFileSync(fileURLToPath(url), 'utf-8');
+    const output = ts.transpileModule(source, {
+      compilerOptions: {
+        target: ts.ScriptTarget.ES2022,
+        module: ts.ModuleKind.ESNext,
+        jsx: ts.JsxEmit.ReactJSX,
+      },
+    });
+    return { format: 'module', source: output.outputText, shortCircuit: true };
   },
 });

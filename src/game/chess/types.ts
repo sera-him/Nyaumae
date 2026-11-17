@@ -159,7 +159,7 @@ export const IMMOBILE_PIECES: PieceType[] = ['X'];
 export const POISON_IMMUNE: PieceType[] = ['K', 'W', 'J', 'U', 'S', 'X', 'IW'];
 
 /** 不可吃子的棋子 */
-export const CANNOT_CAPTURE: PieceType[] = ['Y', 'W', 'IW', 'U', 'O'];
+export const CANNOT_CAPTURE: PieceType[] = ['Y', 'W', 'IW', 'U'];
 
 /** 鹰（不可阻挡，不阻碍其他棋子吃子检查） */
 export const UNBLOCKABLE: PieceType[] = ['T'];

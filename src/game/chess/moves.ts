@@ -565,19 +565,9 @@ function starshipMovesSep(board: Board, pos: Position, player: Player): Separate
   return { moves, captures };
 }
 
-/** O — 鸵鸟：直线/斜线任意格，不可吃子，不可入敌方攻击范围 */
-function ostrichMovesSep(board: Board, pos: Position): SeparatedMoves {
-  const moves: Position[] = [];
-  for (const [dr, dc] of ALL_8_DIRS) {
-    for (let i = 1; i < BOARD_SIZE; i++) {
-      const to = { row: pos.row + dr * i, col: pos.col + dc * i };
-      if (!inBounds(to)) break;
-      const target = getPiece(board, to);
-      if (target) break;
-      moves.push(to);
-    }
-  }
-  return { moves, captures: [] };
+/** O — 鸵鸟：直线/斜线任意格，可吃子，不可越子，不可入敌方攻击范围 */
+function ostrichMovesSep(board: Board, pos: Position, player: Player): SeparatedMoves {
+  return slideMovesSep(board, pos, player, 'O', ALL_8_DIRS);
 }
 
 /** G — 猫娘：8方向各1格 */
@@ -756,7 +746,7 @@ export function getRawMoves(
     case 'X': sep = rocketMovesSep(); break;
     case 'U': sep = spacemanMovesSep(board, pos); break;
     case 'S': sep = starshipMovesSep(board, pos, player); break;
-    case 'O': sep = ostrichMovesSep(board, pos); break;
+    case 'O': sep = ostrichMovesSep(board, pos, player); break;
     case 'G': sep = catgirlMovesSep(board, pos, player); break;
   }
 

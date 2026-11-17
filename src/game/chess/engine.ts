@@ -10,7 +10,7 @@ import {
   BOARD_SIZE, ENGLISH_VULNERABLE,
 } from './types';
 import {
-  inBounds, getPiece, isEmpty, cloneBoard,
+  getPiece, isEmpty, cloneBoard,
   opponent, findAllPieces, findCriticalPieces,
   pieceKey, computeStateHash,
 } from './board';
@@ -24,7 +24,7 @@ import {
   filterOstrichDanger, getAttackRange,
   applyCheese, paladinCleanse, whaleCleanse,
   maineCoonFear,
-  isPoisonedRemoved,
+  isPoisonedRemoved, isInWhaleZone, placeGeneratedPiece,
 } from './rules';
 import type { PieceType } from './types';
 
@@ -332,25 +332,25 @@ export function executeMove(state: GameState, move: Move): GameState {
       newState.board[move.witchSkillTarget.row][move.witchSkillTarget.col] = null;
       newState.sacrificeCount[player] = (state.sacrificeCount[player] || 0) + 1;
     } else if (move.isWitchSkill === 'poison' && move.witchSkillTarget) {
-      // 在目标空格放置毒药
-      newState.board[move.witchSkillTarget.row][move.witchSkillTarget.col] = 'poison';
+      // 下毒也是生成：引擎直接拒绝巨鲸周围 8 格，不能只依赖 UI 拦截。
+      const target = move.witchSkillTarget;
+      if (!isEmpty(newState.board, target) || isInWhaleZone(newState.board, target)) return state;
+      newState.board[target.row][target.col] = 'poison';
     } else if (move.isWitchSkill === 'self_destruct') {
-      // 自爆：女巫→骷髅兵 / 反女巫→反骷髅兵，左右格各放1个
-      const isWitch = piece.type === 'W';
-      const spawnType = isWitch ? 'Z' : 'IZ';
-      newState.board[from.row][from.col] = { type: spawnType, owner: player };
+      // 自爆的三个出生格都受巨鲸禁区约束；新生 Z/IZ 到底线会立即升变。
+      const spawnType: PieceType = piece.type === 'W' ? 'Z' : 'IZ';
+      newState.board[from.row][from.col] = null;
+      placeGeneratedPiece(newState.board, from, { type: spawnType, owner: player });
       const leftPos = { row: from.row, col: from.col - 1 };
       const rightPos = { row: from.row, col: from.col + 1 };
-      if (inBounds(leftPos) && isEmpty(newState.board, leftPos)) {
-        newState.board[leftPos.row][leftPos.col] = { type: spawnType, owner: player };
-      }
-      if (inBounds(rightPos) && isEmpty(newState.board, rightPos)) {
-        newState.board[rightPos.row][rightPos.col] = { type: spawnType, owner: player };
-      }
+      placeGeneratedPiece(newState.board, leftPos, { type: spawnType, owner: player });
+      placeGeneratedPiece(newState.board, rightPos, { type: spawnType, owner: player });
     } else if (move.isWitchSkill === 'make_cheese' && move.witchSkillTarget) {
-      // 制作奶酪：在目标空格放置指定奶酪
+      // 制作奶酪同样是生成物，不能落在巨鲸周围 8 格。
+      const target = move.witchSkillTarget;
+      if (!isEmpty(newState.board, target) || isInWhaleZone(newState.board, target)) return state;
       const cheeseType = move.cheeseType || 'CY';
-      newState.board[move.witchSkillTarget.row][move.witchSkillTarget.col] = cheeseType;
+      newState.board[target.row][target.col] = cheeseType;
       // 橙/黑奶酪消耗献祭次数
       if (cheeseType === 'CO' || cheeseType === 'CK') {
         newState.sacrificeCount[player] = Math.max(0, (state.sacrificeCount[player] || 0) - 1);
@@ -481,12 +481,12 @@ export function executeMove(state: GameState, move: Move): GameState {
     return finalizeMove(newState, state);
   }
 
-  // ---- 星舰部署（不移动星舰，在目标空格放置非关键棋子，禁 K/G/U/S/X） ----
+  // ---- 星舰部署（不移动星舰，在 9×9 内生成非关键棋子） ----
   if (move.isStarshipDeploy && piece.type === 'S' && move.starshipDeployType) {
     const forbidden: PieceType[] = ['K', 'G', 'U', 'S', 'X'];
-    if (!forbidden.includes(move.starshipDeployType) && isEmpty(newState.board, to)) {
-      newState.board[to.row][to.col] = { type: move.starshipDeployType, owner: player };
-    }
+    const inRange = Math.abs(to.row - from.row) <= 4 && Math.abs(to.col - from.col) <= 4;
+    if (forbidden.includes(move.starshipDeployType) || !inRange) return state;
+    if (!placeGeneratedPiece(newState.board, to, { type: move.starshipDeployType, owner: player })) return state;
     newState.currentPlayer = opponent(currentPlayer);
     newState.moveCount++;
     const sEntry: HistoryEntry = {

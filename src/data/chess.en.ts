@@ -13,18 +13,18 @@ export const chessPiecesEn: ChessPiece[] = [
   { letter: 'M', name: 'Mouse', move: 'Any number of squares orthogonally/diagonally/L-shape', eat: 'Can capture', notes: 'Cannot jump over pieces' },
   { letter: 'E', name: 'Elephant', move: '1 square forward/left/right; 2 squares on first move', eat: '1 square diagonally forward', notes: 'Promotes upon reaching the opponent\'s back rank' },
   { letter: 'L', name: 'English', move: '1–2 squares orthogonally; the middle must be empty when moving 2', eat: 'Same as movement', notes: '*A piece entering the enemy English\'s cross 1–2 square exclusion zone is removed immediately (an English poisoned ≥4 is disabled)' },
-  { letter: 'A', name: 'Antenna', move: '(r±2,c∓1), (r±2,c±1), (r,c±2); or 1 square in 8 directions', eat: 'Jump captures on (r±2,c∓1)/(r±2,c±1)/(r,c±2); no capture on 1-square moves', notes: 'After moving, may push one adjacent piece 2 squares away from itself' },
+  { letter: 'A', name: 'Antenna', move: '(r±2,c∓1), (r±2,c±1), (r,c±2); or 1 square in 8 directions', eat: 'Jump captures on (r±2,c∓1)/(r±2,c±1)/(r,c±2); no capture on 1-square moves', notes: 'Only after its own jump, may throw one adjacent piece to the opposite square; throwing is impossible if that square does not exist or is occupied, and the piece is never removed' },
   { letter: 'C', name: 'Cannon', move: 'Like a Rook, cannot jump', eat: 'Needs a "carriage" within its surrounding 4 squares and between cannon and target; eats the first piece beyond the carriage' },
   { letter: 'W', name: 'Witch', move: '1 square in 8 directions', eat: 'Cannot capture', notes: 'Can poison (place poison in 8 adjacent empty squares), self-destruct to summon 3 Skeletons, and craft cheese' },
-  { letter: 'Z', name: 'Skeleton', move: '1 square forward/left/right', eat: 'Can capture', notes: 'Must promote to Anti-Witch upon reaching the opponent\'s back rank' },
-  { letter: 'IW', name: 'Anti-Witch', move: '1 square in 8 directions', eat: 'Cannot capture', notes: 'Self-destructs to summon Anti-Skeletons' },
-  { letter: 'IZ', name: 'Anti-Skeleton', move: '1 square forward/left/right', eat: 'Can capture', notes: 'Must promote to Witch upon reaching your own back rank' },
+  { letter: 'Z', name: 'Skeleton', move: '1 square forward/left/right', eat: 'Can capture', notes: 'Must promote to Anti-Witch upon reaching the opponent\'s back rank, including immediately when newly spawned there' },
+  { letter: 'IW', name: 'Anti-Witch', move: '1 square in 8 directions', eat: 'Cannot capture', notes: 'Like the Witch, can poison, sacrifice, and craft cheese; self-destructs to summon 3 Anti-Skeletons' },
+  { letter: 'IZ', name: 'Anti-Skeleton', move: '1 square forward/left/right', eat: 'Can capture', notes: 'Must promote to Witch upon reaching your own back rank, including immediately when newly spawned there' },
   { letter: 'J', name: 'Paladin', move: 'L-shape ("sun" step), can jump', eat: 'L-shape ("sun" step)', notes: 'After moving, clears poison in the adjacent 8 squares and enemy Skeletons/Anti-Skeletons, and enemy Witches/Anti-Witches in the adjacent 4 squares' },
-  { letter: 'H', name: 'Whale', move: '1 square orthogonally', eat: '—', notes: 'Cannot move to the board edge; other pieces cannot move to the 8 squares around it; after moving, removes all enemy pieces in range' },
+  { letter: 'H', name: 'Whale', move: '1 square orthogonally', eat: '—', notes: 'Cannot move to the board edge; other pieces cannot move to the 8 squares around it; nothing created by self-destruction, deployment, poison, or cheese crafting may appear there either; after moving, removes all enemy pieces in range' },
   { letter: 'X', name: 'Rocket', move: 'Cannot move on its own', eat: '—', notes: 'Only obtainable by promotion; the King may move onto your own Rocket to fuse into an Astronaut U; if any piece eats a Rocket, the eater is removed along with it' },
   { letter: 'U', name: 'Astronaut', move: 'Any square within a 9×9 range', eat: 'Cannot capture', notes: 'Key piece; Astronaut + all non-key pieces can fuse into a Starship S' },
   { letter: 'S', name: 'Starship', move: 'Any square within a 9×9 range', eat: 'Cannot capture key pieces', notes: 'Each turn may add 1 non-key piece to an empty square in range; key piece' },
-  { letter: 'O', name: 'Ostrich', move: 'Any number of squares orthogonally/diagonally', eat: 'Cannot capture', notes: 'Transformed from the Queen Q; cannot enter any enemy piece\'s attack range' },
+  { letter: 'O', name: 'Ostrich', move: 'Any number of squares orthogonally/diagonally', eat: 'Any number of squares orthogonally/diagonally', notes: 'Transformed from the Queen Q; cannot jump; cannot enter any enemy piece\'s attack range' },
   { letter: 'G', name: 'Catgirl', move: '1 square in 8 directions', eat: '1 square in 8 directions', notes: 'Equivalent to King + Cat. Key piece — checkmate loses the game' },
 ];
 
@@ -46,11 +46,11 @@ export const chessBoardLayout = [
 export const chessSpecialRulesEn = [
   {
     title: 'Promotion rules',
-    content: 'Pawn promotion: upon reaching the opponent\'s back rank, may promote to Rook/Knight/Queen/Bishop/Bishop-teacher.\nElephant promotion: upon reaching the opponent\'s back rank, may promote to Rook/Knight/Cannon/Queen/Cat/Maine Coon/English/Antenna/Bishop-teacher/Mouse/Rocket/Ostrich/Elephant (not promoting keeps it an Elephant, and it may still promote later after moving sideways)/Paladin.',
+    content: 'Pawn promotion: upon reaching the opponent\'s back rank, may promote to Rook/Knight/Queen/Bishop/Bishop-teacher.\nElephant promotion: upon reaching the opponent\'s back rank, may promote to Rook/Knight/Cannon/Queen/Cat/Maine Coon/English/Antenna/Bishop-teacher/Mouse/Rocket/Ostrich/Elephant (not promoting keeps it an Elephant, and it may still promote later after moving sideways)/Paladin.\nSkeleton Z promotes immediately to Anti-Witch IW on the opponent\'s back rank; Anti-Skeleton IZ promotes immediately to Witch W on its own back rank. Newly self-destructed or deployed Z/IZ also promote immediately if their birth square already qualifies.',
   },
   {
     title: 'Catgirl rules',
-    content: 'The Queen Q may transform into an Ostrich O before moving.\nOstrich O: any number of squares orthogonally/diagonally, cannot jump; cannot enter any enemy piece\'s attack range (the Cat has no attack range, so it doesn\'t matter).\nWhen you have an Ostrich, your King automatically becomes a Catgirl G (King + Cat).',
+    content: 'The Queen Q may transform into an Ostrich O before moving.\nOstrich O: any number of squares orthogonally/diagonally, can capture but cannot jump; cannot enter any enemy piece\'s attack range (the Cat has no attack range, so it doesn\'t matter).\nWhen you have an Ostrich, your King automatically becomes a Catgirl G (King + Cat).',
   },
   {
     title: 'Poison rules',

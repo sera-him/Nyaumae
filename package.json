@@ -18,7 +18,7 @@
     "nctb:freeze": "node --experimental-strip-types scripts/nctb/freeze-item.ts",
     "test:conversation": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/conversation-smoke.mjs",
     "test:site": "node scripts/site-smoke.mjs",
-    "test:unit": "node --test --experimental-strip-types --experimental-specifier-resolution=node --import ./tests/ts-resolve-hooks.mjs tests/unit.test.mjs tests/core.test.mjs tests/dead-code.test.mjs",
+    "test:unit": "node --test --experimental-strip-types --experimental-specifier-resolution=node --import ./tests/ts-resolve-hooks.mjs tests/unit.test.mjs tests/core.test.mjs tests/dead-code.test.mjs tests/chess-confirmed-rules.test.mjs",
     "test:e2e": "node scripts/site-smoke.mjs",
     "check:budget": "node scripts/check-budget.mjs",
     "content:report": "node --experimental-strip-types scripts/content-gap-report.ts",

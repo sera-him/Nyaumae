@@ -367,7 +367,7 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
       if (selPiece && selPiece.type === 'S' && selPiece.owner === currentPlayer) {
         const dr = Math.abs(pos.row - selectedPos.row);
         const dc = Math.abs(pos.col - selectedPos.col);
-        if (dr <= 4 && dc <= 4 && isEmpty(board, pos)) {
+        if (dr <= 4 && dc <= 4 && isEmpty(board, pos) && !getWhaleZones(board).has(`${pos.row},${pos.col}`)) {
           set({ starshipDeployTarget: pos });
           return;
         }
@@ -533,28 +533,10 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
     const mover = piece.owner;
     const newState = executeMoveWithClock(gameState, move);
 
-    // 天线规则：每次移动完白送一次推子（原仅天线跳跃触发，现所有走子后都触发）
-    // 收集走子方所有天线的可推目标，仍为单次免费，不消耗回合（回合已在 executeMove 中切换）
-    {
-      const antennas: Position[] = [];
-      for (let row = 0; row < newState.board.length; row++) {
-        for (let col = 0; col < newState.board[row].length; col++) {
-          const p = getPiece(newState.board, { row, col });
-          if (p && p.owner === mover && p.type === 'A') antennas.push({ row, col });
-        }
-      }
-      const allTargets: { from: Position; to: Position; piece: Piece }[] = [];
-      for (const aPos of antennas) {
-        allTargets.push(...getAntennaPushTargets(newState.board, aPos));
-      }
-      // 去重（同一棋子被多天线同时可推只保留一次）
-      const seen = new Set<string>();
-      const pushTargets = allTargets.filter((t) => {
-        const k = `${t.from.row},${t.from.col}->${t.to.row},${t.to.col}`;
-        if (seen.has(k)) return false;
-        seen.add(k);
-        return true;
-      });
+    // 只有「本次跳跃移动的那枚天线」触发丢子；其他棋子走子、天线平移均不触发。
+    // 丢子是免费附加行动，不二次消耗回合。
+    if (movedType === 'A' && wasJump && getPiece(newState.board, to)?.type === 'A') {
+      const pushTargets = getAntennaPushTargets(newState.board, to);
       if (pushTargets.length > 0) {
         set({
           gameState: newState,
@@ -565,8 +547,6 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
           antennaPushPlayer: mover,
           clockRunning: true,
         });
-        void wasJump;
-        void movedType;
         return;
       }
     }
@@ -734,6 +714,12 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
       t => t.from.row === from.row && t.from.col === from.col
     );
     if (!target) return;
+    // 执行前重验来源与正对面格：越界、被占用或进入巨鲸禁区都不能丢，
+    // 尤其禁止覆盖目标格棋子造成“被丢棋子/目标棋子消失”。
+    const sourcePiece = getPiece(gameState.board, target.from);
+    if (!sourcePiece || sourcePiece.type !== target.piece.type || sourcePiece.owner !== target.piece.owner) return;
+    if (!inBounds(target.to) || !isEmpty(gameState.board, target.to)) return;
+    if (getWhaleZones(gameState.board).has(`${target.to.row},${target.to.col}`)) return;
 
     // 免费推子：记历史、可撤销；带毒一起搬；被控老鼠键跟随；判吃王胜负；不二次切换回合
     const boardBefore = gameState.board.map(row => [...row]);
@@ -881,8 +867,9 @@ export const useChessStore = create<ChessStoreState>((set, get) => ({
     if (!selectedPos || !starshipDeployTarget) return;
     const piece = getPiece(gameState.board, selectedPos);
     if (!piece || piece.type !== 'S') return;
-    // 星舰只能部署非关键子：禁 K/G/U/S/X，与引擎一致
+    // 星舰只能部署非关键子，且任何生成物都不能落在巨鲸周围 8 格。
     if ((['K', 'G', 'U', 'S', 'X'] as PieceType[]).includes(type)) return;
+    if (getWhaleZones(gameState.board).has(`${starshipDeployTarget.row},${starshipDeployTarget.col}`)) return;
 
     const move: Move = {
       from: selectedPos,

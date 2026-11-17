@@ -246,6 +246,25 @@ export function getWhaleZones(board: Board, owner?: Player): Set<string> {
   return zones;
 }
 
+/** 指定格是否处于任意巨鲸周围 8 格。 */
+export function isInWhaleZone(board: Board, pos: Position): boolean {
+  return getWhaleZones(board).has(`${pos.row},${pos.col}`);
+}
+
+/**
+ * 在空格生成棋子；所有生成方式统一遵守巨鲸禁区。
+ * 新生 Z/IZ 若出生格已经满足升变条件，也在同一次结算中立即升变。
+ * 返回是否成功生成；失败时棋盘保持不变。
+ */
+export function placeGeneratedPiece(board: Board, pos: Position, piece: Piece): boolean {
+  if (!inBounds(pos) || !isEmpty(board, pos) || isInWhaleZone(board, pos)) return false;
+  let type = piece.type;
+  if (skeletonMustPromote(piece, pos)) type = 'IW';
+  if (antiSkeletonMustPromote(piece, pos)) type = 'W';
+  board[pos.row][pos.col] = { type, owner: piece.owner };
+  return true;
+}
+
 /** 过滤掉进入巨鲸排斥区的走法
  *  规则：其他棋子无法移动到巨鲸周围 8 格（含己方和敌方巨鲸）
  *  巨鲸自身不受限制 */
